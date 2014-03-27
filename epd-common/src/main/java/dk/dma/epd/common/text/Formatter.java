@@ -32,44 +32,38 @@ import dk.dma.epd.common.Heading;
 public class Formatter {
 
     private static SimpleDateFormat tzConvert = new SimpleDateFormat("Z");
-    private static SimpleDateFormat shortDateTime = new SimpleDateFormat(
-            "MM/dd HH:mm:ss");
-    private static SimpleDateFormat longDateTime = new SimpleDateFormat(
-            "MM/dd/yyyy HH:mm:ss");
-    private static SimpleDateFormat shortDateTimeNoS = new SimpleDateFormat(
-            "MM/dd HH:mm");
+    private static SimpleDateFormat shortDateTime = new SimpleDateFormat("MM/dd HH:mm:ss");
+    private static SimpleDateFormat longDateTime = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    private static SimpleDateFormat shortDateTimeNoS = new SimpleDateFormat("MM/dd HH:mm");
 
-    private static SimpleDateFormat onlyTime = new SimpleDateFormat(
-            "HH:mm");
+    private static SimpleDateFormat onlyTime = new SimpleDateFormat("HH:mm");
 
-    
     // private static final TimeZone tzGMT = TimeZone.getTimeZone("GMT+0000");
 
-    
-//    public static String formatRouteSuggestionStatus(Status status) {
-//        switch (status) {
-//        case PENDING:
-//            return "Pending";
-//        case ACCEPTED:
-//            return "Accepted";
-//        case REJECTED:
-//            return "Rejected";
-//        case NOTED:
-//            return "Noted";
-//        case IGNORED:
-//            return "Ignored";
-//        default:
-//            return "Unknown";
-//        }
-//    }
-//
-//=======
-//    
+    // public static String formatRouteSuggestionStatus(Status status) {
+    // switch (status) {
+    // case PENDING:
+    // return "Pending";
+    // case ACCEPTED:
+    // return "Accepted";
+    // case REJECTED:
+    // return "Rejected";
+    // case NOTED:
+    // return "Noted";
+    // case IGNORED:
+    // return "Ignored";
+    // default:
+    // return "Unknown";
+    // }
+    // }
+    //
+    // =======
+    //
 
-    public static String formateTimeFromDate(long date){
+    public static String formateTimeFromDate(long date) {
         return onlyTime.format(date);
     }
-    
+
     public static String formatShortDateTime(Date date) {
         if (date == null) {
             return "N/A";
@@ -91,13 +85,12 @@ public class Formatter {
         return longDateTime.format(date) + "(" + getTzNumber(date) + ")";
     }
 
-    public static String formatYodaTime(DateTime time){
+    public static String formatYodaTime(DateTime time) {
         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, HH:mm");
-        
-        
+
         return time.toString(fmt);
     }
-    
+
     public static String formatTime(Long time) {
         if (time == null) {
             return "N/A";
@@ -116,12 +109,18 @@ public class Formatter {
         long elapsedSeconds = time / secondInMillis;
 
         if (elapsedDays > 0) {
-            return String.format("%02d:%02d:%02d:%02d", elapsedDays,
-                    elapsedHours, elapsedMinutes, elapsedSeconds);
+            return String.format("%02d:%02d:%02d:%02d", elapsedDays, elapsedHours, elapsedMinutes, elapsedSeconds);
         } else {
-            return String.format("%02d:%02d:%02d", elapsedHours,
-                    elapsedMinutes, elapsedSeconds);
+            return String.format("%02d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds);
         }
+    }
+
+    public static String formatTimeShort(Long time) {
+        String elapsed = formatTime(time);
+        if (elapsed.length() < 4) {
+            return elapsed;
+        }
+        return elapsed.substring(elapsed.length() - 5, elapsed.length());
     }
 
     public static String getTzNumber(Date date) {
@@ -304,21 +303,20 @@ public class Formatter {
         } else {
 
             if (((int) hours) == 1) {
-                return ((int) hours) + " hour, "
-                        + ((int) ((hours - ((int) hours)) * 60)) + " minutes";
+                return ((int) hours) + " hour, " + ((int) ((hours - ((int) hours)) * 60)) + " minutes";
             } else {
-                return ((int) hours) + " hours, "
-                        + ((int) ((hours - ((int) hours)) * 60)) + " minutes";
+                return ((int) hours) + " hours, " + ((int) ((hours - ((int) hours)) * 60)) + " minutes";
             }
 
         }
 
     }
-    
+
     /**
      * A very simple and crude conversion of plain text into HTML.
      * 
-     * @param str the string to format
+     * @param str
+     *            the string to format
      * @return the resulting HTML
      */
     public static String formatHtml(String str) {
@@ -326,7 +324,7 @@ public class Formatter {
         if (str == null) {
             return str;
         }
-        
+
         str = StringEscapeUtils.escapeHtml(str);
         str = str.replaceAll("\n", "<br/>");
         return str;
