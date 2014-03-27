@@ -122,7 +122,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
                     // Do we need to rebroadcast based on the broadcast time setting
                     if (calculatedTimeOfLastSend.isAfter(lastSend)) {
-                        System.out.println("Periodically rebroadcasting");
+                        LOG.debug("Periodically rebroadcasting");
                         broadcastIntendedRoute();
                         lastSend = new DateTime();
                     } else if (lastTransmitActiveWp != null) {
@@ -132,8 +132,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                         // ETA of the waypoint we sent to the current one
                         DateTime currentActiveWaypointETA = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());
 
-                        // System.out.println("The ETA at last transmission was : " + lastTransmitActiveWp);
-                        // System.out.println("It is now                        : " + currentActiveWaypointETA);
+                        // LOG.debug("The ETA at last transmission was : " + lastTransmitActiveWp);
+                        // LOG.debug("It is now                        : " + currentActiveWaypointETA);
 
                         // //It can either be before or after
                         //
@@ -153,12 +153,12 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                             }
 
                             if (etaTimeChange > ADAPTIVE_TIME * 1000L) {
-                                System.out.println("Broadcast based on adaptive time!");
+                                LOG.debug("Broadcast based on adaptive time!");
                                 broadcastIntendedRoute();
                                 lastSend = new DateTime();
                             }
 
-                            // System.out.println("ETA has changed with " + etaTimeChange + " mili seconds" );
+                            // LOG.debug("ETA has changed with " + etaTimeChange + " mili seconds" );
 
                         }
 
@@ -374,7 +374,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 //Remove it, if it exists
                 if (this.filteredIntendedRoutes.containsKey(route.getMmsi())){
                     filteredIntendedRoutes.remove(route.getMmsi());
-                    System.out.println("Remove from filter");
+                    LOG.debug("Remove from filter");
                 }
                 
             } else {

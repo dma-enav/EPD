@@ -40,6 +40,8 @@ public class WaypointInfoPanel extends InfoPanel {
         ActiveRoute activeRoute = null;
         if (route instanceof ActiveRoute) {
             activeRoute = (ActiveRoute)route;
+        } else {
+            route.adjustStartTime();
         }
         
         Date eta = null;

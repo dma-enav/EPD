@@ -280,6 +280,7 @@ public class Route implements Serializable {
         newRoute.visible = this.visible;
         newRoute.starttime = this.starttime;
 
+        adjustStartTime();
         calcValues(true);
 
         return newRoute;
