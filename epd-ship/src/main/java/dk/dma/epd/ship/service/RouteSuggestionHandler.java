@@ -103,6 +103,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
     private boolean acceptRouteSuggestion(RouteSuggestionData routeData){
         
         if (routeSuggestions.remove(routeData.getId()) != null) {
+            routeData.getRoute().setVisible(true);
             EPDShip.getInstance().getRouteManager().addRoute(routeData.getRoute());
             return true;
         }

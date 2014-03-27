@@ -71,6 +71,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         "", "ID", "MMSI", "Route Name", "Status" };
     
     protected JButton routeDetailsBtn;
+    protected JButton createRouteBtn;
     protected JButton acceptBtn;
     protected JButton rejectBtn;
     protected JButton notedBtn;
@@ -107,13 +108,23 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
                 "Route Details", 
                 EPD.res().getCachedImageIcon("images/notifications/routes.png"));
         
+        createRouteBtn = new JButton(
+                "Add Route", 
+                EPDShip.res().getCachedImageIcon("images/toolbar/marker--plus.png"));
+        
         btnPanel.add(routeDetailsBtn);
+        btnPanel.add(createRouteBtn);
         btnPanel.add(gotoBtn);
         btnPanel.add(deleteBtn);
         
         routeDetailsBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
                 showRouteSuggestionDetails();
+            }});
+
+        createRouteBtn.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                createRoute();
             }});
 
         gotoBtn.addActionListener(new ActionListener() {            
@@ -181,7 +192,21 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
             routePropertiesDialog.setVisible(true);
         }
     }
-
+    
+    /**
+     * Creates a route for the route suggestion
+     */
+    private void createRoute() {
+        RouteSuggestionNotification notification = getSelectedNotification();
+        if (notification != null) {
+            Route route = notification.get().getRoute().copy();
+            notification.get().getRoute().setVisible(false);
+            route.setVisible(true);
+            EPDShip.getInstance().getRouteManager()
+                .addRoute(route);
+        }
+    }
+    
     /**
      * Zoom in on the selected route suggestion
      */
@@ -243,6 +268,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         super.updateButtonEnabledState();
         RouteSuggestionNotification n = getSelectedNotification();
         routeDetailsBtn.setEnabled(n != null);
+        createRouteBtn.setEnabled(n != null && n.get().isReplied());
     }
     
     /**
