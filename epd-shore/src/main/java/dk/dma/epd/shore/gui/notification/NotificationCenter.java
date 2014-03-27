@@ -19,19 +19,13 @@ import java.awt.Window;
 
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.notification.Notification;
-import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.service.RouteSuggestionHandler;
-import dk.dma.epd.shore.service.RouteSuggestionHandler.RouteSuggestionListener;
 
 /**
  * Shore-specific notification center implementation
  */
-public class NotificationCenter extends NotificationCenterCommon implements 
-    RouteSuggestionListener {
+public class NotificationCenter extends NotificationCenterCommon {
 
     private static final long serialVersionUID = 1L;
-    
-    private RouteSuggestionHandler routeSuggestionHandler;
     
     private StrategicRouteNotificationPanel strategicRoutePanel;
     private RouteSuggestionNotificationPanel routeSuggestionPanel;
@@ -42,10 +36,7 @@ public class NotificationCenter extends NotificationCenterCommon implements
      * @param window the parent window
      */
     public NotificationCenter(Window window) {
-        super(window);
-        
-        routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
-        routeSuggestionHandler.addRouteSuggestionListener(this);
+        super(window);        
     }
 
     /**

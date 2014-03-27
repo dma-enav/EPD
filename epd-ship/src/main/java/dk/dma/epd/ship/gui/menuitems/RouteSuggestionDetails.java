@@ -18,35 +18,30 @@ package dk.dma.epd.ship.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
-import dk.dma.epd.ship.service.SuggestedRoute;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
+import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.ship.EPDShip;
 
-public class SuggestedRouteDetails extends JMenuItem implements IMapMenuAction {
+/**
+ * Opens the route suggestion notification
+ */
+public class RouteSuggestionDetails extends JMenuItem implements IMapMenuAction {
     
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
-    SuggestedRoute suggestedRoute;
-    RouteSuggestionDialog routeSuggestionDialog;
+    RouteSuggestionData routeSuggestion;
     
-    public SuggestedRouteDetails(String text) {
+    public RouteSuggestionDetails(String text) {
         super();
         setText(text);
     }
     
     @Override
     public void doAction() {
-        routeSuggestionDialog.showSuggestion(suggestedRoute);
+        EPDShip.getInstance().getNotificationCenter()
+            .openNotification(NotificationType.TACTICAL_ROUTE, routeSuggestion.getId(), false);
     }
     
-    public void setSuggestedRoute(SuggestedRoute suggestedRoute) {
-        this.suggestedRoute = suggestedRoute;
+    public void setRouteSuggestion(RouteSuggestionData routeSuggestion) {
+        this.routeSuggestion = routeSuggestion;
     }
-    
-    public void setRouteSuggestionDialog(
-            RouteSuggestionDialog routeSuggestionDialog) {
-        this.routeSuggestionDialog = routeSuggestionDialog;
-    }
-
 }

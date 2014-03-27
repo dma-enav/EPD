@@ -214,7 +214,7 @@ public class Route implements Serializable {
 
         newRoute.starttime = this.starttime == null ? new Date() : new Date(this.starttime.getTime());
 
-        newRoute.etas = new ArrayList<Date>(etas);
+        newRoute.etas = (etas != null) ? new ArrayList<Date>(etas) : new ArrayList<Date>();
 
         newRoute.stccApproved = this.stccApproved;
 

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.notification;
+package dk.dma.epd.ship.gui.notification;
 
 import net.maritimecloud.core.id.MmsiId;
 import dk.dma.epd.common.prototype.EPD;
@@ -24,12 +24,11 @@ import dk.dma.epd.common.prototype.notification.RouteSuggestionNotificationCommo
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 
 /**
- * A shore specific route suggestion implementation of the {@linkplain Notification} class
+ * A ship specific route suggestion implementation of the {@linkplain Notification} class
  */
 public class RouteSuggestionNotification extends RouteSuggestionNotificationCommon {
 
     private static final long serialVersionUID = 1L;
-
 
     /**
      * Constructor
@@ -39,33 +38,44 @@ public class RouteSuggestionNotification extends RouteSuggestionNotificationComm
     public RouteSuggestionNotification(RouteSuggestionData routeData) {
         super(routeData);
         
-        String shipName = EPD.getInstance().getName(
+        String shoreName = EPD.getInstance().getName(
                 new MmsiId((int)routeData.getMmsi()), 
                 String.valueOf(routeData.getMmsi()));
         
         if (routeData.getReply() == null) {
             // Original route suggestion from shore
             description = String.format(
-                    "Route suggestion '%s' for %s", 
+                    "Route suggestion '%s' from %s", 
                     routeData.getMessage().getRoute().getName(),
-                    shipName);
-            severity = NotificationSeverity.MESSAGE;
-            date = routeData.getMessage().getSentDate();
-            
-        } else {
-            // Reply to shore
-            description = String.format(
-                    "Route suggestion '%s' from %s is %s", 
-                    routeData.getMessage().getRoute().getName(),
-                    shipName,
-                    routeData.getStatus().toString());
+                    shoreName);
             if (routeData.isAcknowleged()) {
                 severity = NotificationSeverity.MESSAGE;
             } else {
                 severity = NotificationSeverity.WARNING;
                 addAlerts(new NotificationAlert(AlertType.POPUP));
             }
-            date = routeData.getReply().getSentDate();            
+            date = routeData.getMessage().getSentDate();
+            
+        } else {
+            // Reply to shore
+            description = String.format(
+                    "Route suggestion '%s' for %s is %s", 
+                    routeData.getMessage().getRoute().getName(),
+                    shoreName,
+                    routeData.getStatus().toString());
+            severity = NotificationSeverity.MESSAGE;
+            date = routeData.getReply().getSentDate();
+            
         }
+    }    
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean canAcknowledge() {
+        return false;
     }
+
 }

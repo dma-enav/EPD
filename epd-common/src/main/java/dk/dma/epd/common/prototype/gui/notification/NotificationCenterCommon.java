@@ -61,6 +61,8 @@ import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon.RouteSuggestionListener;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
@@ -75,7 +77,7 @@ import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.Strategic
  * </ul>
  */
 public abstract class NotificationCenterCommon extends ComponentDialog implements ActionListener, IMsiUpdateListener,
-        IChatServiceListener, StrategicRouteListener {
+        IChatServiceListener, StrategicRouteListener, RouteSuggestionListener {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(NotificationCenterCommon.class);
 
@@ -84,6 +86,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     protected MsiHandler msiHandler;
     protected ChatServiceHandlerCommon chatServiceHandler;
     protected StrategicRouteHandlerCommon strategicRouteHandler;
+    protected RouteSuggestionHandlerCommon routeSuggestionHandler;
 
     protected SystemTrayCommon systemTray;
     protected BottomPanelCommon bottomPanel;
@@ -124,6 +127,9 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         strategicRouteHandler = EPD.getInstance().getStrategicRouteHandler();
         strategicRouteHandler.addStrategicRouteListener(this);
 
+        routeSuggestionHandler = EPD.getInstance().getRouteSuggestionHandler();
+        routeSuggestionHandler.addRouteSuggestionListener(this);
+        
         alertTimer.setCoalesce(true);
         alertTimer.setRepeats(true);
         alertTimer.start();

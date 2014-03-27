@@ -19,7 +19,6 @@ import java.awt.BorderLayout;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
@@ -36,40 +35,35 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
 
     protected RouteManager routeManager;
     
-    private JTabbedPane tabbedPane;
     private  RouteManagerPanel routePanel;
-    private RouteExchangeManagerPanel routeExchangePanel;
 
+    /**
+     * Constructor
+     * @param parent the parent frame
+     */
     public RouteManagerDialog(JFrame parent) {
         super(parent, "Route Manager", false);
         routeManager = EPDShip.getInstance().getRouteManager();
 
         setSize(600, 430);
-//        this.setResizable(false);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
-        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        getContentPane().add(tabbedPane, BorderLayout.NORTH);
 
-
-
+        // Add the route panel
         routePanel = new RouteManagerPanel(routeManager, this);
-        routeExchangePanel = new RouteExchangeManagerPanel(routeManager, this);
-        
-        
-        tabbedPane.addTab("Routes", null, routePanel, null);
-        tabbedPane.addTab("RouteExchange Routes", null, routeExchangePanel, null);
-
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(routePanel, BorderLayout.CENTER);
         
         routeManager.addListener(this);
         
-
+        getRootPane().setDefaultButton(routePanel.getCloseButton());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         routePanel.updateTable();
-        routeExchangePanel.updateTable();
     }
-
 }
