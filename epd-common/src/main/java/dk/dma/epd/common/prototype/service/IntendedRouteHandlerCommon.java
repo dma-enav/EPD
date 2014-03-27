@@ -29,6 +29,8 @@ import net.maritimecloud.net.broadcast.BroadcastListener;
 import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
@@ -66,6 +68,8 @@ import dk.dma.epd.common.util.TypedValue.TimeType;
  * Listens for intended route broadcasts, and updates the vessel target when one is received.
  */
 public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
+    
+    static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandlerCommon.class);
 
     /**
      * Time an intended route is considered valid without update
@@ -188,7 +192,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         // Fire event
         fireIntendedEvent(intendedRoute);
 
-        System.out.println("Did the route get put into the filter? " + filteredIntendedRoutes.size());
+        LOG.debug("Did the route get put into the filter? " + filteredIntendedRoutes.size());
     }
 
     /**
@@ -467,10 +471,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
         // The route dates does not overlap, return immediately
         if (route2Start.isAfter(route1End) || route1Start.isAfter(route2End)) {
-            System.out.println("The route dates does not overlap, return immediately");
+            LOG.debug("The route dates does not overlap, return immediately");
 
-            System.out.println("Route 1 Start: " + route1Start + " and end: " + route1End);
-            System.out.println("Route 2 Start: " + route2Start + " and end: " + route2End);
+            LOG.debug("Route 1 Start: " + route1Start + " and end: " + route1End);
+            LOG.debug("Route 2 Start: " + route2Start + " and end: " + route2End);
 
             return filteredIntendedRoute;
         }
@@ -500,7 +504,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                     if (route1WpStart.isBefore(route2Start) && route1WpEnd.isAfter(route2Start)) {
                         // We have the found the segment we need to start from
 
-                        System.out.println("Found segment");
+                        LOG.debug("Found segment");
                         foundSegment = true;
                         break;
                     }
@@ -511,28 +515,28 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                 // Now find position at time of route2Start
 
-                System.out.println("Route 1 WP Start is at " + route1.getEtas().get(i - 1));
-                System.out.println("Route 2 Start is at " + route2.getEtas().get(route2StartWp));
+                LOG.debug("Route 1 WP Start is at " + route1.getEtas().get(i - 1));
+                LOG.debug("Route 2 Start is at " + route2.getEtas().get(route2StartWp));
 
                 // How long will we have travelled along our route (route 1)
                 long timeTravelledSeconds = (route2Start.getMillis() - route1WpStart.getMillis()) / 1000;
 
                 double speedInLeg = route1.getWaypoints().get(i - 1).getOutLeg().getSpeed();
 
-                System.out.println("We have travelled for how many minutes " + timeTravelledSeconds / 60 + " at speed "
+                LOG.debug("We have travelled for how many minutes " + timeTravelledSeconds / 60 + " at speed "
                         + speedInLeg);
 
                 double distanceTravelled = Calculator.distanceAfterTimeMph(speedInLeg, timeTravelledSeconds);
 
-                System.out.println("We have travelled " + distanceTravelled + " nautical miles in direction: "
+                LOG.debug("We have travelled " + distanceTravelled + " nautical miles in direction: "
                         + route1.getWaypoints().get(i - 1).calcBrg());
 
                 Position position = Calculator.findPosition(route1.getWaypoints().get(i - 1).getPos(),
                         route1.getWaypoints().get(i - 1).calcBrg(), Converter.nmToMeters(distanceTravelled));
 
-                System.out.println("Difference start pos" + route1.getWaypoints().get(i - 1).getPos() + " vs " + position);
+                LOG.debug("Difference start pos" + route1.getWaypoints().get(i - 1).getPos() + " vs " + position);
 
-                System.out.println("The distance between points is "
+                LOG.debug("The distance between points is "
                         + Converter.metersToNm(position.distanceTo(route2StartPos, CoordinateSystem.CARTESIAN)));
 
                 // intersectPositions.add(position);
@@ -579,9 +583,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                         filterMessage.setTime2(traverseTime);
 
                         filteredIntendedRoute.getFilterMessages().add(filterMessage);
-                        System.out.println("Adding warning");
+                        LOG.debug("Adding warning");
                     } else {
-                        System.out.println("Found distance of " + currentDistance + " at " + traverseTime);
+                        LOG.debug("Found distance of " + currentDistance + " at " + traverseTime);
                     }
 
                     // Traverse with a minute
@@ -592,21 +596,21 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                     if (traverseTime.isAfter(route1SegmentEnd)) {
 
-                        // System.out.println("We have traversed " + route1SegmentTraversed + " nautical miles");
-                        System.out.println("We are at waypoint id  " + route1CurrentWaypoint + " and the route has a total of "
+                        // LOG.debug("We have traversed " + route1SegmentTraversed + " nautical miles");
+                        LOG.debug("We are at waypoint id  " + route1CurrentWaypoint + " and the route has a total of "
                                 + route1.getWaypoints().size() + " waypoints");
                         // We are done with current leg, is there a next one?
 
                         // No more waypoints - terminate zero indexing and last waypoint does not have an out leg thus -2
                         if (route1CurrentWaypoint >= route1.getWaypoints().size() - 2) {
-                            System.out.println("We are breaking - route 1 is done");
+                            LOG.debug("We are breaking - route 1 is done");
                             break;
                         } else {
-                            System.out.println("SWITCHING LEG FOR ROUTE 1, current bearing is ");
+                            LOG.debug("SWITCHING LEG FOR ROUTE 1, current bearing is ");
                             // Switch to next leg
                             route1CurrentWaypoint++;
 
-                            System.out.println("We are now at waypoint " + route1CurrentWaypoint);
+                            LOG.debug("We are now at waypoint " + route1CurrentWaypoint);
 
                             // Traverse a bit
                             int missingSecs = (int)(traverseTime.toDate().getTime() - route1SegmentEnd.toDate().getTime()) / 1000;
@@ -627,17 +631,17 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                     // {
                     if (traverseTime.isAfter(route2SegmentEnd)) {
 
-                        // System.out.println("ROUTE 2: We have traversed " + route2SegmentTraversed + " nautical miles out of "
+                        // LOG.debug("ROUTE 2: We have traversed " + route2SegmentTraversed + " nautical miles out of "
                         // + Converter.milesToNM(route2.getWaypoints().get(route2CurrentWaypoint).calcRng()));
-                        System.out.println("We are at waypoint id  " + route2CurrentWaypoint + " and the route has a total of "
+                        LOG.debug("We are at waypoint id  " + route2CurrentWaypoint + " and the route has a total of "
                                 + route2.getWaypoints().size() + " waypoints");
 
                         // No more waypoints - terminate
                         if (route2CurrentWaypoint >= route2.getWaypoints().size() - 2) {
-                            System.out.println("We are breaking - route 2 is done");
+                            LOG.debug("We are breaking - route 2 is done");
                             break;
                         } else {
-                            System.out.println("SWITCHING LEG FOR ROUTE 1");
+                            LOG.debug("SWITCHING LEG FOR ROUTE 1");
 
                             // Switch to next leg
                             route2CurrentWaypoint++;
@@ -659,7 +663,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                 }
             } else {
-                System.out.println("No segment was found - not sure how we reached this point...");
+                LOG.debug("No segment was found - not sure how we reached this point...");
             }
 
         } else {
