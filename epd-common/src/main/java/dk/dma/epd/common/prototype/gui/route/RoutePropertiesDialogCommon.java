@@ -565,14 +565,17 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         // Check if we are in a quiescent state
         if (quiescent) {
             return;
-        }
+        }        
         
         if (evt.getSource() == departurePicker) {
             Date date = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
-            route.setStarttime(date);            
+            route.setStarttime(date);
+            adjustStartTime();
         } else if (evt.getSource() == arrivalPicker) {
             Date date = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
             recalculateSpeeds(date);
+        } else {
+            return;
         }
         
         routeUpdated();
@@ -590,10 +593,13 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         
         if (spinner == departureSpinner) {
             Date date = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
-            route.setStarttime(date);            
+            route.setStarttime(date);
+            adjustStartTime();
         } else if (spinner == arrivalSpinner) {            
             Date date = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
             recalculateSpeeds(date);
+        } else {
+            return;
         }
         
         routeUpdated();
