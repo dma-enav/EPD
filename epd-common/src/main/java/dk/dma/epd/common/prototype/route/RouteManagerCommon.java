@@ -93,6 +93,25 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
 
 
     /**
+     * Removes the given route
+     * @param route the route to remove
+     */
+    public void removeRoute(Route route) {
+        synchronized (this) {
+            if (route == activeRoute) {
+                LOG.error("Cannot remove active route");
+                return;
+            }
+            for (int x = 0; x < routes.size(); x++) {
+                if (routes.get(x) == route) {
+                    removeRoute(x);
+                    return;
+                }
+            }
+        }
+    }
+    
+    /**
      * Removes the route with the given index
      * @param routeIndex index of the route to remove
      */

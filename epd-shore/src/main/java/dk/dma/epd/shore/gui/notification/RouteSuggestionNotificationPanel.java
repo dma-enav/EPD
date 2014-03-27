@@ -197,7 +197,6 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
                 routeSuggestionHandler.sendRouteSuggestion(
                         routeSuggestion.getMmsi(), 
                         routeSuggestion.getMessage().getRoute(), 
-                        routeSuggestion.getMessage().getSender(), 
                         routeSuggestion.getMessage().getMessage());
                 
             } catch (Exception ex) {
@@ -275,7 +274,6 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         append(html, "MMSI", routeSuggestion.getMmsi());
         append(html, "Route Name", routeSuggestion.getMessage().getRoute().getName());
         append(html, "Sent Date", Formatter.formatShortDateTime(routeSuggestion.getMessage().getSentDate()));
-        append(html, "Sender", routeSuggestion.getMessage().getSender());
         append(html, "Message", routeSuggestion.getMessage().getMessage());
         append(html, "Status", getStatus(routeSuggestion));
         if (routeSuggestion.getReply() != null) {

@@ -33,17 +33,18 @@ import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon.RouteSuggestionListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
-import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.ship.service.RouteSuggestionHandler;
 
 /**
  * Layer for showing routes
  */
-public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipListener {
+public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipListener, RouteSuggestionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -95,18 +96,7 @@ public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipLi
                     } else {
                         safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(),
                                 activeRoute.getSafeHavenWidth(),
-
-                                // .getWaypoints()
-                                // .get(activeRoute.getWaypoints()
-                                // .size() - 2)
-                                // .getOutLeg().getSFWidth(),
-                                activeRoute.getSafeHavenLength()
-
-                        // .getWaypoints()
-                        // .get(activeRoute.getWaypoints()
-                        // .size() - 2)
-                        // .getOutLeg().getSFLen()
-                                );
+                                activeRoute.getSafeHavenLength());
                         graphics.add(safeHavenArea);
                     }
                 }
@@ -225,7 +215,8 @@ public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipLi
             graphics.add(0, metocGraphics);
         }
 
-        for (RouteSuggestionData routeSuggestion : ((RouteManager) routeManager).getRouteSuggestions()) {
+        for (RouteSuggestionData routeSuggestion : 
+                EPDShip.getInstance().getRouteSuggestionHandler().getSortedRouteSuggestions()) {
             if (routeSuggestion.getRoute().isVisible()) {
                 suggestedRoute = new SuggestedRouteGraphic(routeSuggestion, stroke);
                 graphics.add(suggestedRoute);
@@ -272,25 +263,43 @@ public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipLi
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
 
         if (obj instanceof OwnShipHandler) {
             ((OwnShipHandler) obj).addListener(this);
-
+        } else if (obj instanceof RouteSuggestionHandler) {
+            ((RouteSuggestionHandler)obj).addRouteSuggestionListener(this);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void ownShipUpdated(OwnShipHandler ownShipHandler) {
         // Update
         safeHavenArea.shipPositionChanged(ownShipHandler.getPntData().getPosition());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
         
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void routeUpdate() {
+        routesChanged(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
     }
 }

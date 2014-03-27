@@ -113,7 +113,6 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
     private JButton zoomBtn = new JButton("Zoom To", EPDShore.res().getCachedImageIcon("images/buttons/zoom.png"));
     
     // Sender panel
-    private JTextField senderTxtField = new JTextField("DMA Shore");
     private JTextArea messageTxtField = new JTextArea("Route Suggestion");
 
     // Send panel
@@ -187,6 +186,9 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         targetPanel.add(callsignLbl, 
                 new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
+        statusLbl.setVisible(false);
+        targetPanel.add(statusLbl, 
+                new GridBagConstraints(0, 3, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
         // *******************
         // *** Route panel 
@@ -237,45 +239,30 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         
         
         // *******************
-        // *** Sender panel 
-        // *******************
-        JPanel senderPanel = new JPanel(new GridBagLayout());
-        senderPanel.setBorder(new TitledBorder("Sender"));
-        content.add(senderPanel, 
-                new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, WEST, BOTH, insets5, 0, 0));
-        
-        senderPanel.add(new JLabel("Sender:"), 
-                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        senderPanel.add(senderTxtField, 
-                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-        
-        messageTxtField.setLineWrap(true);
-        JScrollPane scrollPane = new JScrollPane(messageTxtField);
-        scrollPane.setMinimumSize(new Dimension(180, 40));
-        scrollPane.setPreferredSize(new Dimension(180, 40));
-        senderPanel.add(new JLabel("Message:"), 
-                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, NORTHWEST, NONE, insets5, 0, 0));
-        senderPanel.add(scrollPane, 
-                new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, WEST, BOTH, insets5, 0, 0));
-        
-
-        // *******************
         // *** Send panel 
         // *******************
         JPanel sendPanel = new JPanel(new GridBagLayout());
         sendPanel.setBorder(new TitledBorder("Send"));
         content.add(sendPanel, 
-                new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, CENTER, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, CENTER, BOTH, insets5, 0, 0));
         
-        sendPanel.add(statusLbl, 
-                new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        messageTxtField.setLineWrap(true);
+        JScrollPane scrollPane = new JScrollPane(messageTxtField);
+        scrollPane.setMinimumSize(new Dimension(180, 40));
+        scrollPane.setPreferredSize(new Dimension(180, 40));
+        
+        sendPanel.add(new JLabel("Message:"), 
+                new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, NORTHWEST, NONE, insets5, 0, 0));
+        sendPanel.add(scrollPane, 
+                new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0, WEST, BOTH, insets5, 0, 0));
+        
         
         sendBtn.addActionListener(this);
         cancelBtn.addActionListener(this);
         sendPanel.add(sendBtn, 
-                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         sendPanel.add(cancelBtn, 
-                new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, EAST, NONE, insets5, 0, 0));
+                new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, EAST, NONE, insets5, 0, 0));
     }
 
 
@@ -484,8 +471,10 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
                 } else {
                     callsignLbl.setText("N/A");
                 }
+                statusLbl.setVisible(false);
             } else {
                 statusLbl.setText("The ship is not visible on AIS");
+                statusLbl.setVisible(true);
             }
         }
     }
@@ -516,7 +505,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         
         try {
             routeSuggestionHandler.sendRouteSuggestion(mmsi,
-                    route.getFullRouteData(), senderTxtField.getText(),
+                    route.getFullRouteData(), 
                     messageTxtField.getText());
             messageTxtField.setText("");
         } catch (Exception e) {

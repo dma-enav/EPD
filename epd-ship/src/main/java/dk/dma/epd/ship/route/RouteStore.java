@@ -39,12 +39,6 @@ public class RouteStore implements Serializable {
         this.routes = routeManager.getRoutes();
         this.activeRoute = routeManager.getActiveRoute();
         this.activeRouteIndex = routeManager.getActiveRouteIndex();
-        
-        // Note to self
-        // Route suggestions are now tied to notifications. Since the 
-        // notifications are not persisted (at the moment), we do not
-        // persist the route suggestions either.
-        // this.suggestedRoutes = routeManager.getRouteSuggestions();
     }
     
     public List<Route> getRoutes() {

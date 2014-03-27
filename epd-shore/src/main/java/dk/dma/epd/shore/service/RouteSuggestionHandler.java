@@ -127,14 +127,13 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
      * 
      * @param mmsi the mmsi of the ship
      * @param route the route
-     * @param sender the sender
      * @param message an additional message
      */
-    public void sendRouteSuggestion(long mmsi, Route route, String sender, String message) throws InterruptedException,
+    public void sendRouteSuggestion(long mmsi, Route route, String message) throws InterruptedException,
             ExecutionException, TimeoutException {
 
         // Create a new message
-        RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(route, sender, message, RouteSuggestionStatus.PENDING);
+        RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(route, message, RouteSuggestionStatus.PENDING);
         LOG.info("Sending to mmsi: " + mmsi + " with ID: " + routeMessage.getId());
 
         // Cache the message by the transaction id

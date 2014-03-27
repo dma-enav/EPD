@@ -199,10 +199,11 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     private void handleAccept() {
         RouteSuggestionNotification notification = getSelectedNotification();
         if (notification != null) {
-            EPDShip.getInstance().getRouteManager().routeSuggestionReply(
-                    notification.get(), 
+            EPDShip.getInstance().getRouteSuggestionHandler().sendRouteSuggestionReply(
+                    notification.getId(), 
                     RouteSuggestionStatus.ACCEPTED, 
                     replyPanel.getMessageTxtField().getText());
+            EPDShip.getInstance().getNotificationCenter().setVisible(false);
         }
     }
     
@@ -212,10 +213,11 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     private void handleReject() {
         RouteSuggestionNotification notification = getSelectedNotification();
         if (notification != null) {
-            EPDShip.getInstance().getRouteManager().routeSuggestionReply(
-                    notification.get(), 
+            EPDShip.getInstance().getRouteSuggestionHandler().sendRouteSuggestionReply(
+                    notification.getId(), 
                     RouteSuggestionStatus.REJECTED, 
                     replyPanel.getMessageTxtField().getText());
+            EPDShip.getInstance().getNotificationCenter().setVisible(false);
         }
     }
     
@@ -225,10 +227,11 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     private void handleNoted() {
         RouteSuggestionNotification notification = getSelectedNotification();
         if (notification != null) {
-            EPDShip.getInstance().getRouteManager().routeSuggestionReply(
-                    notification.get(), 
+            EPDShip.getInstance().getRouteSuggestionHandler().sendRouteSuggestionReply(
+                    notification.getId(), 
                     RouteSuggestionStatus.NOTED, 
                     replyPanel.getMessageTxtField().getText());
+            EPDShip.getInstance().getNotificationCenter().setVisible(false);
         }
     }
     
@@ -327,9 +330,6 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
             routeSuggestionHandler.removeSuggestion(routeSuggestion.getId());
             setSelectedRow(row - 1);
             notifyListeners();
-            
-            // TODO: Verify...
-            EPDShip.getInstance().getRouteManager().removeSuggested(routeSuggestion);
         }
     }
 
@@ -399,10 +399,9 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         StringBuilder html = new StringBuilder("<html>");
         html.append("<table>");
         append(html, "ID", routeSuggestion.getId());
-        append(html, "VTS", EPD.getInstance().getName(new MmsiId((int)routeSuggestion.getMmsi()), String.valueOf(routeSuggestion.getMmsi())));
+        append(html, "Sender", EPD.getInstance().getName(new MmsiId((int)routeSuggestion.getMmsi()), String.valueOf(routeSuggestion.getMmsi())));
         append(html, "Route Name", routeSuggestion.getMessage().getRoute().getName());
         append(html, "Sent Date", Formatter.formatShortDateTime(routeSuggestion.getMessage().getSentDate()));
-        append(html, "Sender", routeSuggestion.getMessage().getSender());
         append(html, "Message", routeSuggestion.getMessage().getMessage());
         append(html, "Status", getStatus(routeSuggestion));
         append(html, "DST/BRG/TTG/SPD", getWpInfo(routeSuggestion));

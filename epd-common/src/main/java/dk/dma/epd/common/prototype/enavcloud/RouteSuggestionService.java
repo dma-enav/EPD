@@ -50,9 +50,7 @@ public class RouteSuggestionService {
         PENDING,
         ACCEPTED,
         REJECTED,
-        NOTED,
-        IGNORED,
-        CANCELLED
+        NOTED
     }
     
     /**
@@ -66,7 +64,6 @@ public class RouteSuggestionService {
         
         private Route route;
         private Date sentDate;
-        private String sender;
         private String message;
         private long id;
         private RouteSuggestionStatus status;
@@ -84,12 +81,10 @@ public class RouteSuggestionService {
          * Constructor - used for messages
          * 
          * @param route the suggested route
-         * @param sender the sender
          * @param message an additional message
          */
-        public RouteSuggestionMessage(Route route, String sender, String message, RouteSuggestionStatus status) {
+        public RouteSuggestionMessage(Route route, String message, RouteSuggestionStatus status) {
             this.route = requireNonNull(route);
-            this.sender = requireNonNull(sender);
             this.message = requireNonNull(message);
             this.status = requireNonNull(status);
             this.id = System.currentTimeMillis();
@@ -126,14 +121,6 @@ public class RouteSuggestionService {
         
         public void setRoute(Route route) {
             this.route = route;
-        }
-        
-        public String getSender() {
-            return sender;
-        }
-
-        public void setSender(String sender) {
-            this.sender = sender;
         }
         
         public Date getSentDate() {

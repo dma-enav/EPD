@@ -69,7 +69,7 @@ public class MapMenu extends MapMenuCommon {
     
     private RouteActivateToggle routeActivateToggle;
     private MonaLisaRouteRequest monaLisaRouteRequest;
-    private RouteSuggestionDetails suggestedRouteDetails;
+    private RouteSuggestionDetails routeSuggestionDetails;
     private RouteEditEndRoute routeEditEndRoute;
     private SendToSTCC sendToSTCC;
     private VoyageAppendWaypoint voyageAppendWaypoint;
@@ -125,9 +125,8 @@ public class MapMenu extends MapMenuCommon {
         monaLisaRouteRequest.addActionListener(this);
 
         // suggested route menu
-        suggestedRouteDetails = new RouteSuggestionDetails(
-                "Suggested route details...");
-        suggestedRouteDetails.addActionListener(this);
+        routeSuggestionDetails = new RouteSuggestionDetails("Route suggestion details...");
+        routeSuggestionDetails.addActionListener(this);
 
         // route edit menu
         routeEditEndRoute = new RouteEditEndRoute("End route");
@@ -520,8 +519,8 @@ public class MapMenu extends MapMenuCommon {
     public void routeSuggestionMenu(RouteSuggestionData routeSuggestion) {
         removeAll();
 
-        suggestedRouteDetails.setRouteSuggestion(routeSuggestion);
-        add(suggestedRouteDetails);
+        routeSuggestionDetails.setRouteSuggestion(routeSuggestion);
+        add(routeSuggestionDetails);
 
         generalMenu(false);
         revalidate();

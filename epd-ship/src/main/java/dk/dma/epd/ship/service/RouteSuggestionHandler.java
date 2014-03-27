@@ -93,19 +93,39 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         
         // Update listeners
         notifyRouteSuggestionListeners();
-
-        // Update the route manager with the new route
-        EPDShip.getInstance().getRouteManager().receiveRouteSuggestion(routeData);
+    }
+    
+    /**
+     * Accepts the given suggested route
+     * @param route the suggested route to accept
+     * @return if the route was accepted
+     */
+    private boolean acceptRouteSuggestion(RouteSuggestionData routeData){
+        
+        if (routeSuggestions.remove(routeData.getId()) != null) {
+            EPDShip.getInstance().getRouteManager().addRoute(routeData.getRoute());
+            return true;
+        }
+        return false;
     }
     
     /**
      * Sends a reply to route suggestion reply
      * 
-     * @param receivedAccepted the reply
      * @param id the ID of the route suggestion
+     * @param replyStatus the reply
      * @param message a message to send along with the reply
      */
-    public void sendRouteExchangeReply(RouteSuggestionStatus receivedAccepted, long id, String message) {
+    public void sendRouteSuggestionReply(long id, RouteSuggestionStatus replyStatus, String message) {
+
+        // Check that the reply status is valid
+        if (replyStatus != RouteSuggestionStatus.ACCEPTED &&
+                replyStatus != RouteSuggestionStatus.REJECTED && 
+                replyStatus != RouteSuggestionStatus.NOTED) {
+            LOG.error("Invalid reply status " + replyStatus);
+            throw new IllegalArgumentException("Invalid reply status " + replyStatus);
+        }
+        
         try {
             
             if (routeSuggestions.containsKey(id)) {
@@ -114,14 +134,21 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
                 LOG.info("Sending to mmsi: " + routeData.getMmsi() + " with ID: " + routeData.getId());
                 
                 // Create the reply message
-                RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(routeData.getId(), message, receivedAccepted);
+                RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(routeData.getId(), message, replyStatus);
                 routeData.setReply(routeMessage);
-                routeData.setAcknowleged(true); // TODO ?
+                routeData.setAcknowleged(true);
                 
                 // Send the message over the cloud
                 routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
                 if (sendMaritimeCloudMessage(new MmsiId((int)routeData.getMmsi()), routeMessage, this)) {
                     routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
+                }
+                
+                // For accepted routes, add the route to the route manager, and remove the suggestion
+                if (replyStatus == RouteSuggestionStatus.ACCEPTED) {
+                    acceptRouteSuggestion(routeData);
+                } else if (replyStatus == RouteSuggestionStatus.REJECTED) {
+                    routeData.getRoute().setVisible(false);
                 }
                 
                 // Update listeners
@@ -133,6 +160,5 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         } catch (Exception e) {
             LOG.error("Failed to reply", e);
         }
-
-    }
+    }    
 }
