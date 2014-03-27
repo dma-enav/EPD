@@ -429,14 +429,14 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         append(html, "Sender", EPD.getInstance().getName(new MmsiId((int)routeSuggestion.getMmsi()), String.valueOf(routeSuggestion.getMmsi())));
         append(html, "Route Name", routeSuggestion.getMessage().getRoute().getName());
         append(html, "Sent Date", Formatter.formatShortDateTime(routeSuggestion.getMessage().getSentDate()));
-        append(html, "Message", routeSuggestion.getMessage().getMessage());
+        append(html, "Message", Formatter.formatHtml(routeSuggestion.getMessage().getMessage()));
         append(html, "Status", getStatus(routeSuggestion));
         append(html, "DST/BRG/TTG/SPD", getWpInfo(routeSuggestion));
         append(html, "ETA first wp", Formatter.formatShortDateTime(routeSuggestion.getRoute().getEtas().get(0)));
         append(html, "ETA last wp", Formatter.formatShortDateTime(routeSuggestion.getRoute().getEtas().get(routeSuggestion.getRoute().getWaypoints().size()-1)));
         if (routeSuggestion.getReply() != null) {
             append(html, "Reply Sent", Formatter.formatShortDateTime(routeSuggestion.getReply().getSentDate()));
-            append(html, "Reply Message", routeSuggestion.getReply().getMessage());
+            append(html, "Reply Message", Formatter.formatHtml(routeSuggestion.getReply().getMessage()));
         }        
         html.append("</table>");
         html.append("</html>");
