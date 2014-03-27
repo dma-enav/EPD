@@ -259,8 +259,6 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             layers.add(riskLayer);
         }
 
-        aisLayer.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isStrict());
-
         riskLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

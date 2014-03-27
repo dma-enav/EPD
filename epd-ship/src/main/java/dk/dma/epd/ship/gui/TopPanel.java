@@ -66,11 +66,11 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             toolbarIcon("wrench.png"));
     private final ButtonLabel routeManagerBtn = new ButtonLabel(
             toolbarIcon("marker.png"));
-    private final ButtonLabel aisButton = new ButtonLabel(
+    private final ButtonLabel aisDialogButton = new ButtonLabel(
             toolbarIcon("radar.png"));
     private final ToggleButtonLabel aisToggleName = new ToggleButtonLabel(
             toolbarIcon("edit-letter-spacing.png"));
-    private final ToggleButtonLabel aisBtn = new ToggleButtonLabel(
+    private final ToggleButtonLabel aisLayerBtn = new ToggleButtonLabel(
             toolbarIcon("board-game.png"));
     private final ToggleButtonLabel encBtn = new ToggleButtonLabel(
             toolbarIcon("map-medium.png"));
@@ -140,8 +140,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         setupBtn.setToolTipText("Setup");
         newRouteBtn.setToolTipText("Add a new route : Shortcut Ctrl N");
         routeManagerBtn.setToolTipText("Routes Manager : Shortcut Ctrl R");
-        aisButton.setToolTipText("Show nearby vessels : Shortcut Ctrl A");
-        aisBtn.setToolTipText("Show/hide AIS targets");
+        aisDialogButton.setToolTipText("Show nearby vessels : Shortcut Ctrl A");
+        aisLayerBtn.setToolTipText("Show/hide AIS targets");
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
         encBtn.setToolTipText("Show/hide ENC");
         encBtn.setEnabled(EPDShip.getInstance().getSettings().getMapSettings().isUseEnc());
@@ -173,9 +173,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(setupBtn);
         add(newRouteBtn);
         add(routeManagerBtn);
-        add(aisButton);
+        add(aisDialogButton);
         add(new JSeparator());
-        add(aisBtn);
+        add(aisLayerBtn);
         add(aisToggleName);
         add(encBtn);
         add(wmsBtn);
@@ -200,8 +200,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         setupBtn.addMouseListener(this);
         newRouteBtn.addMouseListener(this);
         routeManagerBtn.addMouseListener(this);
-        aisButton.addMouseListener(this);
-        aisBtn.addMouseListener(this);
+        aisDialogButton.addMouseListener(this);
+        aisLayerBtn.addMouseListener(this);
         encBtn.addMouseListener(this);
         wmsBtn.addMouseListener(this);
         aisToggleName.addMouseListener(this);
@@ -220,7 +220,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     public void updateButtons() {
         autoFollowBtn.setSelected(EPDShip.getInstance().getSettings().getNavSettings()
                 .isAutoFollow());
-        aisBtn.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isVisible());
+        aisLayerBtn.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isVisible());
         encBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
                 .isEncVisible());
         wmsBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
@@ -343,9 +343,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         } else if (e.getSource() == zoomOutBtn) {
             mainFrame.getChartPanel().doZoom(2f);
             
-        } else if (e.getSource() == aisBtn) {
-            mainFrame.getChartPanel().aisVisible(aisBtn.isSelected());
-            menuBar.getAisLayer().setSelected(aisBtn.isSelected());
+        } else if (e.getSource() == aisLayerBtn) {
+            mainFrame.getChartPanel().aisVisible(aisLayerBtn.isSelected());
+            menuBar.getAisLayer().setSelected(aisLayerBtn.isSelected());
 
         } else if (e.getSource() == encBtn) {
             mainFrame.getChartPanel().encVisible(encBtn.isSelected());
@@ -362,7 +362,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         } else if (e.getSource() == setupBtn) {
             mainFrame.openSetupDialog();
             
-        } else if (e.getSource() == aisButton) {
+        } else if (e.getSource() == aisDialogButton) {
             aisDialog.setVisible(true);
             aisDialog.setSelection(-1, true);
             
@@ -438,7 +438,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     }
 
     public ToggleButtonLabel getAisBtn() {
-        return aisBtn;
+        return aisLayerBtn;
     }
 
     public ToggleButtonLabel getEncBtn() {
