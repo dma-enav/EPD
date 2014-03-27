@@ -561,6 +561,12 @@ public class Route implements Serializable {
             etas.add(new Date(eta));
         }
     }
+    
+    public void adjustEta(int wpIndex, EtaAdjust etaAdjust) {
+        System.out.println("TODO: " + etaAdjust.getEta());
+        
+    }
+
 
     public boolean saveToFile(File file) {
         // TODO
@@ -1012,4 +1018,31 @@ public class Route implements Serializable {
             return title;
         }
     }
+    
+    public enum EtaAdjustType {
+        ADJUST_ADJACENT_LEG_SPEEDS,
+        ADJUST_ALL_ETA,
+        ADJUST_FIXED_START_AND_END;
+    }
+    
+    public static class EtaAdjust {
+        final Date eta;
+        final EtaAdjustType type;
+        
+        public EtaAdjust(Date eta, EtaAdjustType type) {
+            super();
+            this.eta = eta;
+            this.type = type;
+        }
+        
+        public Date getEta() {
+            return eta;
+        }
+        
+        public EtaAdjustType getType() {
+            return type;
+        }
+        
+    }
+    
 }
