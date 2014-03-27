@@ -46,6 +46,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -76,13 +77,13 @@ import org.slf4j.LoggerFactory;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.Route.EtaCalculationType;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
@@ -117,7 +118,6 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
 
     private Window parent;
     private ChartPanelCommon chartPanel;
-    private RouteManagerCommon routeManager;
     protected Route route = new Route();
     protected boolean[] locked;
     protected boolean readOnlyRoute;
@@ -150,6 +150,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private JButton btnDelete = new JButton("Delete");
     protected JButton btnActivate = new JButton("Activate");
     private JButton btnClose = new JButton("Close");
+    private JCheckBox cbVisible = new JCheckBox("Visible");
 
     
     /**
@@ -159,12 +160,11 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * @param routeManager the route manager
      * @param routeId the route index
      */
-    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, RouteManagerCommon routeManager, int routeId) {
+    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, int routeId) {
         this(parent, 
              chartPanel, 
-             routeManager.getRoute(routeId), 
-             routeManager.isActiveRoute(routeId));
-        this.routeManager = routeManager;
+             EPD.getInstance().getRouteManager().getRoute(routeId), 
+             EPD.getInstance().getRouteManager().isActiveRoute(routeId));
     }
     
     /**
@@ -185,9 +185,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         
         addWindowListener(new WindowAdapter() {
             @Override public void windowClosed(WindowEvent e) {
-                if (routeManager != null) {
-                    routeManager.validateMetoc(RoutePropertiesDialogCommon.this.route);
-                }
+                EPD.getInstance().getRouteManager().validateMetoc(RoutePropertiesDialogCommon.this.route);
             }});
         
         initGui();
@@ -321,12 +319,14 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         btnDelete.addActionListener(this);
         btnActivate.addActionListener(this);
         btnClose.addActionListener(this);
+        cbVisible.addActionListener(this);
         getRootPane().setDefaultButton(btnClose);
         btnPanel.add(btnZoomToRoute, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         btnPanel.add(btnZoomToWp, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         btnPanel.add(btnDelete, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         btnPanel.add(btnActivate, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        btnPanel.add(btnClose, new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0, EAST, NONE, insets5, 0, 0));
+        btnPanel.add(cbVisible, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        btnPanel.add(btnClose, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, EAST, NONE, insets5, 0, 0));
     }
     
     
@@ -479,6 +479,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         // Update the route start time and the start time-related fields 
         adjustStartTime();
         
+        cbVisible.setSelected(route.isVisible());
+        
         updateButtonEnabledState();
         
         // Done
@@ -543,12 +545,18 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             routeUpdated();
         
         } else if (evt.getSource() == btnActivate) {
-            routeManager.changeActiveWp(selectedWp);
+            EPD.getInstance().getRouteManager().changeActiveWp(selectedWp);
             routeUpdated();
         
         } else if (evt.getSource() == btnClose) {
             dispose();
         
+        } else if (evt.getSource() == cbVisible) {
+            route.setVisible(cbVisible.isSelected());
+            
+            EPD.getInstance().getRouteManager()
+                .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+            
         } else if (evt.getSource() == etaCalculationTime) {
             route.setEtaCalculationType((EtaCalculationType)etaCalculationTime.getSelectedItem());
             adjustStartTime();
@@ -678,10 +686,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                     JOptionPane.YES_NO_OPTION, 
                     JOptionPane.QUESTION_MESSAGE);
             if (result == JOptionPane.YES_OPTION) {
-                if (routeManager != null) {
-                    routeManager.removeRoute(routeManager.getRouteIndex(route));
-                    routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
-                }
+                EPD.getInstance().getRouteManager().removeRoute(
+                        EPD.getInstance().getRouteManager().getRouteIndex(route));
+                EPD.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
                 dispose();
             }
         }
@@ -698,9 +705,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             route.deleteWaypoint(selectedWp);
             adjustStartTime();
             routeTableModel.fireTableDataChanged();
-            if (routeManager != null) {
-                routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
-            }
+            EPD.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
         }
     }
 
@@ -709,9 +714,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * @param event the event to signal
      */
     private void notifyRouteListeners(RoutesUpdateEvent event) {
-        if (routeManager != null) {
-            routeManager.notifyListeners(event);
-        }
+        EPD.getInstance().getRouteManager().notifyListeners(event);
     }
     
     /**

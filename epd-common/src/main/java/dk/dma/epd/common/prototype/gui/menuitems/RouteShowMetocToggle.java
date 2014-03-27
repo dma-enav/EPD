@@ -15,22 +15,22 @@
  */
 package dk.dma.epd.common.prototype.gui.menuitems;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteShowMetocToggle extends RouteMenuItem<RouteManagerCommon> {
+public class RouteShowMetocToggle extends RouteMenuItem {
     
     private static final long serialVersionUID = 1L;
 
     @Override
     public void doAction() {
-        Route route = routeManager.getRoute(routeIndex);
+        Route route = EPD.getInstance().getRouteManager().getRoute(routeIndex);
         if(route.getRouteMetocSettings().isShowRouteMetoc()){
             route.getRouteMetocSettings().setShowRouteMetoc(false);
         } else {
             route.getRouteMetocSettings().setShowRouteMetoc(true);
         }
-        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_METOC_CHANGED);
+        EPD.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_METOC_CHANGED);
     }
 }

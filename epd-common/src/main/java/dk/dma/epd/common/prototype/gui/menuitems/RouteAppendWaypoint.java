@@ -15,11 +15,11 @@
  */
 package dk.dma.epd.common.prototype.gui.menuitems;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteAppendWaypoint extends RouteMenuItem<RouteManagerCommon> {
+public class RouteAppendWaypoint extends RouteMenuItem {
     
     private static final long serialVersionUID = 1L;
 
@@ -30,8 +30,8 @@ public class RouteAppendWaypoint extends RouteMenuItem<RouteManagerCommon> {
     
     @Override
     public void doAction() {
-        Route route = routeManager.getRoute(routeIndex);
+        Route route = EPD.getInstance().getRouteManager().getRoute(routeIndex);
         route.appendWaypoint();
-        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_APPENDED);
+        EPD.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_APPENDED);
     }
 }

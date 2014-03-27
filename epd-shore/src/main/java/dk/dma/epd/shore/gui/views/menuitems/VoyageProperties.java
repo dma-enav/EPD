@@ -20,8 +20,6 @@ import javax.swing.JMenuItem;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
-import dk.dma.epd.shore.route.RouteManager;
-
 
 
 public class VoyageProperties extends JMenuItem implements IMapMenuAction {
@@ -31,7 +29,6 @@ public class VoyageProperties extends JMenuItem implements IMapMenuAction {
      */
     private static final long serialVersionUID = 1L;
     private int routeIndex;
-    private RouteManager routeManager;
 
     public VoyageProperties(String text) {
         super();
@@ -44,7 +41,6 @@ public class VoyageProperties extends JMenuItem implements IMapMenuAction {
                 new RoutePropertiesDialog(
                         EPDShore.getInstance().getMainFrame(), 
                         EPDShore.getInstance().getMainFrame().getActiveChartPanel(),
-                        routeManager, 
                         routeIndex);
         routePropertiesDialog.setVisible(true);
     }
@@ -52,9 +48,4 @@ public class VoyageProperties extends JMenuItem implements IMapMenuAction {
     public void setRouteIndex(int routeIndex) {
         this.routeIndex = routeIndex;
     }
-
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

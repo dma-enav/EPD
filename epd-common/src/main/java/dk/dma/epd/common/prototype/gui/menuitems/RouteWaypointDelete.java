@@ -20,9 +20,8 @@ import javax.swing.JOptionPane;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteWaypointDelete extends RouteMenuItem<RouteManagerCommon> {
+public class RouteWaypointDelete extends RouteMenuItem {
     
     private static final long serialVersionUID = 1L;
     private int routeWaypointIndex;
@@ -34,7 +33,7 @@ public class RouteWaypointDelete extends RouteMenuItem<RouteManagerCommon> {
     
     @Override
     public void doAction() {
-        Route route = routeManager.getRoute(routeIndex);
+        Route route = EPD.getInstance().getRouteManager().getRoute(routeIndex);
         if (route.getWaypoints().size() < 3) {
 
             int result = JOptionPane
@@ -47,14 +46,14 @@ public class RouteWaypointDelete extends RouteMenuItem<RouteManagerCommon> {
             if (result == JOptionPane.YES_OPTION) {
                 route.deleteWaypoint(routeWaypointIndex);
 
-                routeManager.removeRoute(routeIndex);
+                EPD.getInstance().getRouteManager().removeRoute(routeIndex);
 
-                routeManager
+                EPD.getInstance().getRouteManager()
                         .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
             }
         } else {
             route.deleteWaypoint(routeWaypointIndex);
-            routeManager
+            EPD.getInstance().getRouteManager()
                     .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
         }
         

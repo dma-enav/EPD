@@ -103,7 +103,6 @@ public final class EPDShore extends EPD {
     private SRUManager sruManager;
     private VOCTManager voctManager;
 
-    private RouteManager routeManager;
     private VoyageManager voyageManager;
 
     // Maritime Cloud services
@@ -531,8 +530,9 @@ public final class EPDShore extends EPD {
         return Position.create(pos.getLatitude(), pos.getLongitude());
     }
 
+    @Override
     public RouteManager getRouteManager() {
-        return routeManager;
+        return (RouteManager)routeManager;
     }
 
     public SRUManager getSRUManager() {

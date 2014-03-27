@@ -99,11 +99,10 @@ public class RouteManagerPanel extends JPanel implements ActionListener,
     /**
      * Constructor
      * 
-     * @param routeManager
      * @param routeManagerDialog
      */
-    public RouteManagerPanel(RouteManager routeManager, RouteManagerDialog routeManagerDialog){
-        this.routeManager = routeManager;
+    public RouteManagerPanel(RouteManagerDialog routeManagerDialog){
+        this.routeManager = EPDShip.getInstance().getRouteManager();
         this.routeManagerDialog = routeManagerDialog;
         
         routesTableModel = new RoutesTableModel(routeManager);
@@ -286,7 +285,6 @@ public class RouteManagerPanel extends JPanel implements ActionListener,
             RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(
                     routeManagerDialog, 
                     EPDShip.getInstance().getMainFrame().getChartPanel(),
-                    routeManager, 
                     i);
             routePropertiesDialog.setVisible(true);
         }

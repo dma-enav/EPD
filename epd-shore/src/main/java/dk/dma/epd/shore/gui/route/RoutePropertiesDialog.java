@@ -22,7 +22,6 @@ import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon.RouteCh
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
-import dk.dma.epd.shore.route.RouteManager;
 
 /**
  * Dialog with route properties
@@ -32,9 +31,8 @@ public class RoutePropertiesDialog extends RoutePropertiesDialogCommon implement
     private static final long serialVersionUID = 1L;
     VoyageHandlingLayer voyageHandlingLayer;
 
-    public RoutePropertiesDialog(Window parent, ChartPanel chartPanel, RouteManager routeManager,
-            int routeId) {
-        super(parent, chartPanel, routeManager, routeId);
+    public RoutePropertiesDialog(Window parent, ChartPanel chartPanel, int routeId) {
+        super(parent, chartPanel, routeId);
         addRouteChangeListener(this);
     }
 

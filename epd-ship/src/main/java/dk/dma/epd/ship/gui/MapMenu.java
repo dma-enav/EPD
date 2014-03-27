@@ -168,7 +168,6 @@ public class MapMenu extends MapMenuCommon {
         
         // Prep the clearMap action
         routeHide.setRouteIndex(RouteHide.ALL_INACTIVE_ROUTES);
-        routeHide.setRouteManager(routeManager);
         clearMap.setMapMenuActions(hideIntendedRoutes, routeHide, hidePastTracks, mainFrame.getTopPanel().getHideAisNamesAction());
         
         if (alone) {
@@ -370,7 +369,6 @@ public class MapMenu extends MapMenuCommon {
             routeAppendWaypoint.setEnabled(true);
         }
 
-        routeAppendWaypoint.setRouteManager(routeManager);
         routeAppendWaypoint.setRouteIndex(routeIndex);
         add(routeAppendWaypoint);
 
@@ -395,23 +393,18 @@ public class MapMenu extends MapMenuCommon {
 
         // addSeparator();
 
-        routeActivateToggle.setRouteManager(routeManager);
         routeActivateToggle.setRouteIndex(routeIndex);
         add(routeActivateToggle);
 
-        routeHide.setRouteManager(routeManager);
         routeHide.setRouteIndex(routeIndex);
         add(routeHide);
 
-        routeDelete.setRouteManager(routeManager);
         routeDelete.setRouteIndex(routeIndex);
         add(routeDelete);
 
-        routeCopy.setRouteManager(routeManager);
         routeCopy.setRouteIndex(routeIndex);
         add(routeCopy);
 
-        routeReverse.setRouteManager(routeManager);
         routeReverse.setRouteIndex(routeIndex);
         add(routeReverse);
 
@@ -421,7 +414,6 @@ public class MapMenu extends MapMenuCommon {
         monaLisaRouteRequest.setOwnShipHandler(ownShipHandler);
         add(monaLisaRouteRequest);
 
-        routeRequestMetoc.setRouteManager(routeManager);
         routeRequestMetoc.setRouteIndex(routeIndex);
         add(routeRequestMetoc);
 
@@ -438,15 +430,12 @@ public class MapMenu extends MapMenuCommon {
             routeShowMetocToggle.setText("Show METOC");
         }
 
-        routeShowMetocToggle.setRouteManager(routeManager);
         routeShowMetocToggle.setRouteIndex(routeIndex);
         add(routeShowMetocToggle);
 
-        routeMetocProperties.setRouteManager(routeManager);
         routeMetocProperties.setRouteIndex(routeIndex);
         add(routeMetocProperties);
 
-        routeProperties.setRouteManager(routeManager);
         routeProperties.setRouteIndex(routeIndex);
         routeProperties.setChartPanel(EPDShip.getInstance().getMainFrame().getChartPanel());
         add(routeProperties);
@@ -472,7 +461,6 @@ public class MapMenu extends MapMenuCommon {
         }
 
         routeLegInsertWaypoint.setMapBean(mapBean);
-        routeLegInsertWaypoint.setRouteManager(routeManager);
         routeLegInsertWaypoint.setRouteLeg(routeLeg);
         routeLegInsertWaypoint.setRouteIndex(routeIndex);
         routeLegInsertWaypoint.setPoint(point);
@@ -509,7 +497,6 @@ public class MapMenu extends MapMenuCommon {
 
         routeWaypointDelete.setRouteWaypointIndex(routeWaypointIndex);
         routeWaypointDelete.setRouteIndex(routeIndex);
-        routeWaypointDelete.setRouteManager(routeManager);
         add(routeWaypointDelete);
 
         generalRouteMenu(routeIndex);

@@ -315,7 +315,6 @@ public class MapMenu extends MapMenuCommon {
         routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager();
         route = routeManager.getRoute(routeIndex);
 
-        routeAppendWaypoint.setRouteManager(routeManager);
         routeAppendWaypoint.setRouteIndex(routeIndex);
         add(routeAppendWaypoint);
 
@@ -325,23 +324,18 @@ public class MapMenu extends MapMenuCommon {
         setRouteExchangeRoute.setSendRouteDialog(EPDShore.getInstance().getMainFrame().getSendRouteDialog());
         add(setRouteExchangeRoute);
 
-        routeHide.setRouteManager(routeManager);
         routeHide.setRouteIndex(routeIndex);
         add(routeHide);
 
-        routeDelete.setRouteManager(routeManager);
         routeDelete.setRouteIndex(routeIndex);
         add(routeDelete);
 
-        routeCopy.setRouteManager(routeManager);
         routeCopy.setRouteIndex(routeIndex);
         add(routeCopy);
 
-        routeReverse.setRouteManager(routeManager);
         routeReverse.setRouteIndex(routeIndex);
         add(routeReverse);
 
-        routeRequestMetoc.setRouteManager(routeManager);
         routeRequestMetoc.setRouteIndex(routeIndex);
         add(routeRequestMetoc);
 
@@ -357,15 +351,12 @@ public class MapMenu extends MapMenuCommon {
             routeShowMetocToggle.setText("Show METOC");
         }
 
-        routeShowMetocToggle.setRouteManager(routeManager);
         routeShowMetocToggle.setRouteIndex(routeIndex);
         add(routeShowMetocToggle);
 
-        routeMetocProperties.setRouteManager(routeManager);
         routeMetocProperties.setRouteIndex(routeIndex);
         add(routeMetocProperties);
 
-        routeProperties.setRouteManager(routeManager);
         routeProperties.setRouteIndex(routeIndex);
         routeProperties.setChartPanel(EPDShore.getInstance().getMainFrame().getActiveChartPanel());
         add(routeProperties);
@@ -392,7 +383,6 @@ public class MapMenu extends MapMenuCommon {
 
         routeLegInsertWaypoint.setEnabled(true);
         routeLegInsertWaypoint.setMapBean(mapBean);
-        routeLegInsertWaypoint.setRouteManager(routeManager);
         routeLegInsertWaypoint.setRouteLeg(routeLeg);
         routeLegInsertWaypoint.setRouteIndex(routeIndex);
         routeLegInsertWaypoint.setPoint(point);
@@ -421,7 +411,6 @@ public class MapMenu extends MapMenuCommon {
 
         routeWaypointDelete.setRouteWaypointIndex(routeWaypointIndex);
         routeWaypointDelete.setRouteIndex(routeIndex);
-        routeWaypointDelete.setRouteManager(routeManager);
         add(routeWaypointDelete);
 
         generalRouteMenu(routeIndex);

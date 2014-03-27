@@ -108,7 +108,6 @@ public final class EPDShip extends EPD {
     private MultiSourcePntHandler msPntHandler;
     private OwnShipHandler ownShipHandler;
     private RiskHandler riskHandler;
-    private RouteManager routeManager;
     private ShoreServicesCommon shoreServices;
     private MonaLisaRouteOptimization monaLisaRouteExchange;
     private NogoHandler nogoHandler;
@@ -801,8 +800,9 @@ public final class EPDShip extends EPD {
         return ownShipHandler;
     }
     
+    @Override
     public RouteManager getRouteManager() {
-        return routeManager;
+        return (RouteManager)routeManager;
     }
 
     public MapHandler getMapHandler() {

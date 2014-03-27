@@ -39,6 +39,7 @@ import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.MaritimeCloudService;
@@ -62,6 +63,7 @@ public abstract class EPD implements ISettingsListener {
     protected volatile Path homePath;
     
     // Common services
+    protected RouteManagerCommon routeManager;
     protected MaritimeCloudService maritimeCloudService;
     protected ChatServiceHandlerCommon chatServiceHandler;
     protected AisHandlerCommon aisHandler;
@@ -219,6 +221,10 @@ public abstract class EPD implements ISettingsListener {
      */
     public MsiHandler getMsiHandler() {
         return msiHandler;
+    }
+    
+    public RouteManagerCommon getRouteManager() {
+        return routeManager;
     }
     
     public StrategicRouteHandlerCommon getStrategicRouteHandler() {

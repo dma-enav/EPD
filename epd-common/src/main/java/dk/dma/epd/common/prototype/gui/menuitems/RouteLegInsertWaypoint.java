@@ -23,12 +23,12 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.math.Vector2D;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteLegInsertWaypoint extends RouteMenuItem<RouteManagerCommon> {
+public class RouteLegInsertWaypoint extends RouteMenuItem {
     
     private static final long serialVersionUID = 1L;
     
@@ -62,9 +62,9 @@ public class RouteLegInsertWaypoint extends RouteMenuItem<RouteManagerCommon> {
         
         Position newGeoLocation = Position.create(projectedVector.getY2(), projectedVector.getX2());
         
-        Route route = routeManager.getRoute(routeIndex);
+        Route route = EPD.getInstance().getRouteManager().getRoute(routeIndex);
         route.createWaypoint(routeLeg, newGeoLocation);
-        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_APPENDED);
+        EPD.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_APPENDED);
     }
     
     public void setRouteLeg(RouteLeg routeLeg) {

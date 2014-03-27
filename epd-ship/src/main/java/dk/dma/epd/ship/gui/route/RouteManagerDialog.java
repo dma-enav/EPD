@@ -21,10 +21,9 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.route.RouteManager;
 
 /**
  * Route manager dialog
@@ -33,8 +32,6 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
 
     private static final long serialVersionUID = 1L;
 
-    protected RouteManager routeManager;
-    
     private  RouteManagerPanel routePanel;
 
     /**
@@ -43,18 +40,17 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
      */
     public RouteManagerDialog(JFrame parent) {
         super(parent, "Route Manager", false);
-        routeManager = EPDShip.getInstance().getRouteManager();
 
         setSize(600, 430);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
 
         // Add the route panel
-        routePanel = new RouteManagerPanel(routeManager, this);
+        routePanel = new RouteManagerPanel(this);
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(routePanel, BorderLayout.CENTER);
         
-        routeManager.addListener(this);
+        EPD.getInstance().getRouteManager().addListener(this);
         
         getRootPane().setDefaultButton(routePanel.getCloseButton());
     }
