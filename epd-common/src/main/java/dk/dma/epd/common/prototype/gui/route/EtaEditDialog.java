@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.gui.route;
 
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
@@ -24,6 +25,7 @@ import java.util.Date;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
@@ -46,7 +48,9 @@ import dk.dma.epd.common.util.ParseUtils;
  */
 public class EtaEditDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 1L;
-
+    
+    static final String TITLE = "ETA edit";
+    
     Date eta;
     JLabel lblEta = new JLabel("ETA");
     JButton btnSave = new JButton("Save");
@@ -58,11 +62,22 @@ public class EtaEditDialog extends JDialog implements ActionListener {
     JRadioButton adjust2;
     JRadioButton adjust3;
 
-    public EtaEditDialog(JDialog owner, Date eta) {
-        super(owner, "ETA edit", true);
-        this.eta = eta;
-        setSize(250, 160);
+    public EtaEditDialog(JFrame owner, Date eta, String wpName) {
+        super(owner, TITLE + ": " + wpName, true);
         setLocationRelativeTo(owner);
+        this.eta = eta;
+        initGUI();
+    }
+
+    public EtaEditDialog(Dialog owner, Date eta, String wpName) {
+        super(owner, TITLE + ": " + wpName, true);
+        setLocationRelativeTo(owner);
+        this.eta = eta;
+        initGUI();
+    }
+
+    private void initGUI() {
+        setSize(250, 160);
         setResizable(false);
         setUndecorated(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -100,6 +115,7 @@ public class EtaEditDialog extends JDialog implements ActionListener {
 
         adjust3.setBounds(6, 78, 250, 16);
         getContentPane().add(adjust3);
+
         adjust3.setSelected(true);
 
         btnSave.setBounds(6, 106, 75, 16);
@@ -109,13 +125,20 @@ public class EtaEditDialog extends JDialog implements ActionListener {
         btnCancel.setBounds(86, 106, 71, 16);
         btnCancel.addActionListener(this);
         getContentPane().add(btnCancel);
+
     }
 
     public EtaAdjust getEtaAdjust() {
+        setVisible(true);
         if (eta == null) {
             return null;
         }
         return new EtaAdjust(eta, getAdjustType());
+    }
+    
+    public EtaAdjust getEtaAdjust(int x, int y) {
+        setLocation(x, y);
+        return getEtaAdjust();
     }
 
     public EtaAdjustType getAdjustType() {

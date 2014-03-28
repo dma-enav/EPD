@@ -1008,6 +1008,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         
         JButton button;
         Date eta;
+        String wpName;
         EtaAdjust etaAdjust;
         
         public EtaEditor() {
@@ -1021,7 +1022,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             if (e.getSource() != button) {
                 return;
             }
-            EtaEditDialog etaDialog = new EtaEditDialog(RoutePropertiesDialogCommon.this, eta);
+            EtaEditDialog etaDialog = new EtaEditDialog(RoutePropertiesDialogCommon.this, eta, wpName);
             etaDialog.setVisible(true);
             etaAdjust = etaDialog.getEtaAdjust();
             fireEditingStopped();
@@ -1035,7 +1036,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            eta = RoutePropertiesDialogCommon.this.route.getWpEta(row);            
+            eta = RoutePropertiesDialogCommon.this.route.getWpEta(row);         
+            wpName = RoutePropertiesDialogCommon.this.route.getWaypoints().get(row).getName();
             return button;
         }
         

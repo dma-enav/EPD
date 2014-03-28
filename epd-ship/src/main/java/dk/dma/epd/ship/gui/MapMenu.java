@@ -488,9 +488,13 @@ public class MapMenu extends MapMenuCommon {
         if (routeManager.getActiveRouteIndex() == routeIndex) {
             routeWaypointActivateToggle.setEnabled(true);
             routeWaypointDelete.setEnabled(false);
+            routeWaypointEditEta.setEnabled(false);
+            routeWaypointEditEta.setVisible(false);
         } else {
             routeWaypointActivateToggle.setEnabled(false);
             routeWaypointDelete.setEnabled(true);
+            routeWaypointEditEta.setVisible(true);
+            routeWaypointEditEta.setEnabled(true);
         }
 
         add(routeWaypointActivateToggle);
@@ -498,6 +502,9 @@ public class MapMenu extends MapMenuCommon {
         routeWaypointDelete.setRouteWaypointIndex(routeWaypointIndex);
         routeWaypointDelete.setRouteIndex(routeIndex);
         add(routeWaypointDelete);
+        routeWaypointEditEta.setRouteWaypointIndex(routeWaypointIndex);
+        routeWaypointEditEta.setRouteIndex(routeIndex);
+        add(routeWaypointEditEta);
 
         generalRouteMenu(routeIndex);
         revalidate();

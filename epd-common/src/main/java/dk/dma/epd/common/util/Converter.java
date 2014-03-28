@@ -40,5 +40,9 @@ public class Converter {
     public static double metersToFeet(double m) {
         return m * M_IN_FEET;
     }
+    
+    public static double millisToHours(long millis) {
+        return (double)millis / 3600000.0;
+    }
 
 }
