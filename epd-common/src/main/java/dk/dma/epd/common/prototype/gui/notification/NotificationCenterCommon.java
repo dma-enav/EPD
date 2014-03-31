@@ -178,6 +178,11 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         try {
             LOG.info("Triggering alert " + alert + " for notification " + notification.getId());
 
+            // Handle opening the notification
+            if (alert.hasAlertType(AlertType.OPEN)) {
+                openNotification(notification.getType(), notification.getId(), false);
+            }
+            
             // Handle beep alerts
             if (alert.hasAlertType(AlertType.BEEP)) {
                 Toolkit.getDefaultToolkit().beep();
