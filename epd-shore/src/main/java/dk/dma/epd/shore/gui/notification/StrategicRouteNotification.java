@@ -86,7 +86,7 @@ public class StrategicRouteNotification extends StrategicRouteNotificationCommon
     public String getVesselCallsign() {
         VesselStaticData staticData = getVesselStaticData();
         if (staticData != null) {
-            return staticData.getCallsign();
+            return staticData.getTrimmedCallsign();
         }
         return "N/A";
     }

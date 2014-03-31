@@ -41,6 +41,7 @@ public abstract class InfoPanel extends JPanel {
 
     private JLabel textLabel;
     private JLabel imageLabel;
+    private double mouseDist;
 
     /**
      * Constructor
@@ -87,7 +88,6 @@ public abstract class InfoPanel extends JPanel {
         validate();
         Dimension d = textLabel.getSize();
         this.setSize(d.width + 6, d.height + 4);
-        setVisible(true);
     }
 
     /**
@@ -107,7 +107,6 @@ public abstract class InfoPanel extends JPanel {
         validate();
         Dimension d = imageLabel.getSize();
         this.setSize(d.width, d.height);
-        setVisible(true);
     }
 
     /**
@@ -119,7 +118,22 @@ public abstract class InfoPanel extends JPanel {
         resizeAndShow();
     }
 
-    
+    /**
+     * Returns the distance from the current cursor position to the graphics associated with the info panel
+     * @return the distance from the current cursor position to the graphics associated with the info panel
+     */
+    public double getMouseDist() {
+        return mouseDist;
+    }
+
+    /**
+     * Sets the distance from the current cursor position to the graphics associated with the info panel
+     * @param mouseDist the distance from the current cursor position to the graphics associated with the info panel
+     */
+    public void setMouseDist(double mouseDist) {
+        this.mouseDist = mouseDist;
+    }
+
     /**
      * Defines a binding between {@linkplain OMGraphic} classes and {@code InfoPanel}
      */
