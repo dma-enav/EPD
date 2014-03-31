@@ -694,11 +694,11 @@ public final class EPDShip extends EPD {
         transponderFrame.shutdown();
 
         // Stop the Maritime Cloud connection
-        maritimeCloudService.stop();
         strategicRouteHandler.shutdown();
         routeSuggestionHandler.shutdown();
         intendedRouteHandler.shutdown();
         chatServiceHandler.shutdown();
+        maritimeCloudService.stop();
 
         // Stop the system tray
         systemTray.shutdown();

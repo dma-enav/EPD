@@ -98,6 +98,18 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     public void cloudDisconnected() {
         running = false;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void shutdown() {
+        // Before shutting down, attempt to broadcast a no-intended route message
+        // so that other clients will remove the intended route of this ship
+        broadcastIntendedRoute(null, false);
+        
+        super.shutdown();
+    }
 
     /**
      * Main thread run method. Broadcasts the intended route
@@ -178,6 +190,16 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
      * Broadcast intended route
      */
     public void broadcastIntendedRoute() {
+        broadcastIntendedRoute(routeManager.getActiveRoute(), true);
+    }
+    
+    /**
+     * Broadcast intended route
+     * 
+     * @param  activeRoute the active route to broadcast
+     * @param async whether to broadcast the message asynchronously or not
+     */
+    public void broadcastIntendedRoute(ActiveRoute activeRoute, boolean async) {
         // Sanity check
         if (!running || routeManager == null || getMaritimeCloudConnection() == null) {
             return;
@@ -186,11 +208,11 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         // Make intended route message
         final IntendedRouteBroadcast message = new IntendedRouteBroadcast();
 
-        if (routeManager.getActiveRoute() != null) {
+        if (activeRoute != null) {
             PartialRouteFilter filter = EPDShip.getInstance().getSettings().getCloudSettings().getIntendedRouteFilter();
-            routeManager.getActiveRoute().getPartialRouteData(filter, message);
+            activeRoute.getPartialRouteData(filter, message);
 
-            lastTransmitActiveWp = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());
+            lastTransmitActiveWp = new DateTime(activeRoute.getActiveWaypointEta());
 
         } else {
             message.setRoute(new IntendedRouteMessage());
@@ -198,15 +220,21 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
         // send message
         LOG.debug("Broadcasting intended route");
-
-        submitIfConnected(new Runnable() {
+        
+        Runnable broadcastMessage = new Runnable() {
             @Override
             public void run() {
                 BroadcastOptions options = new BroadcastOptions();
                 options.setBroadcastRadius(BROADCAST_RADIUS);
                 getMaritimeCloudConnection().broadcast(message, options);
             }
-        });
+        };
+        
+        if (async) {
+            submitIfConnected(broadcastMessage);
+        } else {
+            broadcastMessage.run();
+        }
     }
 
     /**
