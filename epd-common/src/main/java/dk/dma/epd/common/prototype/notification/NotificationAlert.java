@@ -42,7 +42,7 @@ public class NotificationAlert implements Serializable {
      * Defines the type of alert that the service can cause
      */
     public enum AlertType {
-        POPUP, SYSTEM_TRAY, BEEP;
+        POPUP, SYSTEM_TRAY, BEEP, OPEN;
     }
     
     private static final long serialVersionUID = 1L;

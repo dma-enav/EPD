@@ -15,16 +15,17 @@
  */
 package dk.dma.epd.common.prototype.gui.route;
 
-import static java.awt.GridBagConstraints.NONE;
-import static java.awt.GridBagConstraints.EAST;
-import static java.awt.GridBagConstraints.WEST;
-import static java.awt.GridBagConstraints.NORTHWEST;
-import static java.awt.GridBagConstraints.BOTH;
-import static java.awt.GridBagConstraints.HORIZONTAL;
 import static dk.dma.epd.common.graphics.GraphicsUtil.fixSize;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.EAST;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.NORTHWEST;
+import static java.awt.GridBagConstraints.WEST;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -54,6 +56,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JSpinner.DateEditor;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
 import javax.swing.UIManager;
@@ -66,6 +69,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import javax.swing.text.DefaultFormatter;
 
 import org.apache.commons.lang.StringUtils;
@@ -80,6 +84,7 @@ import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.Route.EtaAdjust;
 import dk.dma.epd.common.prototype.model.route.Route.EtaCalculationType;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -295,6 +300,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         routeDetailTable.fixColumnWidth(0, COL_MIN_WIDTHS[0]);
         routeDetailTable.getColumn(0).setCellRenderer(new LockTableCell.CustomBooleanCellRenderer());
         routeDetailTable.getColumn(0).setCellEditor(new LockTableCell.CustomBooleanCellEditor());
+        
+        // Configure ETA column
+        routeDetailTable.getColumn(7).setCellEditor(new EtaEditor());
 
         // Configure heading column
         JComboBox<Heading> headingCombo = new JComboBox<>(Heading.values());
@@ -406,6 +414,14 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                         break;
                     case 6:
                         wp.getInLeg().setSpeedFromTtg(parseTime(value.toString()));
+                        adjustStartTime();
+                        break;
+                    case 7:
+                        if (value == null) {
+                            break;
+                        }
+                        // Try to change route given ETA
+                        route.adjustEta(rowIndex, (EtaAdjust)value);
                         adjustStartTime();
                         break;
                     case 10: 
@@ -584,11 +600,11 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         }        
         
         if (evt.getSource() == departurePicker) {
-            Date date = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
+            Date date = ParseUtils.combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
             route.setStarttime(date);
             adjustStartTime();
         } else if (evt.getSource() == arrivalPicker) {
-            Date date = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
+            Date date = ParseUtils.combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
             recalculateSpeeds(date);
         } else {
             return;
@@ -608,11 +624,11 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         }
         
         if (spinner == departureSpinner) {
-            Date date = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
+            Date date = ParseUtils.combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
             route.setStarttime(date);
             adjustStartTime();
         } else if (spinner == arrivalSpinner) {            
-            Date date = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
+            Date date = ParseUtils.combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
             recalculateSpeeds(date);
         } else {
             return;
@@ -862,26 +878,6 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     /***************************************************/
     
     /**
-     * Combines the date from the first {@code date} parameter with the 
-     * time from the {@code time} parameter
-     * 
-     * @param date the date
-     * @param time the time
-     * @return the combined date
-     */
-    private static Date combineDateTime(Date date, Date time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        Calendar timeCal = Calendar.getInstance();
-        timeCal.setTime(time);
-
-        cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
-        cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
-        cal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
-        return cal.getTime();
-    }
-
-    /**
      * Parses the text field as a double. Will skip any type suffix.
      * @param str the string to parse as a double
      * @return the resulting value
@@ -1006,8 +1002,47 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             textFieldValueChanged(field);
         }   
     }
+    
+    class EtaEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {        
+        private static final long serialVersionUID = 1L;
+        
+        JButton button;
+        Date eta;
+        String wpName;
+        EtaAdjust etaAdjust;
+        
+        public EtaEditor() {
+            button = new JButton("Edit");
+            button.addActionListener(this);
+            
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() != button) {
+                return;
+            }
+            EtaEditDialog etaDialog = new EtaEditDialog(RoutePropertiesDialogCommon.this, eta, wpName);
+            etaDialog.setVisible(true);
+            etaAdjust = etaDialog.getEtaAdjust();
+            fireEditingStopped();
+            
+        }
 
+        @Override
+        public Object getCellEditorValue() {
+            return etaAdjust;
+        }
 
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            eta = RoutePropertiesDialogCommon.this.route.getWpEta(row);         
+            wpName = RoutePropertiesDialogCommon.this.route.getWaypoints().get(row).getName();
+            return button;
+        }
+        
+    }
+    
     /**
      * Interface to be implemented by clients wishing 
      * to be notified about updates to the route

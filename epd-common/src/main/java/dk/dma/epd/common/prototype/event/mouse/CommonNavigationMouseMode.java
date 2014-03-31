@@ -72,7 +72,7 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
         // This cursor can be used in the classes which will inherit from this class.
         Toolkit tk = Toolkit.getDefaultToolkit();
         Image cursorIcon = EPD.res().getCachedImageIcon("images/toolbar/zoom_cursor.png").getImage();
-        this.NAV_CURSOR = tk.createCustomCursor(cursorIcon, new Point(0, 0), "zoom");
+        this.NAV_CURSOR = tk.createCustomCursor(cursorIcon, new Point(5, 5), "zoom");
     }
     
     /**

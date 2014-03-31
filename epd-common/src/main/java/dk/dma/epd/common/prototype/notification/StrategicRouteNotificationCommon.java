@@ -23,7 +23,6 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
-import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.text.Formatter;
 
 /**
@@ -43,13 +42,6 @@ public abstract class StrategicRouteNotificationCommon extends Notification<Stra
 
         acknowledged = read = routeData.isHandled();
         date = routeData.getLatestSentDate();
-        
-        if (acknowledged) {
-            severity = NotificationSeverity.MESSAGE;
-        } else {
-            severity = NotificationSeverity.WARNING;
-            addAlerts(new NotificationAlert(AlertType.POPUP));
-        }
     }
 
     /**

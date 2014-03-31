@@ -20,7 +20,9 @@ import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.StrategicRouteNotificationCommon;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 
 /**
  * A shore-specific strategic route implementation of the {@linkplain StrategicRouteNotificationCommon} class
@@ -41,6 +43,13 @@ public class StrategicRouteNotification extends StrategicRouteNotificationCommon
                 "Route request from %s with status %s", 
                 getCallerlName(), 
                 routeData.getStatus());        
+        
+        if (acknowledged) {
+            severity = NotificationSeverity.MESSAGE;
+        } else {
+            severity = NotificationSeverity.WARNING;
+            addAlerts(new NotificationAlert(AlertType.POPUP));
+        }
     }
     
     /**

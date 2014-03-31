@@ -70,11 +70,11 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
         // Create the drag cursor.
         Toolkit tk = Toolkit.getDefaultToolkit();
         Image cursorIcon = EPD.res().getCachedImageIcon("images/toolbar/drag_mouse.png").getImage();
-        this.DRAG_CURSOR = tk.createCustomCursor(cursorIcon, new Point(0, 0), "drag");
+        this.DRAG_CURSOR = tk.createCustomCursor(cursorIcon, new Point(7, 7), "drag");
         
         // Create the drag-when-button-is-down cursor.
         cursorIcon = EPD.res().getCachedImageIcon("images/toolbar/drag_on_mouse.png").getImage();
-        this.DRAG_DOWN_CURSOR = tk.createCustomCursor(cursorIcon, new Point(0, 0), "dragDown");
+        this.DRAG_DOWN_CURSOR = tk.createCustomCursor(cursorIcon, new Point(7, 7), "dragDown");
         
         // Set the drag cursor.
         this.setModeCursor(this.DRAG_CURSOR);

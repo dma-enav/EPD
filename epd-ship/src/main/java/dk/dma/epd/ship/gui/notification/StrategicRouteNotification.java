@@ -17,7 +17,9 @@ package dk.dma.epd.ship.gui.notification;
 
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.StrategicRouteNotificationCommon;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.ship.EPDShip;
 
 /**
@@ -41,6 +43,17 @@ public class StrategicRouteNotification extends StrategicRouteNotificationCommon
                     : "Route request sent to %s with status %s", 
                 getCallerlName(), 
                 routeData.getStatus());        
+        
+        if (acknowledged) {
+            severity = NotificationSeverity.MESSAGE;
+        } else {
+            severity = NotificationSeverity.WARNING;
+            if (routeData.getLatestRouteMessage().isFromStcc()) {
+                addAlerts(new NotificationAlert(AlertType.OPEN, AlertType.POPUP));
+            } else {
+                addAlerts(new NotificationAlert(AlertType.POPUP));
+            }
+        }
     }
     
     /**
