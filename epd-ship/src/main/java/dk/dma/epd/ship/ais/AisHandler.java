@@ -18,16 +18,19 @@ package dk.dma.epd.ship.ais;
 import net.jcip.annotations.ThreadSafe;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.ownship.IOwnShipListener;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
  * Class for handling incoming AIS messages and maintainer of AIS target tables
  */
 @ThreadSafe
-public class AisHandler extends AisHandlerCommon {
+public class AisHandler extends AisHandlerCommon implements IOwnShipListener {
 
     private final double aisRange;
 
@@ -66,5 +69,32 @@ public class AisHandler extends AisHandlerCommon {
      */
     public double getAisRange() {
         return aisRange;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
+        if (obj instanceof OwnShipHandler) {
+            ((OwnShipHandler)obj).addListener(this);
+        }
+    }    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override 
+    public void ownShipUpdated(OwnShipHandler ownShipHandler) { 
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override 
+    public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
+        clearAisTargets();
     }
 }

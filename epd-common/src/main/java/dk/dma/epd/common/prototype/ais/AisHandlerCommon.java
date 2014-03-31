@@ -130,6 +130,16 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         }
     }
     
+    /**
+     * Clears all AIS targets
+     */
+    public synchronized void clearAisTargets() {
+        atonTargets.clear();
+        vesselTargets.clear();
+        sarTargets.clear();
+        publishAll();
+    }
+    
     @Override
     public synchronized void receiveOwnMessage(AisMessage aisMessage) {
         return;
@@ -554,8 +564,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         }
     }
 
-
-    
     public final void addListener(IAisTargetListener targetListener) {
         listeners.add(targetListener);
     }

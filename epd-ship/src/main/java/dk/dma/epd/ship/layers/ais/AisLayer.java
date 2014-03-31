@@ -47,13 +47,14 @@ import dk.dma.epd.ship.gui.TopPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
+import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
  * AIS layer. Showing AIS targets and intended routes.
  */
 @ThreadSafe
-public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener {
+public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener, IOwnShipListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -212,6 +213,9 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         if (obj instanceof TopPanel) {
             topPanel = (TopPanel) obj;
         }
+        if (obj instanceof OwnShipHandler) {
+            ((OwnShipHandler)obj).addListener(this);
+        }
     }
 
     @Override
@@ -303,5 +307,20 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     @Override
     public MapMenu getMapMenu() {
         return (MapMenu) super.getMapMenu();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override 
+    public void ownShipUpdated(OwnShipHandler ownShipHandler) { 
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override 
+    public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
+        clearAisTargetGraphics();
     }
 }

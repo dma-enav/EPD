@@ -51,6 +51,7 @@ import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
@@ -78,6 +79,7 @@ import dk.dma.epd.ship.gui.route.RouteManagerDialog;
 import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
+import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
@@ -95,7 +97,7 @@ import dk.dma.epd.ship.settings.EPDSettings;
  * Starts up components, bean context and GUI.
  * 
  */
-public final class EPDShip extends EPD {
+public final class EPDShip extends EPD implements IOwnShipListener {
 
     private static Logger LOG;
 
@@ -202,6 +204,7 @@ public final class EPDShip extends EPD {
         // Start own-ship handler
         ownShipHandler = new OwnShipHandler(settings.getAisSettings());
         ownShipHandler.loadView();
+        ownShipHandler.addListener(this);
         mapHandler.add(ownShipHandler);
 
         // Load routeManager and register as GPS data listener
@@ -481,7 +484,7 @@ public final class EPDShip extends EPD {
             startSensors();
 
         } else if (type == Type.CLOUD) {
-            LOG.warn("Restarting all eNav Service");
+            LOG.warn("Restarting Maritime Cloud connection");
             maritimeCloudService.stop();
             maritimeCloudService.start();
             
@@ -880,5 +883,34 @@ public final class EPDShip extends EPD {
      */
     public static Resources res() {
         return Resources.get(EPDShip.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override 
+    public void ownShipUpdated(OwnShipHandler ownShipHandler) { 
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override 
+    public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
+        
+        // Broadcast a message to remove the intended route 
+        if (getRouteManager().isRouteActive()) {
+            intendedRouteHandler.broadcastIntendedRoute(null, false);
+        }
+        
+        // Restart maritime cloud
+        LOG.warn("Restarting Maritime Cloud connection");
+        maritimeCloudService.stop();
+        maritimeCloudService.start();
+
+        // Broadcast a message to add the intended route 
+        if (getRouteManager().isRouteActive()) {
+            intendedRouteHandler.broadcastIntendedRoute(getRouteManager().getActiveRoute(), true);
+        }
     }
 }

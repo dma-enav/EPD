@@ -76,6 +76,8 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
         super();
         this.aisSettings = aisSettings;
         initAisTarget();
+        publishOwnShipChanged(null, aisTarget);
+        
         EPD.startThread(this, "OwnShipHandler");
     }
 
@@ -84,15 +86,11 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
      */
     private synchronized void initAisTarget() {
         // Log previous own ship value for use in publishOwnShipChanged below.
-        VesselTarget oldOwnShip = this.aisTarget;
         aisTarget = new VesselTarget();
         aisTarget.getSettings().setPastTrackDisplayTime(
                 aisSettings.getPastTrackDisplayTime());
         aisTarget.getSettings().setPastTrackMinDist(
                 aisSettings.getPastTrackOwnShipMinDist());
-        // Inform listeners that this handler has changed the object used to
-        // model own ship.
-        publishOwnShipChanged(oldOwnShip);
     }
 
     /**
@@ -111,6 +109,8 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
     @Override
     public synchronized void receiveOwnMessage(AisMessage aisMessage) {
         // Determine if our vessel has changed. Clear if so.
+        VesselTarget oldOwnShip = aisTarget;
+        
         if (aisMessage.getUserId() != aisTarget.getMmsi()) {
             initAisTarget();
         }
@@ -118,8 +118,7 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
         if (aisMessage instanceof AisPositionMessage) {
             AisPositionMessage aisPositionMessage = (AisPositionMessage) aisMessage;
             aisTarget.setAisClass(VesselTarget.AisClass.A);
-            aisTarget
-                    .setPositionData(new VesselPositionData(aisPositionMessage));
+            aisTarget.setPositionData(new VesselPositionData(aisPositionMessage));
         } else if (aisMessage instanceof AisMessage18) {
             AisMessage18 posMessage = (AisMessage18) aisMessage;
             aisTarget.setAisClass(VesselTarget.AisClass.B);
@@ -134,8 +133,10 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
         // Update the past-tracks
         updatePastTrackPosition();
 
-        // NB: For now we only call publishUpdate upon receiving PNT updates
-        // publishUpdate();
+        // If the MMSI has changed, broadcast to change listeners
+        if (oldOwnShip != aisTarget) {
+            publishOwnShipChanged(oldOwnShip, aisTarget);
+        }
     }
 
     /**
@@ -288,9 +289,9 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
     public void loadView() {
         try (FileInputStream fileIn = new FileInputStream(OWN_SHIP_FILE);
                 ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
-            VesselTarget oldOwnShip = this.aisTarget;
-            this.aisTarget = (VesselTarget) objectIn.readObject();
-            publishOwnShipChanged(oldOwnShip);
+            VesselTarget oldOwnShip = aisTarget;
+            aisTarget = (VesselTarget) objectIn.readObject();
+            publishOwnShipChanged(oldOwnShip, aisTarget);
         } catch (FileNotFoundException e) {
             // Not an error
         } catch (Exception e) {
@@ -331,12 +332,12 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
      * Informs listeners that the {@link VesselTarget} used as own ship by this
      * {@code OwnShipHandler} has now changed.
      * 
-     * @param oldOwnShip
-     *            The {@link VesselTarget} that was previously used as own ship.
+     * @param oldOwnShip The {@link VesselTarget} that was previously used as own ship.
+     * @param newOwnShip The {@link VesselTarget} that is now used as own ship.
      */
-    public final void publishOwnShipChanged(VesselTarget oldOwnShip) {
+    public final void publishOwnShipChanged(VesselTarget oldOwnShip, VesselTarget newOwnShip) {
         for (IOwnShipListener listener : this.listeners) {
-            listener.ownShipChanged(oldOwnShip, this.aisTarget);
+            listener.ownShipChanged(oldOwnShip, newOwnShip);
         }
     }
 
