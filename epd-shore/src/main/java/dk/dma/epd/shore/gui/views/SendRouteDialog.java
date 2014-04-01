@@ -59,7 +59,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.DefaultFormatter;
+import javax.swing.text.DateFormatter;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXDatePicker;
@@ -276,7 +276,10 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         picker.addPropertyChangeListener("date", this);
         
         DateEditor editor = new JSpinner.DateEditor(spinner, "HH:mm");
-        ((DefaultFormatter)editor.getTextField().getFormatter()).setCommitsOnValidEdit(true);
+        DateFormatter formatter = (DateFormatter)editor.getTextField().getFormatter();
+        formatter.setAllowsInvalid(false);
+        formatter.setOverwriteMode(true);
+        formatter.setCommitsOnValidEdit(true);
         spinner.setEditor(editor);
         spinner.addChangeListener(new SpinnerChangeListener());
     }

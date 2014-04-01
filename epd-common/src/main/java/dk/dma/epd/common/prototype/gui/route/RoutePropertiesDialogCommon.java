@@ -70,7 +70,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
-import javax.swing.text.DefaultFormatter;
+import javax.swing.text.DateFormatter;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXDatePicker;
@@ -476,8 +476,12 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private void initDatePicker(JXDatePicker picker, JSpinner spinner) {
         picker.setFormats(new SimpleDateFormat("E dd/MM/yyyy"));
         picker.addPropertyChangeListener("date", this);
+        
         DateEditor editor = new JSpinner.DateEditor(spinner, "HH:mm");
-        ((DefaultFormatter)editor.getTextField().getFormatter()).setCommitsOnValidEdit(true);
+        DateFormatter formatter = (DateFormatter)editor.getTextField().getFormatter();
+        formatter.setAllowsInvalid(false);
+        formatter.setOverwriteMode(true);
+        formatter.setCommitsOnValidEdit(true);
         spinner.setEditor(editor);
         spinner.addChangeListener(new SpinnerChangeListener());
         

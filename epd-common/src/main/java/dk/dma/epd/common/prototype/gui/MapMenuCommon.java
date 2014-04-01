@@ -190,7 +190,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         routeWaypointActivateToggle.addActionListener(this);
         routeWaypointDelete = new RouteWaypointDelete("Delete waypoint");
         routeWaypointDelete.addActionListener(this);
-        routeWaypointEditEta = new RouteWaypointEditEta("Set waypoint ETA");
+        routeWaypointEditEta = new RouteWaypointEditEta("Set waypoint ETA...");
         routeWaypointEditEta.addActionListener(this);
         
         // MSI menu items

@@ -32,7 +32,7 @@ import javax.swing.JSpinner;
 import javax.swing.JSpinner.DateEditor;
 import javax.swing.SpinnerDateModel;
 import javax.swing.WindowConstants;
-import javax.swing.text.DefaultFormatter;
+import javax.swing.text.DateFormatter;
 
 import org.jdesktop.swingx.JXDatePicker;
 
@@ -87,7 +87,10 @@ public class EtaEditDialog extends JDialog implements ActionListener {
         etaDatePicker.setFormats(new SimpleDateFormat("E dd/MM/yyyy"));
         etaTimeSpinner = new JSpinner(new SpinnerDateModel(eta, null, null, Calendar.HOUR_OF_DAY));
         DateEditor editor = new JSpinner.DateEditor(etaTimeSpinner, "HH:mm");
-        ((DefaultFormatter) editor.getTextField().getFormatter()).setCommitsOnValidEdit(true);
+        DateFormatter formatter = (DateFormatter)editor.getTextField().getFormatter();
+        formatter.setAllowsInvalid(false);
+        formatter.setOverwriteMode(true);
+        formatter.setCommitsOnValidEdit(true);
         etaTimeSpinner.setEditor(editor);
 
         lblEta.setBounds(6, 6, 37, 16);
@@ -159,5 +162,10 @@ public class EtaEditDialog extends JDialog implements ActionListener {
             eta = null;
         }
         setVisible(false);
+    }
+    
+    public static void main(String... args) {
+        EtaEditDialog dialog = new EtaEditDialog((JFrame)null, new Date(), "Kurt");
+        dialog.setVisible(true);
     }
 }
