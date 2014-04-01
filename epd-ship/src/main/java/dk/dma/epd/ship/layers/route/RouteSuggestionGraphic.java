@@ -33,17 +33,16 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 /**
  * Graphic for a suggested route
  */
-public class SuggestedRouteGraphic extends OMGraphicList {
+public class RouteSuggestionGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
 
     private List<RouteWaypoint> routeWaypoints;
     private RouteSuggestionData routeSuggestion;
-//    private AisAdressedRouteSuggestion routeSuggestion;
     
     private Stroke stroke;
 
-    public SuggestedRouteGraphic(RouteSuggestionData routeSuggestion, Stroke stroke) {
+    public RouteSuggestionGraphic(RouteSuggestionData routeSuggestion, Stroke stroke) {
         this.routeSuggestion = routeSuggestion;
         this.stroke = stroke;
         
@@ -55,11 +54,11 @@ public class SuggestedRouteGraphic extends OMGraphicList {
     public void initGraphics() {
 
         Stroke backgroundStroke = new BasicStroke(
-                10.0f, // Width
-                BasicStroke.CAP_ROUND, // End cap
-                BasicStroke.JOIN_MITER, // Join style
-                10.0f, // Miter limit
-                null, // Dash pattern
+                10.0f,                      // Width
+                BasicStroke.CAP_ROUND,      // End cap
+                BasicStroke.JOIN_MITER,     // Join style
+                10.0f,                      // Miter limit
+                null,                       // Dash pattern
                 0.0f);
 
         RouteWaypoint prevPoint = null;

@@ -34,7 +34,6 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon.RouteSuggestionListener;
-import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
@@ -44,11 +43,10 @@ import dk.dma.epd.ship.service.RouteSuggestionHandler;
 /**
  * Layer for showing routes
  */
-public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipListener, RouteSuggestionListener {
+public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, RouteSuggestionListener {
 
     private static final long serialVersionUID = 1L;
 
-    private SuggestedRouteGraphic suggestedRoute;
     private SafeHavenArea safeHavenArea = new SafeHavenArea();
     private boolean activeSafeHaven;
 
@@ -59,9 +57,19 @@ public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipLi
         super();
 
         // Register ship-specific classes that will trigger the map menu
-        registerMapMenuClasses(SuggestedRouteGraphic.class);
+        registerMapMenuClasses(RouteSuggestionGraphic.class);
 
-        new Thread(this).start();
+        // Repaint every second
+        // Hmmm - is this really necessary?
+        startTimer(1000, 1000);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void timerAction() {
+        routesChanged(null);
     }
 
     /**
@@ -125,13 +133,15 @@ public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipLi
         graphics.clear();
 
         float routeWidth = EPD.getInstance().getSettings().getNavSettings().getRouteWidth();
-        Stroke stroke = new BasicStroke(routeWidth, // Width
+        Stroke stroke = new BasicStroke(
+                routeWidth, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
                 10.0f, // Miter limit
                 new float[] { 3.0f, 10.0f }, // Dash pattern
                 0.0f);
-        Stroke activeStroke = new BasicStroke(routeWidth, // Width
+        Stroke activeStroke = new BasicStroke(
+                routeWidth, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
                 10.0f, // Miter limit
@@ -218,8 +228,7 @@ public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipLi
         for (RouteSuggestionData routeSuggestion : 
                 EPDShip.getInstance().getRouteSuggestionHandler().getSortedRouteSuggestions()) {
             if (routeSuggestion.getRoute().isVisible()) {
-                suggestedRoute = new SuggestedRouteGraphic(routeSuggestion, stroke);
-                graphics.add(suggestedRoute);
+                graphics.add(new RouteSuggestionGraphic(routeSuggestion, stroke));
             }
         }
 
@@ -237,8 +246,8 @@ public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipLi
         // Let super handle common map menu cases
         super.initMapMenu(clickedGraphics, evt);
 
-        if (clickedGraphics instanceof SuggestedRouteGraphic) {
-            SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) clickedGraphics;
+        if (clickedGraphics instanceof RouteSuggestionGraphic) {
+            RouteSuggestionGraphic suggestedRoute = (RouteSuggestionGraphic) clickedGraphics;
             getMapMenu().routeSuggestionMenu(suggestedRoute.getRouteSuggestion());
         }
     }
@@ -250,17 +259,6 @@ public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipLi
         activeSafeHaven = !activeSafeHaven;
         safeHavenArea.setVisible(activeSafeHaven);
         routesChanged(null);
-    }
-
-    /**
-     * Main thread run method
-     */
-    @Override
-    public void run() {
-        while (true) {
-            Util.sleep(1000);
-            routesChanged(null);
-        }
     }
 
     /**

@@ -24,7 +24,7 @@ public class VoyageWpCircle extends OMCircle {
     private static final long serialVersionUID = 1L;
     
     public VoyageWpCircle() {
-        super(0, 0, 0, 0, 10, 10);
+        super(0, 0, 0, 0, 7, 7);
     }
     
     public VoyageWpCircle(double latitude, double longitude, int offX1, int offY1, int w, int h) {
