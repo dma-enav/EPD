@@ -1007,6 +1007,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         }   
     }
     
+    /**
+     * Editor for adjusting the clicked ETA
+     */
     class EtaEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {        
         private static final long serialVersionUID = 1L;
         
@@ -1027,10 +1030,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                 return;
             }
             EtaEditDialog etaDialog = new EtaEditDialog(RoutePropertiesDialogCommon.this, eta, wpName);
-            etaDialog.setVisible(true);
             etaAdjust = etaDialog.getEtaAdjust();
             fireEditingStopped();
-            
         }
 
         @Override
