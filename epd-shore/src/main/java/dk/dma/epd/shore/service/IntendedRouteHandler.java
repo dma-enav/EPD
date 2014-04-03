@@ -23,6 +23,7 @@ import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoutes;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
 
@@ -109,5 +110,15 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
     protected void applyFilter(IntendedRoute route) {
         updateFilter();
     }
-
+    
+    @Override
+    public void updateSettings(EnavSettings settings) {
+        super.updateSettings(settings);
+        // re apply filter with new values
+        this.updateFilter();
+        /*
+         * Fire dummy event such that any listening IntendedRouteTCPALayer will redraw TCPAs.
+         */
+        this.fireIntendedEvent(null);
+    }
 }

@@ -47,6 +47,7 @@ public class MapSettings implements Serializable {
     private boolean s52TwoShades;
     private String color = "Day";
     private String wmsQuery = "";
+    private boolean multipleBackgrounds;
     
     public MapSettings() {
     }
@@ -64,6 +65,7 @@ public class MapSettings implements Serializable {
         encVisible = PropUtils.booleanFromProperties(props, PREFIX + "encVisible", encVisible);
         wmsVisible = PropUtils.booleanFromProperties(props, PREFIX + "wmsVisible", wmsVisible);
         maxScale = PropUtils.intFromProperties(props, PREFIX + "maxScale", maxScale);
+        multipleBackgrounds = PropUtils.booleanFromProperties(props, PREFIX + "multipleBackgrounds", multipleBackgrounds);
         
         //settings for wms
         wmsQuery = props.getProperty(PREFIX + "wmsQuery", "");
@@ -90,6 +92,7 @@ public class MapSettings implements Serializable {
         props.put(PREFIX + "encVisible", Boolean.toString(encVisible));
         props.put(PREFIX + "wmsVisible", Boolean.toString(wmsVisible));
         props.put(PREFIX + "maxScale", Integer.toString(maxScale));
+        props.put(PREFIX + "multipleBackgrounds", Boolean.toString(multipleBackgrounds));
         
         props.put(PREFIX + "wmsQuery", wmsQuery);
         
@@ -251,4 +254,13 @@ public class MapSettings implements Serializable {
     public void setColor(String color) {
         this.color = color;
     }
+    
+    public boolean isMultipleBackgrounds() {
+        return multipleBackgrounds;
+    }
+    
+    public void setMultipleBackgrounds(boolean multipleBackgrounds) {
+        this.multipleBackgrounds = multipleBackgrounds;
+    }
+    
 }

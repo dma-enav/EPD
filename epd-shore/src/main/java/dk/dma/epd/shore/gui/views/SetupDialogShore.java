@@ -19,9 +19,13 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
 
+
+
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
+import dk.dma.epd.common.prototype.gui.settings.CommonMapSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreAisSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreCloudSettingsPanel;
+import dk.dma.epd.shore.gui.settingtabs.ShoreEnavSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreMapFramesSettingsPanel;
 
 /**
@@ -53,7 +57,8 @@ public class SetupDialogShore extends SetupDialogCommon {
         this.aisSettings = new ShoreAisSettingsPanel();
 
         // Register the panels for shore setup.
-        super.registerSettingsPanels(
+        super.registerSettingsPanels(new ShoreEnavSettingsPanel(),
+                new CommonMapSettingsPanel(),
                 this.shoreSettings, 
                 this.windowsSettings,
                 this.aisSettings);
