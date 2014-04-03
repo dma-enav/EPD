@@ -18,6 +18,7 @@ package dk.dma.epd.common.prototype.settings;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Properties;
@@ -26,6 +27,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.esotericsoftware.yamlbeans.YamlConfig;
+import com.esotericsoftware.yamlbeans.YamlException;
+import com.esotericsoftware.yamlbeans.YamlWriter;
 
 /**
  * <p>
@@ -137,6 +142,33 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
         } catch (IOException e) {
             e.printStackTrace();
             this.onSaveFailure(e);
+        }
+    }
+
+    public void saveToFileYaml(File file) {
+        /*
+         * Use a YamlConfig to tell the YamlWriter to also write default (and
+         * unchanged) values.
+         */
+        YamlConfig yCfg = new YamlConfig();
+        yCfg.writeConfig.setWriteDefaultValues(true);
+        try {
+            /*
+             * Lock in order to take a snapshot of all individual settings at a
+             * single point in time. Release the lock in finally block.
+             */
+            this.settingLock.readLock().lock();
+            YamlWriter yWriter = new YamlWriter(new FileWriter(file), yCfg);
+            // Write bean properties of this settings instance.
+            yWriter.write(this);
+            // Flush and close output stream.
+            yWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO consider how write errors should be handled.
+            this.onSaveFailure(e);
+        } finally {
+            this.settingLock.readLock().unlock();
         }
     }
 
