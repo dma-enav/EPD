@@ -328,17 +328,21 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         
         if (encLayer != null) {
             if (visible) {
-                mapHandler.remove(bgLayer);
                 encLayer.setVisible(true);
-                mapHandler.add(encLayer);
-                encLayer.doPrepare();
-                encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
+                if (!EPD.getInstance().getSettings().getMapSettings().isMultipleBackgrounds()) {
+                    mapHandler.remove(bgLayer);
+                    mapHandler.add(encLayer);
+                    encLayer.doPrepare();
+                    encVisibilityAdapter.notifyVisibilityListeners(encLayer);
+                }
             } else {
-                mapHandler.remove(encLayer);
-                mapHandler.add(bgLayer);
                 encLayer.setVisible(false);
-                bgLayer.doPrepare();
-                encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
+                if (!EPD.getInstance().getSettings().getMapSettings().isMultipleBackgrounds()) {
+                    mapHandler.remove(encLayer);
+                    mapHandler.add(bgLayer);
+                    bgLayer.doPrepare();
+                    encVisibilityAdapter.notifyVisibilityListeners(encLayer);
+                }
             }
             if (persist) {
                 EPD.getInstance().getSettings().getMapSettings().setEncVisible(visible);

@@ -271,11 +271,6 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
         mapHandler.add(bgLayer);
 
-        CoastalOutlineLayer coastalOutlineLayerDrag = new CoastalOutlineLayer();
-        coastalOutlineLayerDrag.setProperties(layerName, props);
-        coastalOutlineLayerDrag.setAddAsBackground(true);
-        coastalOutlineLayerDrag.setVisible(true);
-
         // Add ENC layer
         if (encLayer != null) {
             mapHandler.add(encLayer);
