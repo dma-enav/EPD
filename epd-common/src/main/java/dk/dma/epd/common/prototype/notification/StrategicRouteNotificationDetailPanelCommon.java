@@ -16,7 +16,6 @@
 package dk.dma.epd.common.prototype.notification;
 
 import static dk.dma.epd.common.graphics.GraphicsUtil.bold;
-import static dk.dma.epd.common.graphics.GraphicsUtil.fixSize;
 import static java.awt.GridBagConstraints.BOTH;
 import static java.awt.GridBagConstraints.HORIZONTAL;
 import static java.awt.GridBagConstraints.NONE;
@@ -39,10 +38,13 @@ import javax.swing.border.TitledBorder;
 
 import org.apache.commons.lang.StringUtils;
 
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dk.dma.epd.common.text.Formatter;
 
 /**
@@ -77,14 +79,20 @@ public abstract class StrategicRouteNotificationDetailPanelCommon<T extends Stra
 
         // Create the transaction and status labels
         Insets insets5  = new Insets(5, 5, 5, 5);
-        add(bold(new JLabel("Transaction ID:")), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        add(fixSize(transactionTxt, 100), new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        add(bold(new JLabel("Latest status:")), new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        add(fixSize(statusTxt, 80), new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        add(bold(new JLabel("Transaction ID:")), 
+                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        add(transactionTxt, 
+                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        
+        add(bold(new JLabel("Latest status:")), 
+                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        add(statusTxt, 
+                new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
         // Create the info panel
         JPanel infoPanel =  createInfoPanel();
-        add(infoPanel, new GridBagConstraints(0, 1, 4, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        add(infoPanel, 
+                new GridBagConstraints(0, 2, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
         // Create the messages panel
         JScrollPane scrollPane = new JScrollPane(messagesPanel);
@@ -92,7 +100,8 @@ public abstract class StrategicRouteNotificationDetailPanelCommon<T extends Stra
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(new MatteBorder(1, 1, 1, 1, UIManager.getColor("Separator.shadow")));        
         messagesPanel.setBackground(UIManager.getColor("List.background"));
-        add(scrollPane, new GridBagConstraints(0, 2, 4, 1, 1.0, 1.0, WEST, BOTH, insets5, 0, 0));   
+        add(scrollPane, 
+                new GridBagConstraints(0, 3, 2, 1, 1.0, 1.0, WEST, BOTH, insets5, 0, 0));   
     }
     
     /**
@@ -120,8 +129,11 @@ public abstract class StrategicRouteNotificationDetailPanelCommon<T extends Stra
         StrategicRouteNegotiationData routeData = notification.get();
         
         transactionTxt.setText(String.valueOf(notification.getId()));
-        statusTxt.setText(routeData.getStatus().toString());
-        statusTxt.setForeground(routeData.getStatus().getColor());
+        
+        CloudMessageStatus cloudStatus = (routeData.getLatestRouteMessage() != null) 
+                ? routeData.getLatestRouteMessage().getCloudMessageStatus() 
+                : null;
+        statusTxt.setText(getStatusType(routeData.getStatus(), cloudStatus, true));
         
         addStrategicRouteMessages(notification);
     }   
@@ -180,6 +192,31 @@ public abstract class StrategicRouteNotificationDetailPanelCommon<T extends Stra
      * @return the message panel title
      */
     protected abstract String getMessageViewTitle(StrategicRouteMessage routeMessage);
+
+    
+    /**
+     * Converts the status into a textual description
+     * @param routeStatus the status
+     * @param cloudStatus if not null the cloud status is appended
+     * @param useColor whether to color-code the status or not
+     * @return the textual description of the status
+     */
+    public static String getStatusType(StrategicRouteStatus routeStatus, CloudMessageStatus cloudStatus, boolean useColor) {
+        StringBuilder status = new StringBuilder();
+        status.append("<html>");
+        if (useColor) {
+            status.append(String.format("<span style='color:%s'>%s</span>",
+                    GraphicsUtil.toHtmlColor(routeStatus.getColor()),
+                    routeStatus.toString()));
+        } else {
+            status.append(routeStatus);
+        }
+
+        if (cloudStatus != null) {
+            status.append("&nbsp;<small>(" + cloudStatus.getTitle() + ")</small>");
+        }
+        return status.append("</html>").toString();
+    }
 }
 
 
@@ -231,16 +268,19 @@ class StrategicNotificationMessageView extends JPanel {
                 new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, EAST, NONE, insets1, 0, 0));
         
         // Type
+        CloudMessageStatus cloudStatus = isLatest ? routeMessage.getCloudMessageStatus() : null;
         add(new JLabel("Status:"), 
                 new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
-        add(new JLabel(getStatusType(routeMessage, isLatest)), 
+        add(new JLabel(StrategicRouteNotificationDetailPanelCommon.getStatusType(routeMessage.getStatus(), cloudStatus, false)), 
                 new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
 
         // Message label
-        JLabel msgLabel = new JLabel("<html>" + Formatter.formatHtml(routeMessage.getMessage()) + "</html>");
-        msgLabel.setBorder(new TitledBorder("Message"));
-        add(msgLabel, 
-                new GridBagConstraints(0, 2, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
+        if (!StringUtils.isBlank(routeMessage.getMessage())) {
+            JLabel msgLabel = new JLabel("<html>" + Formatter.formatHtml(routeMessage.getMessage()) + "</html>");
+            msgLabel.setBorder(new TitledBorder("Message"));
+            add(msgLabel, 
+                    new GridBagConstraints(0, 2, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
+        }
         
         // Route changes
         if (!StringUtils.isBlank(routeChanges)) {
@@ -249,19 +289,5 @@ class StrategicNotificationMessageView extends JPanel {
             add(routeLabel, 
                     new GridBagConstraints(0, 3, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
         }
-    }
-    
-    /**
-     * Converts the status into a textual description
-     * @param routeMessage the message containing the status
-     * @return the textual description of the status
-     */
-    private String getStatusType(StrategicRouteMessage routeMessage, boolean isLatest) {
-        StringBuilder status = new StringBuilder();
-        status.append("<html>").append(routeMessage.getStatus());
-        if (isLatest && routeMessage.getCloudMessageStatus() != null) {
-            status.append("&nbsp;<small>(" + routeMessage.getCloudMessageStatus().getTitle() + ")</small>");
-        }
-        return status.append("</html>").toString();
     }
 }
