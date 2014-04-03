@@ -89,7 +89,7 @@
         <dependency>
             <groupId>net.maritimecloud</groupId>
             <artifactId>maritimecloud-client</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.1</version>
         </dependency>
         
         
