@@ -15,13 +15,12 @@
  */
 package dk.dma.epd.ship.gui.notification;
 
-import net.maritimecloud.core.id.MmsiId;
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.RouteSuggestionNotificationCommon;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.util.NameUtils;
 
 /**
  * A ship specific route suggestion implementation of the {@linkplain Notification} class
@@ -38,9 +37,7 @@ public class RouteSuggestionNotification extends RouteSuggestionNotificationComm
     public RouteSuggestionNotification(RouteSuggestionData routeData) {
         super(routeData);
         
-        String shoreName = EPD.getInstance().getName(
-                new MmsiId((int)routeData.getMmsi()), 
-                String.valueOf(routeData.getMmsi()));
+        String shoreName = NameUtils.getName((int)routeData.getMmsi());
         
         if (routeData.getReply() == null) {
             // Original route suggestion from shore

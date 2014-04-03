@@ -17,6 +17,9 @@ package dk.dma.epd.ship.gui;
 
 import java.awt.Point;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
@@ -57,6 +60,7 @@ import dk.dma.epd.ship.service.StrategicRouteHandler;
 public class MapMenu extends MapMenuCommon {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(MapMenu.class);
 
     // menu items
     private GeneralClearMap clearMap;
@@ -303,23 +307,28 @@ public class MapMenu extends MapMenuCommon {
         removeAll();
 
         // Look up the route
-        Route route = routeManager.getRoute(routeIndex);
-        if (routeManager.isActiveRoute(routeIndex)) {
-            route = routeManager.getActiveRoute();
+        try {
+            Route route = routeManager.getRoute(routeIndex);
+            if (routeManager.isActiveRoute(routeIndex)) {
+                route = routeManager.getActiveRoute();
+            }
+    
+            sendToSTCC.setRoute(route);
+            sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
+            sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
+                            && routeManager.getActiveRouteIndex() != routeIndex
+                            && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+    
+            if (strategicRouteHandler.isTransaction()) {
+                sendToSTCC.setText("Show STCC info...");
+            } else {
+                sendToSTCC.setText("Send to STCC...");
+            }
+        } catch (Exception ex) {
+            sendToSTCC.setEnabled(false);
+            LOG.error("Error opening Send to STCC map menu for route index " + routeIndex, ex);
         }
-
-        sendToSTCC.setRoute(route);
-        sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
-        sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
-                        && routeManager.getActiveRouteIndex() != routeIndex
-                        && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
-
-        if (strategicRouteHandler.isTransaction()) {
-            sendToSTCC.setText("Show STCC info...");
-        } else {
-            sendToSTCC.setText("Send to STCC...");
-        }
-
+        
         add(sendToSTCC);
         revalidate();
     }

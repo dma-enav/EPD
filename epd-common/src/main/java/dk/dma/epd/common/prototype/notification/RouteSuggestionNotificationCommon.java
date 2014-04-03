@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.notification;
 
+import net.maritimecloud.core.id.MmsiId;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 
@@ -42,6 +43,7 @@ public class RouteSuggestionNotificationCommon extends Notification<RouteSuggest
         location = Position.create(
                     routeData.getMessage().getRoute().getWaypoints().get(0).getLatitude(), 
                     routeData.getMessage().getRoute().getWaypoints().get(0).getLongitude());
+        targetId = (routeData.getMmsi() != -1) ? new MmsiId((int)routeData.getMmsi()) : null;
     }    
 
     

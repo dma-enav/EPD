@@ -23,13 +23,10 @@ import net.maritimecloud.core.id.MaritimeId;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
-import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.gui.panels.STCCCommunicationPanel;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
 
@@ -87,31 +84,15 @@ public class STCCCommunicationComponentPanel extends OMComponentPanel implements
     public void strategicRouteUpdate() {
         Long stccMmsi = strategicRouteHandler.getStccMmsi();
         if (stccMmsi != null) {
-            System.out.println("Activating chat");
             commsPanel.activateChat(stccMmsi.intValue());
         } else {
-            System.out.println("Deactivating chat");
             commsPanel.deactivateChat();
         }
 
     }
 
     @Override
-    public void chatMessageReceived(MaritimeId senderId, ChatServiceMessage message) {
-        String senderName = EPD.getInstance().getName(senderId);
-        String chatMessage = Formatter.formateTimeFromDate(message.getSendDate()) + " - " + senderName + " : "
-                + message.getMessage();
-
-        commsPanel.addChatMessage(chatMessage);
-
-    }
-
-    @Override
-    public void chatMessageSent(MaritimeId recipientId, ChatServiceMessage message) {
-        String senderName = "You";
-        String chatMessage = Formatter.formateTimeFromDate(message.getSendDate()) + " - " + senderName + " : "
-                + message.getMessage();
-
-        commsPanel.addChatMessage(chatMessage);
+    public void chatMessagesUpdated(MaritimeId targetId) {
+        commsPanel.updateChatMessagePanel();
     }
 }

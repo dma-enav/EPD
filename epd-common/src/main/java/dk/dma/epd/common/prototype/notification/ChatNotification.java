@@ -15,107 +15,93 @@
  */
 package dk.dma.epd.common.prototype.notification;
 
-import java.util.ArrayList;
-import java.util.Date;
-
-import net.maritimecloud.core.id.MaritimeId;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
-import dk.dma.epd.common.text.Formatter;
-
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.prototype.service.ChatServiceData;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.util.NameUtils;
+import dk.dma.epd.common.util.NameUtils.NameFormat;
+import net.maritimecloud.core.id.MaritimeId;
 
 /**
- * Class that can be used for chat notifications
+ * Class that can be used for chat message notifications
  */
-public class ChatNotification extends GeneralNotification {
-
+public class ChatNotification extends Notification<ChatServiceData, MaritimeId> {
+    
     private static final long serialVersionUID = 1L;
-
-    /**
-     * Creates a new chat notification for sent or received chat messages
-     * 
-     * @param received whether the message is sent or received
-     * @param id the id of the sender/receiver
-     * @param message the chat message
-     */
-    public ChatNotification(boolean received, MaritimeId id, ChatServiceMessage message) {
-        super();
-
-        setId(toId(id));
-        setDate(new Date(message.getSendDate()));
-        setSeverity(message.getSeverity());
-
-        if (received) {
-            // Chat message received
-            String senderName = EPD.getInstance().getName(id, message.getSenderName());
-            
-            setTitle("Comms log " + senderName);
-            setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + " : " + senderName + " : "
-                    + message.getMessage());
-            setAlerts(message.getAlerts());
-        
-        } else {
-            // Chat message sent
-            String recipientName = EPD.getInstance().getName(id);
-            
-            setTitle(recipientName);
-            setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + " - You : "
-                    + message.getMessage());
-            setAlerts(new ArrayList<NotificationAlert>());
-            setRead(true);
-            setAcknowledged(true);            
-        }
-    }
     
     /**
-     * Maps the given maritime id to a unique chat notification id
+     * Constructor 
+     * 
      * @param id the maritime id 
-     * @return a unique chat notification id
      */
-    public static String toId(MaritimeId id) {
-        return "chat_" + id;
-    }
-    
-    /**
-     * Called if a chat message is received or sent to an existing target.
-     * Merges the new message with this chat notification.
-     * 
-     * @param received whether the message is sent or received
-     * @param id the id of the sender/receiver
-     * @param message the chat message
-     * @return this
-     */
-    public ChatNotification merge(boolean received, MaritimeId id, ChatServiceMessage message) {
-        if (received) {
-            // Chat message received
-            String senderName = EPD.getInstance().getName(id, message.getSenderName());
-            
-            setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + " : " + senderName + " : "
-                    + message.getMessage() + "\n" + getDescription());
-            setAcknowledged(false);
-            setSeverity(message.getSeverity());
-            setAlerts(message.getAlerts());
-            
+    public ChatNotification(ChatServiceData chatData) {
+        super(chatData, chatData.getId(), NotificationType.MESSAGES);        
+        
+        targetId = chatData.getId();
+        
+        if (chatData.getMessageCount() > 0) {
+            ChatServiceMessage msg = chatData.getLatestMessage();
+            title = String.format(
+                    msg.isOwnMessage() ? "Message to %s" : "Message from %s", 
+                    NameUtils.getName(chatData.getId()));
+            description = msg.getMessage();
+            date = msg.getSendDate();
+            severity = msg.isOwnMessage() ? NotificationSeverity.MESSAGE : msg.getSeverity();
+            if (!msg.isOwnMessage() && !chatData.isRead()) {
+                addAlerts(new NotificationAlert(AlertType.POPUP, AlertType.BEEP));
+                read = acknowledged = false;
+            } else {
+                read = acknowledged = true;
+            }
         } else {
-            // Chat message sent
-            setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + 
-                    " - You : " + message.getMessage() + "\n" + getDescription());
-            setAcknowledged(true);
+            title = description = "";
+            read = acknowledged = true;
         }
         
-        return this;
+        // Try to determine the position
+        AisHandlerCommon aisHandler = EPD.getInstance().getAisHandler();
+        Integer mmsi = MaritimeCloudUtils.toMmsi(chatData.getId());
+        if (mmsi != null && 
+            aisHandler.getVesselTarget(mmsi.longValue()) != null &&
+            aisHandler.getVesselTarget(mmsi.longValue()).getPositionData() != null) {
+            location = aisHandler.getVesselTarget(mmsi.longValue()).getPositionData().getPos();
+        }
     }
-    
+
     /**
-     * Returns a HTML description of this notification
-     * @return a HTML description of this notification
+     * {@inheritDoc}
      */
     @Override
-    public String toHtml() {
-        StringBuilder html = new StringBuilder("<html>");
-        html.append("<table>");
-        html.append(String.format("<tr><th>Communications Log from:</th><td>%s</td></tr>", Formatter.formatHtml(title)));
-        html.append(String.format("<tr><th valign='top'>Messages:</th><td>%s</td></tr>", Formatter.formatHtml(description)));
-        html.append("</table>");
-        return html.append("</html>").toString();
-    }}
+    public void setRead(boolean read) {
+        this.read = this.acknowledged = read;
+        get().setRead(read);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAcknowledged(boolean acknowledged) {
+        this.read = this.acknowledged = acknowledged;
+        get().setRead(acknowledged);
+    }
+    
+    /**
+     * Returns the name of the target
+     * @return the name of the target
+     */
+    public String getTargetName() {
+        return NameUtils.getName(getId(), NameFormat.MEDIUM);
+    }
+    
+    /**
+     * Returns the type of the target
+     * @return the type of the target
+     */
+    public String getTargetType() {
+        return NameUtils.getType(getId());
+    }
+}

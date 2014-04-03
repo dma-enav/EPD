@@ -22,7 +22,8 @@ public enum NotificationType {
     MSI("MSI"),
     TACTICAL_ROUTE("Tactical Route"),
     STRATEGIC_ROUTE("Strategic Route"),
-    NOTIFICATION("Notifications");
+    NOTIFICATION("Notifications"),
+    MESSAGES("Messaging");
     
     private String title;
     

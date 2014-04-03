@@ -34,7 +34,6 @@ import javax.swing.JScrollPane;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
-import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
@@ -144,8 +143,6 @@ public class MainFrame extends MainFrameCommon {
         beanHandler.add(sendRouteDialog);
 
         bottomStatusDialog = new BottomPanelStatusDialog();
-        
-        chatServiceDialog = new ChatServiceDialog(this);
         
         // Add self to bean handler
         beanHandler.add(this);

@@ -17,6 +17,8 @@ package dk.dma.epd.common.prototype.notification;
 
 import java.util.List;
 
+import net.maritimecloud.core.id.MmsiId;
+
 import org.apache.commons.lang.StringUtils;
 
 import dk.dma.enav.model.geometry.Position;
@@ -42,6 +44,7 @@ public abstract class StrategicRouteNotificationCommon extends Notification<Stra
 
         acknowledged = read = routeData.isHandled();
         date = routeData.getLatestSentDate();
+        targetId = (routeData.getMmsi() != -1) ? new MmsiId((int)routeData.getMmsi()) : null;
     }
 
     /**

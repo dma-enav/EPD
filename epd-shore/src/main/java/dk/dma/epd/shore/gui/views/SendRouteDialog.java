@@ -61,6 +61,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.DateFormatter;
 
+import net.maritimecloud.core.id.MmsiId;
+
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.slf4j.Logger;
@@ -72,6 +74,7 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
@@ -101,6 +104,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
     private JComboBox<String> mmsiListComboBox = new JComboBox<>();
     private JComboBox<String> nameComboBox = new JComboBox<>();
     private JLabel callsignLbl = new JLabel("N/A");
+    private JButton chatBtn = new JButton("Chat", EPD.res().getCachedImageIcon("images/notifications/balloon.png"));
     
     // Route panel
     private JComboBox<String> routeListComboBox = new JComboBox<>();
@@ -173,22 +177,26 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         targetPanel.add(new JLabel("MMSI:"), 
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         targetPanel.add(mmsiListComboBox, 
-                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(1, 0, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
         nameComboBox.addActionListener(this);
         targetPanel.add(new JLabel("Name:"), 
                 new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         targetPanel.add(nameComboBox, 
-                new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(1, 1, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
+        chatBtn.setEnabled(false);
+        chatBtn.addActionListener(this);
         targetPanel.add(new JLabel("Call Sign:"), 
                 new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         targetPanel.add(callsignLbl, 
                 new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        targetPanel.add(chatBtn, 
+                new GridBagConstraints(2, 2, 1, 1, 1.0, 0.0, EAST, NONE, insets5, 0, 0));
         
         statusLbl.setVisible(false);
         targetPanel.add(statusLbl, 
-                new GridBagConstraints(0, 3, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(0, 3, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
         // *******************
         // *** Route panel 
@@ -372,11 +380,30 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         } else if (ae.getSource() == sendBtn) {
             sendRoute();
         
+        } else if (ae.getSource() == chatBtn) {
+            chat();
+        
         } else if (ae.getSource() == cancelBtn || ae.getSource() == getRootPane()) {
             this.setVisible(false);
         }
     }
 
+    /**
+     * Display information about the maritime identity
+     */
+    private void chat() {
+        if (mmsi == -1) {
+            try {
+                mmsi = Long.valueOf((String) mmsiListComboBox.getSelectedItem());
+            } catch (Exception e) {
+                LOG.error("Failed to set mmsi " + mmsi, e);
+            }
+        }
+        EPD.getInstance().getNotificationCenter()
+            .openNotification(NotificationType.MESSAGES, new MmsiId((int)mmsi), false);
+    }    
+    
+    
     /** 
      * Called when one of the arrival and departure pickers changes value
      * @param evt the event
@@ -479,6 +506,12 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
                 statusLbl.setText("The ship is not visible on AIS");
                 statusLbl.setVisible(true);
             }
+
+            chatBtn.setEnabled(mmsi != -1 && 
+                    EPD.getInstance().getChatServiceHandler().availableForChat((int)mmsi));
+            
+        } else {
+            chatBtn.setEnabled(false);
         }
     }
 
@@ -614,6 +647,8 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
             sendBtn.setEnabled(true);
         }
 
+        chatBtn.setEnabled(mmsi != -1 && 
+                EPD.getInstance().getChatServiceHandler().availableForChat((int)mmsi));
     }
     
     /**

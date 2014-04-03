@@ -68,7 +68,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
     private static final long serialVersionUID = 1L;
     
     private static final String[] NAMES = {
-        "", "Name", "Called", "Status" };
+        "", "Name", "Date", "Status" };
     
     protected JButton routeDetailsBtn;
     protected JButton cancelBtn;
@@ -83,7 +83,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
-        table.getColumnModel().getColumn(2).setPreferredWidth(90);
+        table.getColumnModel().getColumn(2).setPreferredWidth(70);
         table.getColumnModel().getColumn(3).setPreferredWidth(85);
         splitPane.setDividerLocation(330);
     }
@@ -109,6 +109,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         btnPanel.add(cancelBtn);
         btnPanel.add(routeDetailsBtn);
         btnPanel.add(gotoBtn);
+        btnPanel.add(chatBtn);
         
         cancelBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
@@ -123,6 +124,11 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         gotoBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
                 gotoSelectedRoute();
+            }});
+        
+        chatBtn.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                chatWithNotificationTarget();
             }});
         
         // Configure the reply panel
@@ -152,8 +158,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             gotoBtn.setEnabled(true);
             routeDetailsBtn.setEnabled(true);
             
-            StrategicRouteMessage msg = notification.get().getLatestRouteMessage();
-            
+            StrategicRouteMessage msg = notification.get().getLatestRouteMessage();            
             cancelBtn.setEnabled(!msg.isFromStcc() && !notification.isAcknowledged());
             replyPanel.getRejectBtn().setEnabled(!notification.isAcknowledged() && msg.isFromStcc());
             replyPanel.getAcceptBtn().setEnabled(!notification.isAcknowledged() && msg.isFromStcc());
@@ -163,6 +168,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             routeDetailsBtn.setEnabled(false);
             cancelBtn.setEnabled(false);
         }
+        updateChatEnabledState();
     }
 
     /**
@@ -320,7 +326,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
                         ? ICON_UNREAD 
                         : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
                 case 1: return notification.getCallerlName();
-                case 2: return Formatter.formatShortDateTime(notification.getDate());
+                case 2: return Formatter.formatShortDateTimeNoTz(notification.getDate());
                 case 3: return notification.get().getStatus();
                 default:
                 }

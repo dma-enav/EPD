@@ -48,6 +48,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
@@ -74,11 +75,14 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     protected JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
     protected NotificationDetailPanel<N> notificationDetailPanel;
     protected JPanel detailPanel = new JPanel(new BorderLayout());
+    protected JPanel listPanel = new JPanel(new BorderLayout());
+    
     
     // Standard actions
     protected JButton acknowledgeBtn = new JButton("Acknowledge", EPD.res().getCachedImageIcon("images/notifications/tick.png"));
     protected JButton gotoBtn = new JButton("Goto", EPD.res().getCachedImageIcon("images/notifications/map-pin.png"));
     protected JButton deleteBtn = new JButton("Delete", EPD.res().getCachedImageIcon("images/notifications/cross.png"));
+    protected JButton chatBtn = new JButton("Chat",EPD.res().getCachedImageIcon("images/notifications/balloon.png"));
     
     /**
      * Constructor
@@ -107,7 +111,8 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        splitPane.add(scrollPane);
+        listPanel.add(scrollPane, BorderLayout.CENTER);
+        splitPane.add(listPanel);
 
         splitPane.add(detailPanel);
         
@@ -132,6 +137,14 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
      */
     public JPanel getDetailPanel() {
         return detailPanel;
+    }
+    
+    /**
+     * Returns the list panel used for the list of notifications
+     * @return the list panel used for the list of notifications
+     */
+    public JPanel getListPanel() {
+        return listPanel;
     }
 
     /**
@@ -213,6 +226,11 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
             @Override public void actionPerformed(ActionEvent e) {
                 deleteSelectedNotifications();
             }});
+
+        chatBtn.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                chatWithNotificationTarget();
+            }});
         
         return buttonPanel;
     }
@@ -222,6 +240,18 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
      * @return the notification detail panel
      */
     protected abstract NotificationDetailPanel<N> initNotificationDetailPanel();    
+    
+    /**
+     * Fixes the width of the given table column
+     * @param columnIndex the column
+     * @param width the width
+     */
+    protected void fixColumnWidth(int columnIndex, int width) {
+        TableColumn col = table.getColumnModel().getColumn(columnIndex);
+        col.setWidth(width);
+        col.setMaxWidth(width);
+        col.setMinWidth(width);
+    }
     
     /*************************************/
     /** Selection methods               **/
@@ -281,6 +311,22 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         acknowledgeBtn.setEnabled(canAcknowledge);
         deleteBtn.setEnabled(canDelete);
         gotoBtn.setEnabled(selection.size() == 1 && selection.get(0).getLocation() != null);
+        updateChatEnabledState();
+    }
+    
+    /**
+     * Updates the enabled state of the chat button
+     */
+    protected void updateChatEnabledState() {
+        N notification = getSelectedNotification();
+        if (notification != null) {
+            chatBtn.setEnabled(
+                    notification != null && 
+                    notification.getTargetId() != null &&
+                    EPD.getInstance().getChatServiceHandler().availableForChat(notification.getTargetId()));
+        } else {
+            chatBtn.setEnabled(false);
+        }
     }
     
     /**
@@ -506,6 +552,19 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
                 table.addRowSelectionInterval(row, row);
             }
             row++;
+        }
+    }
+    
+    /**
+     * Starts a chat session with the target maritime id of the selected notification
+     */
+    protected void chatWithNotificationTarget() {
+        N notification = getSelectedNotification();
+        if (notification != null && 
+            notification.getTargetId() != null &&
+            EPD.getInstance().getChatServiceHandler().availableForChat(notification.getTargetId())) {
+            EPD.getInstance().getNotificationCenter()
+                .openNotification(NotificationType.MESSAGES, notification.getTargetId(), false);
         }
     }
     

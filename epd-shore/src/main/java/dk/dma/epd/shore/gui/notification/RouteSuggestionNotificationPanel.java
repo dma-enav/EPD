@@ -49,7 +49,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     private static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionNotificationPanel.class);
     
     private static final String[] NAMES = {
-        "", "ID", "MMSI", "Route Name", "Status" };
+        "", "MMSI", "Route Name", "Date", "Status" };
     
     protected JButton resendBtn;
 
@@ -60,12 +60,11 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
-        table.getColumnModel().getColumn(1).setPreferredWidth(60);
-        table.getColumnModel().getColumn(2).setPreferredWidth(50);
-        table.getColumnModel().getColumn(3).setPreferredWidth(80);
-        splitPane.setDividerLocation(380);
+        table.getColumnModel().getColumn(1).setPreferredWidth(50);
+        table.getColumnModel().getColumn(2).setPreferredWidth(80);
+        table.getColumnModel().getColumn(3).setPreferredWidth(70);
+        splitPane.setDividerLocation(350);
         setCellAlignment(1, JLabel.RIGHT);
-        setCellAlignment(2, JLabel.RIGHT);
     }
     
     /**
@@ -79,6 +78,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
                 "Resend", 
                 EPDShore.res().getCachedImageIcon("images/notificationcenter/arrow-circle-315.png"));
         btnPanel.add(resendBtn);
+        btnPanel.add(chatBtn);
         
         resendBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
@@ -136,9 +136,9 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
                 case 0: return !notification.isRead() 
                                 ? ICON_UNREAD 
                                 : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
-                case 1: return notification.getId();
-                case 2: return "" + notification.get().getMmsi();
-                case 3: return notification.get().getMessage().getRoute().getName();
+                case 1: return "" + notification.get().getMmsi();
+                case 2: return notification.get().getMessage().getRoute().getName();
+                case 3: return Formatter.formatShortDateTimeNoTz(notification.getDate());
                 case 4: return notification.get().getStatus().toString();
                 default:
                 }

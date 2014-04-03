@@ -48,11 +48,10 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
     private static final long serialVersionUID = 1L;
     
     private static final String[] NAMES = {
-        "", "Name", "Callsign", "Called", "Status" };
+        "", "Name", "Callsign", "Date", "Status" };
 
     protected JButton routeDetailsBtn;
     protected JButton handleRequestBtn;
-
     
     /**
      * Constructor
@@ -63,7 +62,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setPreferredWidth(80);
         table.getColumnModel().getColumn(2).setPreferredWidth(60);
-        table.getColumnModel().getColumn(3).setPreferredWidth(90);
+        table.getColumnModel().getColumn(3).setPreferredWidth(70);
         table.getColumnModel().getColumn(4).setPreferredWidth(85);
         splitPane.setDividerLocation(350);
     }
@@ -88,6 +87,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         
         btnPanel.add(routeDetailsBtn);
         btnPanel.add(handleRequestBtn);
+        btnPanel.add(chatBtn);
         
         routeDetailsBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
@@ -97,6 +97,11 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         handleRequestBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
                 handleRouteRequest();
+            }});
+        
+        chatBtn.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                chatWithNotificationTarget();
             }});
         
         return btnPanel;
@@ -110,6 +115,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         StrategicRouteNotification n = getSelectedNotification();
         routeDetailsBtn.setEnabled(n != null);
         handleRequestBtn.setEnabled(n != null && !n.isAcknowledged());
+        updateChatEnabledState();
     }
     
     /**
@@ -192,7 +198,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
                         : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
                 case 1: return notification.getCallerlName();
                 case 2: return notification.getVesselCallsign();
-                case 3: return Formatter.formatShortDateTime(notification.getDate());
+                case 3: return Formatter.formatShortDateTimeNoTz(notification.getDate());
                 case 4: return notification.get().getStatus();
                 default:
                 }

@@ -21,6 +21,7 @@ import static java.awt.GridBagConstraints.HORIZONTAL;
 import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTHWEST;
 import static java.awt.GridBagConstraints.WEST;
+import static java.awt.GridBagConstraints.EAST;
 
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -46,14 +47,22 @@ import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
+import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.net.service.ServiceEndpoint;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteReply;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.util.NameUtils;
+import dk.dma.epd.common.util.NameUtils.NameFormat;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.identity.IdentityViewer;
 import dk.dma.epd.ship.route.RouteManager;
@@ -81,6 +90,8 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
     // Send panel
     private JButton sendBtn = new JButton("Send", EPDShip.res().getCachedImageIcon("images/buttons/ok.png"));
     private JButton cancelBtn = new JButton("Cancel", EPDShip.res().getCachedImageIcon("images/buttons/cancel.png"));
+    private JButton btnInfo = new JButton("Info", EPDShip.res().getCachedImageIcon("images/buttons/information.png"));
+    private JButton btnChat = new JButton("Chat", EPD.res().getCachedImageIcon("images/notifications/balloon.png"));
 
     private RouteManager routeManager;
     private StrategicRouteHandler strategicRouteHandler;
@@ -94,8 +105,6 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
 
     private ArrayList<Integer> mmsiList = new ArrayList<Integer>();
 
-    private final JButton btnViewIdentityInfo = new JButton("View Info", EPDShip.res().getCachedImageIcon(
-            "images/buttons/information.png"));
 
     IdentityViewer viewer;
 
@@ -118,8 +127,7 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
 
         // Hook up enter key to send and escape key to cancel
         getRootPane().setDefaultButton(sendBtn);
-        getRootPane()
-                .registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         pack();
     }
@@ -139,37 +147,45 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
         JPanel stccPanel = new JPanel(new GridBagLayout());
         stccPanel.setBorder(new TitledBorder("STCC"));
         content.add(stccPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-        JLabel label = new JLabel("STCC:");
-        stccPanel.add(label, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, new Insets(5, 5, 5, 5), 0, 0));
 
-        stccMmsiListComboBox.addActionListener(this);
-        stccPanel.add(stccMmsiListComboBox, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, new Insets(5, 5, 5, 0),
-                0, 0));
+        stccMmsiListComboBox.addActionListener(this);        
+        stccPanel.add(new JLabel("STCC:"), 
+                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, new Insets(5, 5, 5, 5), 0, 0));
+        stccPanel.add(stccMmsiListComboBox, 
+                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, new Insets(5, 5, 5, 0), 0, 0));
 
-        GridBagConstraints gbc_btnViewIdentityInfo = new GridBagConstraints();
-        gbc_btnViewIdentityInfo.anchor = GridBagConstraints.EAST;
-        gbc_btnViewIdentityInfo.gridx = 1;
-        gbc_btnViewIdentityInfo.gridy = 1;
-        stccPanel.add(btnViewIdentityInfo, gbc_btnViewIdentityInfo);
-        btnViewIdentityInfo.setEnabled(false);
-        btnViewIdentityInfo.addActionListener(this);
+        btnInfo.setEnabled(false);
+        btnInfo.addActionListener(this);
+        btnChat.setEnabled(false);
+        btnChat.addActionListener(this);
+        JPanel btnPanel = new JPanel();
+        btnPanel.add(btnChat);
+        btnPanel.add(btnInfo);
+        stccPanel.add(btnPanel, 
+                new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, EAST, NONE, new Insets(0, 0, 0, 0), 0, 0));
 
         // *******************
         // *** Route panel
         // *******************
         JPanel routePanel = new JPanel(new GridBagLayout());
         routePanel.setBorder(new TitledBorder("Route"));
-        content.add(routePanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        content.add(routePanel, 
+                new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
         routeListComboBox.addActionListener(this);
-        routePanel.add(new JLabel("Route name:"), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        routePanel.add(routeListComboBox, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        routePanel.add(new JLabel("Route name:"), 
+                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routePanel.add(routeListComboBox, 
+                new GridBagConstraints(1, 0, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        routePanel.add(new JLabel("Route length:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        routePanel.add(routeLengthLbl, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        routePanel.add(new JLabel("Route length:"), 
+                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routePanel.add(routeLengthLbl, 
+                new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
         zoomBtn.addActionListener(this);
-        routePanel.add(zoomBtn, new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routePanel.add(zoomBtn, 
+                new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, EAST, NONE, insets5, 0, 0));
 
         // *******************
         // *** Request panel
@@ -239,12 +255,19 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
             sendRoute();
 
         } else if (ae.getSource() == cancelBtn || ae.getSource() == getRootPane()) {
-            this.setVisible(false);
-        } else if (ae.getSource() == btnViewIdentityInfo) {
+            setVisible(false);
+            
+        } else if (ae.getSource() == btnInfo) {
             viewIdentityInfo();
+            
+        } else if (ae.getSource() == btnChat) {
+            chat();
         }
     }
 
+    /**
+     * Display information about the maritime identity
+     */
     private void viewIdentityInfo() {
         if (stccMmsi == -1) {
             stccMmsi = mmsiList.get(stccMmsiListComboBox.getSelectedIndex());
@@ -260,22 +283,29 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
     }
 
     /**
+     * Display information about the maritime identity
+     */
+    private void chat() {
+        if (stccMmsi == -1) {
+            stccMmsi = mmsiList.get(stccMmsiListComboBox.getSelectedIndex());
+        }
+        EPD.getInstance().getNotificationCenter()
+            .openNotification(NotificationType.MESSAGES, new MmsiId((int)stccMmsi), false);
+    }    
+    
+    /**
      * Called when the STCC MMSI selection has changed
      */
     private void stccMmsiSelectionChanged() {
         if (stccMmsiListComboBox.getSelectedItem() != null) {
+            stccMmsi = mmsiList.get(stccMmsiListComboBox.getSelectedIndex());
 
-            try {
-                // stccMmsi = Long.valueOf((String) stccMmsiListComboBox.getSelectedItem());
-                stccMmsi = mmsiList.get(stccMmsiListComboBox.getSelectedIndex());
-                if (identityHandler.actorExists(stccMmsi)) {
-                    btnViewIdentityInfo.setEnabled(true);
-                } else {
-                    btnViewIdentityInfo.setEnabled(false);
-                }
-            } catch (Exception e) {
-                LOG.error("Failed to set mmsi " + stccMmsi, e);
-            }
+            btnInfo.setEnabled(identityHandler.actorExists(stccMmsi));
+            btnChat.setEnabled(EPD.getInstance().getChatServiceHandler().availableForChat((int)stccMmsi));
+            
+        } else {
+            btnInfo.setEnabled(false);
+            btnChat.setEnabled(false);
         }
     }
 
@@ -339,11 +369,8 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
         this.stccMmsi = mmsi;
         selectAndLoad();
 
-        if (identityHandler.actorExists(stccMmsi)) {
-            btnViewIdentityInfo.setEnabled(true);
-        } else {
-            btnViewIdentityInfo.setEnabled(false);
-        }
+        btnInfo.setEnabled(identityHandler.actorExists(stccMmsi));
+        btnChat.setEnabled(EPD.getInstance().getChatServiceHandler().availableForChat((int)stccMmsi));
     }
 
     /**
@@ -365,21 +392,12 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
 
         // Initialize MMSI list
         mmsiList.clear();
-        for (int i = 0; i < strategicRouteHandler.getStrategicRouteSTCCList().size(); i++) {
-            if (MaritimeCloudUtils.isSTCC(strategicRouteHandler.getStrategicRouteSTCCList().get(i).getId())) {
-                mmsiList.add(MaritimeCloudUtils.toMmsi(strategicRouteHandler.getStrategicRouteSTCCList().get(i).getId()));
-            }
-        }
-
         stccMmsiListComboBox.removeAllItems();
-        for (Integer mmsi : mmsiList) {
-
-            if (identityHandler.actorExists(mmsi)) {
-                stccMmsiListComboBox.addItem(identityHandler.getActor(mmsi).getName() + " (" + String.valueOf(mmsi) + ")");
-            } else {
-                stccMmsiListComboBox.addItem(String.valueOf(mmsi));
+        for (ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply> service : strategicRouteHandler.getStrategicRouteSTCCList()) {
+            if (MaritimeCloudUtils.isSTCC(service.getId())) {
+                mmsiList.add(MaritimeCloudUtils.toMmsi(service.getId()));
+                stccMmsiListComboBox.addItem(NameUtils.getName(service.getId(), NameFormat.MEDIUM));
             }
-
         }
         stccMmsiListComboBox.setEnabled(mmsiList.size() > 0);
 
@@ -419,11 +437,8 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
             stccMmsi = mmsiList.get(stccMmsiListComboBox.getSelectedIndex());
         }
 
-        if (identityHandler.actorExists(stccMmsi)) {
-            btnViewIdentityInfo.setEnabled(true);
-        } else {
-            btnViewIdentityInfo.setEnabled(false);
-        }
+        btnInfo.setEnabled(identityHandler.actorExists(stccMmsi));
+        btnChat.setEnabled(EPD.getInstance().getChatServiceHandler().availableForChat((int)stccMmsi));
 
         if (route != null && EPDShip.getInstance().getRouteManager().getRoutes().size() > 0) {
             routeListComboBox.setEnabled(true);

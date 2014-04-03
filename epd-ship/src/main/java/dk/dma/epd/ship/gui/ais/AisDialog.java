@@ -16,7 +16,15 @@
 package dk.dma.epd.ship.gui.ais;
 
 
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.WEST;
+import static java.awt.GridBagConstraints.EAST;
+
 import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,13 +34,11 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
@@ -43,14 +49,17 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import net.maritimecloud.core.id.MmsiId;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon.AisMessageExtended;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget.AisClass;
 import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.layers.ais.AisLayer;
@@ -64,8 +73,9 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
     private AisLayer aisLayer;
     private AisHandler aisHandler;
     
-    private JButton closeBtn;
-    private JButton gotoBtn;
+    private JButton closeBtn = new JButton("Close", EPD.res().getCachedImageIcon("images/notifications/cross.png"));
+    private JButton gotoBtn = new JButton("Goto", EPD.res().getCachedImageIcon("images/notifications/map-pin.png"));
+    private JButton chatBtn = new JButton("Chat", EPD.res().getCachedImageIcon("images/notifications/balloon.png"));
     
     private JTable aisTable = new JTable();
     private JTable aisTableDetails;
@@ -86,20 +96,20 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         setLocationRelativeTo(parent);
         
-//        initGui();
+        // NB: Initializing the UI is deferred until findAndInit
     }
 
     private void initGui() {
         
         this.addWindowListener(this);
     
-        closeBtn = new JButton("Close");
+        
         closeBtn.addActionListener(this);
-        gotoBtn = new JButton("Goto");
         gotoBtn.addActionListener(this);
-        
-
-        
+        chatBtn.addActionListener(this);
+        gotoBtn.setEnabled(false);
+        chatBtn.setEnabled(false);
+             
         String[] columnNames = {"Type", "Details"};
         
         Object[][] data = {
@@ -134,14 +144,9 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         aisTableDetails.setShowHorizontalLines(false);
         aisTableDetails.setEnabled(false);
         
-        
-        
-        //detailsScrollPane = new JScrollPane(aisDetails);
         detailsScrollPane = new JScrollPane(aisTableDetails);
         detailsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         detailsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        
-        //detailsPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
         
         aisTable = new JTable();
         
@@ -154,11 +159,6 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         aisScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);        
         aisTable.setFillsViewportHeight(true);
         
-        JLabel tagetsLabel = new JLabel("Targets");
-        JLabel detailsLabel = new JLabel("Details");
-        
-        
-        
     
         aisTableModel = new AisTableModel(aisHandler);        
 
@@ -167,11 +167,8 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         aisSelectionModel = aisTable.getSelectionModel();
         aisTable.setSelectionModel(aisSelectionModel);
 
-        //        aisTable.setAutoCreateRowSorter(true);
-        TableRowSorter<TableModel> sorter 
-        = new TableRowSorter<>(aisTable.getModel());
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(aisTable.getModel());
         
-        //
         sorter.setComparator(3, new Comparator<String>() {
 
             @Override
@@ -189,9 +186,6 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
                     }
                     
                 } catch(java.lang.NumberFormatException e) {
-                    //Logger LOG = LoggerFactory.getLogger(Util.class);
-                    //LOG.error("Invalid format: "+o1+" vs "+o2);
-
                     //fallback to string comparison
                     return o1.compareTo(o2);
                 }
@@ -215,49 +209,31 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         aisTable.setSelectionMode(0);
         
         
-        GroupLayout gl_detailsPanel =  new GroupLayout(getContentPane());
+        JPanel btnPanel = new JPanel();
+        btnPanel.add(gotoBtn);
+        btnPanel.add(chatBtn);
 
+        // Assemble the GUI
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        getContentPane().add(mainPanel);
+        Insets insets1  = new Insets(5, 5, 5, 5);
+        Insets insets2  = new Insets(5, 5, 0, 5);
         
-        gl_detailsPanel.setHorizontalGroup(
-                gl_detailsPanel.createParallelGroup(Alignment.TRAILING)
-                    .addGroup(gl_detailsPanel.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(gl_detailsPanel.createParallelGroup(Alignment.TRAILING)
-                            .addGroup(gl_detailsPanel.createSequentialGroup()
-                                .addComponent(gotoBtn)
-                                .addPreferredGap(ComponentPlacement.RELATED, 420, Short.MAX_VALUE)
-                                .addComponent(closeBtn))
-                            .addGroup(gl_detailsPanel.createSequentialGroup()
-                                .addGroup(gl_detailsPanel.createParallelGroup(Alignment.LEADING)
-                                    .addComponent(aisScrollPane, GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
-                                    .addComponent(tagetsLabel))
-                                .addGap(14)
-                                .addGroup(gl_detailsPanel.createParallelGroup(Alignment.LEADING)
-                                    .addComponent(detailsLabel)
-                                    .addComponent(detailsScrollPane, GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE))))
-                        .addContainerGap())
-            );
-        
-        gl_detailsPanel.setVerticalGroup(
-                gl_detailsPanel.createParallelGroup(Alignment.TRAILING)
-                    .addGroup(gl_detailsPanel.createSequentialGroup()
-                        .addGroup(gl_detailsPanel.createParallelGroup(Alignment.BASELINE)
-                            .addComponent(tagetsLabel)
-                            .addComponent(detailsLabel))
-                        .addGap(9)
-                        .addGroup(gl_detailsPanel.createParallelGroup(Alignment.TRAILING)
-                            .addComponent(detailsScrollPane, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
-                            .addComponent(aisScrollPane, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE))
-                        .addPreferredGap(ComponentPlacement.UNRELATED)
-                        .addGroup(gl_detailsPanel.createParallelGroup(Alignment.LEADING)
-                            .addComponent(gotoBtn)
-                            .addComponent(closeBtn))
-                        .addContainerGap())
-            );
+        mainPanel.add(new JLabel("Targets"), 
+                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
+        mainPanel.add(new JLabel("Details"), 
+                new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
+               
+        mainPanel.add(aisScrollPane, 
+                new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0, WEST, BOTH, insets2, 0, 0));
+        mainPanel.add(detailsScrollPane, 
+                new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, WEST, BOTH, insets2, 0, 0));
 
-//        detailsPanel.setLayout(gl_detailsPanel);
-        getContentPane().setLayout(gl_detailsPanel);
-                
+        mainPanel.add(btnPanel, 
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
+        mainPanel.add(closeBtn, 
+                new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, EAST, NONE, insets2, 0, 0));
+               
     }
     
     private void setSelected(int selectedRow, boolean opening) {
@@ -310,8 +286,15 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         if (selected >= 0 && selected < aisTable.getRowCount()){
             Long mmsi = (Long)aisTable.getValueAt(selected, 1);
             if (aisHandler.getVesselTarget(mmsi) != null) {
-            setDetails(aisHandler.getVesselTarget(mmsi));
+                setDetails(aisHandler.getVesselTarget(mmsi));
             }
+            gotoBtn.setEnabled(aisHandler.getVesselTarget(mmsi) != null && 
+                    aisHandler.getVesselTarget(mmsi).getPositionData() != null);
+            chatBtn.setEnabled(EPD.getInstance().getChatServiceHandler()
+                    .availableForChat(mmsi.intValue()));
+        } else {
+            gotoBtn.setEnabled(false);
+            chatBtn.setEnabled(false);
         }
     }
         
@@ -444,13 +427,20 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
 
     @Override
     public void actionPerformed(ActionEvent e) {
-    if (e.getSource() == gotoBtn) {
-        int selectedRow = aisTable.getSelectedRow();
-        long selectedMMSI = (Long) aisTable.getValueAt(selectedRow, 1);
+        if (e.getSource() == gotoBtn) {
+            int selectedRow = aisTable.getSelectedRow();
+            long selectedMMSI = (Long) aisTable.getValueAt(selectedRow, 1);
         
-        aisLayer.zoomTo(aisHandler.getVesselTarget(selectedMMSI).getPositionData().getPos());
+            aisLayer.zoomTo(aisHandler.getVesselTarget(selectedMMSI).getPositionData().getPos());
+        
         } else if (e.getSource() == closeBtn) {
             setVisible(false);
+            
+        } else if (e.getSource() == chatBtn) {
+            int selectedRow = aisTable.getSelectedRow();
+            long selectedMMSI = (Long) aisTable.getValueAt(selectedRow, 1);
+            EPD.getInstance().getNotificationCenter()
+                .openNotification(NotificationType.MESSAGES, new MmsiId((int)selectedMMSI), false);
         }        
     }
 

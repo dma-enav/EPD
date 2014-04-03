@@ -43,7 +43,6 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
-import net.maritimecloud.core.id.MmsiId;
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
@@ -58,6 +57,7 @@ import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.NameUtils;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.RouteSuggestionHandler;
 
@@ -69,7 +69,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     private static final long serialVersionUID = 1L;
     
     private static final String[] NAMES = {
-        "", "ID", "MMSI", "Route Name", "Status" };
+        "", "MMSI", "Route Name", "Date", "Status" };
     
     protected JButton routeDetailsBtn;
     protected JButton createRouteBtn;
@@ -86,10 +86,10 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
-        table.getColumnModel().getColumn(1).setPreferredWidth(60);
-        table.getColumnModel().getColumn(2).setPreferredWidth(50);
-        table.getColumnModel().getColumn(3).setPreferredWidth(80);
-        splitPane.setDividerLocation(380);
+        table.getColumnModel().getColumn(1).setPreferredWidth(50);
+        table.getColumnModel().getColumn(2).setPreferredWidth(80);
+        table.getColumnModel().getColumn(3).setPreferredWidth(70);
+        splitPane.setDividerLocation(360);
         setCellAlignment(1, JLabel.RIGHT);
         setCellAlignment(2, JLabel.RIGHT);
     }
@@ -106,7 +106,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
                         BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
         routeDetailsBtn = new JButton(
-                "Route Details", 
+                "Details", 
                 EPD.res().getCachedImageIcon("images/notifications/routes.png"));
         
         createRouteBtn = new JButton(
@@ -117,6 +117,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         btnPanel.add(createRouteBtn);
         btnPanel.add(gotoBtn);
         btnPanel.add(deleteBtn);
+        btnPanel.add(chatBtn);
         
         routeDetailsBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
@@ -136,6 +137,11 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         deleteBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
                 deleteSelectedNotifications();
+            }});
+        
+        chatBtn.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                chatWithNotificationTarget();
             }});
         
         // Configure the reply panel
@@ -310,9 +316,9 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
                 case 0: return !notification.isRead() 
                                 ? ICON_UNREAD 
                                 : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
-                case 1: return notification.getId();
-                case 2: return "" + notification.get().getMmsi();
-                case 3: return notification.get().getMessage().getRoute().getName();
+                case 1: return "" + notification.get().getMmsi();
+                case 2: return notification.get().getMessage().getRoute().getName();
+                case 3: return Formatter.formatShortDateTimeNoTz(notification.getDate());
                 case 4: return notification.get().getStatus().toString();
                 default:
                 }
@@ -426,7 +432,7 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         StringBuilder html = new StringBuilder("<html>");
         html.append("<table>");
         append(html, "ID", routeSuggestion.getId());
-        append(html, "Sender", EPD.getInstance().getName(new MmsiId((int)routeSuggestion.getMmsi()), String.valueOf(routeSuggestion.getMmsi())));
+        append(html, "Sender", NameUtils.getName((int)routeSuggestion.getMmsi()));
         append(html, "Route Name", routeSuggestion.getMessage().getRoute().getName());
         append(html, "Sent Date", Formatter.formatShortDateTime(routeSuggestion.getMessage().getSentDate()));
         append(html, "Message", Formatter.formatHtml(routeSuggestion.getMessage().getMessage()));

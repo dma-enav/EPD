@@ -86,7 +86,7 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
                 case 1: return notification.getSeverity() == NotificationSeverity.ALERT
                                 ? ICON_ALERT
                                 : (notification.getSeverity() == NotificationSeverity.WARNING ? ICON_WARNING : null);
-                case 2: return Formatter.formatShortDateTime(notification.getDate());
+                case 2: return Formatter.formatShortDateTimeNoTz(notification.getDate());
                 case 3: return notification.getTitle();
                 default:
                 }

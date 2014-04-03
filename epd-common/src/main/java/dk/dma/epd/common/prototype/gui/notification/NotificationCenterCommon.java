@@ -47,14 +47,13 @@ import org.slf4j.LoggerFactory;
 
 import net.maritimecloud.core.id.MaritimeId;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.notification.ChatNotification;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.ChatNotification;
 import dk.dma.epd.common.prototype.notification.MsiNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
@@ -96,6 +95,8 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
 
     protected GeneralNotificationPanel generalPanel = new GeneralNotificationPanel(this);
     protected MsiNotificationPanel msiPanel = new MsiNotificationPanel(this);
+    protected ChatNotificationPanel chatPanel = new ChatNotificationPanel(this);
+    
     protected List<NotificationPanel<?>> panels = new CopyOnWriteArrayList<>();
     protected Map<NotificationType, NotificationLabel> labels = new ConcurrentHashMap<>();
 
@@ -140,6 +141,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      */
     protected void registerPanels() {
         panels.add(generalPanel);
+        panels.add(chatPanel);
         panels.add(msiPanel);
     }
 
@@ -233,6 +235,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         } else if (obj instanceof ChatServiceHandlerCommon && chatServiceHandler == null) {
             chatServiceHandler = (ChatServiceHandlerCommon) obj;
             chatServiceHandler.addListener(this);
+            chatPanel.refreshNotifications();
 
         } else if (obj instanceof SystemTrayCommon && systemTray == null) {
             systemTray = (SystemTrayCommon) obj;
@@ -443,6 +446,8 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
             generalPanel.addNotification((GeneralNotification) notification);
         } else if (notification instanceof MsiNotification) {
             msiPanel.addNotification((MsiNotification) notification);
+        } else if (notification instanceof ChatNotification) {
+            chatPanel.addNotification((ChatNotification)notification);
         } else {
             throw new IllegalArgumentException("Unknown notification type: " + notification);
         }
@@ -521,34 +526,9 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      * {@inheritDoc}
      */
     @Override
-    public void chatMessageReceived(MaritimeId senderId, ChatServiceMessage message) {
+    public void chatMessagesUpdated(MaritimeId targetId) {
 
-        String notificationId = ChatNotification.toId(senderId);
-        if (generalPanel.getNotificationById(notificationId) != null) {
-            ChatNotification previousNotification = (ChatNotification)generalPanel.getNotificationById(notificationId);
-            previousNotification.merge(true, senderId, message);
-            generalPanel.refreshNotifications();
-        } else {
-            ChatNotification notification = new ChatNotification(true, senderId, message);
-            generalPanel.addNotification(notification);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void chatMessageSent(MaritimeId recipientId, ChatServiceMessage message) {
-        
-        String notificationId = ChatNotification.toId(recipientId);
-        if (generalPanel.getNotificationById(notificationId) != null) {
-            ChatNotification previousNotification = (ChatNotification)generalPanel.getNotificationById(notificationId);
-            previousNotification.merge(false, recipientId, message);
-            generalPanel.refreshNotifications();
-
-        } else {
-            ChatNotification notification = new ChatNotification(false, recipientId, message);
-            generalPanel.addNotification(notification);
-        }
+        // Update the chat panel
+        chatPanel.refreshNotifications();
     }
 }

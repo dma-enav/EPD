@@ -33,7 +33,6 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
-import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
@@ -223,9 +222,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         sendStrategicRouteDialog = new SendStrategicRouteDialog(this);
         mapHandler.add(sendStrategicRouteDialog);
 
-        // Init the chat service dialog
-        chatServiceDialog = new ChatServiceDialog(this);
-        
         // Init the map right click menu
         mapMenu = new MapMenu();
         mapHandler.add(mapMenu);

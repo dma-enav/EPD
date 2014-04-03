@@ -38,29 +38,11 @@ public class Formatter {
 
     private static SimpleDateFormat onlyTime = new SimpleDateFormat("HH:mm");
 
-    // private static final TimeZone tzGMT = TimeZone.getTimeZone("GMT+0000");
-
-    // public static String formatRouteSuggestionStatus(Status status) {
-    // switch (status) {
-    // case PENDING:
-    // return "Pending";
-    // case ACCEPTED:
-    // return "Accepted";
-    // case REJECTED:
-    // return "Rejected";
-    // case NOTED:
-    // return "Noted";
-    // case IGNORED:
-    // return "Ignored";
-    // default:
-    // return "Unknown";
-    // }
-    // }
-    //
-    // =======
-    //
-
     public static String formateTimeFromDate(long date) {
+        return onlyTime.format(date);
+    }
+
+    public static String formateTimeFromDate(Date date) {
         return onlyTime.format(date);
     }
 

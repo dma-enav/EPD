@@ -27,7 +27,6 @@ import javax.swing.WindowConstants;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.settings.GuiSettings;
 
@@ -41,9 +40,6 @@ public abstract class MainFrameCommon extends JFrame {
 
     protected JPanel glassPanel;
     
-    // Common dialogs
-    protected ChatServiceDialog chatServiceDialog;
-        
     /**
      * Constructor
      */
@@ -103,15 +99,6 @@ public abstract class MainFrameCommon extends JFrame {
         return glassPanel;
     }    
     
-    /**
-     * Returns the chat service dialog
-     * @return the chat service dialog
-     * @return
-     */
-    public ChatServiceDialog getChatServiceDialog() {
-        return chatServiceDialog;
-    }
-
     /**
      * Returns an about action associated with this application
      * @return an about action associated with this application

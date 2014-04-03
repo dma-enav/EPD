@@ -72,6 +72,7 @@ public class IdentityViewer extends ComponentDialog implements ActionListener {
 
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setLocation(100, 100);
+        setLocationRelativeTo(frame);
 
         initGUI();
 
