@@ -15,22 +15,6 @@
  */
 package dk.dma.epd.common.prototype.gui;
 
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.SwingConstants;
-import javax.swing.Timer;
-
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
-import dk.dma.epd.common.prototype.gui.settings.CommonENavSettingsPanel;
-import dk.dma.epd.common.prototype.gui.settings.CommonMapSettingsPanel;
-import dk.dma.epd.common.prototype.settings.Settings;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -42,6 +26,20 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
+import javax.swing.Timer;
+
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
+import dk.dma.epd.common.prototype.settings.Settings;
 
 /**
  * This is the common setup GUI for ship and shore.
@@ -59,9 +57,6 @@ public class SetupDialogCommon extends JDialog implements ActionListener {
     private JTabbedPane tabbedPane;
     private List<BaseSettingsPanel> settingsPanels;
 
-    // Common settings panels
-    private CommonENavSettingsPanel enavSettings;
-    private CommonMapSettingsPanel mapSettings;
     private Settings settings;
     private String tabPrefix;
     private int fontSize;
@@ -114,13 +109,6 @@ public class SetupDialogCommon extends JDialog implements ActionListener {
 
         // Create the panels.
         settingsPanels = new ArrayList<BaseSettingsPanel>();
-        enavSettings   = new CommonENavSettingsPanel();
-        mapSettings    = new CommonMapSettingsPanel();
-
-        // Register the panels to the tab menu.
-        registerSettingsPanels(
-                enavSettings, 
-                mapSettings);
 
         btnAccept.addActionListener(this);
         btnCancel.addActionListener(this);

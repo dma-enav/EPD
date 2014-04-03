@@ -20,6 +20,8 @@ import javax.swing.JTabbedPane;
 
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
 import dk.dma.epd.common.prototype.gui.settings.CommonCloudSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.CommonENavSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.CommonMapSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipAisSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipNavigationSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipSensorSettingsPanel;
@@ -60,7 +62,9 @@ public class SetupDialogShip extends SetupDialogCommon {
         this.serviceSettings    = new ShipServicesSettingsPanel();
         
         // Register the panels in the setup dialog.
-        super.registerSettingsPanels( 
+        super.registerSettingsPanels(
+                new CommonENavSettingsPanel(),
+                new CommonMapSettingsPanel(),
                 navigationSettings,
                 cloudSettings,
                 serviceSettings,

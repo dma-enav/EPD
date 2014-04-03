@@ -664,7 +664,11 @@ public final class EPDShore extends EPD {
             LOG.warn("Restarting all eNav Service");
             maritimeCloudService.stop();
             maritimeCloudService.start();
+        } else if (type == Type.ENAV) {
+            // Update the intended route handler such that it can re apply its filter.
+            this.intendedRouteHandler.updateSettings(this.settings.getEnavSettings());
         }
+        
     }
 
     public StaticImages getStaticImages() {
