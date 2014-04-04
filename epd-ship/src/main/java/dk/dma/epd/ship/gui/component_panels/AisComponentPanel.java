@@ -31,7 +31,7 @@ import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.panels.AisTargetPanel;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
 
-public class AisComponentPanel extends OMComponentPanel implements ItemListener {
+public class AisComponentPanel extends OMComponentPanel implements ItemListener, DockableComponentPanel {
 
     private static final long serialVersionUID = 1L;
     private AisHandler aisHandler;
@@ -191,5 +191,33 @@ public class AisComponentPanel extends OMComponentPanel implements ItemListener 
 
         }
 
+    }
+
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "AIS Target";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return false;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
     }
 }

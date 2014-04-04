@@ -47,41 +47,15 @@ import bibliothek.gui.dock.common.theme.ThemeMap;
 import bibliothek.util.filter.PresetFilter;
 import bibliothek.util.xml.XElement;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.STCCCommunicationComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.DockableComponentPanel;
 
 public class DockableComponents {
-
-    private static final String[] PANEL_NAMES = { "Chart", "Scale", "Own Ship",
-            "GPS", "Cursor", "Active Waypoint", "AIS Target",
-            "Dynamic NoGo", "NoGo", "SAR", "Resilient PNT", "STCC Communication" };
 
     Map<String, PanelDockable> dmap;
     private CControl control;
     DockableFactory factory;
-
-    private ChartPanel chartPanel;
-
-    private ScaleComponentPanel scalePanel;
-    private OwnShipComponentPanel ownShipPanel;
-    private PntComponentPanel gpsPanel;
-    private CursorComponentPanel cursorPanel;
-    private ActiveWaypointComponentPanel activeWaypointPanel;
-    private AisComponentPanel aisPanel;
-    private DynamicNoGoComponentPanel dynamicNoGoPanel;
-    private NoGoComponentPanel nogoPanel;
-    private SARComponentPanel sarPanel;
-    private MultiSourcePntComponentPanel msPntPanel;
-    private STCCCommunicationComponentPanel stccPanel;
+    
+    private List<DockableComponentPanel> panels;
 
     private boolean locked;
 
@@ -90,29 +64,18 @@ public class DockableComponents {
         control = new CControl(mainFrame);
         control.setMissingStrategy(MissingCDockableStrategy.STORE);
 
-        chartPanel = mainFrame.getChartPanel();
-        scalePanel = mainFrame.getScalePanel();
-        ownShipPanel = mainFrame.getOwnShipPanel();
-        gpsPanel = mainFrame.getGpsPanel();
-        cursorPanel = mainFrame.getCursorPanel();
-        activeWaypointPanel = mainFrame.getActiveWaypointPanel();
-        aisPanel = mainFrame.getAisComponentPanel();
-        dynamicNoGoPanel = mainFrame.getDynamicNoGoPanel();
-        nogoPanel = mainFrame.getNogoPanel();
-        sarPanel = mainFrame.getSarPanel();
-        msPntPanel = mainFrame.getMsPntComponentPanel();
-        stccPanel = mainFrame.getStccComponentPanel();
+        panels = mainFrame.getDockableComponentPanels();
 
-
-        factory = new DockableFactory(chartPanel, scalePanel, ownShipPanel,
-                gpsPanel, cursorPanel, activeWaypointPanel, aisPanel,
-                dynamicNoGoPanel, nogoPanel, msPntPanel, sarPanel, stccPanel);
+        factory = new DockableFactory(panels);
 
         CContentArea contentArea = control.getContentArea();
         mainFrame.getContentPane().add(contentArea);
 
-        control.addSingleDockableFactory(new PresetFilter<>(PANEL_NAMES),
-                factory);
+        String[] panelNames = new String[panels.size()];
+        for (int x = 0; x < panels.size(); x++) {
+            panelNames[x] = panels.get(x).getDockableComponentName();
+        }
+        control.addSingleDockableFactory(new PresetFilter<>(panelNames), factory);
 
         mainFrame.add(control.getContentArea());
 
@@ -166,12 +129,10 @@ public class DockableComponents {
             dmap.put(dockable.getName(), dockable);
         }
 
-        for (String name : PANEL_NAMES) {
-            if (!name.equals("Top") && !name.equals("Chart")) {
-
-                JMenuItem m = createDockableMenuItem(name, dmap.get(name));
+        for (DockableComponentPanel panel : panels) {
+            if (panel.includeInPanelsMenu()) {
+                JMenuItem m = createDockableMenuItem(panel.getDockableComponentName(), dmap.get(panel.getDockableComponentName()));
                 menu.add(m);
-
             }
         }
 
@@ -344,28 +305,14 @@ public class DockableComponents {
         // System.out.println("Create layout?");
         CControl aControl = new CControl();
 
-        PanelDockable chartDock = new PanelDockable("Chart", chartPanel);
-        // PanelDockable topDock = new PanelDockable("Top", topPanel);
-        PanelDockable scaleDock = new PanelDockable("Scale", scalePanel);
-        PanelDockable ownShipDock = new PanelDockable("Own Ship", ownShipPanel);
-        PanelDockable gpsDock = new PanelDockable("GPS", gpsPanel);
-        PanelDockable cursorDock = new PanelDockable("Cursor", cursorPanel);
-        PanelDockable activeWaypointDock = new PanelDockable("Active Waypoint",
-                activeWaypointPanel);
-        PanelDockable msPntDock = new PanelDockable("Resilient PNT", msPntPanel);
-
-        // PanelDockable aisDock = new PanelDockable("AIS Target", aisPanel);
-
         CGrid grid = new CGrid(aControl);
-        // grid.add(0, 0, 100, 3, topDock);
-        grid.add(0, 3, 90, 97, chartDock);
-        grid.add(90, 3, 10, 10, scaleDock);
-        grid.add(90, 13, 10, 10, ownShipDock);
-        grid.add(90, 23, 10, 10, gpsDock);
-        grid.add(90, 33, 10, 10, cursorDock);
-        grid.add(90, 43, 10, 10, activeWaypointDock);
-        grid.add(90, 25, 10, 10, msPntDock);
-        // grid.add(90, 63, 10, 10, aisDock);
+        int x = 0;
+        for (DockableComponentPanel panel : panels) {
+            if (panel.includeInDefaultLayout()) {
+                PanelDockable pd = new PanelDockable(panel.getDockableComponentName(), (JPanel)panel);
+                grid.add(x == 0 ? 0 : 90, x * 10, 90, 90, pd);
+            }
+        }        
 
         aControl.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
 
@@ -462,101 +409,29 @@ public class DockableComponents {
     // Create the dockables from a xml file
     private static class DockableFactory implements SingleCDockableFactory {
 
-        ChartPanel chartPanel;
-        // TopPanel topPanel;
-        ScaleComponentPanel scalePanel;
-        OwnShipComponentPanel ownShipPanel;
-        PntComponentPanel gpsPanel;
-        CursorComponentPanel cursorPanel;
-        ActiveWaypointComponentPanel activeWaypointPanel;
-        AisComponentPanel aisPanel;
-        DynamicNoGoComponentPanel dynamicNoGoPanel;
-        NoGoComponentPanel nogoPanel;
-        SARComponentPanel sarPanel;
-        MultiSourcePntComponentPanel msPntPanel;
-        STCCCommunicationComponentPanel stccPanel;
+        Map<String, DockableComponentPanel> panelLookup = new HashMap<>();
 
-
-        public DockableFactory(ChartPanel chartPanel,
-                ScaleComponentPanel scalePanel,
-                OwnShipComponentPanel ownShipPanel, PntComponentPanel gpsPanel,
-                CursorComponentPanel cursorPanel,
-                ActiveWaypointComponentPanel activeWaypointPanel,
-                AisComponentPanel aisPanel,
-                DynamicNoGoComponentPanel dynamicNoGoPanel,
-                NoGoComponentPanel nogoPanel,
-                MultiSourcePntComponentPanel msPntPanel,
-                SARComponentPanel sarPanel, STCCCommunicationComponentPanel stccPanel) {
+        /**
+         * Constructor
+         * @param panels
+         */
+        public DockableFactory(List<DockableComponentPanel> panels) {
 
             super();
-
-            this.chartPanel = chartPanel;
-            // this.topPanel = topPanel;
-            this.scalePanel = scalePanel;
-            this.ownShipPanel = ownShipPanel;
-            this.gpsPanel = gpsPanel;
-            this.cursorPanel = cursorPanel;
-            this.activeWaypointPanel = activeWaypointPanel;
-            this.aisPanel = aisPanel;
-            this.dynamicNoGoPanel = dynamicNoGoPanel;
-            this.nogoPanel = nogoPanel;
-            this.sarPanel = sarPanel;
-            this.msPntPanel = msPntPanel;
-            this.stccPanel = stccPanel;
-
+            
+            for (DockableComponentPanel panel : panels) {
+                panelLookup.put(panel.getDockableComponentName(), panel);
+            }
         }
 
         @Override
         public SingleCDockable createBackup(String id) {
-            if (id.equals("Chart")) {
-                return new PanelDockable(id, chartPanel);
-            }
-
-            // if (id.equals("Top")) {
-            // return new PanelDockable(id, topPanel);
-            // }
-            if (id.equals("Scale")) {
-                return new PanelDockable(id, scalePanel);
-            }
-
-            if (id.equals("Own Ship")) {
-                return new PanelDockable(id, ownShipPanel);
-            }
-
-            if (id.equals("GPS")) {
-                return new PanelDockable(id, gpsPanel);
-            }
-
-            if (id.equals("Cursor")) {
-                return new PanelDockable(id, cursorPanel);
-            }
-            if (id.equals("Active Waypoint")) {
-                return new PanelDockable(id, activeWaypointPanel);
-            }
-            if (id.equals("AIS Target")) {
-                return new PanelDockable(id, aisPanel);
-            }
-
-            if (id.equals("Dynamic NoGo")) {
-                return new PanelDockable(id, dynamicNoGoPanel);
-            }
-            if (id.equals("NoGo")) {
-                return new PanelDockable(id, nogoPanel);
-            }
-
-            if (id.equals("SAR")) {
-                return new PanelDockable(id, sarPanel);
-            }
-
-            if (id.equals("Resilient PNT")) {
-                return new PanelDockable(id, msPntPanel);
-            }
-            if (id.equals("STCC Communication")) {
-                return new PanelDockable(id, stccPanel);
+            
+            if (panelLookup.containsKey(id)) {
+                return new PanelDockable(id, (JPanel)panelLookup.get(id));
             }
 
             return new PanelDockable(id, new JPanel());
-
         }
     }
 

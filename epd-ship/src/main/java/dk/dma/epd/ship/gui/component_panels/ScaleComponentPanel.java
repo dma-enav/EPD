@@ -30,7 +30,7 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.panels.ScalePanel;
 
-public class ScaleComponentPanel extends OMComponentPanel implements Runnable, ProjectionListener  {
+public class ScaleComponentPanel extends OMComponentPanel implements Runnable, ProjectionListener, DockableComponentPanel  {
 
     /**
      * 
@@ -93,5 +93,31 @@ public class ScaleComponentPanel extends OMComponentPanel implements Runnable, P
         }
     }
     
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "Scale";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
+    }
 }

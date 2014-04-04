@@ -31,7 +31,7 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.gui.SensorPanel;
 import dk.dma.epd.ship.gui.panels.CursorPanel;
 
-public class CursorComponentPanel extends OMComponentPanel implements IPntDataListener, IMapCoordListener {
+public class CursorComponentPanel extends OMComponentPanel implements IPntDataListener, IMapCoordListener, DockableComponentPanel {
 
     private static final long serialVersionUID = 1L;
     private final CursorPanel cursorPanel = new CursorPanel();
@@ -91,5 +91,33 @@ public class CursorComponentPanel extends OMComponentPanel implements IPntDataLi
         if (obj instanceof PntHandler) {
             ((PntHandler) obj).addListener(this);
         }
+    }
+
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "Cursor";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
     }
 }

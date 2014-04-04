@@ -31,7 +31,7 @@ import dk.dma.epd.ship.gui.panels.DynamicNoGoPanel;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
-public class DynamicNoGoComponentPanel extends OMComponentPanel {
+public class DynamicNoGoComponentPanel extends OMComponentPanel implements DockableComponentPanel {
 
     private static final long serialVersionUID = 1L;
     private AisHandler aisHandler;
@@ -292,4 +292,31 @@ public class DynamicNoGoComponentPanel extends OMComponentPanel {
         }
     }
 
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "Dynamic NoGo";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return false;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
+    }
 }

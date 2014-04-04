@@ -31,7 +31,7 @@ import dk.dma.epd.ship.gui.panels.STCCCommunicationPanel;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
 
 public class STCCCommunicationComponentPanel extends OMComponentPanel implements Runnable, StrategicRouteListener,
-        IChatServiceListener {
+        IChatServiceListener, DockableComponentPanel {
 
     /**
      * 
@@ -94,5 +94,33 @@ public class STCCCommunicationComponentPanel extends OMComponentPanel implements
     @Override
     public void chatMessagesUpdated(MaritimeId targetId) {
         commsPanel.updateChatMessagePanel();
+    }
+    
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "STCC Communication";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return false;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
     }
 }

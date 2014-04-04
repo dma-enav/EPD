@@ -59,6 +59,7 @@ import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.NoGoMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.DockableComponentPanel;
 import dk.dma.epd.ship.gui.nogo.NogoDialog;
 import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
@@ -78,7 +79,7 @@ import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  */
-public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
+public class ChartPanel extends ChartPanelCommon implements DockableComponentPanel, IPntDataListener,
         MouseWheelListener, VOCTUpdateListener {
 
     private static final long serialVersionUID = 1L;
@@ -685,4 +686,31 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         return nogoDialog;
     }
 
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "Chart";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return false;
+    }
 }

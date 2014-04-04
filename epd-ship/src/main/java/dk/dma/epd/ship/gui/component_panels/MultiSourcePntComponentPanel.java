@@ -29,7 +29,7 @@ import dk.dma.epd.ship.gui.panels.MultiSourcePntPanel;
 /**
  * Panel that displays the status of the multi-source PNT
  */
-public class MultiSourcePntComponentPanel extends OMComponentPanel implements IResilientPntDataListener {
+public class MultiSourcePntComponentPanel extends OMComponentPanel implements IResilientPntDataListener, DockableComponentPanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -84,5 +84,33 @@ public class MultiSourcePntComponentPanel extends OMComponentPanel implements IR
             msPntHandler = null;
         }
         super.findAndUndo(obj);
+    }
+
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "Resilient PNT";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return false;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
     }
 }
