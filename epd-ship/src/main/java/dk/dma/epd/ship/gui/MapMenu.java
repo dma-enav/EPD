@@ -306,29 +306,31 @@ public class MapMenu extends MapMenuCommon {
     public void sendToSTCC(int routeIndex) {
         removeAll();
 
-        // Look up the route
-        try {
-            Route route = routeManager.getRoute(routeIndex);
-            if (routeManager.isActiveRoute(routeIndex)) {
-                route = routeManager.getActiveRoute();
-            }
-    
-            sendToSTCC.setRoute(route);
+        // Check if we are in a route exchange transaction
+        if (strategicRouteHandler.isTransaction()) {
+            sendToSTCC.setText("Show STCC info...");
             sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
-            sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
-                            && routeManager.getActiveRouteIndex() != routeIndex
-                            && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
-    
-            if (strategicRouteHandler.isTransaction()) {
-                sendToSTCC.setText("Show STCC info...");
-            } else {
-                sendToSTCC.setText("Send to STCC...");
-            }
-        } catch (Exception ex) {
-            sendToSTCC.setEnabled(false);
-            LOG.error("Error opening Send to STCC map menu for route index " + routeIndex, ex);
-        }
+       
+        } else {
+            try {
+                // Look up the route
+                Route route = routeManager.getRoute(routeIndex);
+                if (routeManager.isActiveRoute(routeIndex)) {
+                    route = routeManager.getActiveRoute();
+                }
         
+                sendToSTCC.setText("Send to STCC...");
+                sendToSTCC.setRoute(route);
+                sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
+                                && routeManager.getActiveRouteIndex() != routeIndex
+                                && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+        
+            } catch (Exception ex) {
+                sendToSTCC.setEnabled(false);
+                LOG.error("Error opening Send to STCC map menu for route index " + routeIndex, ex);
+            }
+        }
+
         add(sendToSTCC);
         revalidate();
     }

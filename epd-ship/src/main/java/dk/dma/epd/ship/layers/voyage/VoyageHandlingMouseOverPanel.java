@@ -26,16 +26,16 @@ public class VoyageHandlingMouseOverPanel extends InfoPanel {
 
     public void showType(int type) {
 
-        if (type == 0) {
+        if (type == VoyageLayer.ROUTE_INDEX_ORIGINAL_ROUTE) {
             showText("Original Sent Route");
         }
-        if (type == 2) {
+        if (type == VoyageLayer.ROUTE_INDEX_EDITABLE_ROUTE) {
             showText("Editable Route");
         }
-        if (type == 1) {
+        if (type == VoyageLayer.ROUTE_INDEX_STCC_ROUTE) {
             showText("Route suggested by Shore");
         }
-        if (type == 3) {
+        if (type == VoyageLayer.ROUTE_INDEX_CURRENT) {
             showText("Route currently being negotiated");
         }
 
