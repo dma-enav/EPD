@@ -20,6 +20,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -40,6 +42,7 @@ import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.DockableComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
@@ -314,6 +317,27 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         };
         return aboutEpdShip;
     }
+    
+    /**
+     * Returns the list of dockable component panels
+     * @return the list of dockable component panels
+     */
+    public List<DockableComponentPanel> getDockableComponentPanels() {
+        return Arrays.asList(
+                (DockableComponentPanel)chartPanel,
+                (DockableComponentPanel)scalePanel,
+                (DockableComponentPanel)ownShipPanel,
+                (DockableComponentPanel)gpsPanel,
+                (DockableComponentPanel)cursorPanel,
+                (DockableComponentPanel)activeWaypointPanel,
+                (DockableComponentPanel)aisComponentPanel,
+                (DockableComponentPanel)dynamicNoGoPanel,
+                (DockableComponentPanel)nogoPanel,
+                (DockableComponentPanel)sarPanel,
+                (DockableComponentPanel)msPntComponentPanel,
+                (DockableComponentPanel)stccComponentPanel
+              );
+    }
 
     /*******************************/
     /** Getters and setters       **/
@@ -331,39 +355,10 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return this.bottomStatusDialog;
     }
     
-    public ScaleComponentPanel getScalePanel() {
-        return scalePanel;
-    }
-
-    public OwnShipComponentPanel getOwnShipPanel() {
-        return ownShipPanel;
-    }
-
-    public PntComponentPanel getGpsPanel() {
-        return gpsPanel;
-    }
-
-    public CursorComponentPanel getCursorPanel() {
-        return cursorPanel;
-    }
-
-    public ActiveWaypointComponentPanel getActiveWaypointPanel() {
-        return activeWaypointPanel;
-    }
-
     public DockableComponents getDockableComponents() {
         return dockableComponents;
     }
-
     
-    
-    /**
-     * @return the stccComponentPanel
-     */
-    public STCCCommunicationComponentPanel getStccComponentPanel() {
-        return stccComponentPanel;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -372,27 +367,8 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return menuBar;
     }
 
-    public AisComponentPanel getAisComponentPanel() {
-        return aisComponentPanel;
-    }
-
-    public DynamicNoGoComponentPanel getDynamicNoGoPanel() {
-        return dynamicNoGoPanel;
-    }
-
-    public NoGoComponentPanel getNogoPanel() {
-        return nogoPanel;
-    }
-
-    public MultiSourcePntComponentPanel getMsPntComponentPanel() {
-        return msPntComponentPanel;
-    }
-
     public SendStrategicRouteDialog getSendStrategicRouteDialog() {
         return sendStrategicRouteDialog;
     }
     
-    public SARComponentPanel getSarPanel() {
-        return sarPanel;
-    }
 }

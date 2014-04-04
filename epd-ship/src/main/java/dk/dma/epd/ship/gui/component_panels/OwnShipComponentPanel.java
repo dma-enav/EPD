@@ -28,9 +28,10 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.gui.panels.OwnShipPanel;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
+
 import javax.swing.JScrollPane;
 
-public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataListener {
+public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataListener, DockableComponentPanel {
 
     /**
      * 
@@ -94,4 +95,31 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
         }
     }
 
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "Own Ship";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
+    }
 }
