@@ -95,6 +95,8 @@ public class RouteManagerPanel extends JPanel implements ActionListener,
     
     private RouteManager routeManager;
     private RouteManagerDialog routeManagerDialog;
+    
+    private volatile File lastPath;
 
     /**
      * Constructor
@@ -324,9 +326,10 @@ public class RouteManagerPanel extends JPanel implements ActionListener,
         }
 
         Route route = routeManager.getRoute(routeId);
-
-        JFileChooser fc = new JFileChooser(System.getProperty("user.dir")
-                + "/routes/");
+        
+        String path = lastPath != null ? lastPath.getAbsolutePath() : EPDShip.getInstance().getHomePath().resolve("routes")
+                .toString();        
+        JFileChooser fc = new JFileChooser(path);
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setMultiSelectionEnabled(false);
 
@@ -363,8 +366,9 @@ public class RouteManagerPanel extends JPanel implements ActionListener,
 
     private void importFromFile() {
         // Get filename from dialog
-        JFileChooser fc = new JFileChooser(EPDShip.getInstance().getHomePath()
-                .resolve("routes").toString());
+        String path = lastPath != null ? lastPath.getAbsolutePath() : EPDShip.getInstance().getHomePath().resolve("routes")
+                .toString();        
+        JFileChooser fc = new JFileChooser(path);
 
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setMultiSelectionEnabled(true);
@@ -374,6 +378,8 @@ public class RouteManagerPanel extends JPanel implements ActionListener,
                 "ECDIS900 V3 route", "rou", "ROU"));
         fc.addChoosableFileFilter(new FileNameExtensionFilter(
                 "Navisailor 3000 route", "rt3", "RT3"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter(
+                "Google KML", "kml", "KML"));
         fc.setAcceptAllFileFilterUsed(true);
 
         if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
@@ -389,6 +395,7 @@ public class RouteManagerPanel extends JPanel implements ActionListener,
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            lastPath = file;
         }
 
         updateTable();

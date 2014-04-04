@@ -176,84 +176,45 @@ public class RouteLoader {
         return route;
     }
 
-    public static boolean saveSimple(Route route, File file){
-        try (
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));) {
-            
-            // Write the header, making sure null isn't printed to the file
-            String header = new String(route.getName()!=null?route.getName():"" +
-                    "\t" + route.getDestination()!=null?route.getDestination():"" +
-                    "\t" + route.getDeparture()!=null?route.getDeparture():"");
-            writer.write(header);
-            writer.newLine();
-            writer.flush();
-            
-            // write the waypoints to the file
-            LinkedList<RouteWaypoint> routeWaypoints = route.getWaypoints();
-            for (RouteWaypoint routeWaypoint : routeWaypoints) {
-                if(routeWaypoint.getOutLeg() != null){
-                    Double turnRad = routeWaypoint.getTurnRad()!=null?routeWaypoint.getTurnRad():new Double(0.0);
-                    writer.write(routeWaypoint.getName() + "\t" +
-                            Formatter.latToPrintable(routeWaypoint.getPos().getLatitude()) + "\t" +
-                            Formatter.lonToPrintable(routeWaypoint.getPos().getLongitude()) + "\t" +
-                            routeWaypoint.getOutLeg().getSpeed() + "\t" +
-                            (routeWaypoint.getOutLeg().getHeading().ordinal()+1) + "\t" +
-                            routeWaypoint.getOutLeg().getXtdStarboard() + "," + routeWaypoint.getOutLeg().getXtdPort() + "\t" +
-                            turnRad);
-                    writer.newLine();
-                    writer.flush();
-                } else {
-                    writer.write(routeWaypoint.getName() + "\t" +
-                            Formatter.latToPrintable(routeWaypoint.getPos().getLatitude()) + "\t" +
-                            Formatter.lonToPrintable(routeWaypoint.getPos().getLongitude()) + "\t" +
-                            // Last waypoint doesn't have an out leg
-                            "0.00" + "\t" + "0" + "\t" + "0.0,0.0" + "\t" +
-                            routeWaypoint.getTurnRad());
-                    writer.newLine();
-                    writer.flush();
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("Failed to save route file: " + e.getMessage());
-            return false;
-        }
-        return true;
+    public static Route loadKml(File file, NavSettings navSettings) throws RouteLoadException {
+        KmlParser kmlParser = new KmlParser(file, navSettings);
+        return kmlParser.parse();
     }
-    
+
     public static Route loadRt3(File file, NavSettings navSettings) throws RouteLoadException {
         Route route = new Route();
-        
+
         try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
             Document doc = docBuilder.parse(file);
             // Normalize text representation
             doc.getDocumentElement().normalize();
-            
+
             // Get name
             route.setName(doc.getDocumentElement().getAttribute("RtName"));
             if (route.getName() == null) {
                 route.setName("NO NAME");
             }
-            
+
             // Get waypoints
             NodeList waypointsList = doc.getElementsByTagName("WayPoints");
             if (waypointsList == null || waypointsList.getLength() < 1) {
                 throw new RouteLoadException("Failed to parse RT3, no WayPoints node");
             }
-            Element waypointsNode = (Element)waypointsList.item(0);
+            Element waypointsNode = (Element) waypointsList.item(0);
             NodeList waypoints = waypointsNode.getElementsByTagName("WayPoint");
             if (waypoints == null || waypoints.getLength() == 0) {
                 throw new RouteLoadException("Failed to parse RT3, no WayPoint nodes");
             }
-            
+
             RouteLeg lastLeg = null;
-            
+
             // Iterate thorugh waypoints
-            for(int i = 1; i < waypoints.getLength(); i++) {
+            for (int i = 1; i < waypoints.getLength(); i++) {
                 // Get waypoint element
-                Element wpElem = (Element)waypoints.item(i);
-                
+                Element wpElem = (Element) waypoints.item(i);
+
                 // Create route objects
                 RouteWaypoint wp = new RouteWaypoint();
                 RouteLeg outLeg = new RouteLeg();
@@ -261,22 +222,22 @@ public class RouteLoader {
                 wp.setOutLeg(outLeg);
                 outLeg.setStartWp(wp);
                 if (lastLeg != null) {
-                    lastLeg.setEndWp(wp);            
+                    lastLeg.setEndWp(wp);
                 }
-                
+
                 // Set defaults
                 wp.setSpeed(navSettings.getDefaultSpeed());
                 wp.setTurnRad(navSettings.getDefaultTurnRad());
                 outLeg.setXtdPort(navSettings.getDefaultXtd());
                 outLeg.setXtdStarboard(navSettings.getDefaultXtd());
-                wp.setName(String.format("WP_%03d", i + 1));
-                                
+                wp.setName(makeWpName(i + 1));
+
                 // Wp name
                 String name = wpElem.getAttribute("WPName");
                 if (name != null && name.length() > 0) {
                     wp.setName(name);
                 }
-                
+
                 // Lat and lon
                 Double lat = ParseUtils.parseDouble(wpElem.getAttribute("Lat"));
                 Double lon = ParseUtils.parseDouble(wpElem.getAttribute("Lon"));
@@ -288,13 +249,13 @@ public class RouteLoader {
                     throw new RouteLoadException("RT3 position projection is unknown");
                 }
                 wp.setPos(Position.create(lat, lon));
-                
+
                 // Turn rad
                 String turnRad = wpElem.getAttribute("TurnRadius");
                 if (turnRad != null && turnRad.length() > 0) {
                     wp.setTurnRad(ParseUtils.parseDouble(turnRad));
                 }
-                
+
                 // XTE
                 String xte = wpElem.getAttribute("PortXTE");
                 if (xte != null && xte.length() > 0) {
@@ -304,7 +265,7 @@ public class RouteLoader {
                 if (xte != null && xte.length() > 0) {
                     outLeg.setXtdStarboard(ParseUtils.parseDouble(xte));
                 }
-                
+
                 // Leg type
                 String legType = wpElem.getAttribute("LegType");
                 if (legType != null && !legType.equals("0")) {
@@ -312,13 +273,13 @@ public class RouteLoader {
                 } else {
                     outLeg.setHeading(Heading.RL);
                 }
-                
+
                 wp.setSpeed(outLeg.getSpeed());
                 route.getWaypoints().add(wp);
             }
-            
+
             route.getWaypoints().getLast().setOutLeg(null);
-            
+
         } catch (IOException e) {
             LOG.error("Failed to load RT3 route file: " + e.getMessage());
             throw new RouteLoadException("Error reading route file");
@@ -326,8 +287,12 @@ public class RouteLoader {
             LOG.error("Failed to parse RT3 route file: " + e.getMessage());
             throw new RouteLoadException("Error parsing RT3 route file");
         }
-        
+
         return route;
+    }
+
+    public static String makeWpName(int i) {
+        return String.format("WP_%03d", i);
     }
 
     public static Route pertinaciousLoad(File file, NavSettings navSettings) throws RouteLoadException {
@@ -352,9 +317,43 @@ public class RouteLoader {
         return route;
     }
 
-//    public static void main(String[] args) throws RouteLoadException {
-//        System.out.println("Hello from RouteLoader");
-//        Route route = loadRt3(new File(args[0]));
-//        System.out.println("route: " + route);
-//    }
+    public static boolean saveSimple(Route route, File file) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file));) {
+
+            // Write the header, making sure null isn't printed to the file
+            String header = new String(route.getName() != null ? route.getName()
+                    : "" + "\t" + route.getDestination() != null ? route.getDestination()
+                            : "" + "\t" + route.getDeparture() != null ? route.getDeparture() : "");
+            writer.write(header);
+            writer.newLine();
+            writer.flush();
+
+            // write the waypoints to the file
+            LinkedList<RouteWaypoint> routeWaypoints = route.getWaypoints();
+            for (RouteWaypoint routeWaypoint : routeWaypoints) {
+                if (routeWaypoint.getOutLeg() != null) {
+                    Double turnRad = routeWaypoint.getTurnRad() != null ? routeWaypoint.getTurnRad() : new Double(0.0);
+                    writer.write(routeWaypoint.getName() + "\t" + Formatter.latToPrintable(routeWaypoint.getPos().getLatitude())
+                            + "\t" + Formatter.lonToPrintable(routeWaypoint.getPos().getLongitude()) + "\t"
+                            + routeWaypoint.getOutLeg().getSpeed() + "\t" + (routeWaypoint.getOutLeg().getHeading().ordinal() + 1)
+                            + "\t" + routeWaypoint.getOutLeg().getXtdStarboard() + "," + routeWaypoint.getOutLeg().getXtdPort()
+                            + "\t" + turnRad);
+                    writer.newLine();
+                    writer.flush();
+                } else {
+                    writer.write(routeWaypoint.getName() + "\t" + Formatter.latToPrintable(routeWaypoint.getPos().getLatitude())
+                            + "\t" + Formatter.lonToPrintable(routeWaypoint.getPos().getLongitude()) + "\t" +
+                            // Last waypoint doesn't have an out leg
+                            "0.00" + "\t" + "0" + "\t" + "0.0,0.0" + "\t" + routeWaypoint.getTurnRad());
+                    writer.newLine();
+                    writer.flush();
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("Failed to save route file: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
 }
