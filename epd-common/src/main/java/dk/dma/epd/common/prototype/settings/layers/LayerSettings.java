@@ -15,10 +15,7 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
-import java.util.Properties;
-
 import com.bbn.openmap.omGraphics.OMGraphic;
-import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
@@ -48,19 +45,6 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
     /*
      * Add settings that are relevant to all layer types here.
      */
-
-    /**
-     * The key in the properties file for the setting that specifies if the
-     * layer should be visible.
-     */
-    private static final String KEY_VISIBLE = "layerVisible";
-
-    /**
-     * The key in the properties file for the setting that specifies the maximum
-     * distance between the mouse cursor and a graphic element for the graphic
-     * element to be interactable.
-     */
-    private static final String KEY_GRAPHIC_INTERACT_TOLERANCE = "graphicInteractTolerance";
 
     /**
      * Specifies if the layer should be displayed.
@@ -156,41 +140,4 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
         }
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <b>NOTE: This is a concrete implementation. Any subclass should make sure
-     * to invoke the super implementation.</b>
-     * </p>
-     */
-    @Override
-    protected void onLoadSuccess(Properties settings) {
-        this.settingLock.writeLock().lock();
-        this.setVisible(PropUtils.booleanFromProperties(settings, KEY_VISIBLE,
-                this.visible));
-        this.setGraphicInteractTolerance(PropUtils.floatFromProperties(
-                settings, KEY_GRAPHIC_INTERACT_TOLERANCE,
-                this.graphicInteractTolerance));
-        this.settingLock.writeLock().unlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <b>NOTE: This is a concrete implementation. Any subclass should make sure
-     * to invoke the super implementation, add its own settings to the
-     * {@link Properties} instance returned by the super call and finally return
-     * that instance.</b>
-     * </p>
-     */
-    @Override
-    protected Properties onSaveSettings() {
-        this.settingLock.readLock().lock();
-        Properties toSave = new Properties();
-        toSave.setProperty(KEY_VISIBLE, Boolean.toString(this.visible));
-        toSave.setProperty(KEY_VISIBLE,
-                Float.toString(this.graphicInteractTolerance));
-        this.settingLock.readLock().unlock();
-        return toSave;
-    }
 }
