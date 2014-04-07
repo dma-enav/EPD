@@ -15,9 +15,6 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
-import java.util.Properties;
-
-import com.bbn.openmap.util.PropUtils;
 
 /**
  * This class is used to maintain settings for an ENC/S52 layer.
@@ -26,72 +23,6 @@ import com.bbn.openmap.util.PropUtils;
  */
 public class ENCLayerCommonSettings<OBSERVER extends IENCLayerCommonSettingsObserver>
         extends LayerSettings<OBSERVER> {
-
-    /**
-     * Key used in the the properties file to store the value of
-     * {@link #encInUse}.
-     */
-    private static final String KEY_ENC_IN_USE = "useENC";
-
-    /**
-     * Key used in the properties file to store the value of
-     * {@link #s52ShowText}.
-     */
-    private static final String KEY_S52_SHOW_TEXT = "s52ShowText";
-
-    /**
-     * Key used in the properties file to store the value of
-     * {@link #s52ShallowPattern}.
-     */
-    private static final String KEY_S52_SHALLOW_PATTERN = "s52ShallowPattern";
-
-    /**
-     * Key used in the properties file to store the value of
-     * {@link #s52ShallowContour}.
-     */
-    private static final String KEY_S52_SHALLOW_CONTOUR = "s52ShallowContour";
-
-    /**
-     * Key used in the properties file to store the value of
-     * {@link #s52SafetyDepth}.
-     */
-    private static final String KEY_S52_SAFETY_DEPTH = "s52SafetyDepth";
-
-    /**
-     * Key used in the properties file to store the value of
-     * {@link #s52SafetyContour}.
-     */
-    private static final String KEY_S52_SAFETY_CONTOUR = "s52SafetyContour";
-
-    /**
-     * Key used in the properties file to store the value of
-     * {@link #s52DeepContour}.
-     */
-    private static final String KEY_S52_DEEP_CONTOUR = "s52DeepContour";
-
-    /**
-     * Key used in the properties file to store the value of
-     * {@link #useSimplePointSymbols}.
-     */
-    private static final String KEY_USE_SIMPLE_POINT_SYMBOLS = "useSimplePointSymbols";
-
-    /**
-     * Key used in the properties file to store the value of
-     * {@link #usePlainAreas}.
-     */
-    private static final String KEY_USE_PLAIN_AREAS = "usePlainAreas";
-
-    /**
-     * Key used in the properties file to store the value of
-     * {@link #s52TwoShades}.
-     */
-    private static final String KEY_S52_TWO_SHADES = "s52TwoShades";
-
-    /**
-     * Key used in the properties file to store the value of
-     * {@link #encColorScheme}.
-     */
-    private static final String KEY_ENC_COLOR_SCHEME = "encColorScheme";
 
     /**
      * Setting specifying if the ENC layer should be loaded on application
@@ -550,6 +481,7 @@ public class ENCLayerCommonSettings<OBSERVER extends IENCLayerCommonSettingsObse
      * @return The ENC color scheme.
      */
     public ENCColorScheme getEncColorScheme() {
+        // TODO How does YamlBeans handle Enums?
         try {
             this.settingLock.readLock().lock();
             return this.encColorScheme;
@@ -565,6 +497,7 @@ public class ENCLayerCommonSettings<OBSERVER extends IENCLayerCommonSettingsObse
      *            The ENC color scheme to replace the current scheme.
      */
     public void setEncColorScheme(final ENCColorScheme encColorScheme) {
+        // TODO How does YamlBeans handle Enums?
         try {
             this.settingLock.writeLock().lock();
             if (this.encColorScheme == encColorScheme) {
@@ -579,75 +512,6 @@ public class ENCLayerCommonSettings<OBSERVER extends IENCLayerCommonSettingsObse
         } finally {
             this.settingLock.writeLock().unlock();
         }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onLoadSuccess(Properties settings) {
-        this.settingLock.writeLock().lock();
-        // Let super class initialize its variables.
-        super.onLoadSuccess(settings);
-        this.setEncInUse(PropUtils.booleanFromProperties(settings,
-                KEY_ENC_IN_USE, this.encInUse));
-        this.setS52ShowText(PropUtils.booleanFromProperties(settings,
-                KEY_S52_SHOW_TEXT, this.s52ShowText));
-        this.setS52ShallowPattern(PropUtils.booleanFromProperties(settings,
-                KEY_S52_SHALLOW_PATTERN, this.s52ShallowPattern));
-        this.setS52ShallowContour(PropUtils.intFromProperties(settings,
-                KEY_S52_SHALLOW_CONTOUR, this.s52ShallowContour));
-        this.setS52SafetyDepth(PropUtils.intFromProperties(settings,
-                KEY_S52_SAFETY_DEPTH, this.s52SafetyDepth));
-        this.setS52SafetyContour(PropUtils.intFromProperties(settings,
-                KEY_S52_SAFETY_CONTOUR, this.s52SafetyContour));
-        this.setS52DeepContour(PropUtils.intFromProperties(settings,
-                KEY_S52_DEEP_CONTOUR, this.s52DeepContour));
-        this.setUseSimplePointSymbols(PropUtils.booleanFromProperties(settings,
-                KEY_USE_SIMPLE_POINT_SYMBOLS, this.useSimplePointSymbols));
-        this.setUsePlainAreas(PropUtils.booleanFromProperties(settings,
-                KEY_USE_PLAIN_AREAS, this.usePlainAreas));
-        this.setS52TwoShades(PropUtils.booleanFromProperties(settings,
-                KEY_S52_TWO_SHADES, this.s52TwoShades));
-        // Read the ENC color scheme setting.
-        String schemeStrVal = settings.getProperty(KEY_ENC_COLOR_SCHEME);
-        ENCColorScheme scheme = ENCColorScheme.getFromString(schemeStrVal);
-        this.setEncColorScheme(scheme != null ? scheme : this.encColorScheme);
-        this.settingLock.writeLock().unlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Properties onSaveSettings() {
-        this.settingLock.readLock().lock();
-        // Let super class store its variables.
-        Properties toSave = super.onSaveSettings();
-        // Add own variables.
-        toSave.setProperty(KEY_ENC_IN_USE, Boolean.toString(this.encInUse));
-        toSave.setProperty(KEY_S52_SHOW_TEXT,
-                Boolean.toString(this.s52ShowText));
-        toSave.setProperty(KEY_S52_SHALLOW_PATTERN,
-                Boolean.toString(this.s52ShallowPattern));
-        toSave.setProperty(KEY_S52_SHALLOW_CONTOUR,
-                Integer.toString(this.s52ShallowContour));
-        toSave.setProperty(KEY_S52_SAFETY_DEPTH,
-                Integer.toString(this.s52SafetyDepth));
-        toSave.setProperty(KEY_S52_SAFETY_CONTOUR,
-                Integer.toString(this.s52SafetyContour));
-        toSave.setProperty(KEY_S52_DEEP_CONTOUR,
-                Integer.toString(this.s52DeepContour));
-        toSave.setProperty(KEY_USE_SIMPLE_POINT_SYMBOLS,
-                Boolean.toString(this.useSimplePointSymbols));
-        toSave.setProperty(KEY_USE_PLAIN_AREAS,
-                Boolean.toString(this.usePlainAreas));
-        toSave.setProperty(KEY_S52_TWO_SHADES,
-                Boolean.toString(this.s52TwoShades));
-        toSave.setProperty(KEY_ENC_COLOR_SCHEME, this.encColorScheme.toString());
-        this.settingLock.readLock().unlock();
-        return toSave;
     }
 
     /**
