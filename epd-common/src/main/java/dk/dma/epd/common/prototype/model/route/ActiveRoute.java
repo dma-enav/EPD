@@ -92,13 +92,15 @@ public class ActiveRoute extends Route {
 
     protected int lastWpCounter;
 
+    // Computed safe haven attributes
     private Position safeHavenLocation;
     private double safeHavenLength;
     private double safeHavenWidth;
+    private double safeHavenSpeed;
+    protected double safeHavenBearing;
 
     private Route originalRoute;
 
-    protected double safeHavenBearing;
 
     public ActiveRoute(Route route, PntData pntData) {
         super();
@@ -166,6 +168,10 @@ public class ActiveRoute extends Route {
     public double getSafeHavenBearing() {
         return safeHavenBearing;
     }
+    
+    public double getSafeHavenSpeed() {
+        return safeHavenSpeed;
+    }
 
     /**
      * Computes the bearing of the route leg using its start and end position and its heading
@@ -190,12 +196,14 @@ public class ActiveRoute extends Route {
         // waypoint
 
         if (currentTime < originalRoute.getStarttime().getTime()) {
-            RouteLeg leg = originalRoute.getWaypoints().get(0).getOutLeg();
-            safeHavenBearing = computeBearing(leg);
-            safeHavenLength = leg.getSFLen();
-            safeHavenWidth = leg.getSFWidth();
-
-            return originalRoute.getWaypoints().get(0).getPos();
+            RouteWaypoint wp = originalRoute.getWaypoints().get(0);
+            safeHavenBearing = computeBearing(wp.getOutLeg());
+            safeHavenLength = wp.getOutLeg().getSFLen();
+            safeHavenWidth = wp.getOutLeg().getSFWidth();
+            safeHavenSpeed = 0;
+            safeHavenLocation = wp.getPos();
+            
+            return safeHavenLocation;
         } else {
 
             for (int i = 0; i < originalRoute.getWaypoints().size(); i++) {
@@ -206,15 +214,16 @@ public class ActiveRoute extends Route {
                     safeHavenBearing = computeBearing(originalRoute.getWaypoints().getLast().getInLeg());
                     safeHavenLength = getWaypoints().get(i - 1).getOutLeg().getSFLen();
                     safeHavenWidth = getWaypoints().get(i - 1).getOutLeg().getSFWidth();
-
-                    return originalRoute.getWaypoints().get(i).getPos();
+                    safeHavenSpeed = 0;
+                    safeHavenLocation = originalRoute.getWaypoints().get(i).getPos();
+                    return safeHavenLocation;
                 } else {
 
                     // We should be beyond this
                     if (currentTime > originalRoute.getEtas().get(i).getTime()
                             && currentTime < originalRoute.getEtas().get(i + 1).getTime()) {
-                        // How long have we been sailing between these
-                        // waypoints?
+                        
+                        // How long have we been sailing between these way points?
                         long secondsSailTime = (currentTime - originalRoute.getEtas().get(i).getTime()) / 1000;
 
                         double distanceTravelledNauticalMiles = Converter.milesToNM(Calculator.distanceAfterTimeMph(originalRoute
@@ -231,6 +240,7 @@ public class ActiveRoute extends Route {
                         safeHavenBearing = computeBearing(originalRoute.getWaypoints().get(i).getOutLeg());
                         safeHavenLength = getWaypoints().get(i).getOutLeg().getSFLen();
                         safeHavenWidth = getWaypoints().get(i).getOutLeg().getSFWidth();
+                        safeHavenSpeed = originalRoute.getWaypoints().get(i).getOutLeg().getSpeed();
 
                         return safeHavenLocation;
                     }
@@ -238,7 +248,8 @@ public class ActiveRoute extends Route {
             }
         }
         // An error must have occured
-        return null;
+        safeHavenLocation = null;
+        return safeHavenLocation;
     }
 
     public synchronized void update(PntData pntData) {

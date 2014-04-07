@@ -39,8 +39,8 @@ import com.bbn.openmap.proj.Projection;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
+import dk.dma.epd.common.util.SafeHavenUtils;
 
 public class SafeHavenArea extends OMGraphicList {
     private static final long serialVersionUID = 1L;
@@ -117,7 +117,7 @@ public class SafeHavenArea extends OMGraphicList {
             // int height = 500;
 
             // Create the polygon around the position.
-            calculatePolygon(pos, bearing, width, height);
+            SafeHavenUtils.calculateBounds(pos, bearing, width, height, polygon);
 
             // createGraphics();
             drawPolygon();
@@ -128,54 +128,6 @@ public class SafeHavenArea extends OMGraphicList {
         }
 
     }
-
-    private void calculatePolygon(Position position, double bearing, double width, double height) {
-        // double withNm = Converter.nmToMeters(width/2);
-        // double heightNm = Converter.nmToMeters(height/2);
-
-        double angle = 90 + bearing;
-        double oppositeBearing = 180 + bearing;
-
-        Position topLinePt = Calculator.findPosition(position, bearing, width / 2);
-
-        if (angle > 360) {
-            angle = angle - 360;
-        }
-
-        if (oppositeBearing > 360) {
-            oppositeBearing = oppositeBearing - 360;
-        }
-
-        Position bottomLinePt = Calculator.findPosition(position, oppositeBearing, width / 2);
-
-        // System.out.println("Top pnt: " + topLinePt);
-        // System.out.println("Btm pnt: " + bottomLinePt);
-
-        Position point1 = Calculator.findPosition(bottomLinePt, angle, height / 2);
-
-        Position point2 = Calculator.findPosition(topLinePt, angle, height / 2);
-
-        Position point3 = Calculator.findPosition(bottomLinePt, angle + 180, height / 2);
-
-        Position point4 = Calculator.findPosition(topLinePt, angle + 180, height / 2);
-
-        polygon.clear();
-
-        // polygon.add(topLinePt);
-        // polygon.add(bottomLinePt);
-
-        polygon.add(point1);
-
-        polygon.add(point2);
-
-        polygon.add(point4);
-        polygon.add(point3);
-
-    }
-
-    // public void removeSymbol() {
-    // remove(selectionGraphics);
-    // }
 
     /**
      * Turn on anti-aliasing
