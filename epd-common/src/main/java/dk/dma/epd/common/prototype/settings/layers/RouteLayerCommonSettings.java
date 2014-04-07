@@ -15,14 +15,104 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
+
 /**
+ * This class is used to maintain settings for a {@link RouteLayerCommon}.
+ * 
  * @author Janus Varmarken
  */
-public class RouteLayerCommonSettings extends LayerSettings<OBSERVER> {
+public class RouteLayerCommonSettings<OBSERVER extends IRouteLayerCommonSettingsObserver>
+        extends LayerSettings<OBSERVER> {
+
     /**
-     * At what scale the directional should be shown for a route.
+     * Setting specifying at what scale the directional arrows should be shown
+     * for a route. The arrows should be displayed if the current map scale is
+     * between 0 and this value.
      */
-    private float showArrowScale = 450000;
-    
+    private float showArrowScale = 450000.0f;
+
+    /**
+     * Setting specifying the visual width of a route leg.
+     */
     private float routeWidth = 2.0f;
+
+    /**
+     * Gets the setting that specifies at what scale the directional arrows
+     * should be shown for a route. The arrows should be displayed if the
+     * current map scale is between 0 and this value.
+     * 
+     * @return The upper bound on scale for display of directional arrows.
+     */
+    public float getShowArrowScale() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.showArrowScale;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Changes the setting that specifies at what scale the directional arrows
+     * should be shown for a route. The arrows should be displayed if the
+     * current map scale is between 0 and the given value.
+     * 
+     * @param maxScaleForArrowDisplay
+     *            The upper bound on scale for display of directional arrows.
+     */
+    public void setShowArrowScale(final float maxScaleForArrowDisplay) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.showArrowScale == maxScaleForArrowDisplay) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.showArrowScale = maxScaleForArrowDisplay;
+            for(OBSERVER obs : this.observers) {
+                obs.showArrowScaleChanged(maxScaleForArrowDisplay);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Gets the setting that specifies the visual width of a route leg.
+     * 
+     * @return The visual width of a route leg.
+     */
+    public float getRouteWidth() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.routeWidth;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Changes the setting that specifies the visual width of a route leg.
+     * 
+     * @param routeWidth
+     *            The visual width of a route leg.
+     */
+    public void setRouteWidth(final float routeWidth) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.routeWidth == routeWidth) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.routeWidth = routeWidth;
+            for(OBSERVER obs : this.observers) {
+                obs.routeWidthChanged(routeWidth);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
 }
