@@ -15,10 +15,6 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
-import java.util.Properties;
-
-import com.bbn.openmap.util.PropUtils;
-
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
@@ -37,22 +33,6 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
         extends VesselLayerSettings<OBSERVER> {
 
     /**
-     * The setting key for the "show all AIS names" setting.
-     */
-    private static final String KEY_SHOW_ALL_AIS_NAMES = "showAllAisNameLabels";
-
-    /**
-     * The setting key for the "show all past tracks" setting.
-     */
-    private static final String KEY_SHOW_ALL_PAST_TRACKS = "showAllPastTracks";
-
-    /**
-     * The setting key for the setting that specifies how often the layer should
-     * repaint itself.
-     */
-    private static final String KEY_LAYER_REDRAW_INTERVAL = "layerRedrawInterval";
-
-    /**
      * Specifies if all AIS name labels should be shown.
      */
     private boolean showAllAisNameLabels = true;
@@ -63,7 +43,8 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
     private boolean showAllPastTracks;
 
     /**
-     * Setting specifying how often the layer should repaint itself.
+     * Setting specifying how often the layer should repaint itself (in
+     * seconds).
      */
     private int layerRedrawInterval = 5;
 
@@ -176,52 +157,4 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
         this.settingLock.writeLock().unlock();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onLoadSuccess(Properties settings) {
-        this.settingLock.writeLock().lock();
-        super.onLoadSuccess(settings);
-        this.setShowAllAisNameLabels(PropUtils.booleanFromProperties(settings,
-                KEY_SHOW_ALL_AIS_NAMES, this.showAllAisNameLabels));
-        this.setShowAllPastTracks(PropUtils.booleanFromProperties(settings,
-                KEY_SHOW_ALL_PAST_TRACKS, this.showAllPastTracks));
-        this.setLayerRedrawInterval(PropUtils.intFromProperties(settings,
-                KEY_LAYER_REDRAW_INTERVAL, this.layerRedrawInterval));
-        /*
-         * TODO init other settings variables based on the provided Properties
-         * instance...
-         */
-
-        // Release the lock.
-        this.settingLock.writeLock().unlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Properties onSaveSettings() {
-        /*
-         * We acquire the lock here even though the individual getters acquire
-         * the lock themselves too. This is to ensure that the saved settings
-         * will be a snapshot of the entire set of settings values.
-         */
-        this.settingLock.readLock().lock();
-        Properties savedVars = super.onSaveSettings();
-        savedVars.setProperty(KEY_SHOW_ALL_AIS_NAMES,
-                Boolean.toString(this.isShowAllAisNameLabels()));
-        savedVars.setProperty(KEY_SHOW_ALL_PAST_TRACKS,
-                Boolean.toString(this.isShowAllPastTracks()));
-        savedVars.setProperty(KEY_LAYER_REDRAW_INTERVAL,
-                Integer.toString(this.getLayerRedrawInterval()));
-        /*
-         * TODO store other settings variables based on field values...
-         */
-
-        // Release the lock.
-        this.settingLock.readLock().unlock();
-        return savedVars;
-    }
 }
