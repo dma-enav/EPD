@@ -33,6 +33,8 @@ import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+
 /**
  * <p>
  * An abstract base class that can be used when writing classes that maintain a
@@ -189,15 +191,25 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
      */
     public static <T extends ObservedSettings<? extends ISettingsObserver>> T loadFromFile(
             Class<T> typeToLoad, File file) throws FileNotFoundException {
+        YamlReader reader = null;
         try {
-            YamlReader reader = new YamlReader(new FileReader(file));
+            reader = new YamlReader(new FileReader(file));
             return reader.read(typeToLoad);
         } catch (YamlException e) {
             // Could not parse given file to given type.
             return null;
+        } finally {
+            // Free resources.
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException ioe) {
+                // Too bad.
+            }
         }
     }
-    
+
     /**
      * This method is invoked when the settings managed by this
      * {@code ObservedSettings} instance is to be persisted in a file (i.e. it
