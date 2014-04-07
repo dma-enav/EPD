@@ -20,8 +20,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -108,45 +106,10 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
     }
 
     /**
-     * Loads settings from a file into memory. If the settings are successfully
-     * loaded, {@link #onLoadSuccess(Properties)} is invoked with a
-     * {@link Properties} instance containing the loaded settings. Similarly, if
-     * an error occurs during load, {@link #onLoadFailure(IOException)} is
-     * invoked with an {@link IOException} specifying what went wrong.
-     * 
-     * @param file
-     *            The file containing the settings to be loaded into memory.
+     * Save this settings instance to a file.
+     * @param file The file where the settings are to be stored.
      */
-    public final void loadFromFile(File file) {
-        Properties p = new Properties();
-        try (FileReader reader = new FileReader(file)) {
-            p.load(reader);
-            this.onLoadSuccess(p);
-        } catch (IOException e) {
-            e.printStackTrace();
-            this.onLoadFailure(e);
-        }
-    }
-
-    /**
-     * Persists the settings managed by this instance to a file.
-     * 
-     * @param file
-     *            The file to persist the settings in.
-     * @param headerComment
-     *            An optional comment at the beginning of the file.
-     */
-    public final void saveToFile(File file, String headerComment) {
-        Properties propsToSave = this.onSaveSettings();
-        try (PrintWriter writer = new PrintWriter(file)) {
-            propsToSave.store(writer, headerComment);
-        } catch (IOException e) {
-            e.printStackTrace();
-            this.onSaveFailure(e);
-        }
-    }
-
-    public void saveToFileYaml(File file) {
+    public void saveToYamlFile(File file) {
         /*
          * Use a YamlConfig to tell the YamlWriter to also write default (and
          * unchanged) values.
@@ -210,38 +173,6 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
             }
         }
     }
-
-    /**
-     * This method is invoked when the settings managed by this
-     * {@code ObservedSettings} instance is to be persisted in a file (i.e. it
-     * is invoked as part of the {@link #saveToFile(File, String)} method).
-     * Subclass implementations should return a {@link Properties} instance
-     * containing the set of settings that are to be persisted. <i>Any sub class
-     * inheriting from a super class that has a concrete implementation of this
-     * method should append its settings values to the {@link Properties}
-     * instance that is returned by invoking the super implementation of this
-     * method.</i> This is to make sure that the final instance that is returned
-     * to {@link #saveToFile(File, String)} contains both the sub class as well
-     * as the super class settings.
-     * 
-     * @return A {@link Properties} instance containing the set of settings that
-     *         are to be persisted in a file.
-     */
-    protected abstract Properties onSaveSettings();
-
-    /**
-     * Invoked when settings have been successfully read from a file. This
-     * allows subclasses to perform initialization of variables based on the
-     * settings contained in the provided {@link Properties} instance,
-     * {@code settings}. <i>Any class inheriting from a super class that has a
-     * concrete implementation of this method should invoke the super
-     * implementation in order to allow the super class to perform
-     * initialization of its settings fields</i>.
-     * 
-     * @param settings
-     *            Contains the settings that were read from the file.
-     */
-    protected abstract void onLoadSuccess(Properties settings);
 
     /**
      * Invoked if an error occurs while reading settings from a file. This
