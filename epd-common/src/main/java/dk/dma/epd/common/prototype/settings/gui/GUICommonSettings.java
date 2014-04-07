@@ -17,9 +17,6 @@ package dk.dma.epd.common.prototype.settings.gui;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.util.Properties;
-
-import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
@@ -35,42 +32,6 @@ import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
  */
 public class GUICommonSettings<OBSERVER extends IGUISettingsCommonObserver>
         extends ObservedSettings<OBSERVER> {
-
-    /**
-     * Key used in the properties file for the setting that specifies if the
-     * application should run in full screen mode.
-     */
-    private static final String KEY_FULLSCREEN = "fullscreen";
-
-    /**
-     * Key used in the properties file for the setting that specifies if the
-     * application should be maximized.
-     */
-    private static final String KEY_MAXIMIZED = "maximized";
-
-    /**
-     * Key used in the properties file for the setting that specifies the screen
-     * x coordinate of the top left corner of the main frame of the application.
-     */
-    private static final String KEY_APP_LOCATION_X = "appLocation_x";
-
-    /**
-     * Key used in the properties file for the setting that specifies the screen
-     * y coordinate of the top left corner of the main frame of the application.
-     */
-    private static final String KEY_APP_LOCATION_Y = "appLocation_y";
-
-    /**
-     * Key used in the properties file for the setting that specifies the width
-     * (in pixels) of the main frame of the application.
-     */
-    private static final String KEY_APP_DIMENSION_W = "appDimensions_w";
-
-    /**
-     * Key used in the properties file for the setting that specifies the height
-     * (in pixels) of the main frame of the application.
-     */
-    private static final String KEY_APP_DIMENSION_H = "appDimensions_h";
 
     /**
      * Setting specifying if the application should run in fullscreen.
@@ -192,6 +153,7 @@ public class GUICommonSettings<OBSERVER extends IGUISettingsCommonObserver>
      *         unsynchronized access or modification of the setting value.
      */
     public Point getAppLocation() {
+        // TODO does YamlBeans handle this getter correctly?
         try {
             this.settingLock.readLock().lock();
             return new Point(this.appLocation);
@@ -214,6 +176,7 @@ public class GUICommonSettings<OBSERVER extends IGUISettingsCommonObserver>
      *            of {@code GUICommonSettings} remain synchronized.
      */
     public void setAppLocation(Point newAppLocation) {
+        // TODO does YamlBeans handle this setter correctly?
         try {
             this.settingLock.writeLock().lock();
             Point copy = new Point(newAppLocation);
@@ -245,6 +208,7 @@ public class GUICommonSettings<OBSERVER extends IGUISettingsCommonObserver>
      *         unsynchronized access or modification of the setting value.
      */
     public Dimension getAppDimensions() {
+        // TODO does YamlBeans handle this getter correctly?
         try {
             this.settingLock.readLock().lock();
             return new Dimension(this.appDimensions);
@@ -261,6 +225,7 @@ public class GUICommonSettings<OBSERVER extends IGUISettingsCommonObserver>
      *            the appDimensions to set
      */
     public void setAppDimensions(Dimension newAppDimensions) {
+        // TODO does YamlBeans handle this setter correctly?
         try {
             this.settingLock.writeLock().lock();
             Dimension copy = new Dimension(newAppDimensions);
@@ -278,65 +243,5 @@ public class GUICommonSettings<OBSERVER extends IGUISettingsCommonObserver>
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <b>NOTE: This is a concrete implementation. Any subclass should make sure
-     * to invoke the super implementation.</b>
-     * </p>
-     */
-    @Override
-    protected void onLoadSuccess(Properties settings) {
-        // Acquire lock in order for the settings to load in a single batch.
-        this.settingLock.writeLock().lock();
-        this.setFullscreen(PropUtils.booleanFromProperties(settings,
-                KEY_FULLSCREEN, this.fullscreen));
-        this.setMaximized(PropUtils.booleanFromProperties(settings,
-                KEY_MAXIMIZED, this.maximized));
-        // Read window location.
-        int appLocX = PropUtils.intFromProperties(settings, KEY_APP_LOCATION_X,
-                this.appLocation.x);
-        int appLocY = PropUtils.intFromProperties(settings, KEY_APP_LOCATION_Y,
-                this.appLocation.y);
-        this.setAppLocation(new Point(appLocX, appLocY));
-        // Read dimensions.
-        int appDimW = PropUtils.intFromProperties(settings,
-                KEY_APP_DIMENSION_W, this.appDimensions.width);
-        int appDimH = PropUtils.intFromProperties(settings,
-                KEY_APP_DIMENSION_H, this.appDimensions.height);
-        this.setAppDimensions(new Dimension(appDimW, appDimH));
-        // Release the batch lock.
-        this.settingLock.writeLock().unlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <b>NOTE: This is a concrete implementation. Any subclass should make sure
-     * to invoke the super implementation, add its own settings to the
-     * {@link Properties} instance returned by the super call and finally return
-     * that instance.</b>
-     * </p>
-     */
-    @Override
-    protected Properties onSaveSettings() {
-        // Acquire read lock in order to save settings as a batch.
-        this.settingLock.readLock().lock();
-        Properties toSave = new Properties();
-        toSave.setProperty(KEY_FULLSCREEN, Boolean.toString(this.fullscreen));
-        toSave.setProperty(KEY_MAXIMIZED, Boolean.toString(this.maximized));
-        toSave.setProperty(KEY_APP_LOCATION_X,
-                Integer.toString(this.appLocation.x));
-        toSave.setProperty(KEY_APP_LOCATION_Y,
-                Integer.toString(this.appLocation.y));
-        toSave.setProperty(KEY_APP_DIMENSION_W,
-                Integer.toString(this.appDimensions.width));
-        toSave.setProperty(KEY_APP_DIMENSION_H,
-                Integer.toString(this.appDimensions.height));
-        // Finished batch save, release lock.
-        this.settingLock.readLock().unlock();
-        return toSave;
     }
 }
