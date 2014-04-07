@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
+import com.esotericsoftware.yamlbeans.YamlReader;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 
 /**
@@ -172,6 +173,31 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
         }
     }
 
+    /**
+     * Loads settings from a file.
+     * 
+     * @param typeToLoad
+     *            Specifies the type of the settings instance serialized in the
+     *            given file.
+     * @param file
+     *            The file from where the settings are loaded.
+     * @return An instance of {@code typeToLoad} with properties set according
+     *         to the data stored in the given file or null if the data in the
+     *         given file cannot be parsed to an instance of {@code typeToLoad}.
+     * @throws FileNotFoundException
+     *             If the given {@code file} cannot be found.
+     */
+    public static <T extends ObservedSettings<? extends ISettingsObserver>> T loadFromFile(
+            Class<T> typeToLoad, File file) throws FileNotFoundException {
+        try {
+            YamlReader reader = new YamlReader(new FileReader(file));
+            return reader.read(typeToLoad);
+        } catch (YamlException e) {
+            // Could not parse given file to given type.
+            return null;
+        }
+    }
+    
     /**
      * This method is invoked when the settings managed by this
      * {@code ObservedSettings} instance is to be persisted in a file (i.e. it
