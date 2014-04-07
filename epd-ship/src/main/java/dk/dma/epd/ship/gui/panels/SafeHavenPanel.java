@@ -42,11 +42,18 @@ import javax.swing.SwingUtilities;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.RotatedLabel;
+import dk.dma.epd.common.prototype.gui.RotatedLabel.Direction;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.SafeHavenUtils;
+import dk.dma.epd.common.util.TypedValue.Dist;
+import dk.dma.epd.common.util.TypedValue.DistType;
+import dk.dma.epd.common.util.TypedValue.Speed;
+import dk.dma.epd.common.util.TypedValue.SpeedType;
+import dk.dma.epd.common.util.TypedValue.TimeType;
 
 /**
  * Displays the safe haven and target speed relative to the planned route
@@ -55,12 +62,39 @@ public class SafeHavenPanel extends DockablePanel {
 
     private static final long serialVersionUID = 1L;
     
+    /**
+     * Defines the current state of the safe haven panel
+     */
+    public enum State {
+        INACTIVE(false, SafeHavenUtils.SF_COLOR_GRAY),
+        OK(true, SafeHavenUtils.SF_COLOR_GREEN),
+        WARN(true, SafeHavenUtils.SF_COLOR_YELLOW),
+        ALERT(true, SafeHavenUtils.SF_COLOR_RED);
+        
+        Color color;
+        boolean active;
+        
+        private State(boolean active, Color color) {
+            this.active = active;
+            this.color = color;
+        }
+        
+        public boolean isActive() {
+            return active;
+        }
+        
+        public Color getColor() {
+            return color;
+        }
+    }
+    
     PntData pntData;
     ActiveRoute activeRoute;
     
     Position sfPos;
-    double sfBearing, sfWidth, sfHeight;
-    Color sfColor = SafeHavenUtils.SF_COLOR_GRAY;
+    double sfBearing, sfWidth, sfLen;
+    double sfScale = 1.0;
+    State state = State.INACTIVE;
     List<Position> sfBounds = new ArrayList<>();
     
     JLabel lblTargetSpeed = new JLabel("N/A");
@@ -153,10 +187,8 @@ public class SafeHavenPanel extends DockablePanel {
 
         // Update the target speed label
         if (activeRoute == null || !activeRoute.isVisible()) {
-            lblTargetSpeed.setText("N/A");
-            
-            sfColor = SafeHavenUtils.SF_COLOR_GRAY;
-            lblTargetSpeed.setForeground(sfColor);
+            lblTargetSpeed.setText("N/A");            
+            state = State.INACTIVE;
             
         } else {
             // Compute safe haven attributes
@@ -164,37 +196,36 @@ public class SafeHavenPanel extends DockablePanel {
             sfBearing = activeRoute.getSafeHavenBearing();
             if (activeRoute.getActiveWp().getOutLeg() != null) {
                 sfWidth = activeRoute.getActiveWp().getOutLeg().getSFWidth();
-                sfHeight = activeRoute.getActiveWp().getOutLeg().getSFLen();
+                sfLen = activeRoute.getActiveWp().getOutLeg().getSFLen();
             } else {
                 sfWidth = activeRoute.getWaypoints().get(activeRoute.getWaypoints().size() - 2).getOutLeg().getSFWidth();
-                sfHeight = activeRoute.getWaypoints().get(activeRoute.getWaypoints().size() - 2).getOutLeg().getSFLen();
+                sfLen = activeRoute.getWaypoints().get(activeRoute.getWaypoints().size() - 2).getOutLeg().getSFLen();
             }
             
             lblTargetSpeed.setText(
                     String.format("%s", Formatter.formatCurrentSpeed(activeRoute.getSafeHavenSpeed(), 1)));
 
             if (pntData == null || pntData.getPosition() == null) {
-                sfColor = SafeHavenUtils.SF_COLOR_GRAY;
-                lblTargetSpeed.setForeground(sfColor);
+                state = State.INACTIVE;
                 
             } else {
                 // Update the bounds - not used yet
-                SafeHavenUtils.calculateBounds(sfPos, sfBearing, sfWidth, sfHeight, sfBounds);
+                SafeHavenUtils.calculateBounds(sfPos, sfBearing, sfWidth, sfLen, sfBounds);
                 
                 double distance = sfPos.distanceTo(pntData.getPosition(), CoordinateSystem.CARTESIAN);
                 
                 // For now:
-                if (distance < Math.min(sfWidth / 2.0,  sfHeight / 2.0)) {
-                    sfColor = SafeHavenUtils.SF_COLOR_GREEN;
+                if (distance < Math.min(sfWidth / 2.0,  sfLen / 2.0)) {
+                    state = State.OK;
                 } else if (distance < Converter.nmToMeters(1)) {
-                    sfColor = SafeHavenUtils.SF_COLOR_YELLOW;
+                    state = State.WARN;
                 } else {
-                    sfColor = SafeHavenUtils.SF_COLOR_RED;
+                    state = State.ALERT;
                 }
-                lblTargetSpeed.setForeground(sfColor);                
             }
         }
         
+        lblTargetSpeed.setForeground(state.getColor());
         safeHavenView.updateSafeHavenView();
     }    
     
@@ -210,10 +241,10 @@ public class SafeHavenPanel extends DockablePanel {
         Line2D horizLine    = new Line2D.Double();
         Line2D vertLine     = new Line2D.Double();
         
-        JLabel top      = new JLabel("          ");
-        JLabel left     = new JLabel("          ");
-        JLabel bottom   = new JLabel("          ");
-        JLabel right    = new JLabel("          ");
+        RotatedLabel top    = new RotatedLabel();
+        RotatedLabel left   = new RotatedLabel();
+        RotatedLabel bottom = new RotatedLabel();
+        RotatedLabel right  = new RotatedLabel();
 
         /**
          * Constructor
@@ -229,39 +260,65 @@ public class SafeHavenPanel extends DockablePanel {
             setMaximumSize(size);
             setSize(size);
             
-            addLabel(top, SwingConstants.CENTER);
-            addLabel(left, SwingConstants.LEFT);
-            addLabel(bottom, SwingConstants.CENTER);
-            addLabel(right, SwingConstants.RIGHT);
-            int pad = 2, lw = 40, lh = 14;
-            top.setBounds((getWidth() - lw) / 2, pad, lw, lh);
-            left.setBounds(pad, (getHeight() - lh) / 2, lw, lh);
-            bottom.setBounds((getWidth() - lw) / 2, getHeight() - lh - pad, lw, lh);
-            right.setBounds(getWidth() - lw - pad, (getHeight() - lh) / 2, lw, lh);
+            // Configure and add labels
+            addLabel(top, Direction.HORIZONTAL);
+            addLabel(left, Direction.VERTICAL_DOWN);
+            addLabel(bottom, Direction.HORIZONTAL);
+            addLabel(right, Direction.VERTICAL_DOWN);
+            int pad = 1;
+            top.setLocation((getWidth() - top.getWidth()) / 2, pad);
+            left.setLocation(pad, (getHeight() - left.getHeight()) / 2);
+            bottom.setLocation((getWidth() - bottom.getWidth()) / 2, getHeight() - bottom.getHeight() - pad);
+            right.setLocation(getWidth() - right.getWidth() - pad, (getHeight() - right.getHeight()) / 2);
             
+            // Add center safe haven view
             center.setLocation((double)s / 2d, (double)s / 2d);
         }
         
         /**
          * Adds and adjusts the attributes of the given label
          * @param lbl the label
-         * @param alignment the alignment
+         * @param direction the direction of the label text
          */
-        private void addLabel(JLabel lbl, int alignment) {
+        private void addLabel(RotatedLabel lbl, Direction direction) {
             add(lbl);
-            lbl.setHorizontalAlignment(alignment);
+            lbl.setText("N/A");
             lbl.setFont(lbl.getFont().deriveFont(9f).deriveFont(Font.PLAIN));
             lbl.setForeground(Color.white);
+            lbl.setHorizontalAlignment(SwingConstants.CENTER);
+            lbl.setSize(40, lbl.getPreferredSize().height);
+            lbl.setDirection(direction);
         }
         
         /**
          * Updates the view
          */
         protected void updateSafeHavenView() {
-            top.setText("+ 60 min");
-            left.setText("500 m");
-            bottom.setText("- 60 min");
-            right.setText("500 m");
+            
+            if (state == State.INACTIVE) {
+                top.setText("N/A");
+                left.setText("N/A");
+                bottom.setText("N/A");
+                right.setText("N/A");
+            } else {
+                
+                // Compute the scale - simplified version based on distance...
+                double distance = sfPos.distanceTo(pntData.getPosition(), CoordinateSystem.CARTESIAN);
+                double scalew = getWidth() / Math.max(sfLen, distance * 2d);
+                double scaleh = getHeight() / Math.max(sfWidth, distance * 2d);
+                sfScale = Math.min(scalew, scaleh);
+                
+                int h = new Dist(DistType.METERS, getWidth() / 2.0 / sfScale)
+                        .withSpeed(new Speed(SpeedType.KNOTS, activeRoute.getSafeHavenSpeed()))
+                        .in(TimeType.MINUTES).intValue();                    
+                int w = (int)(getHeight() / 2.0 / sfScale);
+                
+                top.setText(String.format("+ %s min", h));
+                left.setText(String.format("%d m", w));
+                bottom.setText(String.format("- %d min", h));
+                right.setText(String.format("%d m", w));
+            }
+            
             repaint();
         }
         
@@ -270,50 +327,45 @@ public class SafeHavenPanel extends DockablePanel {
          */
         @Override
         public void paintComponent(Graphics g) {
-            super.paintComponent(g);
             
-            Graphics2D g2 = (Graphics2D)g;
+            Graphics2D g2 = (Graphics2D)g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
             // Draw the main background safe haven color
-            Color col = sfColor;
-            g2.setColor(col.darker());
+            g2.setColor(state.getColor().darker());
             g2.fillRect(0, 0, getWidth(), getHeight());
-            g2.setColor(col.darker().darker());
+            g2.setColor(state.getColor().darker().darker());
             g2.drawRect(0, 0, getWidth(), getHeight());
             
-            if (activeRoute == null || pntData == null || pntData.getPosition() == null) {
+            // Bail if we are not in an active state
+            if (!state.isActive()) {
                 return;
             }
             
-            double distance = sfPos.distanceTo(pntData.getPosition(), CoordinateSystem.CARTESIAN);
-            double scale = getWidth() / Math.max(sfWidth, distance * 2d);
-
-            
             // Set the affine transformation
             g2.translate(center.getX(), center.getY());
-            g2.scale(scale, scale);
-            g2.setStroke(new BasicStroke(1.0f / (float)scale));
+            g2.scale(sfScale, sfScale);
+            g2.setStroke(new BasicStroke(1.0f / (float)sfScale));
             
             
             // Draw scaled safe have bounds
-            bounds.setFrameFromCenter(0, 0, sfWidth / 2.0,  sfHeight / 2.0);
-            g2.setColor(col);
+            bounds.setFrameFromCenter(0, 0, sfLen / 2.0,  sfWidth / 2.0);
+            g2.setColor(state.getColor());
             g2.fill(bounds);
-            g2.setColor(Color.black);
+            g2.setColor(state.getColor().darker().darker());
             g2.draw(bounds);
 
         
             // Draw coordinate lines
             BasicStroke lineStroke = new BasicStroke(
-                    1.5f / (float)scale,
+                    1.0f / (float)sfScale,
                     BasicStroke.CAP_BUTT,
                     BasicStroke.JOIN_MITER,
-                    10.0f, new float[] { 4f / (float)scale, 2f / (float)scale }, 0.0f);
+                    10.0f, new float[] { 4f / (float)sfScale, 2f / (float)sfScale }, 0.0f);
             g2.setStroke(lineStroke); 
-            g2.setColor(new Color(150, 150, 150, 50));
-            horizLine.setLine(- getWidth() / 2.0 / scale, 0, getWidth() / 2.0 / scale, 0);
-            vertLine.setLine(0, - getHeight() / 2.0 / scale, 0, getHeight() / 2.0 / scale);
+            g2.setColor(new Color(50, 50, 50, 100));
+            horizLine.setLine(- getWidth() / 2.0 / sfScale, 0, getWidth() / 2.0 / sfScale, 0);
+            vertLine.setLine(0, - getHeight() / 2.0 / sfScale, 0, getHeight() / 2.0 / sfScale);
             g2.draw(horizLine);
             g2.draw(vertLine);
         }
