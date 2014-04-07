@@ -196,7 +196,6 @@ public class ActiveRoute extends Route {
         // waypoint
 
         if (currentTime < originalRoute.getStarttime().getTime()) {
-            System.out.println("A");
             RouteWaypoint wp = originalRoute.getWaypoints().get(0);
             safeHavenBearing = computeBearing(wp.getOutLeg());
             safeHavenLength = wp.getOutLeg().getSFLen();
@@ -212,7 +211,6 @@ public class ActiveRoute extends Route {
                 // We haven't found the match so we must be at the end of the
                 // route
                 if (i == originalRoute.getWaypoints().size() - 1) {
-                    System.out.println("B");
                     safeHavenBearing = computeBearing(originalRoute.getWaypoints().getLast().getInLeg());
                     safeHavenLength = getWaypoints().get(i - 1).getOutLeg().getSFLen();
                     safeHavenWidth = getWaypoints().get(i - 1).getOutLeg().getSFWidth();
@@ -243,7 +241,6 @@ public class ActiveRoute extends Route {
                         safeHavenLength = getWaypoints().get(i).getOutLeg().getSFLen();
                         safeHavenWidth = getWaypoints().get(i).getOutLeg().getSFWidth();
                         safeHavenSpeed = originalRoute.getWaypoints().get(i).getOutLeg().getSpeed();
-                        System.out.println("C " + i);
 
                         return safeHavenLocation;
                     }
