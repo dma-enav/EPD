@@ -15,9 +15,6 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
-import java.util.Properties;
-
-import com.bbn.openmap.util.PropUtils;
 
 /**
  * This class is used to maintain settings for a METOC layer.
@@ -26,42 +23,6 @@ import com.bbn.openmap.util.PropUtils;
  */
 public class MetocLayerCommonSettings<OBSERVER extends IMetocLayerCommonSettingsObserver>
         extends LayerSettings<OBSERVER> {
-
-    /**
-     * Key used to store {@link #defaultWindWarnLimit} in the properties file.
-     */
-    private static final String KEY_DEFAULT_WIND_WARN_LIMIT = "defaultWindWarnLimit";
-
-    /**
-     * Key used to store {@link #defaultCurrentWarnLimit} in the properties
-     * file.
-     */
-    private static final String KEY_DEFAULT_CURRENT_WARN_LIMIT = "defaultCurrentWarnLimit";
-
-    /**
-     * Key used to store {@link #defaultWaveWarnLimit} in the properties file.
-     */
-    private static final String KEY_DEFAULT_WAVE_WARN_LIMIT = "defaultWaveWarnLimit";
-
-    /**
-     * Key used to store {@link #defaultCurrentLow} in the properties file.
-     */
-    private static final String KEY_DEFAULT_CURRENT_LOW = "defaultCurrentLow";
-
-    /**
-     * Key used to store {@link #defaultCurrentMedium} in the properties file.
-     */
-    private static final String KEY_DEFAULT_CURRENT_MEDIUM = "defaultCurrentMedium";
-
-    /**
-     * Key used to store {@link #defaultWaveLow} in the properties file.
-     */
-    private static final String KEY_DEFAULT_WAVE_LOW = "defaultWaveLow";
-
-    /**
-     * Key used to store {@link #defaultWaveMedium} in the properties file.
-     */
-    private static final String KEY_DEFAULT_WAVE_MEDIUM = "defaultWaveMedium";
 
     /**
      * The default value for the wind warning limit property used in a METOC
@@ -386,59 +347,6 @@ public class MetocLayerCommonSettings<OBSERVER extends IMetocLayerCommonSettings
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onLoadSuccess(Properties settings) {
-        this.settingLock.writeLock().lock();
-        // Let super class initialize its variables.
-        super.onLoadSuccess(settings);
-        this.setDefaultWindWarnLimit(PropUtils.doubleFromProperties(settings,
-                KEY_DEFAULT_WIND_WARN_LIMIT, this.defaultWindWarnLimit));
-        this.setDefaultCurrentWarnLimit(PropUtils.doubleFromProperties(
-                settings, KEY_DEFAULT_CURRENT_WARN_LIMIT,
-                this.defaultCurrentWarnLimit));
-        this.setDefaultWaveWarnLimit(PropUtils.doubleFromProperties(settings,
-                KEY_DEFAULT_WAVE_WARN_LIMIT, this.defaultWaveWarnLimit));
-        this.setDefaultCurrentLow(PropUtils.doubleFromProperties(settings,
-                KEY_DEFAULT_CURRENT_LOW, this.defaultCurrentLow));
-        this.setDefaultCurrentMedium(PropUtils.doubleFromProperties(settings,
-                KEY_DEFAULT_CURRENT_MEDIUM, this.defaultCurrentMedium));
-        this.setDefaultWaveLow(PropUtils.doubleFromProperties(settings,
-                KEY_DEFAULT_WAVE_LOW, this.defaultWaveLow));
-        this.setDefaultWaveMedium(PropUtils.doubleFromProperties(settings,
-                KEY_DEFAULT_WAVE_MEDIUM, this.defaultWaveMedium));
-        this.settingLock.writeLock().unlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Properties onSaveSettings() {
-        this.settingLock.readLock().lock();
-        // Let super class store its variables.
-        Properties toSave = super.onSaveSettings();
-        // Add own variables.
-        toSave.setProperty(KEY_DEFAULT_WIND_WARN_LIMIT,
-                Double.toString(this.defaultWindWarnLimit));
-        toSave.setProperty(KEY_DEFAULT_CURRENT_WARN_LIMIT,
-                Double.toString(this.defaultCurrentWarnLimit));
-        toSave.setProperty(KEY_DEFAULT_WAVE_WARN_LIMIT,
-                Double.toString(this.defaultWaveWarnLimit));
-        toSave.setProperty(KEY_DEFAULT_CURRENT_LOW,
-                Double.toString(this.defaultCurrentLow));
-        toSave.setProperty(KEY_DEFAULT_CURRENT_MEDIUM,
-                Double.toString(this.defaultCurrentMedium));
-        toSave.setProperty(KEY_DEFAULT_WAVE_LOW,
-                Double.toString(this.defaultWaveLow));
-        toSave.setProperty(KEY_DEFAULT_WAVE_MEDIUM,
-                Double.toString(this.defaultWaveMedium));
-        this.settingLock.readLock().unlock();
-        return toSave;
     }
 
 }
