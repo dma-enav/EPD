@@ -44,15 +44,11 @@ public class StrategicRouteNotification extends StrategicRouteNotificationCommon
                 getCallerlName(), 
                 routeData.getStatus());        
         
-        if (acknowledged) {
+        if (acknowledged || !routeData.getLatestRouteMessage().isFromStcc()) {
             severity = NotificationSeverity.MESSAGE;
         } else {
             severity = NotificationSeverity.WARNING;
-            if (routeData.getLatestRouteMessage().isFromStcc()) {
-                addAlerts(new NotificationAlert(AlertType.OPEN, AlertType.POPUP));
-            } else {
-                addAlerts(new NotificationAlert(AlertType.POPUP));
-            }
+            addAlerts(new NotificationAlert(AlertType.POPUP));
         }
     }
     
