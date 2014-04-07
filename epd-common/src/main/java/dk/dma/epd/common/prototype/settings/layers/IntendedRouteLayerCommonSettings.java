@@ -15,21 +15,12 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
-import java.util.Properties;
-
-import com.bbn.openmap.util.PropUtils;
 
 /**
  * @author Janus Varmarken
  */
 public class IntendedRouteLayerCommonSettings<OBSERVER extends IIntendedRouteLayerCommonSettingsObserver>
         extends LayerSettings<OBSERVER> {
-
-    /**
-     * Key used in the properties file for the setting specifying if intended
-     * route filter is enabled (see {@link #filter}).
-     */
-    private static final String KEY_USE_INTENDED_ROUTE_FILTER = "useIntendedRouteFilter";
 
     /**
      * Setting specifying whether to use intended route filter.
@@ -75,31 +66,4 @@ public class IntendedRouteLayerCommonSettings<OBSERVER extends IIntendedRouteLay
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onLoadSuccess(Properties settings) {
-        this.settingLock.writeLock().lock();
-        // Allow super class to initialize its settings fields.
-        super.onLoadSuccess(settings);
-        // Read if intended route filter should be in use.
-        this.setIntendedRouteFilterInUse(PropUtils.booleanFromProperties(
-                settings, KEY_USE_INTENDED_ROUTE_FILTER, this.filter));
-        this.settingLock.writeLock().unlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Properties onSaveSettings() {
-        this.settingLock.readLock().lock();
-        Properties toSave = super.onSaveSettings();
-        // Store if intended route filter is enabled.
-        toSave.setProperty(KEY_USE_INTENDED_ROUTE_FILTER,
-                Boolean.toString(this.filter));
-        this.settingLock.readLock().unlock();
-        return toSave;
-    }
 }
