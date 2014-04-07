@@ -61,8 +61,8 @@ public class RouteLeg implements Serializable {
      */
     protected RouteWaypoint endWp;
 
-    protected double SFWidth = 1000;
-    protected double SFLen = 500;
+    protected double SFWidth = 500;
+    protected double SFLen = 1000;
 
     public RouteLeg() {
 

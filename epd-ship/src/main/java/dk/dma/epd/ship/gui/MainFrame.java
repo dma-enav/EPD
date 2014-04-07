@@ -50,6 +50,7 @@ import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.STCCCommunicationComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.SafeHavenComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
 import dk.dma.epd.ship.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
@@ -80,6 +81,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private SARComponentPanel sarPanel;
     private MultiSourcePntComponentPanel msPntComponentPanel;
     private STCCCommunicationComponentPanel stccComponentPanel;
+    private SafeHavenComponentPanel safeHavenPanel;
 
     private AisDialog aisDialog;
     private SendStrategicRouteDialog sendStrategicRouteDialog;
@@ -160,6 +162,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         sarPanel = new SARComponentPanel();
         msPntComponentPanel = new MultiSourcePntComponentPanel();
         stccComponentPanel = new STCCCommunicationComponentPanel();
+        safeHavenPanel = new SafeHavenComponentPanel();
 
         // Unmovable panels
         bottomPanel = new BottomPanel();
@@ -197,10 +200,9 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
         mapHandler.add(stccComponentPanel);
-
         mapHandler.add(sarPanel);
-
         mapHandler.add(msPntComponentPanel);
+        mapHandler.add(safeHavenPanel);
 
         // Create top menubar
         menuBar = new MenuBar();
@@ -325,17 +327,18 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     public List<DockableComponentPanel> getDockableComponentPanels() {
         return Arrays.asList(
                 (DockableComponentPanel)chartPanel,
-                (DockableComponentPanel)scalePanel,
-                (DockableComponentPanel)ownShipPanel,
-                (DockableComponentPanel)gpsPanel,
-                (DockableComponentPanel)cursorPanel,
-                (DockableComponentPanel)activeWaypointPanel,
-                (DockableComponentPanel)aisComponentPanel,
-                (DockableComponentPanel)dynamicNoGoPanel,
-                (DockableComponentPanel)nogoPanel,
-                (DockableComponentPanel)sarPanel,
-                (DockableComponentPanel)msPntComponentPanel,
-                (DockableComponentPanel)stccComponentPanel
+                scalePanel,
+                ownShipPanel,
+                gpsPanel,
+                cursorPanel,
+                activeWaypointPanel,
+                aisComponentPanel,
+                dynamicNoGoPanel,
+                nogoPanel,
+                sarPanel,
+                msPntComponentPanel,
+                stccComponentPanel,
+                safeHavenPanel
               );
     }
 

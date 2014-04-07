@@ -78,6 +78,14 @@ public abstract class TypedValue<T extends TypedValue.Type> implements Serializa
     }
     
     /**
+     * Returns the value as an integer
+     * @return the value as an integer
+     */
+    public int intValue() {
+        return (int)Math.round(value);
+    }
+    
+    /**
      * Adds this value to the other and returns the result
      * @param other the value to add
      * @return the result
