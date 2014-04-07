@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
-import java.io.IOException;
 
 /**
  * <p>
@@ -45,7 +44,7 @@ public final class AisLayerCommonGlobalSettings extends
     private AisLayerCommonGlobalSettings() {
         super();
     }
-    
+
     /**
      * Get the singleton instance that manages the global AIS layer settings.
      * 
@@ -53,20 +52,13 @@ public final class AisLayerCommonGlobalSettings extends
      *         settings.
      */
     public static synchronized AisLayerCommonGlobalSettings getInstance() {
-        // TODO need to supply arg with path to settings file for first load
+        /*
+         * TODO how to make this work with yaml? Hardcode path and use it for
+         * singleton creation using ObservedSettings.loadFromFile(Class, File)?
+         */
         if (singleton == null) {
             singleton = new AisLayerCommonGlobalSettings();
         }
         return singleton;
-    }
-    
-    @Override
-    protected void onLoadFailure(IOException error) {
-        // TODO figure out how to cope with read error.
-    }
-    
-    @Override
-    protected void onSaveFailure(IOException error) {
-        // TODO possibly log save error or simply ignore it.
     }
 }
