@@ -54,8 +54,7 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
 
     /**
      * Logger that subclasses may use, e.g. when receiving error callbacks such
-     * as {@link #onSaveFailure(IOException)} and
-     * {@link #onLoadFailure(IOException)}.
+     * as {@link #onSaveFailure(IOException)}.
      */
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -158,6 +157,7 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
             return reader.read(typeToLoad);
         } catch (YamlException e) {
             // Could not parse given file to given type.
+            onLoadFailure(e);
             return null;
         } finally {
             // Free resources.
@@ -173,28 +173,24 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
             }
         }
     }
-
+    
     /**
-     * Invoked if an error occurs while reading settings from a file. This
-     * allows subclasses to respond to such an error.
+     * Invoked if an error occurs while saving settings to a file.
      * 
      * @param error
-     *            A {@link FileNotFoundException} if the settings file specified
-     *            in {@link #loadFromFile(File)} was not found or could not be
-     *            read from. An {@link IOException} if an error occurred while
-     *            reading the settings file.
+     *            The exception that occurred while saving the settings.
      */
-    protected abstract void onLoadFailure(IOException error);
+    protected void onSaveFailure(IOException error) {
+        // TODO add logging or similar.
+    }
 
     /**
-     * Invoked if an error occurs while saving settings to a file. This allows
-     * subclasses to respond to such an error.
+     * Invoked if an error occurs while reading settings from a file.
      * 
      * @param error
-     *            A {@link FileNotFoundException} if the settings file specified
-     *            in {@link #saveToFile(File, String)} was not found or could
-     *            not be written to. An {@link IOException} if an error occurred
-     *            while persisting the settings to the file.
+     *            The exception that occurred while loading the settings.
      */
-    protected abstract void onSaveFailure(IOException error);
+    private static void onLoadFailure(IOException error) {
+        // TODO add logging or similar.
+    }
 }
