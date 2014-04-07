@@ -304,8 +304,8 @@ public class SafeHavenPanel extends DockablePanel {
                 
                 // Compute the scale - simplified version based on distance...
                 double distance = sfPos.distanceTo(pntData.getPosition(), CoordinateSystem.CARTESIAN);
-                double scalew = getWidth() / Math.max(sfLen, distance * 2d);
-                double scaleh = getHeight() / Math.max(sfWidth, distance * 2d);
+                double scalew = getWidth() / Math.max(sfWidth, distance * 2d);
+                double scaleh = getHeight() / Math.max(sfLen, distance * 2d);
                 sfScale = Math.min(scalew, scaleh);
                 
                 int h = new Dist(DistType.METERS, getWidth() / 2.0 / sfScale)
@@ -349,7 +349,7 @@ public class SafeHavenPanel extends DockablePanel {
             
             
             // Draw scaled safe have bounds
-            bounds.setFrameFromCenter(0, 0, sfLen / 2.0,  sfWidth / 2.0);
+            bounds.setFrameFromCenter(0, 0, sfWidth / 2.0,  sfLen / 2.0);
             g2.setColor(state.getColor());
             g2.fill(bounds);
             g2.setColor(state.getColor().darker().darker());

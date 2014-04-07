@@ -92,21 +92,10 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
 
                 if (activeSafeHaven) {
                     graphics.remove(safeHavenArea);
-                    if (activeRoute.getActiveWp().getOutLeg() != null) {
-
-                        safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(),
-
-                        activeRoute.getSafeHavenBearing(),
-
-                        activeRoute.getActiveWp().getOutLeg().getSFWidth(), activeRoute.getActiveWp().getOutLeg().getSFLen());
-
-                        graphics.add(safeHavenArea);
-                    } else {
-                        safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(),
-                                activeRoute.getSafeHavenWidth(),
-                                activeRoute.getSafeHavenLength());
-                        graphics.add(safeHavenArea);
-                    }
+                    safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(),
+                            activeRoute.getSafeHavenWidth(),
+                            activeRoute.getSafeHavenLength());
+                    graphics.add(safeHavenArea);
                 }
             }
         }
@@ -188,19 +177,11 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
                 graphics.add(activeRouteExtend);
 
                 if (activeSafeHaven) {
-                    // System.out.println("Activating safehaven");
-                    if (activeRoute.getActiveWp().getOutLeg() != null) {
-                        // System.out.println("outleg isnt zero");
-                        safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(), activeRoute
-                                .getActiveWp().getOutLeg().getSFWidth(), activeRoute.getActiveWp().getOutLeg().getSFLen());
-                        graphics.add(safeHavenArea);
-                    } else {
-                        // System.out.println("outleg is null");
-                        safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(), activeRoute
-                                .getWaypoints().get(activeRoute.getWaypoints().size() - 2).getOutLeg().getSFWidth(), activeRoute
-                                .getWaypoints().get(activeRoute.getWaypoints().size() - 2).getOutLeg().getSFLen());
-                        graphics.add(safeHavenArea);
-                    }
+                    activeRoute.getSafeHavenLocation();
+                    
+                    safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(), activeRoute.getSafeHavenWidth(), 
+                            activeRoute.getSafeHavenLength());
+                    graphics.add(safeHavenArea);                    
                 }
             }
         }

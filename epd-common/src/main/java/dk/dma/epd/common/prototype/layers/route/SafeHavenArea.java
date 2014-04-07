@@ -104,7 +104,7 @@ public class SafeHavenArea extends OMGraphicList {
         add(poly);
     }
 
-    public void moveSymbol(Position pos, double bearing, double width, double height) {
+    public void moveSymbol(Position pos, double bearing, double width, double length) {
 
         if (pos != null) {
             polygonCenterPosition = pos;
@@ -117,7 +117,7 @@ public class SafeHavenArea extends OMGraphicList {
             // int height = 500;
 
             // Create the polygon around the position.
-            SafeHavenUtils.calculateBounds(pos, bearing, width, height, polygon);
+            SafeHavenUtils.calculateBounds(pos, bearing, width, length, polygon);
 
             // createGraphics();
             drawPolygon();

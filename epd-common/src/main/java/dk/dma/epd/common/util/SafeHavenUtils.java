@@ -38,11 +38,11 @@ public class SafeHavenUtils {
      * @param position the safe haven center position
      * @param bearing the safe haven bearing
      * @param width the safe haven in knots
-     * @param height the safe haven height in knots
+     * @param length the safe haven height in knots
      * @param bounds either null, or the list to use
      * @return the updated list of safe have corners
      */
-    public static List<Position> calculateBounds(Position position, double bearing, double width, double height, List<Position> bounds) {
+    public static List<Position> calculateBounds(Position position, double bearing, double width, double length, List<Position> bounds) {
         
         // If not polygon list is passed along, create a new list
         if (bounds == null) {
@@ -61,13 +61,13 @@ public class SafeHavenUtils {
             oppositeBearing = oppositeBearing - 360;
         }
         
-        Position topLinePt = Calculator.findPosition(position, bearing, width / 2);
-        Position bottomLinePt = Calculator.findPosition(position, oppositeBearing, width / 2);
+        Position topLinePt = Calculator.findPosition(position, bearing, length / 2);
+        Position bottomLinePt = Calculator.findPosition(position, oppositeBearing, length / 2);
 
-        bounds.add(Calculator.findPosition(bottomLinePt, angle, height / 2));
-        bounds.add(Calculator.findPosition(topLinePt, angle, height / 2));
-        bounds.add(Calculator.findPosition(topLinePt, angle + 180, height / 2));
-        bounds.add(Calculator.findPosition(bottomLinePt, angle + 180, height / 2));
+        bounds.add(Calculator.findPosition(bottomLinePt, angle, width / 2));
+        bounds.add(Calculator.findPosition(topLinePt, angle, width / 2));
+        bounds.add(Calculator.findPosition(topLinePt, angle + 180, width / 2));
+        bounds.add(Calculator.findPosition(bottomLinePt, angle + 180, width / 2));
 
         return bounds;
     }
