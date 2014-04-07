@@ -33,8 +33,6 @@ import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 
-import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
-
 /**
  * <p>
  * An abstract base class that can be used when writing classes that maintain a
@@ -202,6 +200,9 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
             // Free resources.
             try {
                 if (reader != null) {
+                    /*
+                     * TODO this may need to be moved up to the main part as it might also flush the underlying stream.
+                     */
                     reader.close();
                 }
             } catch (IOException ioe) {
