@@ -141,6 +141,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private JSpinner departureSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.HOUR_OF_DAY));
     private JXDatePicker arrivalPicker = new JXDatePicker();
     private JSpinner arrivalSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.HOUR_OF_DAY));
+    
     private JTextField inrouteTxT = new JTextField();
     private JComboBox<EtaCalculationType> etaCalculationTime = new JComboBox<EtaCalculationType>(EtaCalculationType.values());
     
@@ -156,6 +157,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     protected JButton btnActivate = new JButton("Activate");
     private JButton btnClose = new JButton("Close");
     private JCheckBox cbVisible = new JCheckBox("Visible");
+    
+    private JTextField allSpeeds = new JTextField(); 
+    private JButton allSpeedsBtn = new JButton("Set");
 
     
     /**
@@ -196,7 +200,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         initGui();
         initValues();
         
-        setBounds(100, 100, 1000, 400);
+        setBounds(100, 100, 1000, 450);
         setLocationRelativeTo(parent);
     }
     
@@ -278,6 +282,12 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         routeProps.add(new JLabel("Calculate TTG/ETA using:"), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets6, 0, 0));
         routeProps.add(fixSize(etaCalculationTime, 180), new GridBagConstraints(3, gridY++, 2, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         
+        allSpeeds.setEnabled(!readOnlyRoute);
+        allSpeedsBtn.setEnabled(!readOnlyRoute);
+        routeProps.add(new JLabel("Speed all legs: "), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
+        routeProps.add(fixSize(allSpeeds, 60), new GridBagConstraints(3, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets3, 0, 0));
+        routeProps.add(fixSize(allSpeedsBtn, 60, h), new GridBagConstraints(4, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets4, 0, 0));
+        
         routeProps.add(new JLabel(""), new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
         
         
@@ -328,6 +338,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         btnActivate.addActionListener(this);
         btnClose.addActionListener(this);
         cbVisible.addActionListener(this);
+        allSpeedsBtn.addActionListener(this);
         getRootPane().setDefaultButton(btnClose);
         btnPanel.add(btnZoomToRoute, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         btnPanel.add(btnZoomToWp, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
@@ -509,6 +520,10 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         
         cbVisible.setSelected(route.isVisible());
         
+        if (route.getWaypoints().size() > 1) {
+            allSpeeds.setText(Formatter.formatSpeed(route.getWaypoints().get(0).getOutLeg().getSpeed()));
+        }
+        
         updateButtonEnabledState();
         
         // Done
@@ -589,7 +604,24 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             route.setEtaCalculationType((EtaCalculationType)etaCalculationTime.getSelectedItem());
             adjustStartTime();
             routeUpdated();
-        }        
+        } else if (evt.getSource() == allSpeedsBtn) {
+            double speed;
+            try {
+                speed = parseDouble(allSpeeds.getText());
+                allSpeeds.setText(Formatter.formatSpeed(speed));
+            } catch (FormatException e) {
+                JOptionPane.showMessageDialog(this, "Error in speed", "Input error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            System.out.println("Hello world speed = " + speed);
+            for (int i=0; i < route.getWaypoints().size(); i++) {
+                RouteWaypoint wp = route.getWaypoints().get(i);
+                if (wp.getOutLeg() != null && !locked[i]) {
+                    wp.getOutLeg().setSpeed(speed);
+                }
+            }
+            adjustStartTime();
+        }
     }
 
     /** 
@@ -794,7 +826,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         }
         inrouteTxT.setText(Formatter.formatTime(route.getRouteTtg()));
         distanceTxT.setText(Formatter.formatDistNM(route.getRouteDtg()));
-        routeTableModel.fireTableDataChanged();
+        routeTableModel.fireTableDataChanged();        
     }
 
     /**
