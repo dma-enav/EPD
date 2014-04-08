@@ -613,7 +613,6 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                 JOptionPane.showMessageDialog(this, "Error in speed", "Input error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            System.out.println("Hello world speed = " + speed);
             for (int i=0; i < route.getWaypoints().size(); i++) {
                 RouteWaypoint wp = route.getWaypoints().get(i);
                 if (wp.getOutLeg() != null && !locked[i]) {
