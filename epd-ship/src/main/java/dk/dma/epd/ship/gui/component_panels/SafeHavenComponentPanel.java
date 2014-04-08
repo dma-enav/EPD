@@ -96,7 +96,7 @@ public class SafeHavenComponentPanel extends OMComponentPanel implements IOwnShi
     @Override
     public void ownShipUpdated(final OwnShipHandler ownShipHandler) {
         // Update safe haven panel
-        safeHavenPanel.shipPntDataChanged(ownShipHandler.getPntData());
+        safeHavenPanel.shipPntDataChanged(ownShipHandler.getPositionData(), ownShipHandler.getStaticData());
     }
 
     /**
@@ -105,7 +105,7 @@ public class SafeHavenComponentPanel extends OMComponentPanel implements IOwnShi
     @Override
     public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
         // Update safe haven panel
-        safeHavenPanel.shipPntDataChanged(null);
+        safeHavenPanel.shipPntDataChanged(null, null);
         safeHavenPanel.updatePanel();
     }
     
