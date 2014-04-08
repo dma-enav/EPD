@@ -387,7 +387,7 @@ public class SafeHavenPanel extends DockablePanel {
             
             if (t.doubleValue() < 5.0) {
                 long secs = t.in(TimeType.SECONDS).longValue();
-                return String.format("%02d:%02d min", (secs % 3600) / 60, (secs % 60));                
+                return String.format("%02d:%02d min", (secs % 3600) / 60, secs % 60);                
             } else if (t.in(TimeType.HOURS).doubleValue() < 1.0) {
                 return String.format("%d min", t.intValue());
             } else if (t.in(TimeType.HOURS).doubleValue() < 5.0) {
