@@ -22,7 +22,6 @@ import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.NORTH;
 import static java.awt.GridBagConstraints.WEST;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -42,9 +41,7 @@ import net.maritimecloud.core.id.MmsiId;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.gui.notification.ChatServicePanel;
 import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -55,7 +52,7 @@ import dk.dma.epd.shore.voyage.Voyage;
 /**
  * This panel contains information about the ship and voyage plan. It also contains the Send Voyage functionality.
  */
-public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChatServiceListener {
+public class VoyagePlanInfoPanel extends JPanel implements ActionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -80,8 +77,6 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
     JButton chatBtn = new JButton("Chat with ship");
     JButton sendBtn = new JButton("Send Voyage");
 
-    ChatServicePanel chatMessages = new ChatServicePanel(true);
-
     /**
      * Create the panel.
      * 
@@ -102,18 +97,27 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         JPanel shipPanel = new JPanel(new GridBagLayout());
         shipPanel.setOpaque(false);
         shipPanel.setBorder(new TitledBorder("Ship"));
-        add(shipPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(2, 5, 5, 0), 0, 0));
+        add(shipPanel, 
+                new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(2, 5, 5, 0), 0, 0));
 
-        shipPanel.add(new JLabel("Name:"), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        shipPanel.add(lblShipName, new GridBagConstraints(1, 0, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        shipPanel.add(new JLabel("Name:"), 
+                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        shipPanel.add(lblShipName, 
+                new GridBagConstraints(1, 0, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        shipPanel.add(new JLabel("Call sign:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        shipPanel.add(lblCallSign, new GridBagConstraints(1, 1, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        shipPanel.add(new JLabel("Call sign:"), 
+                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        shipPanel.add(lblCallSign, 
+                new GridBagConstraints(1, 1, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        shipPanel.add(new JLabel("COG:"), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        shipPanel.add(lblCog, new GridBagConstraints(1, 2, 1, 1, 0.5, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-        shipPanel.add(new JLabel("SOG:"), new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        shipPanel.add(lblSog, new GridBagConstraints(3, 2, 1, 1, 0.5, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        shipPanel.add(new JLabel("COG:"), 
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        shipPanel.add(lblCog, 
+                new GridBagConstraints(1, 2, 1, 1, 0.5, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        shipPanel.add(new JLabel("SOG:"), 
+                new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        shipPanel.add(lblSog, 
+                new GridBagConstraints(3, 2, 1, 1, 0.5, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
         // *******************
         // *** Route panel
@@ -121,16 +125,23 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         JPanel routePanel = new JPanel(new GridBagLayout());
         routePanel.setOpaque(false);
         routePanel.setBorder(new TitledBorder("Route"));
-        add(routePanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(2, 5, 5, 0), 0, 0));
+        add(routePanel, 
+                new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(2, 5, 5, 0), 0, 0));
 
-        routePanel.add(new JLabel("Name:"), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        routePanel.add(lblRouteName, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        routePanel.add(
+                new JLabel("Name:"), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routePanel.add(lblRouteName, 
+                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        routePanel.add(new JLabel("TD:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        routePanel.add(lblTd, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        routePanel.add(
+                new JLabel("TD:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routePanel.add(lblTd, 
+                new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        routePanel.add(new JLabel("ETA:"), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        routePanel.add(lblETA, new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        routePanel.add(new JLabel("ETA:"), 
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routePanel.add(lblETA, 
+                new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
         // *******************
         // *** Action panel
@@ -138,7 +149,8 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         JPanel actionPanel = new JPanel(new GridBagLayout());
         actionPanel.setOpaque(false);
         actionPanel.setBorder(new TitledBorder("Actions"));
-        add(actionPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(2, 5, 5, 0), 0, 0));
+        add(actionPanel, 
+                new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(2, 5, 5, 0), 0, 0));
 
         ZoomToShipBtn.addActionListener(this);
         OpenShipDetailstextBtn.addActionListener(this);
@@ -152,25 +164,16 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         HideOtherVoyagesBtn.setFocusable(false);
         chatBtn.setFocusable(false);
 
-        actionPanel.add(ZoomToShipBtn, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-        actionPanel.add(OpenShipDetailstextBtn, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-        actionPanel.add(OpenVpDetalsBtn, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-        actionPanel.add(HideOtherVoyagesBtn, new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-        actionPanel.add(chatBtn, new GridBagConstraints(0, 4, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-
-        // *******************
-        // *** Direct Communication Panel
-        // *******************
-        
-        EPD.getInstance().getChatServiceHandler().addListener(this);
-        
-        JPanel replyPanel = new JPanel(new BorderLayout());
-        replyPanel.setOpaque(false);
-        replyPanel.setBorder(new TitledBorder("Direct Communication"));
-        add(replyPanel, new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, insets5, 0, 0));
-        chatMessages.setMinimumSize(new Dimension(chatMessages.getMinimumSize().width, 150));
-        replyPanel.add(chatMessages, BorderLayout.CENTER);
-        
+        actionPanel.add(ZoomToShipBtn, 
+                new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        actionPanel.add(OpenShipDetailstextBtn, 
+                new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        actionPanel.add(OpenVpDetalsBtn, 
+                new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        actionPanel.add(HideOtherVoyagesBtn, 
+                new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        actionPanel.add(chatBtn, 
+                new GridBagConstraints(0, 4, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
         // *******************
         // *** Send voyage Panel
@@ -179,7 +182,8 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         finishNegotitationPanel.setOpaque(false);
         finishNegotitationPanel.setBorder(new TitledBorder("Finish Negotitation Handling"));
 
-        add(finishNegotitationPanel, new GridBagConstraints(0, 4, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, insets5, 0, 0));
+        add(finishNegotitationPanel, 
+                new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, insets5, 0, 0));
 
         sendBtn.addActionListener(this);
         sendBtn.requestFocus();
@@ -188,14 +192,16 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         changeScrollPane.setMinimumSize(new Dimension(180, 60));
         changeScrollPane.setPreferredSize(new Dimension(180, 60));
 
-        finishNegotitationPanel
-                .add(new JLabel("Changes:"), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        finishNegotitationPanel
-                .add(changeScrollPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-        finishNegotitationPanel.add(sendBtn, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, EAST, NONE, insets5, 0, 0));
+        finishNegotitationPanel.add(new JLabel("Changes:"), 
+                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        finishNegotitationPanel.add(changeScrollPane, 
+                new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        finishNegotitationPanel.add(sendBtn, 
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, EAST, NONE, insets5, 0, 0));
 
         // Filler
-        add(new JLabel(" "), new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0, NORTH, BOTH, new Insets(2, 5, 2, 0), 0, 0));
+        add(new JLabel(" "), 
+                new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0, NORTH, BOTH, new Insets(2, 5, 2, 0), 0, 0));
     }
 
     public void setAisHandler(AisHandler aisHandler) {
@@ -221,8 +227,6 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         lblETA.setText(Formatter.formatShortDateTime(voyage.getRoute().getEtas().get(voyage.getRoute().getEtas().size() - 1)));
 
         checkAisData();
-
-        chatMessages.setTargetMaritimeId(getVoyageMaritimeId());
     }
 
     public MaritimeId getVoyageMaritimeId() {
@@ -294,10 +298,5 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
                     new MmsiId((int)voyage.getMmsi()), 
                     false);
         }
-    }
-
-    @Override
-    public void chatMessagesUpdated(MaritimeId targetId) {
-        chatMessages.setTargetMaritimeId(getVoyageMaritimeId());
     }
 }
