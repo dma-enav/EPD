@@ -101,6 +101,8 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
         if (obj instanceof StrategicRouteHandler) {
             strategicRouteHandler = (StrategicRouteHandler) obj;
             strategicRouteHandler.addStrategicRouteListener(this);
+            //For update of voyages
+            voyagesChanged(null);
         }
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
