@@ -66,8 +66,9 @@ public class KmlParser {
         if (feature instanceof Folder) {
             folder = (Folder) feature;
         }
+        Document doc = null;
         if (feature instanceof Document) {
-            Document doc = (Document) feature;
+            doc = (Document) feature;
             if (doc.getName() != null) {
                 routeName = doc.getName();
             }
@@ -77,12 +78,18 @@ public class KmlParser {
                 }
             }
         }
-        if (folder == null) {
-            throw new RouteLoadException("No folder in KML file");
+        if (doc == null && folder == null) {
+            throw new RouteLoadException("No document or folder in KML file");
         }
+        List<Feature> features = null;
+        if (folder != null) {
+            features = folder.getFeature();            
+        } else {
+            features = doc.getFeature();
+        }        
         List<String> wpNames = new ArrayList<>();
         List<Position> positions = new ArrayList<>();
-        for (Feature folderFeature : folder.getFeature()) {
+        for (Feature folderFeature : features) {
             if (!(folderFeature instanceof Placemark)) {
                 continue;
             }
