@@ -407,9 +407,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             } else {
                 // go back to previously active mouse mode
                 this.mainFrame.getChartPanel().setMouseMode(
-                        ((DistanceCircleMouseMode) this.mainFrame
-                                .getChartPanel().getMouseDelegator()
-                                .getActiveMouseMode()).getPreviousMouseMode());
+                        ((CommonDistanceCircleMouseMode) this.mainFrame.getChartPanel().getMouseDelegator().getActiveMouseMode())
+                                .getPreviousMouseMode());
             }
             
         } else if (e.getSource() == toggleIntendedRoute) {
