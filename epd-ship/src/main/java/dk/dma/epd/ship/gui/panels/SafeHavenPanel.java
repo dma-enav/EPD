@@ -67,7 +67,7 @@ public class SafeHavenPanel extends DockablePanel {
 
     private static final long serialVersionUID = 1L;
     
-    private static final double SHIP_SCALE = 4.0;
+    private static final double SHIP_SCALE = 1.0;
     private static final Color COORDINATE_LINE_COLOR = new Color(50, 50, 50, 100);
     
     /**
