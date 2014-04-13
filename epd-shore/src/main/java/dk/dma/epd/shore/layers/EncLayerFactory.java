@@ -146,6 +146,7 @@ public class EncLayerFactory {
 
     }
 
+
     /**
      * Set Navicon settings if Navicon layer
      * 
@@ -162,41 +163,71 @@ public class EncLayerFactory {
         Class<?>[] argTypes = new Class<?>[0];
         Object[] arguments = new Object[0];
         try {
+            
+
+            
+            
+            
             // Get settings
-            Method method = encLayer.getClass().getDeclaredMethod("getS52MarinerSettings", argTypes);
+            Method method = encLayer.getClass().getDeclaredMethod(
+                    "getS52MarinerSettings", argTypes);
             Object obj = method.invoke(encLayer, arguments);
             marinerSettings = (Properties) obj;
 
             // Set settings from configuration
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHOW_TEXT", Boolean.toString(mapSettings.isS52ShowText()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHALLOW_PATTERN",
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHOW_TEXT",
+                    Boolean.toString(mapSettings.isS52ShowText()));
+            marinerSettings.setProperty(
+                    "MARINER_PARAM.S52_MAR_SHALLOW_PATTERN",
                     Boolean.toString(mapSettings.isS52ShallowPattern()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHALLOW_CONTOUR",
+            marinerSettings.setProperty(
+                    "MARINER_PARAM.S52_MAR_SHALLOW_CONTOUR",
                     Integer.toString(mapSettings.getS52ShallowContour()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SAFETY_DEPTH", Integer.toString(mapSettings.getS52SafetyDepth()));
-            marinerSettings
-                    .setProperty("MARINER_PARAM.S52_MAR_SAFETY_CONTOUR", Integer.toString(mapSettings.getS52SafetyContour()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_DEEP_CONTOUR", Integer.toString(mapSettings.getS52DeepContour()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SAFETY_DEPTH",
+                    Integer.toString(mapSettings.getS52SafetyDepth()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SAFETY_CONTOUR",
+                    Integer.toString(mapSettings.getS52SafetyContour()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_DEEP_CONTOUR",
+                    Integer.toString(mapSettings.getS52DeepContour()));
             marinerSettings.setProperty("MARINER_PARAM.useSimplePointSymbols",
                     Boolean.toString(mapSettings.isUseSimplePointSymbols()));
-            marinerSettings.setProperty("MARINER_PARAM.usePlainAreas", Boolean.toString(mapSettings.isUsePlainAreas()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_TWO_SHADES", Boolean.toString(mapSettings.isS52TwoShades()));
+            marinerSettings.setProperty("MARINER_PARAM.usePlainAreas",
+                    Boolean.toString(mapSettings.isUsePlainAreas()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_TWO_SHADES",
+                    Boolean.toString(mapSettings.isS52TwoShades()));
+            marinerSettings.setProperty("MARINER_PARAM.color", mapSettings
+                    .getColor().toUpperCase());
 
             // Set settings on layer
             argTypes = new Class<?>[1];
             argTypes[0] = Properties.class;
             arguments = new Object[1];
             arguments[0] = marinerSettings;
-            method = encLayer.getClass().getDeclaredMethod("setS52MarinerSettings", argTypes);
+            method = encLayer.getClass().getDeclaredMethod(
+                    "setS52MarinerSettings", argTypes);
             method.invoke(encLayer, arguments);
+
+
+            
+            
+            // Set s57 settings
+            Properties s57Props = new Properties();
+            s57Props.setProperty("enc.viewGroupSettings", EPDShore.getInstance().getSettings()
+                    .getS57Settings().getS52mapSettings());
+
+            encLayer.setProperties(s57Props);
+            
+            
 
             return true;
         } catch (Exception e) {
-            LOG.error("Failed to set mariner settings on Navicon ENC layer: " + e.getMessage());
+            LOG.error("Failed to set mariner settings on Navicon ENC layer: "
+                    + e.getMessage());
             e.printStackTrace();
         }
 
         return false;
     }
+
 
 }

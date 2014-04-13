@@ -30,12 +30,15 @@ import dk.dma.epd.common.prototype.EPD;
 public class AdvancedSettingsWindow extends JDialog {
     
     private static final long serialVersionUID = 1L;
-
-    public AdvancedSettingsWindow() {
+    private CommonMapSettingsPanel parent;
+    
+    
+    public AdvancedSettingsWindow(CommonMapSettingsPanel parent) {
         
         super(EPD.getInstance().getMainFrame(), "Advanced Settings", true);
         this.setBounds(100, 100, 500, 750);
         this.setLocationRelativeTo(EPD.getInstance().getMainFrame());
+        this.parent = parent;
         
         try {
             
@@ -87,8 +90,11 @@ public class AdvancedSettingsWindow extends JDialog {
             Method m = c.getMethod("viewGrpSettingsAsString");
             String result = (String) m.invoke(null);
 
-            EPD.getInstance().getSettings().getS57Settings().setS52mapSettings(result);
+            
 
+//            System.out.println(EPD.getInstance().getSettings().getS57Settings());
+            EPD.getInstance().getSettings().getS57Settings().setS52mapSettings(result);
+            parent.s57MapSettingsChanged();
         } catch (Exception e) {
             e.printStackTrace();
         }

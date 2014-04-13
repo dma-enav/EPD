@@ -52,6 +52,7 @@ public class EPDSettings extends Settings implements Serializable {
     private EPDAisSettings aisSettings = new EPDAisSettings();
     private EPDEnavSettings enavSettings = new EPDEnavSettings();
     private EPDCloudSettings cloudSettings = new EPDCloudSettings();
+    private final EPDS57LayerSettings s57Settings = new EPDS57LayerSettings();
     
     private Workspace workspace = new Workspace();
 
@@ -76,6 +77,8 @@ public class EPDSettings extends Settings implements Serializable {
         sensorSettings.readProperties(props);
         cloudSettings.readProperties(props);
 
+        s57Settings.readSettings(resolve("s57Props.properties").toString());
+        
         workspaceFile = guiSettings.getWorkspace();
 
         if (workspaceFile != null) {
@@ -132,7 +135,10 @@ public class EPDSettings extends Settings implements Serializable {
         sensorSettings.setProperties(props);
         cloudSettings.setProperties(props);
 
+
         saveProperties(props, settingsFile, "# epd settings saved: " + new Date());
+    
+        s57Settings.saveSettings(resolve("s57Props.properties").toString());
     }
 
     /**
@@ -180,7 +186,7 @@ public class EPDSettings extends Settings implements Serializable {
 
     @Override
     public S57LayerSettings getS57Settings() {
-        return null;
+        return s57Settings;
     }
     
     @Override
@@ -195,4 +201,5 @@ public class EPDSettings extends Settings implements Serializable {
     public String getSettingsFile() {
         return settingsFile;
     }
+
 }
