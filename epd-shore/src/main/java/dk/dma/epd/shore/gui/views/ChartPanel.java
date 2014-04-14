@@ -304,6 +304,11 @@ public class ChartPanel extends ChartPanelCommon {
         }
 
         if (type == MapFrameType.suggestedRoute) {
+            
+            // Add MSI Layer
+            msiLayer = new MsiLayer();
+            msiLayer.setVisible(true);
+            mapHandler.add(msiLayer);
 
             // Add Voyage Layer
             voyageLayer = new VoyageLayer(true);
