@@ -215,9 +215,17 @@ public class Route implements Serializable {
 
         newRoute.etas = (etas != null) ? new ArrayList<Date>(etas) : new ArrayList<Date>();
 
+        
+        
+//        newRoute.ttgs = this.ttgs;
+//        newRoute.dtgs = this.dtgs;
+//        newRoute.totalTtg = this.totalTtg;
+//        newRoute.totalDtg = this.totalDtg;
+
+        
         newRoute.stccApproved = this.stccApproved;
 
-        newRoute.calcValues(true);
+//        newRoute.calcValues(true);
 
         return newRoute;
     }

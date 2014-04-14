@@ -129,6 +129,22 @@ public class ActiveRoute extends Route {
 
     }
 
+    
+    /**
+     * Performs a deep copy of a route.
+     */
+    @Override
+    public Route copy() {
+        Route newRoute = super.copy();
+        
+        
+        newRoute.starttime = origStarttime;
+        newRoute.etas = originalRoute.getEtas();
+        newRoute.etas = new ArrayList<Date>(etas);
+        return newRoute;
+    }
+    
+    
     /*
      * Get's the most optimal route choice If speed is lower than 3 we start at point 0, otherwise we take bearing and distance into
      * account and select the best match. It will never select a waypoint behind itself.
