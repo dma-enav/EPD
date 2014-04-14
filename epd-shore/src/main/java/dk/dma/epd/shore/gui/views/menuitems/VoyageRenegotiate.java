@@ -46,52 +46,59 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
         setText(text);
     }
 
-    
-    
     /**
-     * @param aisHandler the aisHandler to set
+     * @param aisHandler
+     *            the aisHandler to set
      */
     public void setAisHandler(AisHandlerCommon aisHandler) {
         this.aisHandler = aisHandler;
     }
 
     /**
-     * @param strategicRouteHandler the strategicRouteHandler to set
+     * @param strategicRouteHandler
+     *            the strategicRouteHandler to set
      */
-    public void setStrategicRouteHandler(StrategicRouteHandler strategicRouteHandler) {
+    public void setStrategicRouteHandler(
+            StrategicRouteHandler strategicRouteHandler) {
         this.strategicRouteHandler = strategicRouteHandler;
     }
 
     @Override
     public void doAction() {
         handleNegotiation();
-        
-        
+
     }
-    
-    private void handleNegotiation(){
-        
-        if (strategicRouteHandler.getStrategicNegotiationData().containsKey(transactionid)){
-            
-            StrategicRouteNegotiationData routeData = strategicRouteHandler.getStrategicNegotiationData().get(transactionid);
-            
-    
+
+    private void handleNegotiation() {
+
+        if (strategicRouteHandler.getStrategicNegotiationData().containsKey(
+                transactionid)) {
+
+            StrategicRouteNegotiationData routeData = strategicRouteHandler
+                    .getStrategicNegotiationData().get(transactionid);
+
             String shipName = "" + routeData.getMmsi();
-            
-            VesselTarget vesselTarget = aisHandler.getVesselTarget(routeData.getMmsi());
-            if (vesselTarget.getStaticData() != null) {
-                shipName = vesselTarget.getStaticData().getTrimmedName();
+
+            VesselTarget vesselTarget = aisHandler.getVesselTarget(routeData
+                    .getMmsi());
+            if (vesselTarget != null) {
+                if (vesselTarget.getStaticData() != null) {
+                    shipName = vesselTarget.getStaticData().getTrimmedName();
+                }
             }
-    
+
             // Get latest route
             Route route = routeData.getLatestRoute();
-    
-            Voyage voyage = new Voyage(routeData.getMmsi(), route, routeData.getId());
-    
+
+            Voyage voyage = new Voyage(routeData.getMmsi(), route,
+                    routeData.getId());
+
             Route originalRoute = routeData.getOriginalRoute();
-            
-            EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
-                    shipName, voyage, true);
+
+            EPDShore.getInstance()
+                    .getMainFrame()
+                    .addStrategicRouteExchangeHandlingWindow(originalRoute,
+                            shipName, voyage, true);
         }
     }
 }
