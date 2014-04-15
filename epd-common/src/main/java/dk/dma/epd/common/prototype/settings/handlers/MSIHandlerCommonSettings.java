@@ -15,12 +15,28 @@
  */
 package dk.dma.epd.common.prototype.settings.handlers;
 
+import dk.dma.epd.common.prototype.msi.MsiHandler;
+
 /**
+ * Maintains settings for an {@link MsiHandler}.
+ * 
  * @author Janus Varmarken
  */
-public class MSIHandlerCommonSettings extends HandlerSettings<OBSERVER> {
+public class MSIHandlerCommonSettings<OBSERVER extends MSIHandlerCommonSettings.IObserver>
+        extends HandlerSettings<OBSERVER> {
     private boolean msiFilter = true;
     private int msiPollInterval = 600; // sek
-    private double msiRelevanceFromOwnShipRange = 40.0d;
+    private double msiRelevanceFromOwnShipRange = 40.0d; // TODO should go to ship specific version
     private double msiRelevanceGpsUpdateRange = 0.5d;
+
+    /**
+     * Interface for observing an {@link MSIHandlerCommonSettings} for changes.
+     * 
+     * @author Janus Varmarken
+     */
+    public interface IObserver extends IHandlerSettingsObserver {
+        void isMsiFilterChanged(boolean msiFilter);
+        void msiPollIntervalChanged(int pollInterval);
+        
+    }
 }
