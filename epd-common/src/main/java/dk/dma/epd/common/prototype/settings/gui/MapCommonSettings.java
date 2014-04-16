@@ -15,11 +15,7 @@
  */
 package dk.dma.epd.common.prototype.settings.gui;
 
-import java.io.IOException;
-import java.util.Properties;
-
 import com.bbn.openmap.proj.coords.LatLonPoint;
-import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
