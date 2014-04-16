@@ -33,30 +33,6 @@ public class MapCommonSettings<OBSERVER extends IMapCommonSettingsObserver>
         extends ObservedSettings<OBSERVER> {
 
     /**
-     * Key used in the properties file to store the latitude of the center of
-     * the map (see {@link #center}).
-     */
-    private static final String KEY_CENTER_LAT = "center_lat";
-
-    /**
-     * Key used in the properties file to store the longitude of the center of
-     * the map (see {@link #center}).
-     */
-    private static final String KEY_CENTER_LON = "center_lon";
-
-    /**
-     * Key used in the properties file to store the initial map scale (see
-     * {@link #initialMapScale}).
-     */
-    private static final String KEY_INITIAL_MAP_SCALE = "initialMapScale";
-
-    /**
-     * Key used in the properties file to store the minimum map scale (see
-     * {@link #minMapScale}).
-     */
-    private static final String KEY_MIN_MAP_SCALE = "minimumMapScale";
-
-    /**
      * Specifies a (Latitude, Longitude) point that the map should be centered
      * around when the application is launched.
      */
@@ -204,61 +180,5 @@ public class MapCommonSettings<OBSERVER extends IMapCommonSettingsObserver>
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <b>NOTE: This is a concrete implementation. Any subclass should make sure
-     * to invoke the super implementation.</b>
-     * </p>
-     */
-    @Override
-    protected void onLoadSuccess(Properties settings) {
-        // Acquire lock in order for the settings to load in a single batch.
-        this.settingLock.writeLock().lock();
-        // Read the initial center of the map.
-        double centerLat = PropUtils.doubleFromProperties(settings,
-                KEY_CENTER_LAT, this.center.getLatitude());
-        double centerLon = PropUtils.doubleFromProperties(settings,
-                KEY_CENTER_LON, this.center.getLongitude());
-        this.setCenter(new LatLonPoint.Double(centerLat, centerLon));
-        // Read the initial map scale.
-        this.setInitialMapScale(PropUtils.floatFromProperties(settings,
-                KEY_INITIAL_MAP_SCALE, this.initialMapScale));
-        // Read the minimum map scale.
-        this.setMinMapScale(PropUtils.intFromProperties(settings,
-                KEY_MIN_MAP_SCALE, this.minMapScale));
-        // Release the batch lock.
-        this.settingLock.writeLock().unlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <b>NOTE: This is a concrete implementation. Any subclass should make sure
-     * to invoke the super implementation, add its own settings to the
-     * {@link Properties} instance returned by the super call and finally return
-     * that instance.</b>
-     * </p>
-     */
-    @Override
-    protected Properties onSaveSettings() {
-        this.settingLock.readLock().lock();
-        Properties toSave = new Properties();
-        // Store map center latitude.
-        toSave.setProperty(KEY_CENTER_LAT,
-                Double.toString(this.center.getLatitude()));
-        // Store map center longitude.
-        toSave.setProperty(KEY_CENTER_LON,
-                Double.toString(this.center.getLongitude()));
-        // Store initial map scale.
-        toSave.setProperty(KEY_INITIAL_MAP_SCALE,
-                Float.toString(this.initialMapScale));
-        // Store minimum map scale.
-        toSave.setProperty(KEY_MIN_MAP_SCALE,
-                Integer.toString(this.minMapScale));
-        this.settingLock.readLock().unlock();
-        return toSave;
     }
 }
