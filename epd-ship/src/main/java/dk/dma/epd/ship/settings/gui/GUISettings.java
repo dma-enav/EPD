@@ -15,10 +15,6 @@
  */
 package dk.dma.epd.ship.settings.gui;
 
-import java.util.Properties;
-
-import com.bbn.openmap.util.PropUtils;
-
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 
@@ -33,18 +29,6 @@ import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
  */
 public class GUISettings<OBSERVER extends IGUISettingsObserver> extends
         GUICommonSettings<OBSERVER> {
-
-    /**
-     * Key used in the properties file for the setting that specifies if the
-     * dock displaying AIS target details should always open when an AIS target
-     * has been selected (see {@link #alwaysOpenDock}).
-     */
-    private static final String KEY_ALWAYS_OPEN_DOCK = "alwaysOpenDock";
-
-    /**
-     * Key used in the properties file for the {@link #showDockMessage} setting.
-     */
-    private static final String KEY_SHOW_DOCK_MSG = "showDockMessage";
 
     /**
      * Setting specifying if the dock that displays AIS target details should
@@ -145,40 +129,5 @@ public class GUISettings<OBSERVER extends IGUISettingsObserver> extends
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onLoadSuccess(Properties settings) {
-        // Acquire lock in order for settings to be loaded as a single batch.
-        this.settingLock.writeLock().lock();
-        // Allow super class to initialize its settings fields.
-        super.onLoadSuccess(settings);
-        // Now initialize own fields with values from properties instance.
-        this.setAlwaysOpenDock(PropUtils.booleanFromProperties(settings,
-                KEY_ALWAYS_OPEN_DOCK, this.alwaysOpenDock));
-        this.setShowDockMessage(PropUtils.booleanFromProperties(settings,
-                KEY_SHOW_DOCK_MSG, this.showDockMessage));
-        // Batch loaded, release lock.
-        this.settingLock.writeLock().unlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Properties onSaveSettings() {
-        // Acquire read lock in order to save settings as a batch.
-        this.settingLock.readLock().lock();
-        Properties toSave = super.onSaveSettings();
-        toSave.setProperty(KEY_ALWAYS_OPEN_DOCK,
-                Boolean.toString(this.alwaysOpenDock));
-        toSave.setProperty(KEY_SHOW_DOCK_MSG,
-                Boolean.toString(this.showDockMessage));
-        // Finished batch save, release lock.
-        this.settingLock.readLock().unlock();
-        return toSave;
     }
 }
