@@ -15,32 +15,263 @@
  */
 package dk.dma.epd.common.prototype.settings.handlers;
 
-import java.util.Properties;
-
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
 /**
- * Maintains settings relevant to an {@link IntendedRouteHandlerCommon} or any of its subclasses. This class inherits from
- * {@link ObservedSettings} allowing clients to register for notifications of changes to any setting maintained by this class.
+ * Maintains settings relevant to an {@link IntendedRouteHandlerCommon} or any
+ * of its subclasses. This class inherits from {@link ObservedSettings} allowing
+ * clients to register for notifications of changes to any setting maintained by
+ * this class.
  */
-public abstract class IntendedRouteHandlerCommonSettings<OBSERVER extends IIntendedRouteHandlerCommonSettingsObserver> extends
-        HandlerSettings<OBSERVER> {
+public abstract class IntendedRouteHandlerCommonSettings<OBSERVER extends IntendedRouteHandlerCommonSettings.IObserver>
+        extends HandlerSettings<OBSERVER> {
 
+    /**
+     * If no updates are received for an intended route within this time frame,
+     * the route is considered dead/inactive. Unit is milliseconds.
+     */
     private long routeTimeToLive = 10 * 60 * 1000; // 10 minutes.
+
+    /**
+     * Specifies a distance in nautical miles. If two route way points are
+     * within this distance of each other at a certain point in time, these way
+     * points are to be included in the filter.
+     */
     private double filterDistance = 0.5;
-    private double notificationDistance = 0.5; // Nautical miles.
-    private double alertDistance = 0.3; // Nautical miles.
-    
-    @Override
-    protected void onLoadSuccess(Properties settings) {
-        // TODO init settings variables based on the provided Properties instance.
+
+    /**
+     * Specifies a distance in nautical miles. If two route way points are
+     * within this distance of each other at a certain point in time, a warning
+     * should be generated for these way points.
+     */
+    private double notificationDistance = 0.5;
+
+    /**
+     * Specifies a distance in nautical miles. If two route way points are
+     * within this distance of each other at a certain point in time, an alert
+     * should be generated for these way points.
+     */
+    private double alertDistance = 0.3;
+
+    /**
+     * Get how long a route is kept alive when no updates are received. Unit is
+     * milliseconds.
+     * 
+     * @return How long (in milliseconds) a route is kept alive when no updates
+     *         are received.
+     */
+    public long getRouteTimeToLive() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.routeTimeToLive;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
     }
 
-    @Override
-    protected Properties onSaveSettings() {
-        Properties savedVars = new Properties();
-        // TODO store instance fields in savedVars
-        return savedVars;
+    /**
+     * Change how long a route is kept alive when no updates are received. Unit
+     * is milliseconds.
+     * 
+     * @param routeTimeToLive
+     *            How long (in milliseconds) a route is kept alive when no
+     *            updates are received.
+     */
+    public void setRouteTimeToLive(final long routeTimeToLive) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.routeTimeToLive == routeTimeToLive) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.routeTimeToLive = routeTimeToLive;
+            for (OBSERVER obs : this.observers) {
+                obs.onRouteTimeToLiveChanged(routeTimeToLive);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Get the filter distance. If two route way points are within this distance
+     * of each other at a certain point in time, these way points are to be
+     * included in the filter.
+     * 
+     * @return The filter distance in nautical miles.
+     */
+    public double getFilterDistance() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.filterDistance;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Change the filter distance. If two route way points are within the given
+     * distance of each other at a certain point in time, these way points are
+     * to be included in the filter.
+     * 
+     * @return The new filter distance in nautical miles.
+     */
+    public void setFilterDistance(final double filterDistance) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.filterDistance == filterDistance) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.filterDistance = filterDistance;
+            for (OBSERVER obs : this.observers) {
+                obs.onFilterDistanceChanged(filterDistance);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Get the notification distance. If two route way points are within this
+     * distance of each other at a certain point in time, a warning should be
+     * generated for these way points.
+     * 
+     * @return The notification distance in nautical miles.
+     */
+    public double getNotificationDistance() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.notificationDistance;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Change the notification distance. If two route way points are within the
+     * given distance of each other at a certain point in time, a warning should
+     * be generated for these way points.
+     * 
+     * @param notificationDistance
+     *            The new notification distance in nautical miles.
+     */
+    public void setNotificationDistance(final double notificationDistance) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.notificationDistance == notificationDistance) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.notificationDistance = notificationDistance;
+            for (OBSERVER obs : this.observers) {
+                obs.onNotificationDistanceChanged(notificationDistance);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Get the alert distance. If two route way points are within this distance
+     * of each other at a certain point in time, an alert should be generated
+     * for these way points.
+     * 
+     * @return The alert distance in nautical miles.
+     */
+    public double getAlertDistance() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.alertDistance;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Change the alert distance. If two route way points are within the given
+     * distance of each other at a certain point in time, an alert should be
+     * generated for these way points.
+     * 
+     * @param alertDistance
+     *            The alert distance in nautical miles.
+     */
+    public void setAlertDistance(final double alertDistance) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.alertDistance == alertDistance) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.alertDistance = alertDistance;
+            for (OBSERVER obs : this.observers) {
+                obs.onAlertDistanceChanged(alertDistance);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Interface for observing an {@link IntendedRouteHandlerCommonSettings} for
+     * changes.
+     * 
+     * @author Janus Varmarken
+     * 
+     */
+    public interface IObserver extends IHandlerSettingsObserver {
+
+        /**
+         * Invoked when
+         * {@link IntendedRouteHandlerCommonSettings#getRouteTimeToLive()} has
+         * changed.
+         * 
+         * @param routeTtl
+         *            The new route time to live. See
+         *            {@link IntendedRouteHandlerCommonSettings#getRouteTimeToLive()}
+         *            for details, e.g. unit.
+         */
+        void onRouteTimeToLiveChanged(long routeTtl);
+
+        /**
+         * Invoked when
+         * {@link IntendedRouteHandlerCommonSettings#getFilterDistance()} has
+         * changed.
+         * 
+         * @param filterDist
+         *            The new filter distance. See
+         *            {@link IntendedRouteHandlerCommonSettings#getFilterDistance()}
+         *            for more details, e.g. unit.
+         */
+        void onFilterDistanceChanged(double filterDist);
+
+        /**
+         * Invoked when
+         * {@link IntendedRouteHandlerCommonSettings#getNotificationDistance()}
+         * has changed.
+         * 
+         * @param notificationDist
+         *            The new notification distance. See
+         *            {@link IntendedRouteHandlerCommonSettings#getNotificationDistance()}
+         *            for more details, e.g. unit.
+         */
+        void onNotificationDistanceChanged(double notificationDist);
+
+        /**
+         * Invoked when
+         * {@link IntendedRouteHandlerCommonSettings#getAlertDistance()} has
+         * changed.
+         * 
+         * @param alertDist
+         *            The new alert distance. See
+         *            {@link IntendedRouteHandlerCommonSettings#getAlertDistance()}
+         *            for more details, e.g. unit.
+         */
+        void onAlertDistanceChanged(double alertDist);
     }
 }
