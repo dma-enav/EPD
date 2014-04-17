@@ -174,6 +174,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
              chartPanel, 
              EPD.getInstance().getRouteManager().getRoute(routeId), 
              EPD.getInstance().getRouteManager().isActiveRoute(routeId));
+        
+        setOpacity((float) 0.95);
     }
     
     /**

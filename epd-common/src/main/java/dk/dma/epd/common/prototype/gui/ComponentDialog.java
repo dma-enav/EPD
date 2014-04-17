@@ -60,6 +60,8 @@ public abstract class ComponentDialog extends JDialog
      */
     protected ComponentDialog(Window window, String title, ModalityType type) {
         super(window, title, type);
+        
+        setOpacity((float) 0.95);
     }
 
     protected WindowSupport windowSupport;

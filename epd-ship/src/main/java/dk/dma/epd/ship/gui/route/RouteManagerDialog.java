@@ -16,6 +16,9 @@
 package dk.dma.epd.ship.gui.route;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.Window;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -53,6 +56,11 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
         EPD.getInstance().getRouteManager().addListener(this);
         
         getRootPane().setDefaultButton(routePanel.getCloseButton());
+    
+        setOpacity((float) 0.95);
+
+
+        
     }
 
     /**
@@ -62,4 +70,41 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
     public void routesChanged(RoutesUpdateEvent e) {
         routePanel.updateTable();
     }
+    
+    @Override
+    public void setVisible(boolean visible){
+        super.setVisible(visible);
+
+        setOpacity((float) 0.95);
+        
+//        
+//        getRootPane ().setOpaque (false);
+//        
+//        getContentPane ().setBackground(new Color (48, 48, 48, 200));
+        
+        
+//        routePanel.getRootPane ().setOpaque (false);
+//        routePanel.setBackground(new Color (48, 48, 48, 200));
+    
+        
+    
+    }
+    
+    @Override
+    public void setLocation(int x, int y){
+        super.setLocation(x, y);
+//        this.repaint();
+//        getRootPane ().setOpaque (false);
+//        getContentPane ().setBackground(new Color (48, 48, 48, 200));
+        
+//        System.out.println("Set location yo");
+
+//
+//        if (routePanel != null){
+//            routePanel.getRootPane ().setOpaque (false);
+//            routePanel.setBackground(new Color (48, 48, 48, 200));
+//        }
+        
+    }
+    
 }
