@@ -39,7 +39,7 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 public abstract class InfoPanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
-    private JLabel textLabel;
+    protected JLabel textLabel;
     private JLabel imageLabel;
     private double mouseDist;
 
@@ -60,7 +60,8 @@ public abstract class InfoPanel extends JPanel {
         textLabel.setFont(new Font("Arial", Font.PLAIN, 11));
         textLabel.setBackground(new Color(83, 83, 83));
         textLabel.setForeground(new Color(237, 237, 237));
-        setBackground(new Color(83, 83, 83));
+//        setBackground(new Color(83, 83, 83));
+        setBackground(new Color(83,83,83,200));
     }
 
     /**
