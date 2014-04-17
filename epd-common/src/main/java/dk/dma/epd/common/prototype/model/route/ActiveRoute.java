@@ -101,7 +101,6 @@ public class ActiveRoute extends Route {
 
     private Route originalRoute;
 
-
     public ActiveRoute(Route route, PntData pntData) {
         super();
         this.waypoints = route.getWaypoints();
@@ -129,62 +128,55 @@ public class ActiveRoute extends Route {
 
     }
 
-    
     /**
      * Performs a deep copy of a route.
      */
     @Override
     public Route copy() {
         Route newRoute = super.copy();
-        
-        
+
         newRoute.starttime = origStarttime;
         newRoute.etas = originalRoute.getEtas();
         newRoute.etas = new ArrayList<Date>(etas);
         return newRoute;
     }
-    
-    
-    /*
-     * Get's the most optimal route choice If speed is lower than 3 we start at point 0, otherwise we take bearing and distance into
-     * account and select the best match. It will never select a waypoint behind itself.
+
+    /**
+     * Get's the most optimal route choice Wwe take bearing and distance into account and select the best match. It will never
+     * select a waypoint behind itself.
      */
     private int getBestWaypoint(Route route, PntData pntData) {
 
-        if (pntData != null) {
-
-            if (pntData.isBadPosition() || pntData.getSog() < 3) {
-                return 0;
-            } else {
-                double smallestDist = 99999999.0;
-                int index = 0;
-                for (int i = 0; i <= route.getWaypoints().size() - 1; i++) {
-                    Position wpPos = route.getWaypoints().get(i).getPos();
-                    double distance = pntData.getPosition().rhumbLineDistanceTo(wpPos);
-                    double angleToWpDeg = pntData.getPosition().rhumbLineBearingTo(wpPos);
-                    double weight = 1 - (Math.toRadians(pntData.getCog()) - Math.toRadians(angleToWpDeg));
-                    double result = Math.abs(weight) * (0.5 * Converter.metersToNm(distance));
-                    double upper = pntData.getCog() + 90;
-                    double lower = pntData.getCog() - 90;
-
-                    if (result < smallestDist && angleToWpDeg < upper && angleToWpDeg > lower) {
-                        smallestDist = result;
-                        index = i;
-                    }
-
-                }
-                return index;
-            }
-        } else {
+        if (pntData == null || pntData.isBadPosition()) {
             return 0;
         }
 
+        double smallestDist = 99999999.0;
+        int index = 0;
+        for (int i = 0; i <= route.getWaypoints().size() - 1; i++) {
+            Position wpPos = route.getWaypoints().get(i).getPos();
+            double distance = pntData.getPosition().rhumbLineDistanceTo(wpPos);
+            double angle = Math.abs(pntData.getCog() - pntData.getPosition().rhumbLineBearingTo(wpPos));
+            if (angle >= 90) {
+                continue;
+            }
+            double weight = Math.cos(Math.toRadians(angle));
+            if (weight < 0.1) {
+                continue;
+            }
+            double weightedDistance = distance / weight;
+            if (weightedDistance < smallestDist) {
+                smallestDist = weightedDistance;
+                index = i;
+            }
+        }
+        return index;
     }
 
     public double getSafeHavenBearing() {
         return safeHavenBearing;
     }
-    
+
     public double getSafeHavenSpeed() {
         return safeHavenSpeed;
     }
@@ -218,7 +210,7 @@ public class ActiveRoute extends Route {
             safeHavenWidth = wp.getOutLeg().getSFWidth();
             safeHavenSpeed = 0;
             safeHavenLocation = wp.getPos();
-            
+
             return safeHavenLocation;
         } else {
 
@@ -238,7 +230,7 @@ public class ActiveRoute extends Route {
                     // We should be beyond this
                     if (currentTime > originalRoute.getEtas().get(i).getTime()
                             && currentTime < originalRoute.getEtas().get(i + 1).getTime()) {
-                        
+
                         // How long have we been sailing between these way points?
                         long secondsSailTime = (currentTime - originalRoute.getEtas().get(i).getTime()) / 1000;
 
@@ -417,8 +409,7 @@ public class ActiveRoute extends Route {
             return null;
         }
 
-        
-        //If we have just activated the route ie. wp 0, and the route start date is in the future do not recalculate the first eta
+        // If we have just activated the route ie. wp 0, and the route start date is in the future do not recalculate the first eta
         if (getActiveWaypointIndex() == 0) {
             DateTime start = new DateTime(origStarttime);
             if (start.isAfterNow()) {
