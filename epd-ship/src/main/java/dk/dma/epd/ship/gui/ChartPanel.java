@@ -192,7 +192,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         layerHandler = new LayerHandler();
         // Get plugin layers
         createPluginLayers(props);
-
+        
         // Add layer handler to map handler
         mapHandler.add(layerHandler);
 
@@ -210,6 +210,10 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
+        
+        ScaleDisplayLayer scaleDisplay = new ScaleDisplayLayer();
+        scaleDisplay.setVisible(true);
+        mapHandler.add(scaleDisplay);
 
         // Create ruler layer
         rulerLayer = new CommonRulerLayer();
@@ -261,6 +265,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         intendedRouteTCPALayer = new  IntendedRouteTCPALayer();
         intendedRouteTCPALayer.setVisible(true);
         mapHandler.add(intendedRouteTCPALayer);
+
 
         
         // Create background layer
@@ -316,6 +321,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         intendedRouteLayerVisible(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
         
         getMap().addMouseWheelListener(this);
+        
+
 
     }
 
