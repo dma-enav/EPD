@@ -42,26 +42,33 @@ public class AtonTargetGraphic extends TargetGraphic {
 
     @Override
     public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
-        atonTarget = (AtoNTarget) aisTarget;
-        Position pos = atonTarget.getPos();
-        if (pos == null) {
-            return;
-        }
-        float lat = (float) pos.getLatitude();
-        float lon = (float) pos.getLongitude();
+     
+        try{
+            atonTarget = (AtoNTarget) aisTarget;
+            Position pos = atonTarget.getPos();
+            if (pos == null) {
+                return;
+            }
+            float lat = (float) pos.getLatitude();
+            float lon = (float) pos.getLongitude();
 
-        // Check to see if image icon needs to be initialized
-        if (this.atonImage == null) {
-            this.setIconForAtonMark();
-        }
+            // Check to see if image icon needs to be initialized
+            if (this.atonImage == null) {
+                this.setIconForAtonMark();
+            }
 
-        if (atonMark == null) {
-            atonMark = new CenterRaster(lat, lon, atonImage.getIconWidth(), atonImage.getIconHeight(), atonImage);
-            add(atonMark);
-        } else {
-            atonMark.setLat(lat);
-            atonMark.setLon(lon);
+            if (atonMark == null) {
+                atonMark = new CenterRaster(lat, lon, atonImage.getIconWidth(), atonImage.getIconHeight(), atonImage);
+                add(atonMark);
+            } else {
+                atonMark.setLat(lat);
+                atonMark.setLon(lon);
+            }
+        }catch(Exception e){
+          System.out.println("Failed to cast AisTarget to AtoNTarget");  
         }
+        
+
     }
 
     public AtoNTarget getAtonTarget() {
