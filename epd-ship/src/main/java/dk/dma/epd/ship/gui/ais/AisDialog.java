@@ -16,12 +16,13 @@
 package dk.dma.epd.ship.gui.ais;
 
 
-import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.BOTH;
-import static java.awt.GridBagConstraints.WEST;
 import static java.awt.GridBagConstraints.EAST;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.WEST;
 
 import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -58,7 +59,7 @@ import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget.AisClass;
-import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -67,7 +68,7 @@ import dk.dma.epd.ship.layers.ais.AisLayer;
 /**
  * AIS targets dialog
  */
-public class AisDialog extends ComponentFrame implements ListSelectionListener, ActionListener, IAisTargetListener, WindowListener {
+public class AisDialog extends ComponentDialog implements ListSelectionListener, ActionListener, IAisTargetListener, WindowListener {
     private static final long serialVersionUID = 1L;
 
     private AisLayer aisLayer;
@@ -89,8 +90,9 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
     
     
     public AisDialog(Window parent) {
-        super();
-        setTitle("AIS Vessel Target");
+        super(parent, "AIS Vessel Target", Dialog.ModalityType.MODELESS);
+
+//        setTitle("AIS Vessel Target");
         setSize(580, 437);
         
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
@@ -247,7 +249,7 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         if (aisTable != null) {
             int selectedRow = aisTable.getSelectedRow();
     
-            long selectedMMSI = 0L;
+            long selectedMMSI = -1;
             if (selectedRow >=0 && selectedRow < aisTable.getRowCount()) {
                 selectedMMSI = (Long) aisTable.getValueAt(selectedRow, 1);
             }            
@@ -462,7 +464,7 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
     
     public int getMMSISelection(long mmsi){
         
-        if (aisTable.getRowCount() == 0){
+        if (aisTable.getRowCount() > 0){
             updateTable();
         }
         

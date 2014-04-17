@@ -247,8 +247,8 @@ public class MaritimeCloudService extends MapHandlerChild implements Runnable, I
             connection = enavCloudConnection.build();
 
             if (connection != null) {
-                cloudStatus.markCloudReception();
-                cloudStatus.markSuccesfullSend();
+//                cloudStatus.markCloudReception();
+//                cloudStatus.markSuccesfullSend();
                 LOG.info("Connected succesfully to cloud server: " + host + " with shipId " + id);
                 return true;
             } else {
