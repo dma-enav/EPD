@@ -22,7 +22,7 @@ import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
  * 
  * @author Janus Varmarken
  */
-public class MSILayerCommonSettings<OBSERVER extends IMSILayerCommonSettingsObserver>
+public class MSILayerCommonSettings<OBSERVER extends MSILayerCommonSettings.IObserver>
         extends LayerSettings<OBSERVER> {
 
     /**
@@ -111,5 +111,37 @@ public class MSILayerCommonSettings<OBSERVER extends IMSILayerCommonSettingsObse
         } finally {
             this.settingLock.writeLock().unlock();
         }
+    }
+    
+    /**
+     * Interface used to observe a {@link MSILayerCommonSettings} for changes.
+     * 
+     * @author Janus Varmarken
+     */
+    public interface IObserver extends LayerSettings.IObserver {
+
+        /**
+         * Invoked when
+         * {@link MSILayerCommonSettings#getMsiTextboxesVisibleAtScale()} has
+         * changed.
+         * 
+         * @param scale
+         *            The updated value. Refer to
+         *            {@link MSILayerCommonSettings#getMsiTextboxesVisibleAtScale()}
+         *            for its interpretation.
+         */
+        void msiTextboxesVisibleAtScaleChanged(int scale);
+
+        /**
+         * Invoked when
+         * {@link MSILayerCommonSettings#getMsiVisibilityFromNewWaypoint()} has
+         * changed.
+         * 
+         * @param newValue
+         *            The updated value. Refer to
+         *            {@link MSILayerCommonSettings#getMsiVisibilityFromNewWaypoint()}
+         *            for its interpretation.
+         */
+        void msiVisibilityFromNewWaypointChanged(double newValue);
     }
 }
