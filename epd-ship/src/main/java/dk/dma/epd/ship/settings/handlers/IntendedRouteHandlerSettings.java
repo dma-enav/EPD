@@ -15,113 +15,200 @@
  */
 package dk.dma.epd.ship.settings.handlers;
 
-import java.io.IOException;
-
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
-import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.ship.service.IntendedRouteHandler;
 
 /**
- * <p>
- * An instance of this class maintains settings specifically for {@link IntendedRouteHandler} instance(s), but it still obeys to
- * changes to settings that are considered global to all instances of {@link IntendedRouteHandlerCommon}.
- * </p>
- * 
+ * Maintains settings for an {@link IntendedRouteHandler}.
  */
-public class IntendedRouteHandlerSettings<OBSERVER extends IIntendedRouteHandlerSettingsObserver> extends
-        IntendedRouteHandlerCommonSettings<OBSERVER> {
+public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerSettings.IObserver>
+        extends IntendedRouteHandlerCommonSettings<OBSERVER> {
 
     /**
-     * Specifies if the ship should broadcast it's intendedroute or not
+     * Specifies if the ship should broadcast its intended route.
      */
     private boolean broadcastIntendedRoute = true;
 
     /**
-     * Specifies the intended route broadcast time
+     * Specifies the intended route broadcast time. Unit is milliseconds (TODO
+     * verify).
      */
-    private long timeBetweenBroadCast = 1;
+    private long timeBetweenBroadcast = 1;
 
     /**
-     * Specifies the change in ETA for a new route broadcast to be forced
+     * Specifies the change in ETA for a new route broadcast to be forced.
      */
     private int adaptionTime = 1;
-    
-    
+
     /**
-     * Filter for how the route transmission should occur
+     * Filter for how the route transmission should occur. TODO: Ask DNC about
+     * the purpose of this field.
      */
     private PartialRouteFilter intendedRouteFilter = PartialRouteFilter.DEFAULT;
 
-    
-    
-
     /**
-     * @return the broadcastIntendedRoute
+     * Gets the setting that specifies if own ship intended route should be
+     * broadcast.
+     * 
+     * @return {@code true} if intended route should be broadcast, {@code false}
+     *         otherwise.
      */
     public boolean isBroadcastIntendedRoute() {
-        return broadcastIntendedRoute;
-    }
-
-    /**
-     * @param broadcastIntendedRoute
-     *            the broadcastIntendedRoute to set
-     */
-    public void setBroadcastIntendedRoute(boolean broadcastIntendedRoute) {
-
-        this.broadcastIntendedRoute = broadcastIntendedRoute;
-
-        for (OBSERVER obs : this.observers) {
-            obs.sendIntendedRouteChanged(this.broadcastIntendedRoute);
+        try {
+            this.settingLock.readLock().lock();
+            return this.broadcastIntendedRoute;
+        } finally {
+            this.settingLock.readLock().unlock();
         }
-
     }
 
     /**
-     * @return the timeBetweenBroadCast
+     * Changes the setting that specifies if own ship intended route should be
+     * broadcast.
+     * 
+     * @param broadcastIntendedRoute
+     *            {@code true} activate intended route broadcasting,
+     *            {@code false} to deactivate intended route broadcasting.
+     */
+    public void setBroadcastIntendedRoute(final boolean broadcastIntendedRoute) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.broadcastIntendedRoute == broadcastIntendedRoute) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.broadcastIntendedRoute = broadcastIntendedRoute;
+            for (OBSERVER obs : this.observers) {
+                obs.broadcastIntendedRouteChanged(broadcastIntendedRoute);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Gets the setting that specifies the time between each broadcast of the
+     * ship's intended route.
+     * 
+     * @return the timeBetweenBroadCast The time between each broadcast in
+     *         milliseconds.
      */
     public long getTimeBetweenBroadCast() {
-        return timeBetweenBroadCast;
-    }
-
-    /**
-     * @param timeBetweenBroadCast
-     *            the timeBetweenBroadCast to set
-     */
-    public void setTimeBetweenBroadCast(int timeBetweenBroadCast) {
-        this.timeBetweenBroadCast = timeBetweenBroadCast;
-
-        for (OBSERVER obs : this.observers) {
-            obs.broadcastTimeChanged(this.timeBetweenBroadCast);
+        try {
+            this.settingLock.readLock().lock();
+            return timeBetweenBroadcast;
+        } finally {
+            this.settingLock.readLock().unlock();
         }
     }
 
     /**
-     * @return the adaptionTime
+     * Changes the setting that specifies the time between each broadcast of the
+     * ship's intended route.
+     * 
+     * @param timeBetweenBroadcast
+     *            The new time between each broadcast in milliseconds.
+     */
+    public void setTimeBetweenBroadCast(final long timeBetweenBroadcast) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.timeBetweenBroadcast == timeBetweenBroadcast) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.timeBetweenBroadcast = timeBetweenBroadcast;
+            for (OBSERVER obs : this.observers) {
+                obs.timeBetweenBroadcastChanged(timeBetweenBroadcast);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Get the setting that specifies how much ETA must change for a route
+     * broadcast to be forced.
+     * 
+     * @return How much ETA must change for a route broadcast to be forced.
      */
     public int getAdaptionTime() {
-        return adaptionTime;
-    }
-
-    /**
-     * @param adaptionTime
-     *            the adaptionTime to set
-     */
-    public void setAdaptionTime(int adaptionTime) {
-        this.adaptionTime = adaptionTime;
-
-        for (OBSERVER obs : this.observers) {
-            obs.adaptiveBroadcastTimeChanged(this.adaptionTime);
+        try {
+            this.settingLock.readLock().lock();
+            return this.adaptionTime;
+        } finally {
+            this.settingLock.readLock().unlock();
         }
     }
 
-    @Override
-    protected void onLoadFailure(IOException error) {
-        // TODO figure out what to do with read error.
+    /**
+     * Changes the setting that specifies the change in ETA for a new route
+     * broadcast to be forced.
+     * 
+     * @param adaptionTime
+     *            How much ETA must change for a route broadcast to be forced.
+     */
+    public void setAdaptionTime(final int adaptionTime) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.adaptionTime == adaptionTime) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.adaptionTime = adaptionTime;
+            for (OBSERVER obs : this.observers) {
+                obs.adaptionTimeChanged(adaptionTime);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
     }
 
-    @Override
-    protected void onSaveFailure(IOException error) {
-        // TODO possibly log save error or simply ignore it.
+    /**
+     * Interface for observing an {@link IntendedRouteHandlerSettings} for
+     * changes.
+     * 
+     * @author Janus Varmarken
+     * 
+     */
+    public interface IObserver extends
+            IntendedRouteHandlerCommonSettings.IObserver {
+
+        /**
+         * Invoked when
+         * {@link IntendedRouteHandlerSettings#isBroadcastIntendedRoute()} has
+         * changed.
+         * 
+         * @param broadcast
+         *            Specifies if intended route should be broadcasted.
+         */
+        void broadcastIntendedRouteChanged(boolean broadcast);
+
+        /**
+         * Invoked when
+         * {@link IntendedRouteHandlerSettings#getTimeBetweenBroadCast()} has
+         * changed.
+         * 
+         * @param timeBetweenBroadcast
+         *            The new value for the time between each broadcast of
+         *            intended route. See
+         *            {@link IntendedRouteHandlerSettings#getTimeBetweenBroadCast()}
+         *            .
+         */
+        void timeBetweenBroadcastChanged(long timeBetweenBroadcast);
+
+        /**
+         * Invoked when {@link IntendedRouteHandlerSettings#getAdaptionTime()}
+         * has changed.
+         * 
+         * @param adaptionTime
+         *            How much ETA must change for a route broadcast to be
+         *            forced.
+         */
+        void adaptionTimeChanged(int adaptionTime);
     }
+
 }
