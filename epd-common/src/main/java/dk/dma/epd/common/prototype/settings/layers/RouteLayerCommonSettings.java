@@ -22,7 +22,7 @@ import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
  * 
  * @author Janus Varmarken
  */
-public class RouteLayerCommonSettings<OBSERVER extends IRouteLayerCommonSettingsObserver>
+public class RouteLayerCommonSettings<OBSERVER extends RouteLayerCommonSettings.IObserver>
         extends LayerSettings<OBSERVER> {
 
     /**
@@ -115,4 +115,33 @@ public class RouteLayerCommonSettings<OBSERVER extends IRouteLayerCommonSettings
         }
     }
 
+    /**
+     * Interface for observing a {@link RouteLayerCommonSettings} for changes.
+     * 
+     * @author Janus Varmarken
+     */
+    public interface IObserver extends LayerSettings.IObserver {
+
+        /**
+         * Invoked when {@link RouteLayerCommonSettings#getShowArrowScale()} has
+         * changed.
+         * 
+         * @param maxScaleForArrowDisplay
+         *            The updated value. Refer to
+         *            {@link RouteLayerCommonSettings#getShowArrowScale()} for its
+         *            interpretation.
+         */
+        void showArrowScaleChanged(float maxScaleForArrowDisplay);
+
+        /**
+         * Invoked when {@link RouteLayerCommonSettings#getRouteWidth()} has
+         * changed.
+         * 
+         * @param routeWidth
+         *            The updated value. Refer to
+         *            {@link RouteLayerCommonSettings#getRouteWidth()} for its
+         *            interpretation.
+         */
+        void routeWidthChanged(float routeWidth);
+    }
 }

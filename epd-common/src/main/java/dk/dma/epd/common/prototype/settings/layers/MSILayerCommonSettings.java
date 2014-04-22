@@ -114,7 +114,7 @@ public class MSILayerCommonSettings<OBSERVER extends MSILayerCommonSettings.IObs
     }
     
     /**
-     * Interface used to observe a {@link MSILayerCommonSettings} for changes.
+     * Interface for observing a {@link MSILayerCommonSettings} for changes.
      * 
      * @author Janus Varmarken
      */
