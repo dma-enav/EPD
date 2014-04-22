@@ -18,14 +18,12 @@ package dk.dma.epd.common.prototype.settings.gui;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import dk.dma.epd.common.prototype.settings.ISettingsObserver;
-
 /**
- * Interface used to observe a {@link GUICommonSettings} for changes.
+ * Interface for observing a {@link GUICommonSettings} for changes.
  * 
  * @author Janus Varmarken
  */
-public interface IGUISettingsCommonObserver extends ISettingsObserver {
+public interface IGUISettingsCommonObserver {
 
     /**
      * Invoked when the setting, specifying if the application should run in

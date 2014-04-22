@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.settings.handlers;
 
-import dk.dma.epd.common.prototype.settings.ISettingsObserver;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
 /**
@@ -46,7 +45,7 @@ public abstract class HandlerSettings<OBSERVER extends HandlerSettings.IObserver
      * are relevant to all handler types.</i>
      * 
      */
-    public interface IObserver extends ISettingsObserver {
+    public interface IObserver {
         /*
          * Specify setting-changed callbacks that are relevant to all handler types
          * here.

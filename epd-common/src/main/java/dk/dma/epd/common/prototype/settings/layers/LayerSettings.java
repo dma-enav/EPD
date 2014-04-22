@@ -17,7 +17,6 @@ package dk.dma.epd.common.prototype.settings.layers;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
 
-import dk.dma.epd.common.prototype.settings.ISettingsObserver;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
 /**
@@ -148,7 +147,7 @@ public abstract class LayerSettings<OBSERVER extends LayerSettings.IObserver>
      * 
      * @author Janus Varmarken
      */
-    public interface IObserver extends ISettingsObserver {
+    public interface IObserver {
         /*
          * Specify setting-changed callbacks that are relevant to all layer types
          * here.

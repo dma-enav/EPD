@@ -17,7 +17,6 @@ package dk.dma.epd.common.prototype.settings.gui;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-import dk.dma.epd.common.prototype.settings.ISettingsObserver;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
 /**
@@ -184,7 +183,7 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettings.IObserver>
      * 
      * @author Janus Varmarken
      */
-    public interface IObserver extends ISettingsObserver {
+    public interface IObserver {
 
         /**
          * Invoked when the setting, specifying the center of the map on

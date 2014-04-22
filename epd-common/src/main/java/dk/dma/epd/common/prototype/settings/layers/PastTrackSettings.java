@@ -17,7 +17,6 @@ package dk.dma.epd.common.prototype.settings.layers;
 
 import dk.dma.ais.data.AisTarget;
 import dk.dma.epd.common.prototype.ais.MobileTarget;
-import dk.dma.epd.common.prototype.settings.ISettingsObserver;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
 
@@ -198,7 +197,7 @@ public class PastTrackSettings<OBSERVER extends PastTrackSettings.IObserver>
      * @author Janus Varmarken
      * 
      */
-    public interface IObserver extends ISettingsObserver {
+    public interface IObserver {
 
         /**
          * Invoked when {@link PastTrackSettings#getPastTrackMaxTime()} has

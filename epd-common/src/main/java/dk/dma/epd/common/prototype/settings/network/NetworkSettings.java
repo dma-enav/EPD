@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.settings.network;
 
-import dk.dma.epd.common.prototype.settings.ISettingsObserver;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
 /**
@@ -200,7 +199,7 @@ public class NetworkSettings<OBSERVER extends NetworkSettings.IObserver>
      * @author Janus Varmarken
      * 
      */
-    public interface IObserver extends ISettingsObserver {
+    public interface IObserver {
 
         /**
          * Invoked when {@link NetworkSettings#getPort()} has changed.

@@ -35,8 +35,8 @@ import com.esotericsoftware.yamlbeans.YamlWriter;
  * <p>
  * An abstract base class that can be used when writing classes that maintain a
  * set of application settings in a central place. It allows for clients to
- * register for notifications of changes to any setting maintained by this
- * class.
+ * register for notifications of changes to any setting maintained by a concrete
+ * subclass class.
  * </p>
  * <p>
  * Furthermore, this class provides a {@link ReentrantReadWriteLock} (see
@@ -50,7 +50,7 @@ import com.esotericsoftware.yamlbeans.YamlWriter;
  * 
  * @author Janus Varmarken
  */
-public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
+public abstract class ObservedSettings<OBSERVER> {
 
     /**
      * Logger that subclasses may use, e.g. when receiving error callbacks such
@@ -106,7 +106,9 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
 
     /**
      * Save this settings instance to a file.
-     * @param file The file where the settings are to be stored.
+     * 
+     * @param file
+     *            The file where the settings are to be stored.
      */
     public void saveToYamlFile(File file) {
         /*
@@ -149,7 +151,7 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
      * @throws FileNotFoundException
      *             If the given {@code file} cannot be found.
      */
-    public static <T extends ObservedSettings<? extends ISettingsObserver>> T loadFromFile(
+    public static <T extends ObservedSettings<?>> T loadFromFile(
             Class<T> typeToLoad, File file) throws FileNotFoundException {
         YamlReader reader = null;
         try {
@@ -164,7 +166,8 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
             try {
                 if (reader != null) {
                     /*
-                     * TODO this may need to be moved up to the main part as it might also flush the underlying stream.
+                     * TODO this may need to be moved up to the main part as it
+                     * might also flush the underlying stream.
                      */
                     reader.close();
                 }
@@ -173,7 +176,7 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
             }
         }
     }
-    
+
     /**
      * Invoked if an error occurs while saving settings to a file.
      * 
