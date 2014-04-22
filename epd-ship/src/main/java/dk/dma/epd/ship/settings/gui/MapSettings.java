@@ -124,7 +124,7 @@ public class MapSettings<OBSERVER extends MapSettings.IObserver> extends
      *            {@code true} if auto follow is to be enabled, {@code false} if
      *            it is to be disabled.
      */
-    public void setAutoFollow(boolean autoFollow) {
+    public void setAutoFollow(final boolean autoFollow) {
         try {
             this.settingLock.writeLock().lock();
             if (this.autoFollow == autoFollow) {
