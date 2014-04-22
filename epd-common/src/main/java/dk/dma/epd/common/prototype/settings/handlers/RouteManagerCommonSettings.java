@@ -164,7 +164,7 @@ public class RouteManagerCommonSettings<OBSERVER extends RouteManagerCommonSetti
      * @author Janus Varmarken
      * 
      */
-    public interface IObserver extends IHandlerSettingsObserver {
+    public interface IObserver extends HandlerSettings.IObserver {
 
         /**
          * Invoked when {@link RouteManagerCommonSettings#getDefaultSpeed()} has

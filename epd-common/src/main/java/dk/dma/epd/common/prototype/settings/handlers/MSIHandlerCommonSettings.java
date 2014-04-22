@@ -203,7 +203,7 @@ public class MSIHandlerCommonSettings<OBSERVER extends MSIHandlerCommonSettings.
      * 
      * @author Janus Varmarken
      */
-    public interface IObserver extends IHandlerSettingsObserver {
+    public interface IObserver extends HandlerSettings.IObserver {
 
         /**
          * Invoked when {@link MSIHandlerCommonSettings#isMsiFilter()} has

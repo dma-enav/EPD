@@ -20,7 +20,7 @@ package dk.dma.epd.common.prototype.settings.handlers;
  * 
  * @author Janus Varmarken
  */
-public class MetocHandlerCommonSettings<OBSERVER extends IMetocHandlerCommonSettingsObserver>
+public class MetocHandlerCommonSettings<OBSERVER extends MetocHandlerCommonSettings.IObserver>
         extends HandlerSettings<OBSERVER> {
 
     /**
@@ -164,4 +164,46 @@ public class MetocHandlerCommonSettings<OBSERVER extends IMetocHandlerCommonSett
         }
     }
 
+    /**
+     * Interface for observing a {@link MetocHandlerCommonSettings} for changes.
+     * 
+     * @author Janus Varmarken
+     */
+    public interface IObserver extends HandlerSettings.IObserver {
+
+        /**
+         * Invoked when {@link MetocHandlerCommonSettings#getMetocTtl()} has
+         * changed.
+         * 
+         * @param newMetocTtl
+         *            The new METOC time to live in minutes. See
+         *            {@link MetocHandlerCommonSettings#getMetocTtl()} for more
+         *            details.
+         */
+        void metocTtlChanged(int newMetocTtl);
+
+        /**
+         * Invoked when
+         * {@link MetocHandlerCommonSettings#getActiveRouteMetocPollInterval()}
+         * has changed.
+         * 
+         * @param newInterval
+         *            The new interval. See
+         *            {@link MetocHandlerCommonSettings#getActiveRouteMetocPollInterval()}
+         *            for more details.
+         */
+        void activeRouteMetocPollIntervalChanged(int newInterval);
+
+        /**
+         * Invoked when
+         * {@link MetocHandlerCommonSettings#getMetocTimeDiffTolerance()} has
+         * changed.
+         * 
+         * @param metocTimeDiffTolerance
+         *            The new tolerance. See
+         *            {@link MetocHandlerCommonSettings#getMetocTimeDiffTolerance()}
+         *            for more details.
+         */
+        void metocTimeDiffToleranceChanged(int metocTimeDiffTolerance);
+    }
 }

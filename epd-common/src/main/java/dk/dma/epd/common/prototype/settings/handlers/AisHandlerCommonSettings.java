@@ -184,7 +184,7 @@ public class AisHandlerCommonSettings<OBSERVER extends AisHandlerCommonSettings.
      * @author Janus Varmarken
      * 
      */
-    public interface IObserver extends IHandlerSettingsObserver {
+    public interface IObserver extends HandlerSettings.IObserver {
 
         /**
          * Invoked when {@link AisHandlerCommonSettings#getSartPrefix()} has

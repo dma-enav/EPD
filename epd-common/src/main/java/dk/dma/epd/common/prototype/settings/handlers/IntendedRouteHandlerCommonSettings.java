@@ -224,7 +224,7 @@ public abstract class IntendedRouteHandlerCommonSettings<OBSERVER extends Intend
      * @author Janus Varmarken
      * 
      */
-    public interface IObserver extends IHandlerSettingsObserver {
+    public interface IObserver extends HandlerSettings.IObserver {
 
         /**
          * Invoked when
