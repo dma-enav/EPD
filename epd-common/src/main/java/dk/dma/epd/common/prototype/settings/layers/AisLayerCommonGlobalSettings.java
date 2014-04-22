@@ -31,7 +31,7 @@ package dk.dma.epd.common.prototype.settings.layers;
  * @author Janus Varmarken
  */
 public final class AisLayerCommonGlobalSettings extends
-        AisLayerCommonSettings<IAisLayerCommonSettingsObserver> {
+        AisLayerCommonSettings<AisLayerCommonSettings.IObserver> {
 
     /**
      * The singleton instance that maintains the global AIS layer settings.

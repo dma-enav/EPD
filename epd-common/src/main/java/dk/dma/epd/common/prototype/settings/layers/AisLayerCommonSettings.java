@@ -29,7 +29,7 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  *            {@code AisLayerCommonSettings} for changes.
  * @author Janus Varmarken
  */
-public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSettingsObserver>
+public abstract class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettings.IObserver>
         extends VesselLayerSettings<OBSERVER> {
 
     /**
@@ -157,4 +157,44 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
         this.settingLock.writeLock().unlock();
     }
 
+    /**
+     * Interface for clients that want to listen for changes to an instance of
+     * {@link AisLayerCommonSettings}.
+     * 
+     * @author Janus Varmarken
+     */
+    public interface IObserver extends VesselLayerSettings.IObserver {
+
+        /**
+         * Invoked when the setting specifying whether to show all AIS name labels
+         * has been changed on the observed instance.
+         * 
+         * @param oldValue
+         *            The value of the setting prior to this change.
+         * @param newValue
+         *            The updated value of the setting.
+         */
+        void showAllAisNameLabelsChanged(boolean oldValue, boolean newValue);
+
+        /**
+         * Invoked when the setting specifying whether to show all past tracks has
+         * been changed on the observed instance.
+         * 
+         * @param oldValue
+         *            The value of the setting prior to this change.
+         * @param newValue
+         *            The updated value of the setting.
+         */
+        void showAllPastTracksChanged(boolean oldValue, boolean newValue);
+
+        /**
+         * Invoked when the setting specifying how often the layer should repaint
+         * itself has been changed on the observed instance.
+         * 
+         * @param oldValue
+         * @param newValue
+         */
+        void layerRedrawIntervalChanged(int oldValue, int newValue);
+    }
+    
 }

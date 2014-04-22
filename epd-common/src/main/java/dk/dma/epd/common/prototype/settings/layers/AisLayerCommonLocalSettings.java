@@ -27,9 +27,9 @@ import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
  * This is implemented in the following manner: Clients can change the state of
  * the local settings by invoking the different setters of this class on the
  * local settings instance. Invoking these setters will fire notifications to
- * all the {@link IAisLayerCommonSettingsObserver}s registered with the local
+ * all the {@link IObserver}s registered with the local
  * settings instance.<br/>
- * However, this class is also an {@link IAisLayerCommonSettingsObserver}
+ * However, this class is also an {@link IObserver}
  * itself, and its instances are registered as observers of the singleton
  * instance of {@link AisLayerCommonGlobalSettings}. As such, whenever a global
  * setting is changed, instances of this class are notified. These instances
@@ -43,9 +43,9 @@ import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
  *            {@code AisLayerCommonLocalSettings} for changes.
  * @author Janus Varmarken
  */
-public class AisLayerCommonLocalSettings<OBSERVER extends IAisLayerCommonSettingsObserver>
+public class AisLayerCommonLocalSettings<OBSERVER extends AisLayerCommonSettings.IObserver>
         extends AisLayerCommonSettings<OBSERVER> implements
-        IAisLayerCommonSettingsObserver {
+        AisLayerCommonSettings.IObserver {
 
     /**
      * Creates a new {@link AisLayerCommonLocalSettings} and registers this
