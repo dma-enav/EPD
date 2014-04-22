@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.settings.gui;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
+import dk.dma.epd.common.prototype.settings.ISettingsObserver;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
 /**
@@ -25,7 +26,7 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  * 
  * @author Janus Varmarken
  */
-public class MapCommonSettings<OBSERVER extends IMapCommonSettingsObserver>
+public class MapCommonSettings<OBSERVER extends MapCommonSettings.IObserver>
         extends ObservedSettings<OBSERVER> {
 
     /**
@@ -176,5 +177,43 @@ public class MapCommonSettings<OBSERVER extends IMapCommonSettingsObserver>
         } finally {
             this.settingLock.writeLock().unlock();
         }
+    }
+
+    /**
+     * Interface for observing a {@link MapCommonSettings} for changes.
+     * 
+     * @author Janus Varmarken
+     */
+    public interface IObserver extends ISettingsObserver {
+
+        /**
+         * Invoked when the setting, specifying the center of the map on
+         * application launch, has been changed.
+         * 
+         * @param newCenter
+         *            The updated center of the map to be used on next launch of
+         *            the application.
+         */
+        void mapCenterChanged(LatLonPoint newCenter);
+
+        /**
+         * Invoked when the setting, specifying the scale of the map on
+         * application launch, has been changed.
+         * 
+         * @param newScale
+         *            The updated scale of the map to be used on next launch of
+         *            the application.
+         */
+        void initialMapScaleChanged(float newScale);
+
+        /**
+         * Invoked when the setting, specifying the lowest possible map scale,
+         * has been changed.
+         * 
+         * @param newMinScale
+         *            The new value for the lowest possible map scale.
+         */
+        void minimumMapScaleChanged(float newMinScale);
+
     }
 }
