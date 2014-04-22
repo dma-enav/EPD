@@ -15,11 +15,14 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 
 /**
+ * Maintains settings for an {@link IntendedRouteLayerCommon}.
+ * 
  * @author Janus Varmarken
  */
-public class IntendedRouteLayerCommonSettings<OBSERVER extends IIntendedRouteLayerCommonSettingsObserver>
+public class IntendedRouteLayerCommonSettings<OBSERVER extends IntendedRouteLayerCommonSettings.IObserver>
         extends LayerSettings<OBSERVER> {
 
     /**
@@ -66,4 +69,23 @@ public class IntendedRouteLayerCommonSettings<OBSERVER extends IIntendedRouteLay
         }
     }
 
+    /**
+     * Interface for observing an {@link IntendedRouteLayerCommonSettings} for
+     * changes.
+     * 
+     * @author Janus Varmarken
+     */
+    public interface IObserver extends LayerSettings.IObserver {
+
+        /**
+         * Invoked when the setting, specifying if intended route filter is
+         * enabled, has been changed.
+         * 
+         * @param useFilter
+         *            {@code true} if intended route filter has been enabled,
+         *            {@code false} if intended route filter has been disabled.
+         */
+        void isIntendedRouteFilterInUseChanged(boolean useFilter);
+
+    }
 }
