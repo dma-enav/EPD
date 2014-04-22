@@ -30,7 +30,7 @@ import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
  * 
  * @author Janus Varmarken
  */
-public class GUICommonSettings<OBSERVER extends IGUISettingsCommonObserver>
+public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
         extends ObservedSettings<OBSERVER> {
 
     /**
@@ -243,5 +243,56 @@ public class GUICommonSettings<OBSERVER extends IGUISettingsCommonObserver>
         } finally {
             this.settingLock.writeLock().unlock();
         }
+    }
+    
+    /**
+     * Interface for observing a {@link GUICommonSettings} for changes.
+     * 
+     * @author Janus Varmarken
+     */
+    public interface IObserver {
+
+        /**
+         * Invoked when the setting, specifying if the application should run in
+         * full screen mode, has been changed.
+         * 
+         * @param fullscreen
+         *            {@code true} if the application should run in full screen
+         *            mode, {@code false} if the application should not run in full
+         *            screen mode.
+         */
+        void isFullscreenChanged(boolean fullscreen);
+
+        /**
+         * Invoked when the setting, specifying if the main frame of the application
+         * should be maximized, has been changed.
+         * 
+         * @param maximized
+         *            {@code true} if the main frame of the application should be
+         *            maximized, {@code false} if the main frame of the application
+         *            should not be maximized.
+         */
+        void isMaximizedChanged(boolean maximized);
+
+        /**
+         * Invoked when the setting, specifying the dimensions of the main frame of
+         * the application, has been changed.
+         * 
+         * @param newDimension
+         *            The new dimension value.
+         */
+        void appDimensionsChanged(Dimension newDimension);
+
+        /**
+         * Invoked when the setting, specifying the location of the application on
+         * screen, has been changed.
+         * 
+         * @param newLocation
+         *            A {@link Point} representing where the location of the top
+         *            left corner of the main frame of the application should be
+         *            placed on the screen.
+         */
+        void appScreenLocationChanged(Point newLocation);
+
     }
 }

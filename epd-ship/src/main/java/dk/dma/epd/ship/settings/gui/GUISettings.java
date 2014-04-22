@@ -16,7 +16,6 @@
 package dk.dma.epd.ship.settings.gui;
 
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
-import dk.dma.epd.common.prototype.settings.gui.IGUISettingsCommonObserver;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 
 /**
@@ -137,7 +136,7 @@ public class GUISettings<OBSERVER extends GUISettings.IObserver> extends
      * 
      * @author Janus Varmarken
      */
-    public interface IObserver extends IGUISettingsCommonObserver {
+    public interface IObserver extends GUICommonSettings.IObserver {
 
         /**
          * Invoked when the setting, specifying if the AIS target details dock
