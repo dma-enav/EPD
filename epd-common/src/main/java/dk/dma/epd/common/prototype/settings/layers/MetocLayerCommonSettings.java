@@ -21,7 +21,7 @@ package dk.dma.epd.common.prototype.settings.layers;
  * 
  * @author Janus Varmarken
  */
-public class MetocLayerCommonSettings<OBSERVER extends IMetocLayerCommonSettingsObserver>
+public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettings.IObserver>
         extends LayerSettings<OBSERVER> {
 
     /**
@@ -349,4 +349,90 @@ public class MetocLayerCommonSettings<OBSERVER extends IMetocLayerCommonSettings
         }
     }
 
+    /**
+     * Interface for observing a {@link MetocLayerCommonSettings} for changes.
+     * 
+     * @author Janus Varmarken
+     */
+    public interface IObserver extends
+            LayerSettings.IObserver {
+
+        /**
+         * Invoked when {@link MetocLayerCommonSettings#getDefaultWindWarnLimit()}
+         * has changed.
+         * 
+         * @param windWarnLimit
+         *            The updated value. Refer to
+         *            {@link MetocLayerCommonSettings#getDefaultWindWarnLimit()} for
+         *            its interpretation.
+         */
+        void defaultWindWarnLimitChanged(double windWarnLimit);
+
+        /**
+         * Invoked when
+         * {@link MetocLayerCommonSettings#getDefaultCurrentWarnLimit()} has
+         * changed.
+         * 
+         * @param currentWarnLimit
+         *            The updated value. Refer to
+         *            {@link MetocLayerCommonSettings#getDefaultCurrentWarnLimit()}
+         *            for its interpretation.
+         */
+        void defaultCurrentWarnLimitChanged(double currentWarnLimit);
+
+        /**
+         * Invoked when {@link MetocLayerCommonSettings#getDefaultWaveWarnLimit()}
+         * has changed.
+         * 
+         * @param defaultWaveWarnLimit
+         *            The updated value. Refer to
+         *            {@link MetocLayerCommonSettings#getDefaultWaveWarnLimit()} for
+         *            its interpretation.
+         */
+        void defaultWaveWarnLimitChanged(double defaultWaveWarnLimit);
+
+        /**
+         * Invoked when {@link MetocLayerCommonSettings#getDefaultCurrentLow()} has
+         * changed.
+         * 
+         * @param defaultCurrentLow
+         *            The updated value. Refer to
+         *            {@link MetocLayerCommonSettings#getDefaultCurrentLow()} for
+         *            its interpretation.
+         */
+        void defaultCurrentLowChanged(double defaultCurrentLow);
+
+        /**
+         * Invoked when {@link MetocLayerCommonSettings#getDefaultCurrentMedium()}
+         * has changed.
+         * 
+         * @param defaultCurrentMedium
+         *            The updated value. Refer to
+         *            {@link MetocLayerCommonSettings#getDefaultCurrentMedium()} for
+         *            its interpretation.
+         */
+        void defaultCurrentMediumChanged(double defaultCurrentMedium);
+
+        /**
+         * Invoked when {@link MetocLayerCommonSettings#getDefaultWaveLow()} has
+         * changed.
+         * 
+         * @param defaultWaveLow
+         *            The updated value. Refer to
+         *            {@link MetocLayerCommonSettings#getDefaultWaveLow()} for its
+         *            interpretation.
+         */
+        void defaultWaveLowChanged(double defaultWaveLow);
+
+        /**
+         * Invoked when {@link MetocLayerCommonSettings#getDefaultWaveMedium()} has
+         * changed.
+         * 
+         * @param defaultWaveMedium
+         *            The updated value. Refer to
+         *            {@link MetocLayerCommonSettings#getDefaultWaveMedium()} for
+         *            its interpretation.
+         */
+        void defaultWaveMediumChanged(double defaultWaveMedium);
+    }
 }
