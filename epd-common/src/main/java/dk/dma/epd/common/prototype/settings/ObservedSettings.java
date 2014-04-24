@@ -16,20 +16,17 @@
 package dk.dma.epd.common.prototype.settings;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.esotericsoftware.yamlbeans.YamlConfig;
-import com.esotericsoftware.yamlbeans.YamlException;
-import com.esotericsoftware.yamlbeans.YamlReader;
-import com.esotericsoftware.yamlbeans.YamlWriter;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * <p>
@@ -58,13 +55,11 @@ public abstract class ObservedSettings<OBSERVER> {
      */
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // TODO We may have to do lazy init of this list inside add/remove observer
-    // methods if we want to serialize this class.
     /**
      * The list of observers that are to receive notifications when changes
      * occur to this {@code ObservedSettings} instance.
      */
-    protected CopyOnWriteArrayList<OBSERVER> observers = new CopyOnWriteArrayList<>();
+    protected CopyOnWriteArrayList<OBSERVER> observers;
 
     /**
      * Provides a read lock and a write lock for accessing and modifying the
@@ -73,8 +68,15 @@ public abstract class ObservedSettings<OBSERVER> {
      * write lock is exclusive, i.e. only one thread can write at any given time
      * and no threads can read when one thread is writing.
      */
-    protected ReentrantReadWriteLock settingLock = new ReentrantReadWriteLock(
-            true);
+    protected ReentrantReadWriteLock settingLock;
+    
+    /**
+     * Creates a new {@link ObservedSettings}.
+     */
+    public ObservedSettings() {
+        this.settingLock = new ReentrantReadWriteLock(true);
+        this.observers = new CopyOnWriteArrayList<>();
+    }
 
     /**
      * Add a new observer that is to be notified when any setting is changed. An
@@ -105,32 +107,22 @@ public abstract class ObservedSettings<OBSERVER> {
     }
 
     /**
-     * Save this settings instance to a file.
+     * Save this settings instance to a file. If an error occurs, this method calls {@link #onSaveFailure(IOException)} with the error. Subclasses may override {@link #onSaveFailure(IOException)} to perform recovery or logging.
      * 
      * @param file
      *            The file where the settings are to be stored.
      */
     public void saveToYamlFile(File file) {
-        /*
-         * Use a YamlConfig to tell the YamlWriter to also write default (and
-         * unchanged) values.
-         */
-        YamlConfig yCfg = new YamlConfig();
-        yCfg.writeConfig.setWriteDefaultValues(true);
         try {
             /*
              * Lock in order to take a snapshot of all individual settings at a
              * single point in time. Release the lock in finally block.
              */
             this.settingLock.readLock().lock();
-            YamlWriter yWriter = new YamlWriter(new FileWriter(file), yCfg);
-            // Write bean properties of this settings instance.
-            yWriter.write(this);
-            // Flush and close output stream.
-            yWriter.close();
+            Yaml yaml = new Yaml();
+            FileWriter writer = new FileWriter(file);
+            yaml.dump(this, writer);
         } catch (IOException e) {
-            e.printStackTrace();
-            // TODO consider how write errors should be handled.
             this.onSaveFailure(e);
         } finally {
             this.settingLock.readLock().unlock();
@@ -146,35 +138,15 @@ public abstract class ObservedSettings<OBSERVER> {
      * @param file
      *            The file from where the settings are loaded.
      * @return An instance of {@code typeToLoad} with properties set according
-     *         to the data stored in the given file or null if the data in the
-     *         given file cannot be parsed to an instance of {@code typeToLoad}.
+     *         to the data stored in the given file.
      * @throws FileNotFoundException
      *             If the given {@code file} cannot be found.
      */
     public static <T extends ObservedSettings<?>> T loadFromFile(
             Class<T> typeToLoad, File file) throws FileNotFoundException {
-        YamlReader reader = null;
-        try {
-            reader = new YamlReader(new FileReader(file));
-            return reader.read(typeToLoad);
-        } catch (YamlException e) {
-            // Could not parse given file to given type.
-            onLoadFailure(e);
-            return null;
-        } finally {
-            // Free resources.
-            try {
-                if (reader != null) {
-                    /*
-                     * TODO this may need to be moved up to the main part as it
-                     * might also flush the underlying stream.
-                     */
-                    reader.close();
-                }
-            } catch (IOException ioe) {
-                // Too bad.
-            }
-        }
+        InputStream is = new FileInputStream(file);
+        Yaml yaml = new Yaml();
+        return yaml.loadAs(is, typeToLoad);
     }
 
     /**
@@ -184,16 +156,6 @@ public abstract class ObservedSettings<OBSERVER> {
      *            The exception that occurred while saving the settings.
      */
     protected void onSaveFailure(IOException error) {
-        // TODO add logging or similar.
-    }
-
-    /**
-     * Invoked if an error occurs while reading settings from a file.
-     * 
-     * @param error
-     *            The exception that occurred while loading the settings.
-     */
-    private static void onLoadFailure(IOException error) {
         // TODO add logging or similar.
     }
 }
