@@ -51,10 +51,10 @@ public class AisHandlerCommonSettings<OBSERVER extends AisHandlerCommonSettings.
      * 
      * @return The prefix for a SART.
      */
-    public int getSartPrefix() {
+    public String getSartPrefix() {
         try {
             this.settingLock.readLock().lock();
-            return this.sartPrefix;
+            return Integer.toString(this.sartPrefix);
         } finally {
             this.settingLock.readLock().unlock();
         }
