@@ -53,7 +53,7 @@ public abstract class ObservedSettings<OBSERVER> {
      * Logger that subclasses may use, e.g. when receiving error callbacks such
      * as {@link #onSaveFailure(IOException)}.
      */
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger;
 
     /**
      * The list of observers that are to receive notifications when changes
@@ -76,6 +76,7 @@ public abstract class ObservedSettings<OBSERVER> {
     public ObservedSettings() {
         this.settingLock = new ReentrantReadWriteLock(true);
         this.observers = new CopyOnWriteArrayList<>();
+        this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
     /**
