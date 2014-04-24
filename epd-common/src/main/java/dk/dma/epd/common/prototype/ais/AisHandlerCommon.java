@@ -25,15 +25,12 @@ import java.io.ObjectOutputStream;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,14 +47,15 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.sensor.nmea.IAisSensorListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
 import dk.dma.epd.common.prototype.status.AisStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 
-public abstract class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisSensorListener, IStatusComponent {
+public abstract class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisSensorListener, IStatusComponent, AisHandlerCommonSettings.IObserver, PastTrackSettings.IObserver {
     
     private static final Logger LOG = LoggerFactory.getLogger(AisHandlerCommon.class);
     
@@ -73,25 +71,18 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     protected CopyOnWriteArrayList<IAisTargetListener> listeners = new CopyOnWriteArrayList<>();
     
     protected AisStatus aisStatus = new AisStatus();
-    protected final boolean strictAisMode;
-    protected final String sartMmsiPrefix;
-    protected final Set<String> simulatedSartMmsi = new ConcurrentHashSet<>();
-    protected final int pastTrackMaxTime;       // NB: In minutes
-    protected final int pastTrackDisplayTime;   // NB: In minutes
-    protected final int pastTrackMinDist;       // NB: In meters
     
-
+    protected AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings;
+    protected PastTrackSettings<PastTrackSettings.IObserver> pastTrackSettings;
+    
     /**
      * Constructor
-     * @param aisSettings
      */
-    public AisHandlerCommon(AisSettings aisSettings) {
-        sartMmsiPrefix = aisSettings.getSartPrefix();
-        Collections.addAll(simulatedSartMmsi, aisSettings.getSimulatedSartMmsi());
-        strictAisMode = aisSettings.isStrict();
-        this.pastTrackMaxTime = aisSettings.getPastTrackMaxTime();
-        this.pastTrackDisplayTime = aisSettings.getPastTrackDisplayTime();
-        this.pastTrackMinDist = aisSettings.getPastTrackMinDist();
+    public AisHandlerCommon(AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings, PastTrackSettings<PastTrackSettings.IObserver> pastTrackSettings) {
+        this.aisHandlerSettings = aisHandlerSettings;
+        this.aisHandlerSettings.addObserver(this);
+        this.pastTrackSettings = pastTrackSettings;
+        this.pastTrackSettings.addObserver(this);
     }
     
     /**
@@ -274,8 +265,8 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         // If not exists, create and insert
         if (vesselTarget == null) {
             vesselTarget = new VesselTarget();
-            vesselTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
-            vesselTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
+            vesselTarget.getSettings().setPastTrackDisplayTime(pastTrackSettings.getPastTrackDisplayTime());
+            vesselTarget.getSettings().setPastTrackMinDist(pastTrackSettings.getPastTrackMinDist());
             vesselTarget.setMmsi(mmsi);
             vesselTargets.put(mmsi, vesselTarget);
         }
@@ -298,8 +289,8 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         if (sarTarget == null) {
             sarTarget = new SarTarget();
             sarTarget.setMmsi(mmsi);
-            sarTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
-            sarTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
+            sarTarget.getSettings().setPastTrackDisplayTime(pastTrackSettings.getPastTrackDisplayTime());
+            sarTarget.getSettings().setPastTrackMinDist(pastTrackSettings.getPastTrackMinDist());
             sarTarget.setFirstReceived(PntTime.getInstance().getDate());
             sarTargets.put(mmsi, sarTarget);
         }
@@ -485,7 +476,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         // Clean up old past-track points of the mobile targets
         if (aisTarget instanceof MobileTarget) {
             // Convert from minutes to seconds
-            ((MobileTarget)aisTarget).getPastTrackData().cleanup(60*pastTrackMaxTime); 
+            ((MobileTarget)aisTarget).getPastTrackData().cleanup(60*pastTrackSettings.getPastTrackMaxTime()); 
         }
         
         if (aisTarget.isGone()) {
@@ -495,7 +486,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             }
             return false;
         }
-        if (aisTarget.hasGone(now, strictAisMode)) {
+        if (aisTarget.hasGone(now, aisHandlerSettings.isStrict())) {
             aisTarget.setStatus(AisTarget.Status.GONE);
             publishUpdate(aisTarget);
             return false;
@@ -520,14 +511,15 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         String strMmsi = Long.toString(mmsi);
         
         // Check if we have simulated SarTargets.
-        // These are configured in the settings.properties file, by specifying
-        // a comma-separated list of vessel mmsi for the "ais.simulatedSartMmsi" property.
-        if (simulatedSartMmsi.contains(strMmsi)) {
-            return true;
+        String[] simulatedSarts = aisHandlerSettings.getSimulatedSartMmsi();
+        for(int i = 0; i < simulatedSarts.length; i++) {
+            if(simulatedSarts[i].equals(strMmsi)) {
+                return true;
+            }
         }
                     
         // AIS-SART transponder MMSI begins with 970
-        return strMmsi.startsWith(sartMmsiPrefix);
+        return strMmsi.startsWith(aisHandlerSettings.getSartPrefix());
     }
    
     /**
