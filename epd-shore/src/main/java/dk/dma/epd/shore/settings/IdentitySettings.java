@@ -21,9 +21,135 @@ import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
 /**
+ * Maintains shore identity settings such as shore ID and position of the shore
+ * station.
+ * 
+ * @param <OBSERVER>
+ *            type of the observers observing the {@link IdentitySettings} for
+ *            changes.
  * @author Janus Varmarken
  */
-public class IdentitySettings extends ObservedSettings<OBSERVER> {
-    private String shoreId = MaritimeCloudUtils.STCC_MMSI_PREFIX + System.currentTimeMillis();
-    private LatLonPoint shorePos = new LatLonPoint.Double(56.02, 12.36); // Somewhere around Helsingør
+public class IdentitySettings<OBSERVER extends IdentitySettings.IObserver>
+        extends ObservedSettings<OBSERVER> {
+
+    /**
+     * ID of the shore station.
+     */
+    private String shoreId = MaritimeCloudUtils.STCC_MMSI_PREFIX
+            + System.currentTimeMillis();
+
+    /**
+     * Position of the shore station. Default is somewhere around Helsingør.
+     */
+    private LatLonPoint shorePos = new LatLonPoint.Double(56.02, 12.36);
+
+    /**
+     * Gets the setting that specifies the ID of the shore station.
+     * 
+     * @return The ID of the shore station.
+     */
+    public String getShoreId() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.shoreId;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Changes the setting that specifies the ID of the shore station.
+     * 
+     * @param shoreId
+     *            The ID of the shore station.
+     */
+    public void setShoreId(final String shoreId) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.shoreId.equals(shoreId)) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.shoreId = shoreId;
+            for (OBSERVER obs : this.observers) {
+                obs.shoreIdChanged(shoreId);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Gets the setting that specifies the location of the shore station.
+     * 
+     * @return The location of the shore station.
+     */
+    public LatLonPoint getShorePos() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.shorePos;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Changes the setting that specifies the location of the shore station.
+     * 
+     * @param shorePos
+     *            The new location of the shore station.
+     */
+    public void setShorePos(final LatLonPoint shorePos) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.shorePos.equals(shorePos)) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            // Make a copy to avoid reference leak.
+            LatLonPoint copy = new LatLonPoint.Double(shorePos.getLatitude(),
+                    shorePos.getLongitude());
+            this.shorePos = copy;
+            for (OBSERVER obs : this.observers) {
+                /*
+                 * Make a copy for each observer. This is to prevent one
+                 * observer from affecting the other observers in case the
+                 * observer chooses to mutate the LatLonPoint argument it is
+                 * invoked with.
+                 */
+                copy = new LatLonPoint.Double(shorePos.getLatitude(),
+                        shorePos.getLongitude());
+                obs.shorePosChanged(copy);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Interface for observing an {@link IdentitySettings} for changes.
+     * 
+     * @author Janus Varmarken
+     * 
+     */
+    public interface IObserver {
+
+        /**
+         * Invoked when {@link IdentitySettings#getShoreId()} has changed.
+         * 
+         * @param shoreId
+         *            The new shore ID.
+         */
+        void shoreIdChanged(String shoreId);
+
+        /**
+         * Invoked when {@link IdentitySettings#getShorePos()} has changed.
+         * 
+         * @param shorePos
+         *            The new shore position.
+         */
+        void shorePosChanged(LatLonPoint shorePos);
+    }
 }
