@@ -19,21 +19,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
-import dk.dma.epd.common.prototype.settings.SensorSettings;
-import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
-import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
 
 /**
+ * Maintains settings for external sensors.
  * @author Janus Varmarken
  */
-public class ExternalSensorsCommonSettings extends ObservedSettings<OBSERVER> {
+public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommonSettings.IObserver> extends ObservedSettings<OBSERVER> {
 
     private static final TimeZone TZ_GMT = TimeZone.getTimeZone("GMT+0000");
-
+    
     /**
      * Enumeration of sensor connection types
      */
@@ -163,5 +158,560 @@ public class ExternalSensorsCommonSettings extends ObservedSettings<OBSERVER> {
         SimpleDateFormat iso8601gmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         iso8601gmt.setTimeZone(TZ_GMT);
         return iso8601gmt.format(date);
+    }
+    
+    // TODO implement getters/setters with locking, observer calls etc.
+    
+    public SensorConnectionType getAisConnectionType() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.aisConnectionType;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setAisConnectionType(final SensorConnectionType aisConnectionType) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.aisConnectionType == aisConnectionType) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.aisConnectionType = aisConnectionType;
+            for(OBSERVER obs : this.observers) {
+                obs.aisConnectionTypeChanged(aisConnectionType);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public String getAisHostOrSerialPort() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.aisHostOrSerialPort;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setAisHostOrSerialPort(final String aisHostOrSerialPort) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.aisHostOrSerialPort.equals(aisHostOrSerialPort)) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.aisHostOrSerialPort = aisHostOrSerialPort;
+            for(OBSERVER obs : this.observers) {
+                obs.aisHostOrSerialPortChanged(aisHostOrSerialPort);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public String getAisFilename() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.aisFilename;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setAisFilename(final String aisFilename) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.aisFilename.equals(aisFilename)) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.aisFilename = aisFilename;
+            for(OBSERVER obs : this.observers) {
+                obs.aisFilenameChanged(aisFilename);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public int getAisTcpOrUdpPort() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.aisTcpOrUdpPort;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setAisTcpOrUdpPort(final int aisTcpOrUdpPort) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.aisTcpOrUdpPort == aisTcpOrUdpPort) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.aisTcpOrUdpPort = aisTcpOrUdpPort;
+            for(OBSERVER obs : this.observers) {
+                obs.aisTcpOrUdpPortChanged(aisTcpOrUdpPort);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public SensorConnectionType getGpsConnectionType() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.gpsConnectionType;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+    
+    public void setGpsConnectionType(final SensorConnectionType gpsConnectionType) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.gpsConnectionType == gpsConnectionType) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+           this.gpsConnectionType = gpsConnectionType;
+           for(OBSERVER obs : this.observers) {
+               obs.gpsConnectionTypeChanged(gpsConnectionType);
+           }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+    
+    public String getGpsHostOrSerialPort() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.gpsHostOrSerialPort;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setGpsHostOrSerialPort(final String gpsHostOrSerialPort) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.gpsHostOrSerialPort.equals(gpsHostOrSerialPort)) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.gpsHostOrSerialPort = gpsHostOrSerialPort;
+            for(OBSERVER obs : this.observers) {
+                obs.gpsHostOrSerialPortChanged(gpsHostOrSerialPort);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public String getGpsFilename() {
+        try {
+            this.settingLock.readLock().lock();
+            return gpsFilename;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setGpsFilename(final String gpsFilename) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.gpsFilename.equals(gpsFilename)) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There ws a change, update and notify observers.
+            this.gpsFilename = gpsFilename;
+            for(OBSERVER obs : this.observers) {
+                obs.gpsFilenameChanged(gpsFilename);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public int getGpsTcpOrUdpPort() {
+        try {
+            this.settingLock.readLock().lock();
+            return gpsTcpOrUdpPort;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setGpsTcpOrUdpPort(final int gpsTcpOrUdpPort) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.gpsTcpOrUdpPort == gpsTcpOrUdpPort) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.gpsTcpOrUdpPort = gpsTcpOrUdpPort;
+            for(OBSERVER obs : this.observers) {
+                obs.gpsTcpOrUdpPortChanged(gpsTcpOrUdpPort);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public SensorConnectionType getMsPntConnectionType() {
+        try {
+            this.settingLock.readLock().lock();
+            return msPntConnectionType;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setMsPntConnectionType(final SensorConnectionType msPntConnectionType) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.msPntConnectionType == msPntConnectionType) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.msPntConnectionType = msPntConnectionType;
+            for(OBSERVER obs : this.observers) {
+                obs.msPntConnectionTypeChanged(msPntConnectionType);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public String getMsPntHostOrSerialPort() {
+        try {
+            this.settingLock.readLock().lock();
+            return msPntHostOrSerialPort;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setMsPntHostOrSerialPort(final String msPntHostOrSerialPort) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.msPntHostOrSerialPort.equals(msPntHostOrSerialPort)) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.msPntHostOrSerialPort = msPntHostOrSerialPort;
+            for(OBSERVER obs : this.observers) {
+                obs.msPntHostOrSerialPortChanged(msPntHostOrSerialPort);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public String getMsPntFilename() {
+        try {
+            this.settingLock.readLock().lock();
+            return msPntFilename;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setMsPntFilename(final String msPntFilename) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.msPntFilename.equals(msPntFilename)) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.msPntFilename = msPntFilename;
+            for(OBSERVER obs : this.observers) {
+                obs.msPntFilenameChanged(msPntFilename);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public int getMsPntTcpOrUdpPort() {
+        try {
+            this.settingLock.readLock().lock();
+            return msPntTcpOrUdpPort;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setMsPntTcpOrUdpPort(final int msPntTcpOrUdpPort) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.msPntTcpOrUdpPort == msPntTcpOrUdpPort) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.msPntTcpOrUdpPort = msPntTcpOrUdpPort;
+            for(OBSERVER obs : this.observers) {
+                obs.msPntTcpOrUdpPortChanged(msPntTcpOrUdpPort);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public PntSourceSetting getPntSource() {
+        try {
+            this.settingLock.readLock().lock();
+            return pntSource;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setPntSource(final PntSourceSetting pntSource) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.pntSource == pntSource) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.pntSource = pntSource;
+            for(OBSERVER obs : this.observers) {
+                obs.pntSourceChanged(pntSource);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public boolean isStartTransponder() {
+        try {
+            this.settingLock.readLock().lock();
+            return startTransponder;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setStartTransponder(final boolean startTransponder) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.startTransponder == startTransponder) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.startTransponder = startTransponder;
+            for(OBSERVER obs : this.observers) {
+                obs.startTransponderChanged(startTransponder);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public double getAisSensorRange() {
+        try {
+            this.settingLock.readLock().lock();
+            return aisSensorRange;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setAisSensorRange(final double aisSensorRange) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.aisSensorRange == aisSensorRange) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.aisSensorRange = aisSensorRange;
+            for(OBSERVER obs : this.observers) {
+                obs.aisSensorRangeChanged(aisSensorRange);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public int getReplaySpeedup() {
+        try {
+            this.settingLock.readLock().lock();
+            return replaySpeedup;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setReplaySpeedup(final int replaySpeedup) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.replaySpeedup == replaySpeedup) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.replaySpeedup = replaySpeedup;
+            for(OBSERVER obs : this.observers) {
+                obs.replaySpeedupChanged(replaySpeedup);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    public Date getReplayStartDate() {
+        try {
+            this.settingLock.readLock().lock();
+            return replayStartDate;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    public void setReplayStartDate(final Date replayStartDate) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.replayStartDate.equals(replayStartDate)) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            // Use clones to avoid reference leak.
+            this.replayStartDate = (Date) replayStartDate.clone();
+            for(OBSERVER obs : this.observers) {
+                obs.replayStartDateChanged((Date) replayStartDate.clone());
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Interface for observing an {@link ExternalSensorsCommonSettings} for changes.
+     * @author Janus Varmarken
+     *
+     */
+    public interface IObserver {
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getAisConnectionType()} has changed.
+         * @param connType The new connection type for AIS.
+         */
+        void aisConnectionTypeChanged(SensorConnectionType connType);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getAisHostOrSerialPort()} has changed.
+         * @param aisHostOrSerialPort The new value for the setting.
+         */
+        void aisHostOrSerialPortChanged(String aisHostOrSerialPort);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getAisFilename()} has changed.
+         * @param aisFilename The new name of the AIS file.
+         */
+        void aisFilenameChanged(String aisFilename);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getAisTcpOrUdpPort()} has changed.
+         * @param port The new port to use.
+         */
+        void aisTcpOrUdpPortChanged(int port);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getGpsConnectionType()} has changed.
+         * @param connType The new connection type for GPS.
+         */
+        void gpsConnectionTypeChanged(SensorConnectionType connType);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getGpsHostOrSerialPort()} has changed.
+         * @param gpsHostOrSerialPort The new host or serial port.
+         */
+        void gpsHostOrSerialPortChanged(String gpsHostOrSerialPort);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getGpsFilename()} has changed.
+         * @param gpsFilename The new filename for the GPS file.
+         */
+        void gpsFilenameChanged(String gpsFilename);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getGpsTcpOrUdpPort()} has changed.
+         * @param port The new TCP or UDP port for GPS.
+         */
+        void gpsTcpOrUdpPortChanged(int port);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getMsPntConnectionType()} has changed.
+         * @param connType The new connection type for multi source PNT.
+         */
+        void msPntConnectionTypeChanged(SensorConnectionType connType);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getMsPntHostOrSerialPort()} has changed.
+         * @param msPntHostOrSerialPort The new multi source PNT host or serial port.
+         */
+        void msPntHostOrSerialPortChanged(String msPntHostOrSerialPort);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getMsPntFilename()} has changed.
+         * @param msPntFilename The new multi source PNT file name.
+         */
+        void msPntFilenameChanged(String msPntFilename);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getMsPntTcpOrUdpPort()} has changed.
+         * @param msPntTcpOrUdpPort The new multi source PNT TCP or UDP port.
+         */
+        void msPntTcpOrUdpPortChanged(int msPntTcpOrUdpPort);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getPntSource()} has changed.
+         * @param pntSource The new PNT source.
+         */
+        void pntSourceChanged(PntSourceSetting pntSource);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#isStartTransponder()} has changed.
+         * @param startTransponder If the transponder should start automatically.
+         */
+        void startTransponderChanged(boolean startTransponder);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getAisSensorRange()} has changed.
+         * @param aisSensorRange The new AIS sensor range.
+         */
+        void aisSensorRangeChanged(double aisSensorRange);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getReplaySpeedup()} has changed.
+         * @param replaySpeedup The new replay speedup.
+         */
+        void replaySpeedupChanged(int replaySpeedup);
+        
+        /**
+         * Invoked when {@link ExternalSensorsCommonSettings#getReplayStartDate()} has changed.
+         * @param replayStartDate The new replay start date.
+         */
+        void replayStartDateChanged(Date replayStartDate);
     }
 }
