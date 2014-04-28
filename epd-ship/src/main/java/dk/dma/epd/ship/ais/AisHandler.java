@@ -19,8 +19,9 @@ import net.jcip.annotations.ThreadSafe;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
-import dk.dma.epd.common.prototype.settings.AisSettings;
-import dk.dma.epd.common.prototype.settings.SensorSettings;
+import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.ship.EPDShip;
 
 /**
@@ -28,17 +29,17 @@ import dk.dma.epd.ship.EPDShip;
  */
 @ThreadSafe
 public class AisHandler extends AisHandlerCommon {
-
-    private final double aisRange;
-
+    
+    private final ExternalSensorsCommonSettings<?> sensorSettings;
+    
     /**
      * Constructor
      * @param sensorSettings
      * @param aisSettings
      */
-    public AisHandler(SensorSettings sensorSettings, AisSettings aisSettings) {
-        super(aisSettings);
-        aisRange = sensorSettings.getAisSensorRange();
+    public AisHandler(AisHandlerCommonSettings<?> aisHandlerSettings, PastTrackSettings<?> pastTrackSettings, ExternalSensorsCommonSettings<?> sensorSettings) {
+        super(aisHandlerSettings, pastTrackSettings);
+        this.sensorSettings = sensorSettings;
     }
 
     /**
@@ -49,7 +50,7 @@ public class AisHandler extends AisHandlerCommon {
      */
     @Override
     protected boolean isWithinRange(Position pos) {
-        if (getAisRange() <= 0) {
+        if (this.sensorSettings.getAisSensorRange() <= 0d) {
             return true;
         }
         PntData pntData = EPDShip.getInstance().getPntHandler().getCurrentData();
@@ -57,14 +58,14 @@ public class AisHandler extends AisHandlerCommon {
             return false;
         }
         double distance = pntData.getPosition().rhumbLineDistanceTo(pos) / 1852.0;
-        return distance <= aisRange;
+        return distance <= this.sensorSettings.getAisSensorRange();
     }
 
-    /**
-     * Returns the Ais range
-     * @return the Ais range
-     */
-    public double getAisRange() {
-        return aisRange;
-    }
+//    /**
+//     * Returns the Ais range
+//     * @return the Ais range
+//     */
+//    public double getAisRange() {
+//        return aisRange;
+//    }
 }
