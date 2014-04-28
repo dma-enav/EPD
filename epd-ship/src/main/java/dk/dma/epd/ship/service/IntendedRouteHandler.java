@@ -38,7 +38,6 @@ import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
-import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
@@ -59,9 +58,6 @@ import dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings;
 public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandler.class);
-//    private static long BROADCAST_TIME = 60; // Broadcast intended route every minute for now
-//    private static long ADAPTIVE_TIME = 60 * 10; // Set to 10 minutes?
-//    private static final int BROADCAST_RADIUS = Integer.MAX_VALUE;
 
     private DateTime lastTransmitActiveWp;
     private DateTime lastSend = new DateTime(1);
@@ -69,7 +65,6 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     private boolean running;
     
     private IntendedRouteLayerCommon intendedRouteLayerCommon;
-
 
     /**
      * Constructor
@@ -158,7 +153,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                                 etaTimeChange = currentActiveWaypointETA.plus(lastTransmitActiveWp.getMillis()).getMillis();
                             }
 
-                            if (etaTimeChange > ADAPTIVE_TIME * 1000L) {
+                            if (etaTimeChange > getSettings().getAdaptionTime() * 1000L) {
                                 System.out.println("Broadcast based on adaptive time!");
                                 broadcastIntendedRoute();
                                 lastSend = new DateTime();
@@ -192,7 +187,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         final IntendedRouteBroadcast message = new IntendedRouteBroadcast();
 
         if (routeManager.getActiveRoute() != null) {
-            PartialRouteFilter filter = EPDShip.getInstance().getSettings().getCloudSettings().getIntendedRouteFilter();
+            PartialRouteFilter filter = getSettings().getIntendedRouteFilter();
             routeManager.getActiveRoute().getPartialRouteData(filter, message);
 
             lastTransmitActiveWp = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());
@@ -208,7 +203,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             @Override
             public void run() {
                 BroadcastOptions options = new BroadcastOptions();
-                options.setBroadcastRadius(BROADCAST_RADIUS);
+                options.setBroadcastRadius(IntendedRouteHandler.this.getSettings().getBroadcastRadius());
                 getMaritimeCloudConnection().broadcast(message, options);
             }
         });
@@ -393,22 +388,4 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             }            
         }
     }
-
-    @Override
-    public void sendIntendedRouteChanged(boolean value) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void broadcastTimeChanged(long value) {
-        BROADCAST_TIME = value;
-    }
-
-    @Override
-    public void adaptiveBroadcastTimeChanged(int value) {
-        // TODO Auto-generated method stub
-        ADAPTIVE_TIME = value;
-    }
-
 }
