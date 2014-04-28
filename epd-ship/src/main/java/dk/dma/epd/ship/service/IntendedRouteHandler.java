@@ -38,12 +38,13 @@ import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.settings.handlers.IIntendedRouteHandlerSettingsObserver;
+import dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings;
 
 /**
  * Ship specific intended route service implementation.
@@ -55,12 +56,12 @@ import dk.dma.epd.ship.settings.handlers.IIntendedRouteHandlerSettingsObserver;
  * <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
  * </ul>
  */
-public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable, IIntendedRouteHandlerSettingsObserver {
+public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandler.class);
-    private static long BROADCAST_TIME = 60; // Broadcast intended route every minute for now
-    private static long ADAPTIVE_TIME = 60 * 10; // Set to 10 minutes?
-    private static final int BROADCAST_RADIUS = Integer.MAX_VALUE;
+//    private static long BROADCAST_TIME = 60; // Broadcast intended route every minute for now
+//    private static long ADAPTIVE_TIME = 60 * 10; // Set to 10 minutes?
+//    private static final int BROADCAST_RADIUS = Integer.MAX_VALUE;
 
     private DateTime lastTransmitActiveWp;
     private DateTime lastSend = new DateTime(1);
@@ -73,10 +74,15 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     /**
      * Constructor
      */
-    public IntendedRouteHandler() {
-        super();
+    public IntendedRouteHandler(IntendedRouteHandlerSettings<?> settings) {
+        super(settings);
     }
 
+    @Override
+    protected IntendedRouteHandlerSettings<?> getSettings() {
+        return (IntendedRouteHandlerSettings<?>) super.getSettings();
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -113,12 +119,12 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
                 // We have no active route, keep sleeping
                 if (routeManager.getActiveRoute() == null) {
-                    Util.sleep(BROADCAST_TIME * 1000L);
+                    Util.sleep(getSettings().getTimeBetweenBroadCast() * 1000L);
                 } else {
 
                     // Here we handle the periodical broadcasts
                     DateTime calculatedTimeOfLastSend = new DateTime();
-                    calculatedTimeOfLastSend = calculatedTimeOfLastSend.minus(BROADCAST_TIME * 1000L);
+                    calculatedTimeOfLastSend = calculatedTimeOfLastSend.minus(getSettings().getTimeBetweenBroadCast() * 1000L);
 
                     // Do we need to rebroadcast based on the broadcast time setting
                     if (calculatedTimeOfLastSend.isAfter(lastSend)) {

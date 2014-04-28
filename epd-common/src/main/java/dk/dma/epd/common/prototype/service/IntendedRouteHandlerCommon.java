@@ -91,6 +91,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             }
         }, 1, 1, TimeUnit.MINUTES);
     }
+    
+    protected IntendedRouteHandlerCommonSettings<?> getSettings() {
+        return settings;
+    }
 
     /**
      * Returns the intended route associated with the given MMSI
