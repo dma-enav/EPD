@@ -42,8 +42,7 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
     private int adaptionTime = 60;
 
     /**
-     * Filter for how the route transmission should occur. TODO: Ask DNC about
-     * the purpose of this field.
+     * Filter used in route transmission.
      */
     private PartialRouteFilter intendedRouteFilter = PartialRouteFilter.DEFAULT;
 
@@ -167,6 +166,46 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
     }
 
     /**
+     * Gets the filter to use in route transmission.
+     * 
+     * @return The filter to use in route transmission.
+     */
+    public PartialRouteFilter getIntendedRouteFilter() {
+        try {
+            this.settingLock.readLock().lock();
+            return intendedRouteFilter;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Sets the filter to use in route transmission.
+     * 
+     * @param intendedRouteFilter
+     *            The new filter to use in route transmission.
+     */
+    public void setIntendedRouteFilter(
+            final PartialRouteFilter intendedRouteFilter) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.intendedRouteFilter.equals(intendedRouteFilter)) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            // TODO create copy to avoid reference leak.
+            this.intendedRouteFilter = intendedRouteFilter;
+            for (OBSERVER obs : this.observers) {
+                // TODO create copy to avoid reference leak.
+                obs.intendedRouteFilterChanged(intendedRouteFilter);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
      * Interface for observing an {@link IntendedRouteHandlerSettings} for
      * changes.
      * 
@@ -208,6 +247,16 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
          *            forced.
          */
         void adaptionTimeChanged(int adaptionTime);
+
+        /**
+         * Invoked when
+         * {@link IntendedRouteHandlerSettings#getIntendedRouteFilter()} has
+         * changed.
+         * 
+         * @param intendedRouteFilter
+         *            The new intended route filter.
+         */
+        void intendedRouteFilterChanged(PartialRouteFilter intendedRouteFilter);
     }
 
 }
