@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +51,7 @@ import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverit
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.TypedValue.Dist;
@@ -67,32 +68,21 @@ import dk.dma.epd.common.util.TypedValue.TimeType;
  */
 public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
-    /**
-     * Time an intended route is considered valid without update
-     */
-    public static long ROUTE_TTL = 10 * 60 * 1000; // 10 min
-
-    /**
-     * In nautical miles - distance between two lines for it to be put in filter
-     */
-    public static double FILTER_DISTANCE_EPSILON = 0.5;
-
-    public static double NOTIFICATION_DISTANCE_EPSILON = 0.5; // Nautical miles
-    public static double ALERT_DISTANCE_EPSILON = 0.3; // Nautical miles
-
     protected ConcurrentHashMap<Long, IntendedRoute> intendedRoutes = new ConcurrentHashMap<>();
     protected FilteredIntendedRoutes filteredIntendedRoutes = new FilteredIntendedRoutes();
 
     protected List<IIntendedRouteListener> listeners = new CopyOnWriteArrayList<>();
 
+    protected IntendedRouteHandlerCommonSettings<?> settings;
+    
     private AisHandlerCommon aisHandler;
 
     /**
      * Constructor
      */
-    public IntendedRouteHandlerCommon() {
+    public IntendedRouteHandlerCommon(IntendedRouteHandlerCommonSettings<?> settings) {
         super();
-
+        this.settings = Objects.requireNonNull(settings);
         // Checks and remove stale intended routes every minute
         getScheduler().scheduleWithFixedDelay(new Runnable() {
             @Override
@@ -198,7 +188,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         Date now = PntTime.getInstance().getDate();
         for (Iterator<Map.Entry<Long, IntendedRoute>> it = intendedRoutes.entrySet().iterator(); it.hasNext();) {
             Map.Entry<Long, IntendedRoute> entry = it.next();
-            if (now.getTime() - entry.getValue().getReceived().getTime() > ROUTE_TTL) {
+            if (now.getTime() - entry.getValue().getReceived().getTime() > settings.getRouteTimeToLive()) {
                 // Remove the intended route
                 it.remove();
                 fireIntendedEvent(entry.getValue());
@@ -326,7 +316,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         } else {
             newFilteredRoute.setGeneratedNotification(oldFilteredRoute.hasGeneratedNotification());
             sendNotification = !newFilteredRoute.hasGeneratedNotification()
-                    && newFilteredRoute.isWithinDistance(NOTIFICATION_DISTANCE_EPSILON);
+                    && newFilteredRoute.isWithinDistance(settings.getNotificationDistance());
         }
 
         if (sendNotification) {
@@ -336,7 +326,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             newFilteredRoute.getKey(), System.currentTimeMillis()));
             notification.setTitle("CPA Warning");
             notification.setDescription(formatNotificationDescription(newFilteredRoute));
-            if (newFilteredRoute.isWithinDistance(ALERT_DISTANCE_EPSILON)) {
+            if (newFilteredRoute.isWithinDistance(settings.getAlertDistance())) {
                 notification.setSeverity(NotificationSeverity.ALERT);
                 notification.addAlerts(new NotificationAlert(AlertType.POPUP, AlertType.BEEP));
             } else {
@@ -571,7 +561,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                     double currentDistance = Converter.metersToNm(route1CurrentPosition.distanceTo(route2CurrentPosition,
                             CoordinateSystem.CARTESIAN));
 
-                    if (currentDistance < FILTER_DISTANCE_EPSILON) {
+                    if (currentDistance < settings.getFilterDistance()) {
                         IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(route1CurrentPosition,
                                 route2CurrentPosition, "Warning stuff", 0, 0);
 
@@ -750,18 +740,5 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      */
     public FilteredIntendedRoutes getFilteredIntendedRoutes() {
         return filteredIntendedRoutes;
-    }
-    
-    /**
-     * Updates the intended route filter settings.
-     * @param settings
-     *          The Enav Settings.
-     */
-    public void updateSettings(EnavSettings settings) {
-        
-        ROUTE_TTL = settings.getRouteTimeToLive();
-        FILTER_DISTANCE_EPSILON = settings.getFilterDistance();
-        NOTIFICATION_DISTANCE_EPSILON = settings.getNotificationDistance();
-        ALERT_DISTANCE_EPSILON = settings.getAlertDistance();
     }
 }
