@@ -55,7 +55,7 @@ import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 
-public abstract class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisSensorListener, IStatusComponent, AisHandlerCommonSettings.IObserver, PastTrackSettings.IObserver {
+public abstract class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisSensorListener, IStatusComponent {
     
     private static final Logger LOG = LoggerFactory.getLogger(AisHandlerCommon.class);
     
@@ -72,17 +72,15 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     
     protected AisStatus aisStatus = new AisStatus();
     
-    protected AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings;
-    protected PastTrackSettings<PastTrackSettings.IObserver> pastTrackSettings;
+    protected AisHandlerCommonSettings<?> aisHandlerSettings;
+    protected PastTrackSettings<?> pastTrackSettings;
     
     /**
      * Constructor
      */
-    public AisHandlerCommon(AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings, PastTrackSettings<PastTrackSettings.IObserver> pastTrackSettings) {
+    public AisHandlerCommon(AisHandlerCommonSettings<?> aisHandlerSettings, PastTrackSettings<?> pastTrackSettings) {
         this.aisHandlerSettings = aisHandlerSettings;
-        this.aisHandlerSettings.addObserver(this);
         this.pastTrackSettings = pastTrackSettings;
-        this.pastTrackSettings.addObserver(this);
     }
     
     /**
