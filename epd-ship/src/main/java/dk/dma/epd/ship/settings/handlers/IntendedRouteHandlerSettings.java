@@ -47,6 +47,11 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
     private PartialRouteFilter intendedRouteFilter = PartialRouteFilter.DEFAULT;
 
     /**
+     * The intended route broadcast radius.
+     */
+    private int broadcastRadius = Integer.MAX_VALUE;
+
+    /**
      * Gets the setting that specifies if own ship intended route should be
      * broadcast.
      * 
@@ -206,6 +211,43 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
     }
 
     /**
+     * Gets the intended route broadcast radius.
+     * 
+     * @return The intended route broadcast radius.
+     */
+    public int getBroadcastRadius() {
+        try {
+            this.settingLock.readLock().lock();
+            return broadcastRadius;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Sets the intended route broadcast radius.
+     * 
+     * @param broadcastRadius
+     *            The new intended route broadcast radius.
+     */
+    public void setBroadcastRadius(final int broadcastRadius) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.broadcastRadius == broadcastRadius) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.broadcastRadius = broadcastRadius;
+            for (OBSERVER obs : this.observers) {
+                obs.broadcastRadiusChanged(broadcastRadius);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
      * Interface for observing an {@link IntendedRouteHandlerSettings} for
      * changes.
      * 
@@ -257,6 +299,16 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
          *            The new intended route filter.
          */
         void intendedRouteFilterChanged(PartialRouteFilter intendedRouteFilter);
+
+        /**
+         * Invoked when
+         * {@link IntendedRouteHandlerSettings#getBroadcastRadius()} has
+         * changed.
+         * 
+         * @param broadcastRadius
+         *            The new broadcast radius.
+         */
+        void broadcastRadiusChanged(int broadcastRadius);
     }
 
 }
