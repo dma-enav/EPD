@@ -20,7 +20,8 @@ import java.util.Map;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
 
 /**
  * Class for handling incoming AIS messages on a vessel and maintainer of AIS target tables.
@@ -32,8 +33,8 @@ public class AisHandler extends AisHandlerCommon {
     /**
      * Empty constructor not used
      */
-    public AisHandler(AisSettings aisSettings) {
-        super(aisSettings);
+    public AisHandler(AisHandlerCommonSettings<?> aisHandlerSettings, PastTrackSettings<?> pastTrackSettings) {
+        super(aisHandlerSettings, pastTrackSettings);
     }
 
     /**
@@ -49,6 +50,5 @@ public class AisHandler extends AisHandlerCommon {
 
     public Map<Long, VesselTarget> getVesselTargets() {
         return vesselTargets;
-        
     }
 }
