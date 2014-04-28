@@ -23,6 +23,7 @@ import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoutes;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
 
@@ -34,8 +35,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
     /**
      * Constructor
      */
-    public IntendedRouteHandler() {
-        super();
+    public IntendedRouteHandler(IntendedRouteHandlerCommonSettings<?> settings) {
+        super(settings);
     }
 
     /****************************************/
