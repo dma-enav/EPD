@@ -31,15 +31,15 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
     private boolean broadcastIntendedRoute = true;
 
     /**
-     * Specifies the intended route broadcast time. Unit is milliseconds (TODO
-     * verify).
+     * Specifies the intended route broadcast time. Unit: seconds.
      */
     private long timeBetweenBroadcast = 60;
 
     /**
-     * Specifies the change in ETA for a new route broadcast to be forced.
+     * Specifies the change in ETA for a new route broadcast to be forced. Unit:
+     * seconds.
      */
-    private int adaptionTime = 1;
+    private int adaptionTime = 60;
 
     /**
      * Filter for how the route transmission should occur. TODO: Ask DNC about
@@ -92,8 +92,7 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
      * Gets the setting that specifies the time between each broadcast of the
      * ship's intended route.
      * 
-     * @return timeBetweenBroadCast The time between each broadcast in
-     *         milliseconds.
+     * @return timeBetweenBroadCast The time between each broadcast in seconds.
      */
     public long getTimeBetweenBroadCast() {
         try {
@@ -109,7 +108,7 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
      * ship's intended route.
      * 
      * @param timeBetweenBroadcast
-     *            The new time between each broadcast in milliseconds.
+     *            The new time between each broadcast in seconds.
      */
     public void setTimeBetweenBroadCast(final long timeBetweenBroadcast) {
         try {
