@@ -54,9 +54,8 @@ public class AisLayerCommonLocalSettings<OBSERVER extends AisLayerCommonSettings
      */
     public AisLayerCommonLocalSettings() {
         super();
-        // Register self as observant of the global AIS settings.
+        // Register self as observer of the global AIS settings.
         // As we want to acknowledge/obey to changes to the global settings.
-        // TODO is this run if we start to serialize this class?
         AisLayerCommonGlobalSettings.getInstance().addObserver(this);
     }
 
@@ -64,7 +63,7 @@ public class AisLayerCommonLocalSettings<OBSERVER extends AisLayerCommonSettings
      * Invoked when the global value for display of AIS name labels has changed.
      */
     @Override
-    public void showAllAisNameLabelsChanged(boolean oldValue, boolean newValue) {
+    public void showAllAisNameLabelsChanged(boolean newValue) {
         // The "display AIS labels" was changed on the global settings object.
         // We need to obey to this for our local settings:
         this.setShowAllAisNameLabels(newValue);
@@ -74,7 +73,7 @@ public class AisLayerCommonLocalSettings<OBSERVER extends AisLayerCommonSettings
      * Invoked when the global value for display of past tracks has changed.
      */
     @Override
-    public void showAllPastTracksChanged(boolean oldValue, boolean newValue) {
+    public void showAllPastTracksChanged(boolean newValue) {
         // The "display all past tracks" was changed on the global settings
         // object.
         // We need to obey to this for our local settings:
@@ -85,7 +84,7 @@ public class AisLayerCommonLocalSettings<OBSERVER extends AisLayerCommonSettings
      * Invoked when the global value for the layer redraw interval has changed.
      */
     @Override
-    public void layerRedrawIntervalChanged(int oldValue, int newValue) {
+    public void layerRedrawIntervalChanged(int newValue) {
         /*
          * The "set layer redraw interval" was changed on the global settings
          * object. We need to obey to this for this local settings instance.

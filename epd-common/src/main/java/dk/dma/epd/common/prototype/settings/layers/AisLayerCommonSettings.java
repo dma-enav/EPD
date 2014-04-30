@@ -72,15 +72,21 @@ public abstract class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSett
      *            {@code true} to show all AIS name labels, {@code false} to
      *            hide all AIS name labels.
      */
-    public void setShowAllAisNameLabels(boolean show) {
-        this.settingLock.writeLock().lock();
-        boolean oldVal = this.showAllAisNameLabels;
-        this.showAllAisNameLabels = show;
-        // Notify observers of change to this setting
-        for (OBSERVER obs : this.observers) {
-            obs.showAllAisNameLabelsChanged(oldVal, this.showAllAisNameLabels);
+    public void setShowAllAisNameLabels(final boolean show) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.showAllAisNameLabels == show) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.showAllAisNameLabels = show;
+            for(OBSERVER obs : this.observers) {
+                obs.showAllAisNameLabelsChanged(show);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
         }
-        this.settingLock.writeLock().unlock();
     }
 
     /**
@@ -107,15 +113,21 @@ public abstract class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSett
      *            {@code true} if all past tracks should be shown, {@code false}
      *            if all past tracks should be hidden.
      */
-    public void setShowAllPastTracks(boolean show) {
-        this.settingLock.writeLock().lock();
-        boolean oldVal = this.showAllPastTracks;
-        this.showAllPastTracks = show;
-        // Notify observers of change to this setting
-        for (OBSERVER obs : this.observers) {
-            obs.showAllPastTracksChanged(oldVal, this.showAllPastTracks);
+    public void setShowAllPastTracks(final boolean show) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.showAllPastTracks == show) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.showAllPastTracks = show;
+            for (OBSERVER obs : this.observers) {
+                obs.showAllPastTracksChanged(show);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
         }
-        this.settingLock.writeLock().unlock();
     }
 
     /**
@@ -142,19 +154,26 @@ public abstract class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSett
      * @throws IllegalArgumentException
      *             if {@code seconds} is less than 1.
      */
-    public void setLayerRedrawInterval(int seconds) {
+    public void setLayerRedrawInterval(final int seconds) {
         // Sanity check setting value
         if (seconds < 1) {
             throw new IllegalArgumentException(
                     "A redraw interval below 1 second is not allowed.");
         }
-        this.settingLock.writeLock().lock();
-        int oldVal = this.layerRedrawInterval;
-        this.layerRedrawInterval = seconds;
-        for (OBSERVER obs : this.observers) {
-            obs.layerRedrawIntervalChanged(oldVal, this.layerRedrawInterval);
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.layerRedrawInterval == seconds) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.layerRedrawInterval = seconds;
+            for (OBSERVER obs : this.observers) {
+                obs.layerRedrawIntervalChanged(seconds);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
         }
-        this.settingLock.writeLock().unlock();
     }
 
     /**
@@ -169,32 +188,26 @@ public abstract class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSett
          * Invoked when the setting specifying whether to show all AIS name labels
          * has been changed on the observed instance.
          * 
-         * @param oldValue
-         *            The value of the setting prior to this change.
          * @param newValue
          *            The updated value of the setting.
          */
-        void showAllAisNameLabelsChanged(boolean oldValue, boolean newValue);
+        void showAllAisNameLabelsChanged(boolean newValue);
 
         /**
          * Invoked when the setting specifying whether to show all past tracks has
          * been changed on the observed instance.
          * 
-         * @param oldValue
-         *            The value of the setting prior to this change.
          * @param newValue
          *            The updated value of the setting.
          */
-        void showAllPastTracksChanged(boolean oldValue, boolean newValue);
+        void showAllPastTracksChanged(boolean newValue);
 
         /**
          * Invoked when the setting specifying how often the layer should repaint
          * itself has been changed on the observed instance.
          * 
-         * @param oldValue
-         * @param newValue
+         * @param newValue The updated value of the setting.
          */
-        void layerRedrawIntervalChanged(int oldValue, int newValue);
+        void layerRedrawIntervalChanged(int newValue);
     }
-    
 }
