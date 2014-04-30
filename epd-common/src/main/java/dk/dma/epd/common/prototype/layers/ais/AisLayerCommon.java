@@ -63,7 +63,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
     /**
      * Settings for this AIS layer.
      */
-    private final AisLayerCommonSettings<AisLayerCommonSettings.IObserver> settings;
+    protected final AisLayerCommonSettings<AisLayerCommonSettings.IObserver> settings;
     
     protected final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
     

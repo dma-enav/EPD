@@ -40,6 +40,7 @@ import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MapMenu;
@@ -50,7 +51,7 @@ import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
- * AIS layer. Showing AIS targets and intended routes.
+ * AIS layer. Showing AIS targets.
  */
 @ThreadSafe
 public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener {
@@ -69,8 +70,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     private TopPanel topPanel;
 
-    public AisLayer(int redrawIntervalMillis) {
-        super(redrawIntervalMillis);
+    public AisLayer(AisLayerCommonSettings<AisLayerCommonSettings.IObserver> settings) {
+        super(settings);
         
         // Register graphics for mouse over notifications
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselGraphic.class, AtonTargetGraphic.class);
