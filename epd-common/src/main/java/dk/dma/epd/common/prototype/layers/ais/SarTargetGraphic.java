@@ -26,7 +26,6 @@ import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.settings.AisSettings;
-import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
  * AIS SART graphic
@@ -44,7 +43,7 @@ public class SarTargetGraphic extends TargetGraphic {
     private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, float mapScale) {
         sarTarget = (SarTarget) aisTarget;
         VesselPositionData posData = sarTarget.getPositionData();
         // VesselStaticData staticData = sarTarget.getStaticData();

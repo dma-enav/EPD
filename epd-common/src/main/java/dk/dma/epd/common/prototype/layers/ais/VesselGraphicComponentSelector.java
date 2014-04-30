@@ -22,7 +22,6 @@ import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.settings.AisSettings;
-import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 
 /**
@@ -93,8 +92,7 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
     }
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings,
-            NavSettings navSettings, float mapScale) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, float mapScale) {
 
         if (aisTarget instanceof VesselTarget) {
 
@@ -105,12 +103,9 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
             }
             // update the sub graphics that manages the different vessel and
             // vessel metadata displays
-            this.vesselOutlineGraphic.update(aisTarget, aisSettings,
-                    navSettings, mapScale);
-            this.vesselTriangleGraphic.update(aisTarget, aisSettings,
-                    navSettings, mapScale);
-            this.vesselDotGraphic.update(aisTarget, aisSettings, navSettings,
-                    mapScale);
+            this.vesselOutlineGraphic.update(aisTarget, aisSettings, mapScale);
+            this.vesselTriangleGraphic.update(aisTarget, aisSettings, mapScale);
+            this.vesselDotGraphic.update(aisTarget, aisSettings, mapScale);
 
             // Update the past-track graphic
             pastTrackGraphic.update(vesselTarget);

@@ -22,7 +22,6 @@ import dk.dma.epd.common.graphics.CenterRaster;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.AtoNTarget;
 import dk.dma.epd.common.prototype.settings.AisSettings;
-import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
  * Graphic for AtoN target
@@ -41,7 +40,7 @@ public class AtonTargetGraphic extends TargetGraphic {
     }
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, float mapScale) {
         atonTarget = (AtoNTarget) aisTarget;
         Position pos = atonTarget.getPos();
         if (pos == null) {

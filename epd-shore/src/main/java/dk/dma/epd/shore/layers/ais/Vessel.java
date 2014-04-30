@@ -37,7 +37,6 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.settings.AisSettings;
-import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.text.Formatter;
 
 /**
@@ -123,11 +122,10 @@ public class Vessel extends TargetGraphic {
      * 
      * @param aisTarget
      * @param aisSettings
-     * @param navSettings
      * @param mapScale
      */
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, float mapScale) {
         vesselTarget = (VesselTarget)aisTarget;
         VesselPositionData location = vesselTarget.getPositionData();
         VesselStaticData staticData = vesselTarget.getStaticData();

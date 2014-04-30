@@ -23,7 +23,6 @@ import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.settings.AisSettings;
-import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
  * A concrete implementation of {@link VesselGraphicComponent} that displays a
@@ -49,8 +48,7 @@ public class VesselDotGraphicComponent extends VesselGraphicComponent {
      * Update this {@link VesselDotGraphicComponent} with new AIS data.
      */
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings,
-            NavSettings navSettings, float mapScale) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, float mapScale) {
         if (aisTarget instanceof VesselTarget) {
             VesselTarget vesselTarget = (VesselTarget) aisTarget;
             Position newLocation = vesselTarget.getPositionData().getPos();
