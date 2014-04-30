@@ -263,7 +263,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         }
 
         // Send the new location data to the graphic representing the AisTarget
-        targetGraphic.update(aisTarget, this.aisSettings, this.navSettings, mapScale);
+        targetGraphic.update(aisTarget, mapScale);
         targetGraphic.project(getProjection());
     }
     

@@ -29,7 +29,6 @@ import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.settings.AisSettings;
 
 /**
  * A concrete implementation of {@link VesselGraphicComponent} that displays a
@@ -121,7 +120,7 @@ public class VesselOutlineGraphicComponent extends VesselGraphicComponent {
      *            {@code VesselOutlineGraphicComponent} resides.
      */
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, float mapScale) {
+    public void update(AisTarget aisTarget, float mapScale) {
         if (aisTarget instanceof VesselTarget) {
             VesselTarget vesselTarget = (VesselTarget) aisTarget;
             // Need to create the graphic if this is the first update we receive

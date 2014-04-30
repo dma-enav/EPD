@@ -18,7 +18,6 @@ package dk.dma.epd.common.prototype.layers.ais;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.prototype.ais.AisTarget;
-import dk.dma.epd.common.prototype.settings.AisSettings;
 
 /**
  * Abstract base class graphic for AIS targets
@@ -56,9 +55,8 @@ public abstract class TargetGraphic extends OMGraphicList {
     /**
      * Update this {@link TargetGraphic} with new AIS data.
      * @param aisTarget An updated version of the {@link AisTarget} displayed by this {@link TargetGraphic}.
-     * @param aisSettings AIS related settings.
      * @param mapScale The current scale of the map in which this {@link TargetGraphic} resides.
      */
-    public abstract void update(AisTarget aisTarget, AisSettings aisSettings, float mapScale);
+    public abstract void update(AisTarget aisTarget, float mapScale);
     
 }

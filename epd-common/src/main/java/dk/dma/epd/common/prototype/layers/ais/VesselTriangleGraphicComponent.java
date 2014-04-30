@@ -28,7 +28,6 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
-import dk.dma.epd.common.prototype.settings.AisSettings;
 
 /**
  * A concrete implementation of {@link VesselGraphicComponent} that displays a
@@ -72,7 +71,7 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
      *            The {@link AisSettings} containing information on whether to
      *            hide or show the AIS name label.
      */
-    private void createGraphics(AisSettings aisSettings) {
+    private void createGraphics() {
         this.vessel = new VesselTriangle();
 
         int[] headingX = { 0, 0 };
@@ -87,7 +86,7 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
                 ColorConstants.VESSEL_HEADING_COLOR);
 
         add(label);
-        this.label.setVisible(aisSettings.isShowNameLabels());
+//        this.label.setVisible(aisSettings.isShowNameLabels());
         add(0, vessel);
         this.add(this.speedVector);
         add(heading);
@@ -97,7 +96,7 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
      * Update this {@link VesselTriangleGraphicComponent} with new AIS data.
      */
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, float mapScale) {
+    public void update(AisTarget aisTarget, float mapScale) {
         if (aisTarget instanceof VesselTarget) {
 
             VesselTarget vesselTarget = (VesselTarget) aisTarget;
@@ -116,7 +115,7 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
             double lon = pos.getLongitude();
 
             if (size() == 0) {
-                createGraphics(aisSettings);
+                createGraphics();
             }
 
             double hdgR = Math.toRadians(trueHeading);
