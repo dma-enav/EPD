@@ -16,8 +16,6 @@
 package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,7 +26,6 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.graphics.ISelectableGraphic;
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.AtoNTarget;
@@ -36,15 +33,14 @@ import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.LazyLayerCommon;
-import dk.dma.epd.common.prototype.settings.AisSettings;
-import dk.dma.epd.common.prototype.settings.NavSettings;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 
 /**
  * @author Janus Varmarken
  */
 @SuppressWarnings("serial")
 public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
-        extends LazyLayerCommon implements IAisTargetListener, PropertyChangeListener {
+        extends LazyLayerCommon implements IAisTargetListener, AisLayerCommonSettings.IObserver {
 
     private static final Logger LOG = LoggerFactory
             .getLogger(AisLayerCommon.class);
@@ -65,24 +61,21 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
     private ISelectableGraphic selectedGraphic;
 
     /**
-     * The application wide AIS settings.
+     * Settings for this AIS layer.
      */
-    private final AisSettings aisSettings;
-
-    /**
-     * The application wide Navigation settings.
-     */
-    private final NavSettings navSettings;
-
+    private final AisLayerCommonSettings<AisLayerCommonSettings.IObserver> settings;
+    
     protected final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
     
-    public AisLayerCommon(int repaintIntervalMillis) {
-        super(repaintIntervalMillis);
-        // Get the settings singletons
-        this.aisSettings = EPD.getInstance().getSettings().getAisSettings();
-        this.navSettings = EPD.getInstance().getSettings().getNavSettings();
-        // register self as listener for changes to the AIS settings
-        this.aisSettings.addPropertyChangeListener(this);
+    /**
+     * Creates a new {@link AisLayerCommon}.
+     * @param settings An {@link AisLayerCommonSettings} instance that is to control the appearance of the new layer. The new layer registers itself as observer of this settings instance as part of this constructor.
+     */
+    public AisLayerCommon(AisLayerCommonSettings<AisLayerCommonSettings.IObserver> settings) {
+        super(settings.getLayerRedrawInterval() * 1000);
+        this.settings = settings;
+        // Add self as observer.
+        this.settings.addObserver(this);
         // receive left-click events for the following set of classes.
         this.registerMouseClickClasses(VesselGraphic.class);
         // receive right-click events for the following set of classes.
@@ -249,7 +242,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // Create and insert
         if (targetGraphic == null) {
             if (aisTarget instanceof VesselTarget) {
-                targetGraphic = new VesselGraphicComponentSelector(this.aisSettings.isShowNameLabels());
+                targetGraphic = new VesselGraphicComponentSelector(this.settings.isShowAllAisNameLabels());
             } else if (aisTarget instanceof SarTarget) {
                 targetGraphic = new SarTargetGraphic();
             } else if (aisTarget instanceof AtoNTarget) {
@@ -267,31 +260,6 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         targetGraphic.project(getProjection());
     }
     
-    /**
-     * Invoked when a change occurs in the {@code AisSettings} object that this {@code AisLayerCommon} is registered with.
-     */
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if(AisSettings.SHOW_NAME_LABELS_CHANGED.equals(evt.getPropertyName())) {
-            // A change occurred in the "Show AIS name labels" setting
-            this.onShowNameLabelsChanged(evt);
-        }
-    }
-    
-    /**
-     * Invoked by {@link #propertyChange(PropertyChangeEvent)} when this layer receives a notification of a change to the "show AIS name labels" setting.
-     * @param evt The event fired by the {@code AisSettings} that this layer observes.
-     */
-    protected void onShowNameLabelsChanged(PropertyChangeEvent evt) {
-        for(TargetGraphic tg : this.targets.values()) {
-            if(tg instanceof VesselGraphicComponentSelector) {
-                ((VesselGraphicComponentSelector)tg).setShowNameLabel((Boolean)evt.getNewValue());
-            }
-        }
-        // do a repaint
-        this.doPrepare();
-    }
-
     /**
      * Renders the graphics displayed by this {@link AisLayerCommon}. Sub classes should invoke super implementation in order to allow it to handle changes to display of AIS target selection.
      */
@@ -336,46 +304,111 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         }
     }
     
-//    /**
-//     * Checks if the past track info panel should be displayed
-//     */
-//    protected boolean initPastTrackInfoPanel(VesselTargetGraphic vesselTargetGraphic, MouseEvent evt, Point containerPoint) {
-//        OMGraphic newClosest = getSelectedGraphic(vesselTargetGraphic.getPastTrackGraphic(), evt, PastTrackWpCircle.class);
-//        if (newClosest instanceof PastTrackWpCircle) {
-//            PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
-//            pastTrackInfoPanel.showWpInfo(wpCircle);
-//            pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-//            pastTrackInfoPanel.setVisible(true);
-//            getGlassPanel().setVisible(true);
-//            return true;
-//        }
-//        return false;
-//    }
-    
     /**
      * Force this AIS layer to update itself.
      */
     public abstract void forceLayerUpdate();
-
+    
     /**
-     * Set if this AIS layer should show name labels for the AIS targets it
-     * displays. Use this method to toggle AIS target labels on a per layer
-     * basis. Modify the application wide AisSettings object to toggle AIS
-     * label visibility for all AIS layers (if more map windows are open).
-     *
-     * @param showLabels
-     * Use true to show name labels, and use false to hide name
-     * labels.
+     * Gets the {@link AisLayerCommonSettings} that controls the appearance of this {@link AisLayerCommon}.
+     * @return The {@link AisLayerCommonSettings} that controls the appearance of this {@link AisLayerCommon}.
      */
-    public void setShowNameLabels(boolean showLabels) {
-        synchronized(this.graphics) {
-            for(OMGraphic og : this.graphics) {
-                if(og instanceof VesselGraphicComponentSelector) {
-                    ((VesselGraphicComponentSelector)og).setShowNameLabel(showLabels);
-                }
+    public AisLayerCommonSettings<AisLayerCommonSettings.IObserver> getSettings() {
+        return this.settings;
+    }
+    
+    /*
+     * Begin settings observer methods.
+     */
+    
+    /**
+     * Invoked when the layer visibility is toggled on/off on the
+     * {@link AisLayerCommonSettings} instance observed by this
+     * layer.
+     */
+    @Override
+    public void isVisibleChanged(boolean newValue) {
+        this.setVisible(newValue);
+    }
+    
+    /**
+     * Invoked when the layer redraw interval is changed on the
+     * {@link AisLayerCommonSettings} instance observed by this
+     * layer.
+     */
+    @Override
+    public void layerRedrawIntervalChanged(int newValue) {
+        this.setRepaintInterval(newValue);
+    }
+    
+    /**
+     * Invoked when the AIS name labels are toggled on/off on the
+     * {@link AisLayerCommonSettings} instance observed by this
+     * layer.
+     */
+    @Override
+    public void showAllAisNameLabelsChanged(boolean newValue) {
+        for(TargetGraphic tg : this.targets.values()) {
+            if(tg instanceof VesselGraphicComponentSelector) {
+                ((VesselGraphicComponentSelector)tg).setShowNameLabel(newValue);
             }
         }
-        // repaint
+        // do a repaint
         this.doPrepare();
     }
+    
+    /**
+     * Invoked when the minimum length of the movement vector is changed
+     * on the {@link AisLayerCommonSettings} instance observed by this layer.
+     */
+    @Override
+    public void movementVectorLengthMinChanged(int newMinLengthMinutes) {
+       /*
+        * We need to repaint in order to visually reflect new length of the movement vector. 
+        */
+        this.doPrepare();
+    }
+    
+    /**
+     * Invoked when the maximum length of the movement vector is
+     * changed on the {@link AisLayerCommonSettings} instance observed
+     * by this layer.
+     */
+    @Override
+    public void movementVectorLengthMaxChanged(int newMaxLengthMinutes) {
+        /*
+         * We need to repaint in order to visually reflect new length of the movement vector. 
+         */
+         this.doPrepare();
+    }
+    
+    /**
+     * Invoked when the setting specifying the scale difference between two
+     * successive length values for the movement vector is changed on the
+     * {@link AisLayerCommonSettings} instance observed by this layer.
+     */
+    @Override
+    public void movementVectorLengthStepSizeChanged(float newStepSize) {
+        /*
+         * We need to repaint in order to visually reflect new length of the movement vector. 
+         */
+         this.doPrepare();
+    }
+    
+    /**
+     * Invoked when the setting specifying the minimum speed a vessel must
+     * travel with for its movement vector to be displayed is changed on the
+     * {@link AisLayerCommonSettings} instance observed by this layer.
+     */
+    @Override
+    public void movementVectorHideBelowChanged(float newMinSpeed) {
+        /*
+         * Repaint to visually reflect the change (hide/show individual speed vectors). 
+         */
+         this.doPrepare();
+    }
+    
+    /*
+     * End settings observer methods.
+     */
 }
