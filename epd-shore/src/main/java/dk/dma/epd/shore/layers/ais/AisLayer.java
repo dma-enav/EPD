@@ -41,6 +41,8 @@ import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonLocalSettings;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
@@ -62,11 +64,11 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private ChartPanel chartPanel;
 
     /**
-* Create a new AisLayer that is redrawn repeatedly at a given interval.
-* @param redrawIntervalMillis The interval at which the AisLayer will redraw itself.
-*/
-    public AisLayer(int redrawIntervalMillis) {
-        super(redrawIntervalMillis);
+    * Creates a new AisLayer.
+    * @param settings Settings specifiying the appearance of the new layer.
+    */
+    public AisLayer(AisLayerCommonLocalSettings<AisLayerCommonSettings.IObserver> settings) {
+        super(settings);
         // Register mouse over of VesselGraphics to invoke the AisTargetInfoPanel
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselGraphic.class);
     }
