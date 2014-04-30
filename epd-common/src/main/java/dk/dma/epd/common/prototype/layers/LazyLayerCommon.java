@@ -58,4 +58,17 @@ public abstract class LazyLayerCommon extends EPDLayerCommon implements
         this.repaintTimer.setRepeats(true);
         this.repaintTimer.start();
     }
+
+    /**
+     * Updates the delay between each invocation of
+     * {@link #actionPerformed(java.awt.event.ActionEvent)}.
+     * 
+     * @param repaintIntervalMillis
+     *            The new delay in milliseconds.
+     */
+    public void setRepaintInterval(int repaintIntervalMillis) {
+        synchronized (this.repaintTimer) {
+            this.repaintTimer.setDelay(repaintIntervalMillis);
+        }
+    }
 }
