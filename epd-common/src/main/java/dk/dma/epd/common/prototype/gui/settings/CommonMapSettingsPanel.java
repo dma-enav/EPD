@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Objects;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -33,7 +34,7 @@ import javax.swing.JTextField;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
-import dk.dma.epd.common.prototype.settings.MapSettings;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -50,7 +51,6 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JPanel generalMapSettings;
     private JPanel wmsSettings;
     private JTextField textFieldWMSURL;
-    private MapSettings settings;
     private JSpinner spinnerDefaultMapScale;
     private JSpinner spinnerMaximumScale;
     private JSpinner spinnerLatitude;
@@ -71,12 +71,16 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JCheckBox chckbxPlainAreas;
     private JButton btnAdvancedOptions;
     
+    protected MapCommonSettings<?> mapSettings;
+    
     /**
      * Constructs a new CommonMapSettingsPanel object.
      */
-    public CommonMapSettingsPanel() {
+    public CommonMapSettingsPanel(MapCommonSettings<?> mapSettings) {
         super("Map", new ImageIcon(CommonMapSettingsPanel.class.getResource
                 ("/images/settings/map.png")));
+        this.mapSettings = Objects.requireNonNull(mapSettings);
+        
         setLayout(null);
         
         
