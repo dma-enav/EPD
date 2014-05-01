@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.gui.settings;
 
+import java.util.Objects;
+
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.ImageIcon;
@@ -25,7 +27,10 @@ import javax.swing.SpinnerNumberModel;
 
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.util.ParseUtils;
 
 /**
@@ -47,15 +52,24 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
     private JSpinner spinnerGPSPositionInterval;
     private JSpinner spinnerMSIVisibilityRangeFromOwnShip;
     private JSpinner spinnerMSIVisibilituRangeAtWaypoint;
-    private EnavSettings settings;
+
+    protected NetworkSettings<?> httpSettings;
+    protected MetocHandlerCommonSettings<?> metocHandlerSettings;
+    protected MSIHandlerCommonSettings<?> msiHandlerSettings;
+    protected MSILayerCommonSettings<?> msiLayerSettings;
     
     /**
      * Constructs a new ENavSettingsPanelCommon object.
      */
-    public CommonENavSettingsPanel() {
+    public CommonENavSettingsPanel(NetworkSettings<?> httpSettings, MetocHandlerCommonSettings<?> metocHandlerSettings, MSIHandlerCommonSettings<?> msiHandlerSettings, MSILayerCommonSettings<?> msiLayerSettings) {
         // Create the panel with a name and the path to its icon.
         super("e-Nav Services", new ImageIcon(CommonENavSettingsPanel.class.getResource
                 ("/images/settings/servers-network.png")));
+        this.httpSettings = Objects.requireNonNull(httpSettings);
+        this.metocHandlerSettings = Objects.requireNonNull(metocHandlerSettings);
+        this.msiHandlerSettings = Objects.requireNonNull(msiHandlerSettings);
+        this.msiLayerSettings = msiLayerSettings;
+        
         this.setLayout(null);
         
         
@@ -206,21 +220,21 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
         
         return 
                 // Changes in METOC panel.
-                changed(this.settings.getMetocTtl(), this.spinnerMETOCValidityDuration.getValue()) ||
-                changed(this.settings.getActiveRouteMetocPollInterval(), this.spinnerActiveRouteMETOCPollInterval.getValue()) ||
-                changed(this.settings.getMetocTimeDiffTolerance(), this.spinnerMETOCTimeDifferenceTolerance.getValue()) ||
+                changed(this.metocHandlerSettings.getMetocTtl(), this.spinnerMETOCValidityDuration.getValue()) ||
+                changed(this.metocHandlerSettings.getActiveRouteMetocPollInterval(), this.spinnerActiveRouteMETOCPollInterval.getValue()) ||
+                changed(this.metocHandlerSettings.getMetocTimeDiffTolerance(), this.spinnerMETOCTimeDifferenceTolerance.getValue()) ||
                 
-                changed(this.settings.getServerName(), this.textFieldServerName.getText()) ||
-                changed(this.settings.getHttpPort(), this.textFieldServerPort.getText()) ||
-                changed(this.settings.getConnectTimeout(), this.textFieldConnectionTimeout.getText()) ||
-                changed(this.settings.getReadTimeout(), this.textFieldReadTimeout.getText()) ||
+                changed(this.httpSettings.getHost(), this.textFieldServerName.getText()) ||
+                changed(this.httpSettings.getPort(), this.textFieldServerPort.getText()) ||
+                changed(this.httpSettings.getConnectTimeout(), this.textFieldConnectionTimeout.getText()) ||
+                changed(this.httpSettings.getReadTimeout(), this.textFieldReadTimeout.getText()) ||
 
-                changed(this.settings.getMsiPollInterval(), this.spinnerMSIPollInterval.getValue()) ||
-                changed(this.settings.getMsiTextboxesVisibleAtScale(), this.spinnerMSITextBoxVisibilityScale.getValue()) ||
+                changed(this.msiHandlerSettings.getMsiPollInterval(), this.spinnerMSIPollInterval.getValue()) ||
+                changed(this.msiHandlerSettings.getMsiRelevanceGpsUpdateRange(), this.spinnerGPSPositionInterval.getValue()) ||
+                changed(this.msiHandlerSettings.getMsiRelevanceFromOwnShipRange(), this.spinnerMSIVisibilityRangeFromOwnShip.getValue()) ||
 
-                changed(this.settings.getMsiRelevanceGpsUpdateRange(), this.spinnerGPSPositionInterval.getValue()) ||
-                changed(this.settings.getMsiRelevanceFromOwnShipRange(), this.spinnerMSIVisibilityRangeFromOwnShip.getValue()) ||
-                changed(this.settings.getMsiVisibilityFromNewWaypoint(), this.spinnerMSIVisibilituRangeAtWaypoint.getValue());
+                changed(this.msiLayerSettings.getMsiTextboxesVisibleAtScale(), this.spinnerMSITextBoxVisibilityScale.getValue()) ||
+                changed(this.msiLayerSettings.getMsiVisibilityFromNewWaypoint(), this.spinnerMSIVisibilituRangeAtWaypoint.getValue());
     }
 
     /**
@@ -229,25 +243,23 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
     @Override
     protected void doLoadSettings() {
         
-        this.settings = this.getSettings().getEnavSettings();
-        
         // Initialize METOC settings.
-        this.spinnerMETOCValidityDuration.setValue(this.settings.getMetocTtl());
-        this.spinnerActiveRouteMETOCPollInterval.setValue(this.settings.getActiveRouteMetocPollInterval());
-        this.spinnerMETOCTimeDifferenceTolerance.setValue(this.settings.getMetocTimeDiffTolerance());
+        this.spinnerMETOCValidityDuration.setValue(this.metocHandlerSettings.getMetocTtl());
+        this.spinnerActiveRouteMETOCPollInterval.setValue(this.metocHandlerSettings.getActiveRouteMetocPollInterval());
+        this.spinnerMETOCTimeDifferenceTolerance.setValue(this.metocHandlerSettings.getMetocTimeDiffTolerance());
         
         // Initialize http settings.
-        this.textFieldServerName.setText(this.settings.getServerName());
-        this.textFieldServerPort.setText(Integer.toString(this.settings.getHttpPort()));
-        this.textFieldConnectionTimeout.setText(Integer.toString(this.settings.getConnectTimeout()));
-        this.textFieldReadTimeout.setText(Integer.toString(this.settings.getReadTimeout()));
+        this.textFieldServerName.setText(this.httpSettings.getHost());
+        this.textFieldServerPort.setText(Integer.toString(this.httpSettings.getPort()));
+        this.textFieldConnectionTimeout.setText(Integer.toString(this.httpSettings.getConnectTimeout()));
+        this.textFieldReadTimeout.setText(Integer.toString(this.httpSettings.getReadTimeout()));
         
         // initialize MSI settings.
-        this.spinnerMSIPollInterval.setValue(this.settings.getMsiPollInterval());
-        this.spinnerMSITextBoxVisibilityScale.setValue(this.settings.getMsiTextboxesVisibleAtScale());
-        this.spinnerGPSPositionInterval.setValue(this.settings.getMsiRelevanceGpsUpdateRange());
-        this.spinnerMSIVisibilityRangeFromOwnShip.setValue(this.settings.getMsiRelevanceFromOwnShipRange());
-        this.spinnerMSIVisibilituRangeAtWaypoint.setValue(this.settings.getMsiVisibilityFromNewWaypoint());
+        this.spinnerMSIPollInterval.setValue(this.msiHandlerSettings.getMsiPollInterval());
+        this.spinnerGPSPositionInterval.setValue(this.msiHandlerSettings.getMsiRelevanceGpsUpdateRange());
+        this.spinnerMSIVisibilityRangeFromOwnShip.setValue(this.msiHandlerSettings.getMsiRelevanceFromOwnShipRange());
+        this.spinnerMSITextBoxVisibilityScale.setValue(this.msiLayerSettings.getMsiTextboxesVisibleAtScale());
+        this.spinnerMSIVisibilituRangeAtWaypoint.setValue(this.msiLayerSettings.getMsiVisibilityFromNewWaypoint());
     }
 
     /**
@@ -257,22 +269,22 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
     protected void doSaveSettings() {
         
         // Save METOC settings.
-        this.settings.setMetocTtl((Integer) this.spinnerMETOCValidityDuration.getValue());
-        this.settings.setActiveRouteMetocPollInterval((Integer) this.spinnerActiveRouteMETOCPollInterval.getValue());
-        this.settings.setMetocTimeDiffTolerance((Integer) this.spinnerMETOCTimeDifferenceTolerance.getValue()); 
+        this.metocHandlerSettings.setMetocTtl((Integer) this.spinnerMETOCValidityDuration.getValue());
+        this.metocHandlerSettings.setActiveRouteMetocPollInterval((Integer) this.spinnerActiveRouteMETOCPollInterval.getValue());
+        this.metocHandlerSettings.setMetocTimeDiffTolerance((Integer) this.spinnerMETOCTimeDifferenceTolerance.getValue()); 
 
         // Save HTTP settings.
-        this.settings.setServerName(this.textFieldServerName.getText());
-        this.settings.setHttpPort(getIntVal(this.textFieldServerPort.getText(), this.settings.getHttpPort()));
-        this.settings.setReadTimeout(getIntVal(this.textFieldReadTimeout.getText(), this.settings.getReadTimeout()));
-        this.settings.setConnectTimeout(getIntVal(this.textFieldConnectionTimeout.getText(), this.settings.getConnectTimeout()));
+        this.httpSettings.setHost(this.textFieldServerName.getText());
+        this.httpSettings.setPort(getIntVal(this.textFieldServerPort.getText(), this.httpSettings.getPort()));
+        this.httpSettings.setReadTimeout(getIntVal(this.textFieldReadTimeout.getText(), this.httpSettings.getReadTimeout()));
+        this.httpSettings.setConnectTimeout(getIntVal(this.textFieldConnectionTimeout.getText(), this.httpSettings.getConnectTimeout()));
         
         // Save MSI settings.
-        this.settings.setMsiPollInterval((Integer) this.spinnerMSIPollInterval.getValue());
-        this.settings.setMsiTextboxesVisibleAtScale((Integer) this.spinnerMSITextBoxVisibilityScale.getValue());
-        this.settings.setMsiRelevanceGpsUpdateRange((Double) this.spinnerGPSPositionInterval.getValue());
-        this.settings.setMsiRelevanceFromOwnShipRange((Double) this.spinnerMSIVisibilityRangeFromOwnShip.getValue());
-        this.settings.setMsiVisibilityFromNewWaypoint((Double) this.spinnerMSIVisibilituRangeAtWaypoint.getValue());
+        this.msiHandlerSettings.setMsiPollInterval((Integer) this.spinnerMSIPollInterval.getValue());
+        this.msiHandlerSettings.setMsiRelevanceGpsUpdateRange((Double) this.spinnerGPSPositionInterval.getValue());
+        this.msiHandlerSettings.setMsiRelevanceFromOwnShipRange((Double) this.spinnerMSIVisibilityRangeFromOwnShip.getValue());
+        this.msiLayerSettings.setMsiTextboxesVisibleAtScale((Integer) this.spinnerMSITextBoxVisibilityScale.getValue());
+        this.msiLayerSettings.setMsiVisibilityFromNewWaypoint((Double) this.spinnerMSIVisibilituRangeAtWaypoint.getValue());
     }
 
     /**
