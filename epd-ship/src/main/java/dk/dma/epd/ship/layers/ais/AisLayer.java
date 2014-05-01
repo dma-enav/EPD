@@ -41,6 +41,7 @@ import dk.dma.epd.common.prototype.layers.ais.VesselGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings.IObserver;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MapMenu;
@@ -77,7 +78,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselGraphic.class, AtonTargetGraphic.class);
         this.registerInfoPanel(this.sarTargetInfoPanel, SartGraphic.class);
     }
-
+    
     /**
      * Move the target selection and force it to be painted
      * 

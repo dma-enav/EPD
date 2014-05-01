@@ -23,6 +23,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
@@ -43,9 +44,10 @@ import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel.InfoPanelBinding;
 import dk.dma.epd.common.prototype.layers.util.LayerVisiblityListener;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 
 /**
- * Common EPD layer subclass that may be sub-classed by other layers.
+ * Common EPD layer base class that may be sub-classed by other layers.
  * <p>
  * The {@code EPDLayerCommon} class automatically binds the {@code mapBean}, {@code mainFrame} and {@code mapMenu} beans.
  * <p>
@@ -59,7 +61,7 @@ import dk.dma.epd.common.prototype.layers.util.LayerVisiblityListener;
  * well as container managed handling of left- and right-button mouse clicks, for mouse selection and displaying the context menu
  * respectively.
  */
-public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements MapMouseListener {
+public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements MapMouseListener, LayerSettings.IObserver {
 
     private static final long serialVersionUID = 1L;
     
@@ -82,9 +84,19 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
 
     protected OMGraphic closest;
 
+    protected LayerSettings<?> settings;
+    
     private Timer timer;
     private CopyOnWriteArrayList<LayerVisiblityListener> visibilityListener = new CopyOnWriteArrayList<>();
 
+    public EPDLayerCommon(LayerSettings<?> settings) {
+        this.settings = Objects.requireNonNull(settings);
+    }
+    
+    public LayerSettings<?> getSettings() {
+        return this.settings;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -387,7 +399,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
      * @return the mouse selection tolerance
      */
     public float getMouseSelectTolerance() {
-        return EPD.getInstance().getSettings().getGuiSettings().getMouseSelectTolerance();
+        return this.settings.getGraphicInteractTolerance();
     }
 
     /**
@@ -632,6 +644,13 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
         notifyVisibilityListeners();
     }
 
+    @Override
+    public void graphicInteractToleranceChanged(float newValue) {
+        /*
+         * Do nothing as this value is looked up on settings instance when used.
+         */
+    }
+    
 }
 
 /***************************************/

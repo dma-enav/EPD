@@ -59,23 +59,15 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * The graphic that is currently selected by the user.
      */
     private ISelectableGraphic selectedGraphic;
-
-    /**
-     * Settings for this AIS layer.
-     */
-    protected final AisLayerCommonSettings<AisLayerCommonSettings.IObserver> settings;
     
     protected final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
     
     /**
      * Creates a new {@link AisLayerCommon}.
-     * @param settings An {@link AisLayerCommonSettings} instance that is to control the appearance of the new layer. The new layer registers itself as observer of this settings instance as part of this constructor.
+     * @param settings An {@link AisLayerCommonSettings} instance that is to control the appearance of the new layer. It is up to the caller to register this layer as observer of the given settings.
      */
-    public AisLayerCommon(AisLayerCommonSettings<AisLayerCommonSettings.IObserver> settings) {
-        super(settings.getLayerRedrawInterval() * 1000);
-        this.settings = settings;
-        // Add self as observer.
-        this.settings.addObserver(this);
+    public AisLayerCommon(AisLayerCommonSettings<?> settings) {
+        super(settings.getLayerRedrawInterval() * 1000, settings);
         // receive left-click events for the following set of classes.
         this.registerMouseClickClasses(VesselGraphic.class);
         // receive right-click events for the following set of classes.
@@ -242,7 +234,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // Create and insert
         if (targetGraphic == null) {
             if (aisTarget instanceof VesselTarget) {
-                targetGraphic = new VesselGraphicComponentSelector(this.settings.isShowAllAisNameLabels());
+                targetGraphic = new VesselGraphicComponentSelector(this.getSettings().isShowAllAisNameLabels());
             } else if (aisTarget instanceof SarTarget) {
                 targetGraphic = new SarTargetGraphic();
             } else if (aisTarget instanceof AtoNTarget) {
@@ -313,8 +305,9 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * Gets the {@link AisLayerCommonSettings} that controls the appearance of this {@link AisLayerCommon}.
      * @return The {@link AisLayerCommonSettings} that controls the appearance of this {@link AisLayerCommon}.
      */
-    public AisLayerCommonSettings<AisLayerCommonSettings.IObserver> getSettings() {
-        return this.settings;
+    @Override
+    public AisLayerCommonSettings<?> getSettings() {
+        return (AisLayerCommonSettings<?>) this.settings;
     }
     
     /*
@@ -406,6 +399,14 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
          * Repaint to visually reflect the change (hide/show individual speed vectors). 
          */
          this.doPrepare();
+    }
+    
+    @Override
+    public void showAllPastTracksChanged(boolean newValue) {
+        /*
+         * Repaint to visually reflect the past track toggle.
+         */
+        this.doPrepare();
     }
     
     /*

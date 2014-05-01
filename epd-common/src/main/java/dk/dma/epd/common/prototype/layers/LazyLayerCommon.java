@@ -19,6 +19,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Timer;
 
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+
 /**
  * Layer that provides a timer that is invoked at a given interval. Subclasses
  * should implement the {@code actionPerformed(ActionEvent e)} method to respond
@@ -53,7 +55,8 @@ public abstract class LazyLayerCommon extends EPDLayerCommon implements
      *            Milliseconds between each invocation of
      *            {@code actionPerformed(ActionEvent e)}
      */
-    public LazyLayerCommon(int repaintIntervalMillis) {
+    public LazyLayerCommon(int repaintIntervalMillis, LayerSettings<?> settings) {
+        super(settings);
         this.repaintTimer = new Timer(repaintIntervalMillis, this);
         this.repaintTimer.setRepeats(true);
         this.repaintTimer.start();
