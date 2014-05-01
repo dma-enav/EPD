@@ -15,7 +15,7 @@
  */
 package dk.dma.epd.common.prototype.gui.metoc;
 
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 
 /**
  * Metoc wave graphic
@@ -26,11 +26,11 @@ public class MetocWaveGraphic extends MetocRaster {
     
     String markerDir = "/images/metoc/wave/mark";
 
-    public MetocWaveGraphic(double lat, double lon, double angle, double waveHeight, double waveWarnLimit, EnavSettings eNavSettings) {
+    public MetocWaveGraphic(double lat, double lon, double angle, double waveHeight, double waveWarnLimit, MetocLayerCommonSettings<?> settings) {
         super();
         
-        double defaultWaveLow = eNavSettings.getDefaultWaveLow();
-        double defaultWaveMedium = eNavSettings.getDefaultWaveMedium();
+        double defaultWaveLow = settings.getDefaultWaveLow();
+        double defaultWaveMedium = settings.getDefaultWaveMedium();
                 
         if(waveHeight >= 0 && waveHeight <= defaultWaveLow){
             markerDir += "01";

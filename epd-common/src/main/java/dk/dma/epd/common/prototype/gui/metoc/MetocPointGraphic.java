@@ -22,7 +22,7 @@ import java.awt.RenderingHints;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 import dk.frv.enav.common.xml.metoc.MetocDataTypes;
 import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
 import dk.frv.enav.common.xml.metoc.MetocForecastTriplet;
@@ -40,10 +40,8 @@ public class MetocPointGraphic extends OMGraphicList {
     private MetocGraphic metocGraphic;
     private double lat;
     private double lon;
-    EnavSettings eNavSettings;
     
-    public MetocPointGraphic(MetocForecastPoint metocPoint, MetocGraphic metocGraphic, EnavSettings eNavSettings) {
-        this.eNavSettings = eNavSettings;
+    public MetocPointGraphic(MetocForecastPoint metocPoint, MetocGraphic metocGraphic, MetocLayerCommonSettings<?> settings) {
         this.metocGraphic = metocGraphic;
         this.metocPoint = metocPoint;
         RouteMetocSettings metocSettings = metocGraphic.getRoute().getRouteMetocSettings();
@@ -74,7 +72,7 @@ public class MetocPointGraphic extends OMGraphicList {
             double currentForecastMs = currentSpeed.getForecast();
             double currentForecastDirection = currentDirection.getForecast();
             double currentForecastDirectionRadian = Math.toRadians(currentForecastDirection);
-            currentMarker = new MetocCurrentGraphic(lat, lon, currentForecastDirectionRadian, currentForecastMs, metocSettings.getCurrentWarnLimit(), eNavSettings);
+            currentMarker = new MetocCurrentGraphic(lat, lon, currentForecastDirectionRadian, currentForecastMs, metocSettings.getCurrentWarnLimit(), settings);
             add(currentMarker);
         }
         
@@ -88,7 +86,7 @@ public class MetocPointGraphic extends OMGraphicList {
             waveForecastDirection += 180;
             double waveForecastHeight = waveHeight.getForecast();
             double waveForecastDirectionRadian = Math.toRadians(waveForecastDirection);
-            waveMarker = new MetocWaveGraphic(lat, lon, waveForecastDirectionRadian, waveForecastHeight, metocSettings.getWaveWarnLimit(), eNavSettings);
+            waveMarker = new MetocWaveGraphic(lat, lon, waveForecastDirectionRadian, waveForecastHeight, metocSettings.getWaveWarnLimit(), settings);
             add(waveMarker);
         }
     }

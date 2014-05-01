@@ -17,12 +17,13 @@ package dk.dma.epd.common.prototype.gui.metoc;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
 
@@ -36,12 +37,12 @@ public class MetocGraphic extends OMGraphicList {
     private Route route;
     private boolean activeRoute;
     private int step = 1;
-    private EnavSettings eNavSettings;
-
-    public MetocGraphic(Route route, boolean activeRoute, EnavSettings eNavSettings) {
+    private MetocLayerCommonSettings<?> settings;
+    
+    public MetocGraphic(Route route, boolean activeRoute, MetocLayerCommonSettings<?> settings) {
         this.route = route;
         this.activeRoute = activeRoute;
-        this.eNavSettings = eNavSettings;
+        this.settings = Objects.requireNonNull(settings);
         paintMetoc();
     }
     
@@ -61,7 +62,7 @@ public class MetocGraphic extends OMGraphicList {
                 }
             }
 
-            MetocPointGraphic metocPointGraphic = new MetocPointGraphic(metocPoint, this, eNavSettings);
+            MetocPointGraphic metocPointGraphic = new MetocPointGraphic(metocPoint, this, this.settings);
             add(metocPointGraphic);
             
         }
