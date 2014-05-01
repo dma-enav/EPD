@@ -32,7 +32,6 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
-import dk.dma.epd.common.prototype.settings.GuiSettings;
 
 
 /**

@@ -15,7 +15,7 @@
  */
 package dk.dma.epd.common.prototype.gui.metoc;
 
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 
 /**
  * Metoc current graphic
@@ -28,11 +28,11 @@ public class MetocCurrentGraphic extends MetocRaster {
     
     
     
-    public MetocCurrentGraphic(double lat, double lon, double angle, double currentSpeedMs, double currentWarnLimit, EnavSettings eNavSettings) {
+    public MetocCurrentGraphic(double lat, double lon, double angle, double currentSpeedMs, double currentWarnLimit, MetocLayerCommonSettings<?> settings) {
         super();
         
-        double defaultCurrentLow = eNavSettings.getDefaultCurrentLow();
-        double defaultCurrentMedium = eNavSettings.getDefaultCurrentMedium();
+        double defaultCurrentLow = settings.getDefaultCurrentLow();
+        double defaultCurrentMedium = settings.getDefaultCurrentMedium();
         
         double currentSpeedKn = currentSpeedMs * (3.6d/1.852d);
         
