@@ -46,6 +46,11 @@ public class AisHandlerCommonSettings<OBSERVER extends AisHandlerCommonSettings.
     private boolean strict = true;
 
     /**
+     * Is the AIS transponder allowed to send data?
+     */
+    private boolean allowSending = true;
+
+    /**
      * Gets the setting that specifies the prefix for a Search and Rescue Target
      * (SART).
      * 
@@ -164,14 +169,51 @@ public class AisHandlerCommonSettings<OBSERVER extends AisHandlerCommonSettings.
     public void setStrict(final boolean strict) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.strict == strict) {
+            if (this.strict == strict) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.strict = strict;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.strictChanged(strict);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Is the AIS transponder allowed to send data?
+     * 
+     * @return {@code true} if sending is allowed, {@code false} otherwise.
+     */
+    public boolean isAllowSending() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.allowSending;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Sets if the AIS transponder is allowed to send data.
+     * 
+     * @param allowSending
+     *            {@code true} if sending is allowed, {@code false} otherwise.
+     */
+    public void setAllowSending(final boolean allowSending) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.allowSending == allowSending) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.allowSending = allowSending;
+            for (OBSERVER obs : this.observers) {
+                obs.allowSendingChanged(allowSending);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -217,5 +259,15 @@ public class AisHandlerCommonSettings<OBSERVER extends AisHandlerCommonSettings.
          *            details.
          */
         void strictChanged(boolean strict);
+
+        /**
+         * Invoked when {@link AisHandlerCommonSettings#isAllowSending()} has
+         * changed.
+         * 
+         * @param allowSending
+         *            The updated value. See
+         *            {@link AisHandlerCommonSettings#isAllowSending()}.
+         */
+        void allowSendingChanged(boolean allowSending);
     }
 }
