@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -34,7 +35,7 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.util.Compressor;
 
 /**
@@ -49,26 +50,20 @@ public class ShoreHttp {
 
     private String uri;
     private String url;
-    private String host;
-    private int port = 80;
-    private int readTimeout = 60000; // 60 sec
-    private int connectionTimeout = 30000; // 30 sec
 
+    private final NetworkSettings<?> settings;
+    
     private HttpClient httpClient;
     private PostMethod method;
     private byte[] responseBody;
 
-    public ShoreHttp() {
-
-    }
-
-    public ShoreHttp(String uri, EnavSettings enavSettings) {
-        this();
-        this.host = enavSettings.getServerName();
-        this.port = enavSettings.getHttpPort();
-        this.connectionTimeout = enavSettings.getConnectTimeout();
-        this.readTimeout = enavSettings.getReadTimeout();
+    public ShoreHttp(String uri, NetworkSettings<?> settings) {
+        this.settings = Objects.requireNonNull(settings);
         setUri(uri);
+    }
+    
+    public NetworkSettings<?> getSettings() {
+        return this.settings;
     }
 
     public void makeRequest() throws ShoreServiceException {
@@ -113,8 +108,8 @@ public class ShoreHttp {
         httpClient = new HttpClient();
         method = new PostMethod(url);
         HttpConnectionManagerParams params = httpClient.getHttpConnectionManager().getParams();
-        params.setSoTimeout(readTimeout);
-        params.setConnectionTimeout(connectionTimeout);
+        params.setSoTimeout(settings.getReadTimeout());
+        params.setConnectionTimeout(settings.getConnectTimeout());
         method.setRequestHeader("User-Agent", USER_AGENT);
         method.setRequestHeader("Connection", "close");
         method.addRequestHeader("Accept", "text/*");    
@@ -163,27 +158,10 @@ public class ShoreHttp {
 
     public void setUri(String uri) {
         this.uri = uri;
-        this.url = "http://" + host;
-        if (port != 80) {
-            this.url += ":" + port;
+        this.url = "http://" + settings.getHost();
+        if (settings.getPort() != 80) {
+            this.url += ":" + settings.getPort();
         }
         this.url += this.uri;
     }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
 }
