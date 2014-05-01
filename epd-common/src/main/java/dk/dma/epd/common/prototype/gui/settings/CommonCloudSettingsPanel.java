@@ -24,9 +24,8 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
-import dk.dma.epd.common.prototype.settings.CloudSettings;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.util.ParseUtils;
 
 /**
@@ -38,15 +37,17 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
     
     private JTextField txtServerPort = new JTextField();
     private JTextField txtServerName = new JTextField();
-    private CloudSettings cloudSettings;
     protected Insets insets5  = new Insets(5, 5, 5, 5);
 
+    protected NetworkSettings<?> cloudSettings;
+    
     /**
      * Constructor
      */
-    public CommonCloudSettingsPanel() {
+    public CommonCloudSettingsPanel(NetworkSettings<?> cloudSettings) {
         super("Cloud", new ImageIcon(CommonCloudSettingsPanel.class.getResource
                 ("/images/settings/cloud.png")));
+        this.cloudSettings = cloudSettings;
         setLayout(null);
 
         /************** HTTP settings ***************/
@@ -78,10 +79,9 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doLoadSettings() {
-        this.cloudSettings = EPD.getInstance().getSettings().getCloudSettings();
-        txtServerName.setText(cloudSettings.getCloudServerHost());
+        txtServerName.setText(cloudSettings.getHost());
         txtServerPort.setText(Integer.toString(cloudSettings
-                .getCloudServerPort()));
+                .getPort()));
     }
 
     /**
@@ -89,9 +89,9 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doSaveSettings() {
-        cloudSettings.setCloudServerHost(txtServerName.getText());
-        cloudSettings.setCloudServerPort(getIntVal(
-                txtServerPort.getText(), cloudSettings.getCloudServerPort()));
+        cloudSettings.setHost(txtServerName.getText());
+        cloudSettings.setPort(getIntVal(
+                txtServerPort.getText(), cloudSettings.getPort()));
     }
     
     /**
@@ -100,10 +100,11 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
     @Override
     protected boolean checkSettingsChanged() {
         return 
-                changed(cloudSettings.getCloudServerHost(), txtServerName.getText()) ||
-                changed(cloudSettings.getCloudServerPort(), txtServerPort.getText());
+                changed(cloudSettings.getHost(), txtServerName.getText()) ||
+                changed(cloudSettings.getPort(), txtServerPort.getText());
     }
 
+    // TODO remove
     /**
      * {@inheritDoc}
      */
