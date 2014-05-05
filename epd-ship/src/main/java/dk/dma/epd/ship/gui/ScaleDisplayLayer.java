@@ -80,11 +80,11 @@ public class ScaleDisplayLayer extends EPDLayerCommon implements
     protected int defaultHeight = 10;
 
     // property text values
-    public static final String UnitOfMeasureProperty = "unitOfMeasure";
-    public static final String LocationXOffsetProperty = "locationXoffset";
-    public static final String LocationYOffsetProperty = "locationYoffset";
-    public static final String WidthProperty = "width";
-    public static final String HeightProperty = "height";
+    public static final String UNITOFMEASUREPROPERTY = "unitOfMeasure";
+    public static final String LOCATIONXOFFSETPROPERTY = "locationXoffset";
+    public static final String LOCATIONYOFFSETPROPERTY = "locationYoffset";
+    public static final String WIDTHPROPERTY = "width";
+    public static final String HEIGHTPROPERTY = "height";
 
     protected Length uom = Length.get(defaultUnitOfMeasureString);
     protected int locationXoffset = defaultLocationXoffset;
@@ -118,20 +118,20 @@ public class ScaleDisplayLayer extends EPDLayerCommon implements
         dAttributes.setProperties(prefix, properties);
 
         String unitOfMeasure = properties.getProperty(prefix
-                + UnitOfMeasureProperty);
+                + UNITOFMEASUREPROPERTY);
         setUnitOfMeasure(unitOfMeasure);
 
         locationXoffset = PropUtils.intFromProperties(properties, prefix
-                + LocationXOffsetProperty, defaultLocationXoffset);
+                + LOCATIONXOFFSETPROPERTY, defaultLocationXoffset);
 
         locationYoffset = PropUtils.intFromProperties(properties, prefix
-                + LocationYOffsetProperty, defaultLocationYoffset);
+                + LOCATIONYOFFSETPROPERTY, defaultLocationYoffset);
 
-        width = PropUtils.intFromProperties(properties, prefix + WidthProperty,
+        width = PropUtils.intFromProperties(properties, prefix + WIDTHPROPERTY,
                 defaultWidth);
 
         height = PropUtils.intFromProperties(properties, prefix
-                + HeightProperty, defaultHeight);
+                + HEIGHTPROPERTY, defaultHeight);
     }
 
     /**
@@ -152,8 +152,9 @@ public class ScaleDisplayLayer extends EPDLayerCommon implements
      * @throws PropertyVetoException
      */
     public void setUnitOfMeasure(String unitOfMeasure) {
-        if (unitOfMeasure == null)
+        if (unitOfMeasure == null) {
             unitOfMeasure = Length.KM.toString();
+        }
 
         // There is a bug in the Length.get() method that will not
         // return
@@ -175,8 +176,9 @@ public class ScaleDisplayLayer extends EPDLayerCommon implements
         }
 
         // of no uom is found assign Kilometers as the default.
-        if (uom == null)
+        if (uom == null) {
             uom = Length.KM;
+        }
     }
 
     JPanel palette;
