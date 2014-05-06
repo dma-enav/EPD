@@ -62,9 +62,14 @@ public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListe
     private StringBuffer buffer = new StringBuffer();
     private Boolean connected = false;
     
-
     public NmeaSerialSensor(String serialPortName) {
+        this(serialPortName, 38400);
+    }
+
+    public NmeaSerialSensor(String serialPortName, int portSpeed) {
         this.serialPortName = serialPortName;
+        this.portSpeed = portSpeed;
+        LOG.info("Creating NMEA serial sensor with name: " + serialPortName + " portSpeed: " + portSpeed);
     }
     
     @Override

@@ -347,7 +347,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             break;
         case SERIAL:
             // aisSensor = new NmeaSerialSensor(sensorSettings.getAisHostOrSerialPort());
-            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort());
+            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisSerialPortBaudRate());
             break;
         case FILE:
             aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(), sensorSettings);
@@ -367,7 +367,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             gpsSensor = new NmeaUdpSensor(sensorSettings.getGpsTcpOrUdpPort());
             break;
         case SERIAL:
-            gpsSensor = NmeaSerialSensorFactory.create(sensorSettings.getGpsHostOrSerialPort());
+            gpsSensor = NmeaSerialSensorFactory.create(sensorSettings.getGpsHostOrSerialPort(), sensorSettings.getGpsSerialPortBaudRate());
             break;
         case FILE:
             gpsSensor = new NmeaFileSensor(sensorSettings.getGpsFilename(), sensorSettings);
@@ -387,7 +387,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             msPntSensor = new NmeaUdpSensor(sensorSettings.getMsPntTcpOrUdpPort());
             break;
         case SERIAL:
-            msPntSensor = NmeaSerialSensorFactory.create(sensorSettings.getMsPntHostOrSerialPort());
+            msPntSensor = NmeaSerialSensorFactory.create(sensorSettings.getMsPntHostOrSerialPort(), sensorSettings.getMsPntSerialPortBaudRate());
             break;
         case FILE:
             msPntSensor = new NmeaFileSensor(sensorSettings.getMsPntFilename(), sensorSettings);

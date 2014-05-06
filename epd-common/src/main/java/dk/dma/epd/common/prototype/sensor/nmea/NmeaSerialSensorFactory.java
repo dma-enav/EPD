@@ -35,7 +35,7 @@ public class NmeaSerialSensorFactory {
     
     private static final Path EPDNATIVEPATH = Paths.get(System.getProperty("java.io.tmpdir"),"/epdNative/").toAbsolutePath();
 
-    public static NmeaSerialSensor create(String comPort) {
+    public static NmeaSerialSensor create(String comPort, int portSpeed) {
         try {
             Files.createDirectories(EPDNATIVEPATH);
         } catch (IOException e) {
@@ -57,7 +57,7 @@ public class NmeaSerialSensorFactory {
             e1.printStackTrace(); 
         }
 
-        return new NmeaSerialSensor(comPort);
+        return new NmeaSerialSensor(comPort, portSpeed);
         
     }
     
