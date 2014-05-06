@@ -618,7 +618,7 @@ public final class EPDShore extends EPD {
             aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpOrUdpPort());
             break;
         case SERIAL:
-            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort());
+            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisSerialPortBaudRate());
             break;
         case FILE:
             aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(), sensorSettings);
