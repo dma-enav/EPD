@@ -1,37 +1,14 @@
-This application includes the following third party software
+This application includes open source third party software. To generate a
+list of licenses for included software run:
 
-Apache Commons Lang 2.5 (commons-lang-2.5.jar)
-   Copyright 2001-2011 The Apache Software Foundation    
-   The Apache Software License, Version 2.0
-   http://commons.apache.org/lang/
-   
-Apache Commons Httpclient 3.1 (commons-httpclient-3.1.jar)
-   Copyright 2001-2011 The Apache Software Foundation    
-   The Apache Software License, Version 2.0
-   http://hc.apache.org/httpclient-3.x/
-   
-Apache Commons Codec 1.5 (commons-codec.jar)
-   Copyright 2001-2011 The Apache Software Foundation    
-   The Apache Software License, Version 2.0
-   http://commons.apache.org/codec/
+    mvn license:aggregate-add-third-party
+    
+A list will be located in:
 
-Apache Commons Logging 1.1 (commons-logging.jar)
-   Copyright 2001-2011 The Apache Software Foundation    
-   The Apache Software License, Version 2.0
-   http://commons.apache.org/logging/
-
-Apache log4j 1.2.15 (log4j-1.2.15.jar)
-   Copyright 2001-2011 The Apache Software Foundation
-   The Apache Software License, Version 2.0
-   http://logging.apache.org/log4j/
+    target/generated-sources/license/THIRD-PARTY.txt 
    
-DaMSA AisLib 1.2 (aislib-1.2.jar)
-   Copyright 2011 Danish Maritime Safety Administration
-   LGPL version 3 license
-   https://github.com/DaMSA/AisLib
-   
-OpenMap is used for geospatial presentation. OpenMap license follows  
-below.
+I addition OpenMap is used for geospatial presentation. OpenMap license 
+follows below.
 
                OpenMap Software License Agreement
                ----------------------------------
