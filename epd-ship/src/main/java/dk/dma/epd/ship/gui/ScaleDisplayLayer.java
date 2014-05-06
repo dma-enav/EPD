@@ -80,11 +80,11 @@ public class ScaleDisplayLayer extends EPDLayerCommon implements
     protected int defaultHeight = 10;
 
     // property text values
-    public static final String UNITOFMEASUREPROPERTY = "unitOfMeasure";
-    public static final String LOCATIONXOFFSETPROPERTY = "locationXoffset";
-    public static final String LOCATIONYOFFSETPROPERTY = "locationYoffset";
-    public static final String WIDTHPROPERTY = "width";
-    public static final String HEIGHTPROPERTY = "height";
+    public static final String UNITOFMEASUREPROP = "unitOfMeasure";
+    public static final String LOCATIONXOFFSETPROP = "locationXoffset";
+    public static final String LOCATIONOFYOFFSETPROP = "locationYoffset";
+    public static final String WIDTHPROP = "width";
+    public static final String HEIGHTPROP = "height";
 
     protected Length uom = Length.get(defaultUnitOfMeasureString);
     protected int locationXoffset = defaultLocationXoffset;
@@ -118,20 +118,20 @@ public class ScaleDisplayLayer extends EPDLayerCommon implements
         dAttributes.setProperties(prefix, properties);
 
         String unitOfMeasure = properties.getProperty(prefix
-                + UNITOFMEASUREPROPERTY);
+                + UNITOFMEASUREPROP);
         setUnitOfMeasure(unitOfMeasure);
 
         locationXoffset = PropUtils.intFromProperties(properties, prefix
-                + LOCATIONXOFFSETPROPERTY, defaultLocationXoffset);
+                + LOCATIONXOFFSETPROP, defaultLocationXoffset);
 
         locationYoffset = PropUtils.intFromProperties(properties, prefix
-                + LOCATIONYOFFSETPROPERTY, defaultLocationYoffset);
+                + LOCATIONOFYOFFSETPROP, defaultLocationYoffset);
 
-        width = PropUtils.intFromProperties(properties, prefix + WIDTHPROPERTY,
+        width = PropUtils.intFromProperties(properties, prefix + WIDTHPROP,
                 defaultWidth);
 
         height = PropUtils.intFromProperties(properties, prefix
-                + HEIGHTPROPERTY, defaultHeight);
+                + HEIGHTPROP, defaultHeight);
     }
 
     /**
