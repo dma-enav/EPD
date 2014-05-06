@@ -41,15 +41,6 @@ The virtual transponder can provide a live anonymized AIS feed. The following se
 Host:port: `ais.e-navigation.net:8002` 
 Username/password: `anon/anon`
 
-## Contribution ##
-
-Fork the project and make pull requests. 
-
-Try to use the component architecture as much as possible. Implement components and 
-hook up to other components with the `findAndInit` method rather than hard-wiring.
-Try to follow the coding standards already used in the project and document within
-the code with Javadoc comments. For more extensive documentation use the Wiki.
-
 ## Quick start ##
 
 To be able to see AIS targets and possible own ship, the sensor should be
@@ -85,7 +76,7 @@ the code with Javadoc comments. For more extensive documentation use the Wiki.
 
 ## ENC layer ##
 
-EPD-ship does not come with an ENC layer but with the possibility to add one as 
+EPD does not come with an ENC layer but with the possibility to add one as 
 a plugin. Currently the only known OpenMap ENC layer is a commercial one
 from the danish company [Navicon](http://www.navicon.dk).
 
