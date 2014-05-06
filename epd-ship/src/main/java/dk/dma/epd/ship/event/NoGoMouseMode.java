@@ -63,7 +63,7 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
 
         if (super.mouseDragged) {
 
-            if (e!= null)) {
+            if (e!= null) {
 
                 // Get the map from the source.
                 MapBean map = (MapBean) e.getSource();
