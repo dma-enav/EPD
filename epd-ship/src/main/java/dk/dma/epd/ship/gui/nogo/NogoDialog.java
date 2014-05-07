@@ -306,14 +306,12 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
                 }
             } else {
                 nwPtlbl.setText("You must select an area");
+                return;
             }
 
-            if (this.chartPanel.getNoGoMouseMode() != null) {
-
-                // Set the mouse mode back to navigation.
-                this.chartPanel.setMouseMode(this.chartPanel.getNoGoMouseMode()
-                        .getPreviousMouseModeID());
-            }
+            // Set the mouse mode back to navigation.
+            this.chartPanel.setMouseMode(this.chartPanel.getNoGoMouseMode()
+                    .getPreviousMouseModeID());
             // this.chartPanel.getMouseDelegator().getActiveMouseMode().s
         }
         if (e.getSource() == cancelButton) {
