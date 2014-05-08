@@ -42,7 +42,7 @@ import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
 import dk.dma.epd.common.util.Calculator;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 import dk.frv.enav.common.xml.msi.MsiPoint;
@@ -68,11 +68,11 @@ public class MsiStore implements Serializable {
     private Set<Integer> relevant = new HashSet<>();
     private Set<Integer> allVisible = new HashSet<>();
 
-    private EnavSettings eNavSettings;
-
-    public MsiStore(Path homePath, EnavSettings eNavSettings) {
+    private MSIHandlerCommonSettings<?> settings;
+    
+    public MsiStore(Path homePath, MSIHandlerCommonSettings<?> settings) {
         msiFile = homePath.resolve(".msi").toString();
-        this.eNavSettings = eNavSettings;
+        this.settings = settings;
     }
     
     public synchronized boolean hasValidUnacknowledged() {
@@ -163,7 +163,7 @@ public class MsiStore implements Serializable {
                         msiLocation, Heading.GC);
                 distance = Math.min(currentDistance, distance);
             }
-            if (distance <= eNavSettings.getMsiRelevanceFromOwnShipRange()) {
+            if (distance <= settings.getMsiRelevanceFromOwnShipRange()) {
                 visiblePNT.add(msiMessage.getMessageId());
             }
         }
@@ -294,7 +294,7 @@ public class MsiStore implements Serializable {
         }
     }
 
-    public static MsiStore loadFromFile(Path homePath, EnavSettings eNavSettings) {
+    public static MsiStore loadFromFile(Path homePath, MSIHandlerCommonSettings<?> settings) {
 
         msiFile = homePath.resolve(".msi").toString();
 
@@ -309,7 +309,7 @@ public class MsiStore implements Serializable {
             // Delete possible corrupted or old file
             new File(msiFile).delete();
         }
-        return new MsiStore(homePath, eNavSettings);
+        return new MsiStore(homePath, settings);
     }
     
     public synchronized Set<Integer> getAcknowledged() {

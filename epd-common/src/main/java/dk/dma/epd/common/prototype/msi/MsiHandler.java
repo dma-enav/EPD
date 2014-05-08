@@ -40,7 +40,7 @@ import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
@@ -63,8 +63,6 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
 
     private MsiStore msiStore;
     private Date lastUpdate;
-    private long pollInterval;
-    private final EnavSettings enavSettings;
     private boolean pendingImportantMessages;
     // do not serialize these members
     private transient Position calculationPosition;
@@ -74,10 +72,11 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     private PntHandler pntHandler;
     private boolean pntUpdate;
 
-    public MsiHandler(EnavSettings enavSettings) {
-        this.enavSettings = enavSettings;
-        pollInterval = enavSettings.getMsiPollInterval();
-        msiStore = MsiStore.loadFromFile(EPD.getInstance().getHomePath(), enavSettings);
+    private MSIHandlerCommonSettings<?> settings;
+    
+    public MsiHandler(MSIHandlerCommonSettings<?> settings) {
+        this.settings = settings;
+        msiStore = MsiStore.loadFromFile(EPD.getInstance().getHomePath(), settings);
         EPD.startThread(this, "MsiHandler");
     }
 
@@ -243,7 +242,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
 
         Date now = new Date();
         if (getLastUpdate() == null
-                || now.getTime() - getLastUpdate().getTime() > pollInterval * 1000) {
+                || now.getTime() - getLastUpdate().getTime() > settings.getMsiPollInterval() * 1000) {
             // Poll for new messages from shore
             try {
                 if (poll()) {
@@ -424,7 +423,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         }
         Double range = Calculator.range(currentPosition, calculationPosition,
                 Heading.GC);
-        if (range > enavSettings.getMsiRelevanceGpsUpdateRange()) {
+        if (range > settings.getMsiRelevanceGpsUpdateRange()) {
             pntUpdate = true;
             calculationPosition = currentPosition;
         }
