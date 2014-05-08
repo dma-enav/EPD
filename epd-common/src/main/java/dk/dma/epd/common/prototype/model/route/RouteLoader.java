@@ -35,7 +35,7 @@ import org.w3c.dom.NodeList;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.settings.NavSettings;
+import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
 
@@ -46,11 +46,11 @@ public class RouteLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouteLoader.class);
 
-    public static Route loadRou(File file, NavSettings navSettings) throws RouteLoadException {
+    public static Route loadRou(File file, RouteManagerCommonSettings<?> settings) throws RouteLoadException {
         Route route = null;
         try {
             RouParser rouParser = new RouParser();
-            route = rouParser.parse(file, navSettings);
+            route = rouParser.parse(file, settings);
         } catch (IOException e) {
             throw new RouteLoadException("Failed to load route: " + e.getMessage());
         }
@@ -220,7 +220,7 @@ public class RouteLoader {
         return true;
     }
     
-    public static Route loadRt3(File file, NavSettings navSettings) throws RouteLoadException {
+    public static Route loadRt3(File file, RouteManagerCommonSettings<?> settings) throws RouteLoadException {
         Route route = new Route();
         
         try {
@@ -265,10 +265,10 @@ public class RouteLoader {
                 }
                 
                 // Set defaults
-                wp.setSpeed(navSettings.getDefaultSpeed());
-                wp.setTurnRad(navSettings.getDefaultTurnRad());
-                outLeg.setXtdPort(navSettings.getDefaultXtd());
-                outLeg.setXtdStarboard(navSettings.getDefaultXtd());
+                wp.setSpeed(settings.getDefaultSpeed());
+                wp.setTurnRad(settings.getDefaultTurnRad());
+                outLeg.setXtdPort(settings.getDefaultXtd());
+                outLeg.setXtdStarboard(settings.getDefaultXtd());
                 wp.setName(String.format("WP_%03d", i + 1));
                                 
                 // Wp name
@@ -330,16 +330,16 @@ public class RouteLoader {
         return route;
     }
 
-    public static Route pertinaciousLoad(File file, NavSettings navSettings) throws RouteLoadException {
+    public static Route pertinaciousLoad(File file, RouteManagerCommonSettings<?> settings) throws RouteLoadException {
         Route route = null;
         try {
             route = loadSimple(file);
         } catch (RouteLoadException e) {
             try {
-                route = loadRou(file, navSettings);
+                route = loadRou(file, settings);
             } catch (RouteLoadException e1) {
                 try {
-                    route = loadRt3(file, navSettings);
+                    route = loadRt3(file, settings);
                 } catch (RouteLoadException e2) {
                 }
             }
@@ -351,10 +351,4 @@ public class RouteLoader {
 
         return route;
     }
-
-//    public static void main(String[] args) throws RouteLoadException {
-//        System.out.println("Hello from RouteLoader");
-//        Route route = loadRt3(new File(args[0]));
-//        System.out.println("route: " + route);
-//    }
 }
