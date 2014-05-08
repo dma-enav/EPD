@@ -16,9 +16,6 @@
 package dk.dma.epd.ship.gui.route;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Point;
-import java.awt.Window;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
