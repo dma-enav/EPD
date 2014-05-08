@@ -22,29 +22,7 @@ import dk.dma.epd.common.prototype.model.route.IntendedRoute;
  * Interface to implement for classes wanting to receive Intended Route updates
  */
 public interface IIntendedRouteListener {
-
-//    /**
-//     * Called when an intended route has been added
-//     * @param intendedRoute the intended route
-//     */
-//    void intendedRouteAdded(IntendedRouteMessage intendedRoute);
-//    
-//    /**
-//     * Called when an intended route has been updated
-//     * @param intendedRoute the intended route
-//     */
-//    void intendedRouteUpdated(IntendedRouteMessage intendedRoute);
-//    
-//    /**
-//     * Called when an intended route has been removed
-//     * @param intendedRoute the intended route
-//     */
-//    void intendedRouteRemoved(IntendedRouteMessage intendedRoute);
-    
-    
-    
-    
-    
+        
     /**
      * Called when an event regarding intended routes has occured
      * such as added, removed or updated
