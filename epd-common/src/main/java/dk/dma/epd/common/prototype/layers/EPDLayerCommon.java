@@ -643,13 +643,6 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
 
         notifyVisibilityListeners();
     }
-
-    @Override
-    public void graphicInteractToleranceChanged(float newValue) {
-        /*
-         * Do nothing as this value is looked up on settings instance when used.
-         */
-    }
     
 }
 
