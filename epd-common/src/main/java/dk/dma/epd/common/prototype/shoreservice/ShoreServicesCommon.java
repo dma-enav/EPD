@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -46,7 +47,7 @@ import dk.dma.epd.common.prototype.monalisa.sspa.RouterequestType;
 import dk.dma.epd.common.prototype.monalisa.sspa.RouteresponseType;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
@@ -71,14 +72,25 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
     private static final Logger LOG = LoggerFactory.getLogger(ShoreServicesCommon.class);
 
+    /**
+     * Shore services connection settings.
+     */
+    protected NetworkSettings<?> shoreServicesConnSettings;
+    
+    /**
+     * MonaLisa connection settings.
+     */
+    protected NetworkSettings<?> monaLisaConnSettings;
+    
     private AisHandlerCommon aisHandler;
     private PntHandler pntHandler;
-    protected EnavSettings enavSettings;
+
     private ShoreServiceStatus status = new ShoreServiceStatus();
     private static final String ENCODING = "UTF-8";
-
-    public ShoreServicesCommon(EnavSettings enavSettings) {
-        this.enavSettings = enavSettings;
+    
+    public ShoreServicesCommon(NetworkSettings<?> shoreServicesConnectionSettings, NetworkSettings<?> monaLisaConnectionSettings) {
+        this.shoreServicesConnSettings = Objects.requireNonNull(shoreServicesConnectionSettings);
+        this.monaLisaConnSettings = Objects.requireNonNull(monaLisaConnectionSettings);
     }
 
     public static double floatToDouble(float converThisNumberToFloat) {
@@ -225,7 +237,7 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
     private ShoreServiceResponse makeRequest(String uri, String reqContextPath, String resContextPath, Object request)
             throws ShoreServiceException {
         // Create HTTP request
-        ShoreHttp shoreHttp = new ShoreHttp(uri, enavSettings);
+        ShoreHttp shoreHttp = new ShoreHttp(uri, shoreServicesConnSettings);
         // Init HTTP
         shoreHttp.init();
         // Set content
@@ -338,7 +350,7 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             // System.out.println(xml);
 
             // Create HTTP request
-            RouteHttp routeHttp = new RouteHttp(enavSettings);
+            RouteHttp routeHttp = new RouteHttp(monaLisaConnSettings);
             // Init HTTP
             routeHttp.init(timeout);
             // Set content
