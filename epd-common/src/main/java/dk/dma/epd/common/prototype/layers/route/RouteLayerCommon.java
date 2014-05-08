@@ -19,6 +19,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -43,6 +44,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
 
@@ -67,8 +69,8 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
     /**
      * Constructor
      */
-    public RouteLayerCommon() {
-        super();
+    public RouteLayerCommon(RouteLayerCommonSettings<?> localSettings) {
+        super(Objects.requireNonNull(localSettings));
         
         // Register the info panels
         registerInfoPanel(metocInfoPanel, MetocPointGraphic.class);
@@ -76,6 +78,11 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
         
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(WaypointCircle.class, RouteLegGraphic.class);
+    }
+    
+    @Override
+    public RouteLayerCommonSettings<?> getSettings() {
+        return (RouteLayerCommonSettings<?>) super.getSettings();
     }
     
     /**
@@ -265,7 +272,7 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
      */
     @Override
     public synchronized OMGraphicList prepare() {
-        float showArrowScale = EPD.getInstance().getSettings().getNavSettings().getShowArrowScale();
+        float showArrowScale = getSettings().getShowArrowScale();
         for (OMGraphic omgraphic : graphics) {
             if(omgraphic instanceof RouteGraphic){
                 ((RouteGraphic) omgraphic).showArrowHeads(getProjection().getScale() < 
