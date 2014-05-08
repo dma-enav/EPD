@@ -40,7 +40,8 @@ import dk.dma.epd.common.prototype.model.route.RouteLoader;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Util;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
@@ -58,7 +59,6 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
     private static final Logger LOG = LoggerFactory.getLogger(RouteManagerCommon.class);
     
     private CopyOnWriteArrayList<IRoutesUpdateListener> listeners = new CopyOnWriteArrayList<>();
-    protected EnavSettings enavSettings;
     protected ShoreServicesCommon shoreServices;
     
     @GuardedBy("this")
@@ -68,11 +68,15 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
     @GuardedBy("this")
     protected int activeRouteIndex = -1;
     
+    protected RouteManagerCommonSettings<?> routeManagerSettings;
+    
+    protected MetocHandlerCommonSettings<?> metocSettings;
     /**
      * Constructor
      */
-    public RouteManagerCommon() {
-        enavSettings = EPD.getInstance().getSettings().getEnavSettings();
+    public RouteManagerCommon(RouteManagerCommonSettings<?> routeManagerSettings, MetocHandlerCommonSettings<?> metocSettings) {
+        this.routeManagerSettings = routeManagerSettings;
+        this.metocSettings = metocSettings;
         EPD.startThread(this, "RouteManager");
     }
     
@@ -337,7 +341,7 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
             return false;
         }
         if (!showMetocForRoute(route) || 
-                !route.isMetocValid(enavSettings.getMetocTimeDiffTolerance())) {
+                !route.isMetocValid(metocSettings.getMetocTimeDiffTolerance())) {
             if (route.getMetocForecast() != null) {
                 route.removeMetoc();
                 notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
@@ -391,7 +395,7 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
                 || route.getMetocForecast().getCreated() == null) {
             return true;
         }
-        long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
+        long metocTtl = metocSettings.getMetocTtl() * 60 * 1000;
         Date now = PntTime.getInstance().getDate();
         Date metocDate = route.getMetocForecast().getCreated();
         if (now.getTime() - metocDate.getTime() > metocTtl) {
@@ -409,7 +413,7 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
     public boolean hasMetoc(Route route) {
         if (route.getMetocForecast() != null) {
             // Determine if METOC info is old
-            long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
+            long metocTtl = metocSettings.getMetocTtl() * 60 * 1000;
             Date now = PntTime.getInstance().getDate();
             Date metocDate = route.getMetocForecast().getCreated();
             if (now.getTime() - metocDate.getTime() > metocTtl) {
@@ -433,7 +437,7 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
                     continue;
                 }
                 if (isMetocOld(route)
-                        || !route.isMetocValid(enavSettings.getMetocTimeDiffTolerance())) {
+                        || !route.isMetocValid(metocSettings.getMetocTimeDiffTolerance())) {
                     if (route.isVisible()
                             && route.getRouteMetocSettings().isShowRouteMetoc()) {
                         visualUpdate = true;
@@ -462,7 +466,7 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
                 return;
             }
         }
-        long activeRouteMetocPollInterval = enavSettings.getActiveRouteMetocPollInterval() * 60 * 1000;
+        long activeRouteMetocPollInterval = metocSettings.getActiveRouteMetocPollInterval() * 60 * 1000;
         // Maybe we never want to refresh metoc
         if (activeRouteMetocPollInterval <= 0) {
             return;
@@ -482,7 +486,7 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
         // Check if not old and still valid
         synchronized (this) {
             if (!isMetocOld(activeRoute)
-                    && activeRoute.isMetocValid(enavSettings.getMetocTimeDiffTolerance())) {
+                    && activeRoute.isMetocValid(metocSettings.getMetocTimeDiffTolerance())) {
                 return;
             }
         }
@@ -549,12 +553,12 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
             route = RouteLoader.loadSimple(file);
         } else if (ext.equals("ROU")) {
             // Load ECDIS900 V3 route
-            route = RouteLoader.loadRou(file, EPD.getInstance().getSettings().getNavSettings());
+            route = RouteLoader.loadRou(file, this.routeManagerSettings);
         } else if (ext.equals("RT3")) {
             // Load Navisailor 3000 route
-            route = RouteLoader.loadRt3(file, EPD.getInstance().getSettings().getNavSettings());
+            route = RouteLoader.loadRt3(file, this.routeManagerSettings);
         } else {
-            route = RouteLoader.pertinaciousLoad(file, EPD.getInstance().getSettings().getNavSettings());
+            route = RouteLoader.pertinaciousLoad(file, this.routeManagerSettings);
         }
 
         // Add route to list
