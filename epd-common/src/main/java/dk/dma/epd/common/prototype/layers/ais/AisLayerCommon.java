@@ -307,7 +307,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      */
     @Override
     public AisLayerCommonSettings<?> getSettings() {
-        return (AisLayerCommonSettings<?>) this.settings;
+        return (AisLayerCommonSettings<?>) super.getSettings();
     }
     
     /*
