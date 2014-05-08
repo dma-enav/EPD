@@ -31,7 +31,7 @@ import dk.dma.ais.reader.SendException;
 import dk.dma.ais.reader.SendRequest;
 import dk.dma.ais.sentence.Abk;
 import dk.dma.enav.util.function.Consumer;
-import dk.dma.epd.common.prototype.settings.SensorSettings;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.common.util.Util;
 
 
@@ -47,7 +47,7 @@ public class NmeaFileSensor extends NmeaSensor {
     private InputStream inputStream;
     private volatile Frame frame;
     
-    public NmeaFileSensor(String filename, SensorSettings sensorSettings) {
+    public NmeaFileSensor(String filename, ExternalSensorsCommonSettings<?> sensorSettings) {
         LOG.info("Using AIS replay file: " + filename);
         this.filename = filename;
         setReplay(true);
