@@ -84,17 +84,26 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
 
     protected OMGraphic closest;
 
-    protected LayerSettings<?> settings;
+    /**
+     * Settings local to this layer settings.
+     */
+    private LayerSettings<?> localSettings;
+    
+    /**
+     * Settings that are global to all layers.
+     * TODO update access.
+     */
+    private LayerSettings<?> globalSettings = EPD.getInstance().getSettings().getLayerSettings();
     
     private Timer timer;
     private CopyOnWriteArrayList<LayerVisiblityListener> visibilityListener = new CopyOnWriteArrayList<>();
 
-    public EPDLayerCommon(LayerSettings<?> settings) {
-        this.settings = Objects.requireNonNull(settings);
+    public EPDLayerCommon(LayerSettings<?> localSettings) {
+        this.localSettings = localSettings;
     }
     
     public LayerSettings<?> getSettings() {
-        return this.settings;
+        return this.localSettings;
     }
     
     /**
@@ -399,7 +408,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
      * @return the mouse selection tolerance
      */
     public float getMouseSelectTolerance() {
-        return this.settings.getGraphicInteractTolerance();
+        return this.globalSettings.getGraphicInteractTolerance();
     }
 
     /**

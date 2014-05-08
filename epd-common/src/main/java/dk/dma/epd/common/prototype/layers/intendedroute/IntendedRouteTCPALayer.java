@@ -55,7 +55,7 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
      * Constructor
      */
     public IntendedRouteTCPALayer() {
-        super();
+        super(null);
 
         // Automatically add info panels
         registerInfoPanel(tcpaInfoPanel, IntendedRouteTCPAGraphic.class);
