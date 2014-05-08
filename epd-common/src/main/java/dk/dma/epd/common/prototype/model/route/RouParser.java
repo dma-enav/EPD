@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.settings.NavSettings;
+import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.util.ParseUtils;
 
 /**
@@ -40,14 +40,14 @@ public class RouParser {
     private RouteWaypoint lastWp;
     private RouteLeg lastLeg;
     private int wpCount = 1;
-    private NavSettings navSettings;
+    private RouteManagerCommonSettings<?> settings;
 
     public RouParser() {
 
     }
     
-    public Route parse(File file, NavSettings navSettings) throws IOException, RouteLoadException {
-        this.navSettings = navSettings;
+    public Route parse(File file, RouteManagerCommonSettings<?> settings) throws IOException, RouteLoadException {
+        this.settings = settings;
         reader = new BufferedReader(new FileReader(file));
         while ((line = reader.readLine()) != null) {
             try {
@@ -85,9 +85,9 @@ public class RouParser {
         // Set defaults
         wp.setName(String.format("%03d", wpCount));
         wp.setSpeed(sogDefault);    
-        wp.setTurnRad(navSettings.getDefaultTurnRad());
-        outLeg.setXtdPort(navSettings.getDefaultXtd());
-        outLeg.setXtdStarboard(navSettings.getDefaultXtd());
+        wp.setTurnRad(settings.getDefaultTurnRad());
+        outLeg.setXtdPort(settings.getDefaultXtd());
+        outLeg.setXtdStarboard(settings.getDefaultXtd());
         
         while ((line = reader.readLine()) != null) {
             String str = line.trim();
@@ -160,7 +160,7 @@ public class RouParser {
         }
         
         if (sogDefault == null) {
-            sogDefault = navSettings.getDefaultSpeed();
+            sogDefault = settings.getDefaultSpeed();
         }
     }
 
