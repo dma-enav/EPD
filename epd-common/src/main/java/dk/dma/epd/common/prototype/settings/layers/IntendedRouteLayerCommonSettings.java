@@ -23,7 +23,7 @@ import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon
  * @author Janus Varmarken
  */
 public class IntendedRouteLayerCommonSettings<OBSERVER extends IntendedRouteLayerCommonSettings.IObserver>
-        extends LayerSettings<OBSERVER> {
+        extends RouteLayerCommonSettings<OBSERVER> {
 
     /**
      * Setting specifying whether to use intended route filter.
@@ -75,7 +75,7 @@ public class IntendedRouteLayerCommonSettings<OBSERVER extends IntendedRouteLaye
      * 
      * @author Janus Varmarken
      */
-    public interface IObserver extends LayerSettings.IObserver {
+    public interface IObserver extends RouteLayerCommonSettings.IObserver {
 
         /**
          * Invoked when the setting, specifying if intended route filter is
