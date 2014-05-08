@@ -26,7 +26,7 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 
 /**
  * Encapsulation of HTTP connection to shore.
@@ -41,16 +41,14 @@ public class RouteHttp {
     private String url;
     private String host;
     private int port = 80;
-//    private int readTimeout = 60000; // 60 sec
-//    private int connectionTimeout = 30000; // 30 sec
 
     private HttpClient httpClient;
     private PostMethod method;
     private String responseBody;
 
-    public RouteHttp(EnavSettings enavSettings) {
-        this.host = enavSettings.getMonaLisaServer();
-        this.port = enavSettings.getMonaLisaPort();
+    public RouteHttp(NetworkSettings<?> monaLisaConnectionSettings) {
+        this.host = monaLisaConnectionSettings.getHost();
+        this.port = monaLisaConnectionSettings.getPort();
 
         setUri(uri);
     }
