@@ -26,7 +26,6 @@ import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.ais.message.AisMessage;
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
@@ -37,6 +36,7 @@ import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
@@ -66,8 +66,8 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
     /**
      * Constructor
      */
-    public IntendedRouteLayerCommon() {
-        super();
+    public IntendedRouteLayerCommon(IntendedRouteLayerCommonSettings<?> settings) {
+        super(settings);
 
         // Automatically add info panels
         registerInfoPanel(intendedRouteInfoPanel, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
@@ -80,6 +80,12 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         startTimer(100, REPAINT_TIME * 1000);
     }
 
+    @Override
+    public IntendedRouteLayerCommonSettings<?> getSettings() {
+        // TODO Auto-generated method stub
+        return (IntendedRouteLayerCommonSettings<?>) super.getSettings();
+    }
+    
     /**
      * Called when the given AIS target is updated
      * 
@@ -286,7 +292,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
      */
     private boolean showArrowHeads() {
         if (getProjection() != null) {
-            return getProjection().getScale() < EPD.getInstance().getSettings().getNavSettings().getShowArrowScale();
+            return getProjection().getScale() < this.getSettings().getShowArrowScale();
         }
         return false;
     }
@@ -308,5 +314,4 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         return useFilter;
     }
 
-    
 }
