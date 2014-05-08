@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.layers.wms;
 
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -31,6 +32,7 @@ import dk.dma.epd.common.graphics.CenterRaster;
 import dk.dma.epd.common.prototype.event.WMSEvent;
 import dk.dma.epd.common.prototype.event.WMSEventListener;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 
 /**
  * Layer handling all WMS data and displaying of it
@@ -57,9 +59,10 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
      * Constructor that starts the WMS layer in a separate thread
      * @param query the WMS query
      */
-    public WMSLayer(String query) {
+    public WMSLayer(WMSLayerCommonSettings<?> localSettings) {
+        super(Objects.requireNonNull(localSettings));
         LOG.debug("WMS Layer inititated");
-        wmsService = new StreamingTiledWmsService(query, 4);
+        wmsService = new StreamingTiledWmsService(localSettings.getWmsQuery(), 4);
         wmsService.addWMSEventListener(this);
         new Thread(this).start();
 
@@ -70,8 +73,9 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
      * @param query the WMS query
      * @param sharedCache the shared cache to use
      */
-    public WMSLayer(String query,ConcurrentHashMap<String, OMGraphicList> sharedCache) {
-        wmsService = new StreamingTiledWmsService(query, 4, sharedCache);
+    public WMSLayer(WMSLayerCommonSettings<?> localSettings, ConcurrentHashMap<String, OMGraphicList> sharedCache) {
+        super(Objects.requireNonNull(localSettings));
+        wmsService = new StreamingTiledWmsService(localSettings.getWmsQuery(), 4, sharedCache);
         wmsService.addWMSEventListener(this);
         new Thread(this).start();
     }
