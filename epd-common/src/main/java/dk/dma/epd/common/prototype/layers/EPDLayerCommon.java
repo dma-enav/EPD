@@ -61,7 +61,7 @@ import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
  * well as container managed handling of left- and right-button mouse clicks, for mouse selection and displaying the context menu
  * respectively.
  */
-public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements MapMouseListener, LayerSettings.IObserver {
+public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements MapMouseListener {
 
     private static final long serialVersionUID = 1L;
     
