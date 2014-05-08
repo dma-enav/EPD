@@ -31,7 +31,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
-import dk.dma.epd.common.prototype.settings.NavSettings;
+import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Ellipsoid;
@@ -39,7 +39,7 @@ import dk.dma.epd.common.util.Ellipsoid;
 
 public class SearchPatternGenerator {
 
-    private NavSettings settings;
+    private RouteManagerCommonSettings<?> settings;
     
     public enum searchPattern {
         Parallel_Sweep_Search, Creeping_Line_Search, Track_Line_Search, Track_Line_Search_nonreturn, Expanding_Square_Search, unknown
@@ -52,7 +52,7 @@ public class SearchPatternGenerator {
     }
 
     public SearchPatternRoute generateSearchPattern(searchPattern pattern,
-            SARData data, NavSettings settings, int i) {
+            SARData data, RouteManagerCommonSettings<?> settings, int i) {
         
         this.settings = settings;
 
