@@ -94,13 +94,17 @@ To use Navicon ENC layer with EPD-ship please follow the steps below
 
 1. Run installer in `native`.
 
+1. Place the `lib` folder in `<home folder>/.epd-ship`
+
 1. Create the folder: `<home folder>/.epd-ship/navion`
 
-1. Place the folders `lib`, `native` and `data` in the newly created folder.
+1. Place the folders `native` and `data` in the newly created folder.
+
+1. In on a 32-bit system. Remove `native/keylock.dll` and rename `native/keylock32.dll` -> `native/keylock.dll`
 
 1. Copy `<home folder>/.epd-ship/enc_navicon.properties` to `<home folder>/.epd-ship/enc.properties`.
  
-1. Edit `<home folder>/.epd-ship/enc.properties` and set S-57/S-63 settings.
+1. Edit `<home folder>/.epd-ship/enc.properties` and set charts location in `enc.s57PathLocation`.
 
 1. Run application
 
