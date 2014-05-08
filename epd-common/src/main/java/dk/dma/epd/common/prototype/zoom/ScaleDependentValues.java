@@ -15,8 +15,7 @@
  */
 package dk.dma.epd.common.prototype.zoom;
 
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 
 /**
  * Class that provides access to values that depend on the map scale.
@@ -27,23 +26,25 @@ public final class ScaleDependentValues {
     /**
      * Get the length (in minutes) of the COG & speed vector based on map scale.
      * @param mapScale The map scale to base the length of the COG & speed vector on.
+     * @param vesselLayerSettings The appearance settings for the layer where the computed COG/Speed vector length is to be drawn.
      * @return The length of the COG & speed vector in minutes.
      */
-    public static int getCogVectorLength(float mapScale) {
-        AisSettings aisSettings = EPD.getInstance().getSettings().getAisSettings();
-        float iMaxScale = aisSettings.getCogVectorLengthScaleInterval();
-        for(int i = aisSettings.getCogVectorLengthMin(); i < aisSettings.getCogVectorLengthMax(); i++) {
+    public static int getCogVectorLength(float mapScale, VesselLayerSettings<?> vesselLayerSettings) {
+        float stepSize = vesselLayerSettings.getMovementVectorLengthStepSize();
+        float iMaxScale = vesselLayerSettings.getMovementVectorLengthStepSize();
+        for(int i = vesselLayerSettings.getMovementVectorLengthMin(); i < vesselLayerSettings.getMovementVectorLengthMax(); i++) {
             if(mapScale <= iMaxScale) {
                 // found the proper minute length
                 return i;
             }
             else {
-                iMaxScale += aisSettings.getCogVectorLengthScaleInterval();
+                // No fit, check next interval.
+                iMaxScale += stepSize;
             }
         }
         // no matching scale, use max value
         // TODO consider adding extra check if we are to disable markers entirely if zoomed out to a given scale
-        return aisSettings.getCogVectorLengthMax();
+        return vesselLayerSettings.getMovementVectorLengthMax();
     }
 
     /**
