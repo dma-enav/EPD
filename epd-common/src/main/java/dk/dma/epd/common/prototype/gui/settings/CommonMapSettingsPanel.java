@@ -35,6 +35,9 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings.ENCColorScheme;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -52,6 +55,9 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JPanel wmsSettings;
     private JTextField textFieldWMSURL;
     private JSpinner spinnerDefaultMapScale;
+    /*
+     *  TODO consider renaming to spinenrMinScale as this spinner specifies the lowest possible value for map scale.
+     */
     private JSpinner spinnerMaximumScale;
     private JSpinner spinnerLatitude;
     private JSpinner spinnerLongitude;
@@ -72,15 +78,17 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JButton btnAdvancedOptions;
     
     protected MapCommonSettings<?> mapSettings;
+    protected ENCLayerCommonSettings<?> encLayerSettings;
+    protected WMSLayerCommonSettings<?> wmsLayerSettings;
     
     /**
      * Constructs a new CommonMapSettingsPanel object.
      */
-    public CommonMapSettingsPanel(MapCommonSettings<?> mapSettings) {
+    public CommonMapSettingsPanel(MapCommonSettings<?> mapSettings, ENCLayerCommonSettings<?> encLayerSettings, WMSLayerCommonSettings<?> wnsLayerSettings) {
         super("Map", new ImageIcon(CommonMapSettingsPanel.class.getResource
                 ("/images/settings/map.png")));
         this.mapSettings = Objects.requireNonNull(mapSettings);
-        
+        this.encLayerSettings = Objects.requireNonNull(encLayerSettings);
         setLayout(null);
         
         
@@ -279,26 +287,27 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     protected boolean checkSettingsChanged() {
         return 
                 changed(this.mapSettings.getInitalMapScale(), this.spinnerDefaultMapScale.getValue()) ||
-                changed(this.mapSettings.getMaxScale(), this.spinnerMaximumScale.getValue()) ||
-                changed(this.settings.getCenter().getLatitude(), this.spinnerLatitude.getValue()) ||
-                changed(this.settings.getCenter().getLongitude(), this.spinnerLongitude.getValue()) ||
-                changed(this.settings.isUseEnc(), this.chckbxUseEnc.isSelected()) ||
+                changed(this.mapSettings.getMinMapScale(), this.spinnerMaximumScale.getValue()) ||
+                changed(this.mapSettings.getCenter().getLatitude(), this.spinnerLatitude.getValue()) ||
+                changed(this.mapSettings.getCenter().getLongitude(), this.spinnerLongitude.getValue()) ||
+                
+                changed(this.encLayerSettings.isEncInUse(), this.chckbxUseEnc.isSelected()) ||
                 
                 // Check for changes in S52 layer settings
-                changed(this.settings.getS52ShallowContour(), this.spinnerShallowContour.getValue()) || 
-                changed(this.settings.getS52SafetyDepth(), this.spinnerSafetyDepth.getValue()) ||
-                changed(this.settings.getS52SafetyContour(), this.spinnerSafetyContour.getValue()) ||
-                changed(this.settings.getS52DeepContour(), this.spinnerDeepContour.getValue()) ||
-                changed(this.settings.isS52ShowText(), this.chckbxShowText.isSelected()) ||
-                changed(this.settings.isS52ShallowPattern(), this.chckbxShallowPattern.isSelected()) ||
-                changed(this.settings.isUseSimplePointSymbols(), this.chckbxSimplePointSymbols.isSelected()) ||
-                changed(this.settings.isUsePlainAreas(), this.chckbxPlainAreas.isSelected()) ||
-                changed(this.settings.isS52TwoShades(), this.chckbxTwoShades.isSelected()) ||
-                changed(this.settings.getColor(), this.comboBoxColorProfile.getSelectedItem().toString()) ||
+                changed(this.encLayerSettings.getS52ShallowContour(), this.spinnerShallowContour.getValue()) || 
+                changed(this.encLayerSettings.getS52SafetyDepth(), this.spinnerSafetyDepth.getValue()) ||
+                changed(this.encLayerSettings.getS52SafetyContour(), this.spinnerSafetyContour.getValue()) ||
+                changed(this.encLayerSettings.getS52DeepContour(), this.spinnerDeepContour.getValue()) ||
+                changed(this.encLayerSettings.isS52ShowText(), this.chckbxShowText.isSelected()) ||
+                changed(this.encLayerSettings.isS52ShallowPattern(), this.chckbxShallowPattern.isSelected()) ||
+                changed(this.encLayerSettings.isUseSimplePointSymbols(), this.chckbxSimplePointSymbols.isSelected()) ||
+                changed(this.encLayerSettings.isUsePlainAreas(), this.chckbxPlainAreas.isSelected()) ||
+                changed(this.encLayerSettings.isS52TwoShades(), this.chckbxTwoShades.isSelected()) ||
+                changed(this.encLayerSettings.getEncColorScheme().toString(), this.comboBoxColorProfile.getSelectedItem().toString()) ||
                 
                 // Changes in WMS settings.
-                changed(this.settings.isUseWms(), this.chckbxUseWms.isSelected()) ||
-                changed(this.settings.getWmsQuery(), this.textFieldWMSURL.getText());
+                changed(this.wmsLayerSettings.isUseWms(), this.chckbxUseWms.isSelected()) ||
+                changed(this.wmsLayerSettings.getWmsQuery(), this.textFieldWMSURL.getText());
     }
     
     /**
@@ -307,8 +316,8 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     @Override
     protected boolean checkNeedsRestart() {
         return 
-                changed(this.settings.isUseEnc(), this.chckbxUseEnc.isSelected()) ||
-                changed(this.settings.isUseWms(), this.chckbxUseWms.isSelected());        
+                changed(this.encLayerSettings.isEncInUse(), this.chckbxUseEnc.isSelected()) ||
+                changed(this.wmsLayerSettings.isUseWms(), this.chckbxUseWms.isSelected());        
     }
 
     /**
@@ -316,33 +325,32 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doLoadSettings() {
-        this.settings = this.getSettings().getMapSettings();
         
         // Load settings for generel panel.
-        this.spinnerDefaultMapScale.setValue(this.settings.getScale());
-        this.spinnerMaximumScale.setValue(this.settings.getMaxScale());
-        Float latitude  = this.settings.getCenter().getLatitude();
-        Float longitude = this.settings.getCenter().getLongitude();
+        this.spinnerDefaultMapScale.setValue(this.mapSettings.getInitalMapScale());
+        this.spinnerMaximumScale.setValue(this.mapSettings.getMinMapScale());
+        Float latitude  = this.mapSettings.getCenter().getLatitude();
+        Float longitude = this.mapSettings.getCenter().getLongitude();
         this.spinnerLatitude.setValue(latitude.doubleValue());
         this.spinnerLongitude.setValue(longitude.doubleValue());
-        this.chckbxUseEnc.setSelected(this.settings.isUseEnc());
+        this.chckbxUseEnc.setSelected(this.encLayerSettings.isEncInUse());
         
         // Load s52 layer settings
-        this.spinnerShallowContour.setValue(this.settings.getS52ShallowContour());
-        this.spinnerSafetyDepth.setValue(this.settings.getS52SafetyDepth());
-        this.spinnerSafetyContour.setValue(this.settings.getS52SafetyContour());
-        this.spinnerDeepContour.setValue(this.settings.getS52DeepContour());
-        this.chckbxShowText.setSelected(settings.isS52ShowText());
-        this.chckbxShallowPattern.setSelected(settings.isS52ShallowPattern());
-        this.chckbxSimplePointSymbols.setSelected(settings.isUseSimplePointSymbols());
-        this.chckbxPlainAreas.setSelected(settings.isUsePlainAreas());
-        this.chckbxTwoShades.setSelected(settings.isS52TwoShades());
-        this.comboBoxColorProfile.setSelectedItem(settings.getColor());
+        this.spinnerShallowContour.setValue(this.encLayerSettings.getS52ShallowContour());
+        this.spinnerSafetyDepth.setValue(this.encLayerSettings.getS52SafetyDepth());
+        this.spinnerSafetyContour.setValue(this.encLayerSettings.getS52SafetyContour());
+        this.spinnerDeepContour.setValue(this.encLayerSettings.getS52DeepContour());
+        this.chckbxShowText.setSelected(encLayerSettings.isS52ShowText());
+        this.chckbxShallowPattern.setSelected(encLayerSettings.isS52ShallowPattern());
+        this.chckbxSimplePointSymbols.setSelected(encLayerSettings.isUseSimplePointSymbols());
+        this.chckbxPlainAreas.setSelected(encLayerSettings.isUsePlainAreas());
+        this.chckbxTwoShades.setSelected(encLayerSettings.isS52TwoShades());
+        this.comboBoxColorProfile.setSelectedItem(encLayerSettings.getEncColorScheme().toString());
 
         // Load settings for WMS.
-        this.chckbxUseWms.setSelected(this.settings.isUseWms());
-        this.textFieldWMSURL.setText(settings.getWmsQuery());
-        this.btnAdvancedOptions.setEnabled(this.settings.isUseEnc());
+        this.chckbxUseWms.setSelected(this.wmsLayerSettings.isUseWms());
+        this.textFieldWMSURL.setText(wmsLayerSettings.getWmsQuery());
+        this.btnAdvancedOptions.setEnabled(this.encLayerSettings.isEncInUse());
     }
 
     /**
@@ -352,31 +360,31 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     protected void doSaveSettings() {
         
         // Save generel panel.
-        this.settings.setScale((Float) spinnerDefaultMapScale.getValue());
-        this.settings.setMaxScale((Integer) this.spinnerMaximumScale.getValue());
+        this.mapSettings.setInitialMapScale((Float) spinnerDefaultMapScale.getValue());
+        this.mapSettings.setMinMapScale((Integer) this.spinnerMaximumScale.getValue());
         LatLonPoint center = new LatLonPoint.Double(
                 (Double) this.spinnerLatitude.getValue(), (Double) this.spinnerLongitude.getValue());
-        this.settings.setCenter(center);
-        this.settings.setUseEnc(this.chckbxUseEnc.isSelected());
+        this.mapSettings.setCenter(center);
+        this.encLayerSettings.setEncInUse(this.chckbxUseEnc.isSelected());
         
         // Save s52 layer settings
-        this.settings.setS52ShallowContour((Integer) spinnerShallowContour.getValue());
-        this.settings.setS52SafetyDepth((Integer) this.spinnerSafetyDepth.getValue());
-        this.settings.setS52SafetyContour((Integer) this.spinnerSafetyContour.getValue());
-        this.settings.setS52DeepContour((Integer) this.spinnerDeepContour.getValue());
-        this.settings.setS52ShowText(this.chckbxShowText.isSelected());
-        this.settings.setS52ShallowPattern(this.chckbxShallowPattern.isSelected());
-        this.settings.setUseSimplePointSymbols(this.chckbxSimplePointSymbols.isSelected());
-        this.settings.setUsePlainAreas(this.chckbxPlainAreas.isSelected());
-        this.settings.setS52TwoShades(this.chckbxTwoShades.isSelected());
-        this.settings.setColor(comboBoxColorProfile.getSelectedItem().toString());
+        this.encLayerSettings.setS52ShallowContour((Integer) spinnerShallowContour.getValue());
+        this.encLayerSettings.setS52SafetyDepth((Integer) this.spinnerSafetyDepth.getValue());
+        this.encLayerSettings.setS52SafetyContour((Integer) this.spinnerSafetyContour.getValue());
+        this.encLayerSettings.setS52DeepContour((Integer) this.spinnerDeepContour.getValue());
+        this.encLayerSettings.setS52ShowText(this.chckbxShowText.isSelected());
+        this.encLayerSettings.setS52ShallowPattern(this.chckbxShallowPattern.isSelected());
+        this.encLayerSettings.setUseSimplePointSymbols(this.chckbxSimplePointSymbols.isSelected());
+        this.encLayerSettings.setUsePlainAreas(this.chckbxPlainAreas.isSelected());
+        this.encLayerSettings.setS52TwoShades(this.chckbxTwoShades.isSelected());
+        this.encLayerSettings.setEncColorScheme(ENCColorScheme.getFromString(comboBoxColorProfile.getSelectedItem().toString()));
         
         // Checks the WMS settings
         checkWmsSettings();
         
         // Save settings for WMS.
-        this.settings.setUseWms(this.chckbxUseWms.isSelected());
-        this.settings.setWmsQuery(textFieldWMSURL.getText());
+        this.wmsLayerSettings.setUseWms(this.chckbxUseWms.isSelected());
+        this.wmsLayerSettings.setWmsQuery(textFieldWMSURL.getText());
     }
     
     /**
@@ -384,8 +392,8 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
      */
     private void checkWmsSettings() {
         if (chckbxUseWms.isSelected() && 
-                (!settings.isUseWms() ||
-                 changed(settings.getWmsQuery(), textFieldWMSURL.getText()))) {
+                (!wmsLayerSettings.isUseWms() ||
+                 changed(wmsLayerSettings.getWmsQuery(), textFieldWMSURL.getText()))) {
             
             boolean validUrl = textFieldWMSURL.getText().length() > 0; 
             if (validUrl) {
