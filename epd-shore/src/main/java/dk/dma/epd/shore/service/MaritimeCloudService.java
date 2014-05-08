@@ -21,8 +21,8 @@ import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon;
-import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.settings.EPDEnavSettings;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
+import dk.dma.epd.shore.settings.IdentitySettings;
 
 /**
  * Shore-specific service that provides an interface to the Maritime Cloud connection.
@@ -32,6 +32,13 @@ public class MaritimeCloudService extends MaritimeCloudServiceCommon {
     private String shoreID;
     private LatLonPoint shorePos = new LatLonPoint.Double(0.0, 0.0);
 
+    private IdentitySettings<?> shoreIdSettings;
+    
+    public MaritimeCloudService(NetworkSettings<?> cloudConnectionSettings, IdentitySettings<?> shoreIdSettings) {
+        super(cloudConnectionSettings);
+        this.shoreIdSettings = shoreIdSettings;
+    }
+    
     /**
      * Reads the e-Navigation settings for connection parameters
      */
@@ -39,9 +46,8 @@ public class MaritimeCloudService extends MaritimeCloudServiceCommon {
     protected void readEnavSettings() {
         super.readEnavSettings();
         
-        EPDEnavSettings enavSettings = EPDShore.getInstance().getSettings().getEnavSettings();
-        shoreID = (String) enavSettings.getShoreId().subSequence(0, 9);
-        shorePos = enavSettings.getShorePos();
+        shoreID = (String) shoreIdSettings.getShoreId().subSequence(0, 9);
+        shorePos = shoreIdSettings.getShorePos();
     }
     
     /**

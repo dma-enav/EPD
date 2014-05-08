@@ -20,6 +20,7 @@ import net.maritimecloud.core.id.MmsiId;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
@@ -29,6 +30,10 @@ public class MaritimeCloudService extends MaritimeCloudServiceCommon {
 
     private OwnShipHandler ownShipHandler;
     private PntHandler pntHandler;
+    
+    public MaritimeCloudService(NetworkSettings<?> cloudConnectionSettings) {
+        super(cloudConnectionSettings);
+    }
    
     /**
      * Returns the maritime id to connect with

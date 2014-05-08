@@ -34,7 +34,7 @@ import net.maritimecloud.util.geometry.PositionTime;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
@@ -70,17 +70,22 @@ public abstract class MaritimeCloudServiceCommon extends MapHandlerChild impleme
     protected boolean stopped = true;
 
     /**
+     * Cloud network settings.
+     */
+    protected NetworkSettings<?> cloudConnSettings;
+    
+    /**
      * Constructor
      */
-    public MaritimeCloudServiceCommon() {
+    public MaritimeCloudServiceCommon(NetworkSettings<?> cloudConnectionSettings) {
+        this.cloudConnSettings = cloudConnectionSettings;
     }
 
     /**
      * Reads the e-Navigation settings for connection parameters
      */
     protected void readEnavSettings() {
-        this.hostPort = String.format("%s:%d", EPD.getInstance().getSettings().getCloudSettings().getCloudServerHost(), EPD
-                .getInstance().getSettings().getCloudSettings().getCloudServerPort());
+        this.hostPort = String.format("%s:%d", cloudConnSettings.getHost(), cloudConnSettings.getPort());
     }
 
     /**
