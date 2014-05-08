@@ -41,7 +41,7 @@ public class NewRouteContainerLayer extends EPDLayerCommon {
      * Constructor
      */
     public NewRouteContainerLayer() {
-        super();
+        super(null);
         
         route = new Route();
         route.setWaypoints(waypoints);

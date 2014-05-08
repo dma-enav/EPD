@@ -54,6 +54,7 @@ public class RouteEditLayerCommon extends EPDLayerCommon {
      * Constructor
      */
     public RouteEditLayerCommon() {
+        super(null);
         panDelegate = new PanSupport(this);
         wpCircle = new WpCircle();
         wpCircle.setLatLon(0, 0);
