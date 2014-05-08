@@ -20,17 +20,18 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
 import dk.frv.enav.common.xml.msi.MsiLocation;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 
@@ -47,11 +48,16 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpda
     /**
      * Constructor
      */
-    public MsiLayerCommon() {
-        super();
+    public MsiLayerCommon(MSILayerCommonSettings<?> localSettings) {
+        super(Objects.requireNonNull(localSettings));
         
         // Register the info panels
         registerInfoPanel(msiInfoPanel, MsiSymbolGraphic.class, MsiDirectionalIcon.class);        
+    }
+    
+    @Override
+    public MSILayerCommonSettings<?> getSettings() {
+        return (MSILayerCommonSettings<?>) super.getSettings();
     }
     
     /**
@@ -121,7 +127,7 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpda
         MsiLocation msiLocation = msiMessage.getLocation();
         Position center = msiLocation.getCenter();
         mapBean.setCenter(center.getLatitude(), center.getLongitude());
-        mapBean.setScale(EPD.getInstance().getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
+        mapBean.setScale(getSettings().getMsiTextboxesVisibleAtScale());
     }
     
     /**
