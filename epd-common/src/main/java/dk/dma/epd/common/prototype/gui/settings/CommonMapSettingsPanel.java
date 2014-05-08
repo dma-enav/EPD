@@ -278,8 +278,8 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     @Override
     protected boolean checkSettingsChanged() {
         return 
-                changed(this.settings.getScale(), this.spinnerDefaultMapScale.getValue()) ||
-                changed(this.settings.getMaxScale(), this.spinnerMaximumScale.getValue()) ||
+                changed(this.mapSettings.getInitalMapScale(), this.spinnerDefaultMapScale.getValue()) ||
+                changed(this.mapSettings.getMaxScale(), this.spinnerMaximumScale.getValue()) ||
                 changed(this.settings.getCenter().getLatitude(), this.spinnerLatitude.getValue()) ||
                 changed(this.settings.getCenter().getLongitude(), this.spinnerLongitude.getValue()) ||
                 changed(this.settings.isUseEnc(), this.chckbxUseEnc.isSelected()) ||
