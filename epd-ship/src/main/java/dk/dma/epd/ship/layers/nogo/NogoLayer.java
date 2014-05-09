@@ -15,11 +15,12 @@
  */
 package dk.dma.epd.ship.layers.nogo;
 
-import java.awt.Color;
 import java.util.Date;
 import java.util.List;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.ship.nogo.NoGoDataEntry;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
@@ -27,7 +28,7 @@ import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
  * No-go layer
  */
 public class NogoLayer extends EPDLayerCommon {
-    
+
     private static final long serialVersionUID = 1L;
 
     private NogoHandler nogoHandler;
@@ -40,8 +41,27 @@ public class NogoLayer extends EPDLayerCommon {
     }
 
     /**
-     * Called by the {@linkplain NogoHandler} with status updates.
-     * Updates the graphics with the no-go elemetns
+     * Called by the {@linkplain NogoHandler} with status updates. Updates the graphics with the no-go elemetns
+     * 
+     * @param dataEntry
+     */
+    public void singleResultCompleted(NoGoDataEntry dataEntry) {
+
+        List<NogoPolygon> polygons = dataEntry.getNogoPolygons();
+        for (NogoPolygon polygon : polygons) {
+            NogoGraphic nogoGraphic = new NogoGraphic(polygon);
+
+            // NogoGraphic nogoGraphic = new NogoGraphic(polygon, validFrom, validTo, draught, "",
+            // nogoHandler.getNorthWestPoint(), nogoHandler.getSouthEastPoint(), nogoHandler.getNoGoErrorCode(),
+            // false, Color.RED);
+            graphics.add(nogoGraphic);
+        }
+        doPrepare();
+    }
+
+    /**
+     * Called by the {@linkplain NogoHandler} with status updates. Updates the graphics with the no-go elemetns
+     * 
      * @param completed
      */
     public void doUpdate(boolean completed) {
@@ -49,62 +69,62 @@ public class NogoLayer extends EPDLayerCommon {
         Date validTo = nogoHandler.getValidTo();
         double draught = nogoHandler.getDraught();
 
-        graphics.clear();
-        if (completed) {
-            // Get polygons
-            List<NogoPolygon> polygons = nogoHandler.getPolygons();
-            
-            if (nogoHandler.getNogoFailed()) {
-                nogoHandler.setNogoFailed(false);
-                NogoGraphic nogoGraphic = new NogoGraphic(null, validFrom, validTo, draught,
-                        "Connection to shore timed out - NoGo request failed. Please try again in a few minutes", nogoHandler.getNorthWestPoint(),
-                        nogoHandler.getSouthEastPoint(), -1, true, Color.RED);
-                graphics.add(nogoGraphic);
+        // graphics.clear();
+        // if (completed) {
+        // Get polygons
+        // List<NogoPolygon> polygons = nogoHandler.getPolygons();
 
-            } else {
+        // if (nogoHandler.getNogoFailed()) {
+        // nogoHandler.setNogoFailed(false);
+        // NogoGraphic nogoGraphic = new NogoGraphic(null, validFrom, validTo, draught,
+        // "Connection to shore timed out - NoGo request failed. Please try again in a few minutes",
+        // nogoHandler.getNorthWestPoint(), nogoHandler.getSouthEastPoint(), -1, true, Color.RED);
+        // graphics.add(nogoGraphic);
+        //
+        // } else {
+        //
+        // if (nogoHandler.getNoGoErrorCode() == 17) {
+        // NogoGraphic nogoGraphic = new NogoGraphic(null, null, null, draught, "No data available for requested area",
+        // null, null, nogoHandler.getNoGoErrorCode(), true, Color.RED);
+        // graphics.add(nogoGraphic);
+        // }
+        //
+        // if (nogoHandler.getNoGoErrorCode() == 18) {
+        // for (NogoPolygon polygon : polygons) {
+        // NogoGraphic nogoGraphic = new NogoGraphic(polygon, validFrom, validTo, draught, "",
+        // nogoHandler.getNorthWestPoint(), nogoHandler.getSouthEastPoint(), nogoHandler.getNoGoErrorCode(),
+        // false, Color.RED);
+        // graphics.add(nogoGraphic);
+        // }
+        // addFrame("", validFrom, validTo, draught, nogoHandler.getNoGoErrorCode());
+        // }
+        //
+        // if (nogoHandler.getNoGoErrorCode() == 0) {
+        // for (NogoPolygon polygon : polygons) {
+        // NogoGraphic nogoGraphic = new NogoGraphic(polygon, validFrom, validTo, draught, "",
+        // nogoHandler.getNorthWestPoint(), nogoHandler.getSouthEastPoint(), nogoHandler.getNoGoErrorCode(),
+        // false, Color.RED);
+        // graphics.add(nogoGraphic);
+        // }
+        //
+        // if (polygons.size() == 0) {
+        // NogoGraphic nogoGraphic = new NogoGraphic(null, validFrom, validTo, draught, "The selected area is Go",
+        // nogoHandler.getNorthWestPoint(), nogoHandler.getSouthEastPoint(), 1, true, Color.RED);
+        // graphics.add(nogoGraphic);
+        // } else {
+        // addFrame("", validFrom, validTo, draught, nogoHandler.getNoGoErrorCode());
+        // }
+        //
+        // }
+        // }
+        // } else {
+        // // We have just sent a nogo request - display a message telling the
+        // // user to standby
+        // addFrame("NoGo area requested - standby", validFrom, validTo, draught, 1);
+        // }
 
-                if (nogoHandler.getNoGoErrorCode() == 17) {
-                    NogoGraphic nogoGraphic = new NogoGraphic(null, null, null, draught,
-                            "No data available for requested area", null, null, nogoHandler.getNoGoErrorCode(), true, Color.RED);
-                    graphics.add(nogoGraphic);
-                }
+        // doPrepare();
 
-                if (nogoHandler.getNoGoErrorCode() == 18) {
-                    for (NogoPolygon polygon : polygons) {
-                        NogoGraphic nogoGraphic = new NogoGraphic(polygon, validFrom, validTo, draught, "",
-                                nogoHandler.getNorthWestPoint(), nogoHandler.getSouthEastPoint(),
-                                nogoHandler.getNoGoErrorCode(), false, Color.RED);
-                        graphics.add(nogoGraphic);
-                    }
-                    addFrame("", validFrom, validTo, draught, nogoHandler.getNoGoErrorCode());
-                }
-
-                if (nogoHandler.getNoGoErrorCode() == 0) {
-                    for (NogoPolygon polygon : polygons) {
-                        NogoGraphic nogoGraphic = new NogoGraphic(polygon, validFrom, validTo, draught, "",
-                                nogoHandler.getNorthWestPoint(), nogoHandler.getSouthEastPoint(),
-                                nogoHandler.getNoGoErrorCode(), false, Color.RED);
-                        graphics.add(nogoGraphic);
-                    }
-
-                    if (polygons.size() == 0) {
-                        NogoGraphic nogoGraphic = new NogoGraphic(null, validFrom, validTo, draught,
-                                "The selected area is Go", nogoHandler.getNorthWestPoint(),
-                                nogoHandler.getSouthEastPoint(), 1, true, Color.RED);
-                        graphics.add(nogoGraphic);
-                    }else{
-                        addFrame("", validFrom, validTo, draught, nogoHandler.getNoGoErrorCode());
-                    }
-
-                }
-            }
-        } else {
-            // We have just sent a nogo request - display a message telling the
-            // user to standby
-            addFrame("NoGo area requested - standby", validFrom, validTo, draught, 1);
-        }
-
-        doPrepare();
     }
 
     /**
@@ -113,7 +133,7 @@ public class NogoLayer extends EPDLayerCommon {
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
+
         if (obj instanceof NogoHandler) {
             nogoHandler = (NogoHandler) obj;
         }
@@ -121,16 +141,27 @@ public class NogoLayer extends EPDLayerCommon {
 
     /**
      * Adds a no-go frame to the graphics
-     * @param message the message to display
-     * @param validFrom valid from
-     * @param validTo valid to
-     * @param draught the draught
-     * @param errorCode the error code
+     * 
+     * @param message
+     *            the message to display
+     * @param validFrom
+     *            valid from
+     * @param validTo
+     *            valid to
+     * @param draught
+     *            the draught
+     * @param errorCode
+     *            the error code
      */
-    public void addFrame(String message, Date validFrom, Date validTo, Double draught, int errorCode){
-        NogoGraphic nogoGraphic = new NogoGraphic(null, validFrom, validTo, draught, message, nogoHandler.getNorthWestPoint(), nogoHandler.getSouthEastPoint(),
-                errorCode, true, Color.RED);
-        graphics.add(nogoGraphic);
+    public void addFrame(Position northWest, Position southEast) {
+        graphics.clear();
+        // NogoGraphic nogoGraphic = new NogoGraphic(null, validFrom, validTo, draught, message, nogoHandler.getNorthWestPoint(),
+        // nogoHandler.getSouthEastPoint(), errorCode, true, Color.RED);
+
+        NoGoGraphicsFrame graphicsFrame = new NoGoGraphicsFrame(northWest, southEast);
+        graphics.add(graphicsFrame);
+
+        doPrepare();
     }
-    
+
 }

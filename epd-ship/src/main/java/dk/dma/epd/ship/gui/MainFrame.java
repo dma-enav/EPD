@@ -43,7 +43,6 @@ import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DockableComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
@@ -76,7 +75,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private CursorComponentPanel cursorPanel;
     private ActiveWaypointComponentPanel activeWaypointPanel;
     private AisComponentPanel aisComponentPanel;
-    private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
     private SARComponentPanel sarPanel;
     private MultiSourcePntComponentPanel msPntComponentPanel;
@@ -157,7 +155,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         activeWaypointPanel = new ActiveWaypointComponentPanel();
         chartPanel = new ChartPanel(activeWaypointPanel);
         aisComponentPanel = new AisComponentPanel();
-        dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
         sarPanel = new SARComponentPanel();
         msPntComponentPanel = new MultiSourcePntComponentPanel();
@@ -197,7 +194,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         mapHandler.add(cursorPanel);
         mapHandler.add(activeWaypointPanel);
         mapHandler.add(aisComponentPanel);
-        mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
         mapHandler.add(stccComponentPanel);
         mapHandler.add(sarPanel);
@@ -333,7 +329,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
                 cursorPanel,
                 activeWaypointPanel,
                 aisComponentPanel,
-                dynamicNoGoPanel,
                 nogoPanel,
                 sarPanel,
                 msPntComponentPanel,

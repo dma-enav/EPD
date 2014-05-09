@@ -15,20 +15,20 @@
  */
 package dk.dma.epd.ship.nogo;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import net.jcip.annotations.ThreadSafe;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
-import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
@@ -42,13 +42,17 @@ import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
  * Component for handling NOGO areas
  */
 @ThreadSafe
-public class NogoHandler extends MapHandlerChild implements Runnable {
+public class NogoHandler extends MapHandlerChild {
 
     private static final Logger LOG = LoggerFactory.getLogger(NogoHandler.class);
 
+    private List<NoGoDataEntry> nogoData;
+
     Position northWestPoint;
     Position southEastPoint;
+
     Double draught;
+
     boolean nogoFailed;
 
     private ShoreServicesCommon shoreServices;
@@ -56,37 +60,20 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
     // Create a seperate layer for the nogo information
     private NogoLayer nogoLayer;
 
-    private Date lastUpdate;
-    private long pollInterval;
-
-    // Data from the nogo response
-    private List<NogoPolygon> nogoPolygons;
+    // private Date lastUpdate;
     private Date validFrom;
     private Date validTo;
-    private int noGoErrorCode;
-    private String noGoMessage;
+
+    private int minutesBetween;
+    private boolean useSlices;
+
+    // private int noGoErrorCode;
+    // private String noGoMessage;
 
     private NoGoComponentPanel nogoPanel;
-    
-    
+
     public NogoLayer getNogoLayer() {
         return nogoLayer;
-    }
-
-    public int getNoGoErrorCode() {
-        return noGoErrorCode;
-    }
-
-    public String getNoGoMessage() {
-        return noGoMessage;
-    }
-
-    public boolean getNogoFailed() {
-        return nogoFailed;
-    }
-
-    public void setNogoFailed(boolean nogoFailed) {
-        this.nogoFailed = nogoFailed;
     }
 
     public void setNorthWestPoint(Position northWestPoint) {
@@ -108,36 +95,21 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
     private Boolean isVisible = true;
 
     public NogoHandler(EPDEnavSettings enavSettings) {
-        // pollInterval = enavSettings.getNogoPollInterval();
-        EPDShip.startThread(this, "NogoHandler");
-    }
-
-    @Override
-    public void run() {
-        while (true) {
-            Util.sleep(30000);
-            // updateNogo();
-        }
     }
 
     public synchronized void updateNogo() {
-        
-        
+        LOG.info("New NoGo Requested Initiated");
         // If the dock isn't visible should it show it?
-        if (!EPDShip.getInstance().getMainFrame().getDockableComponents()
-                .isDockVisible("NoGo")) {
+        if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("NoGo")) {
 
             // Show it display the message?
             if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
-                new ShowDockableDialog(EPDShip.getInstance().getMainFrame(),
-                        dock_type.NOGO);
+                new ShowDockableDialog(EPDShip.getInstance().getMainFrame(), dock_type.NOGO);
             } else {
 
                 if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                    EPDShip.getInstance().getMainFrame().getDockableComponents()
-                            .openDock("NoGo");
-                    EPDShip.getInstance().getMainFrame().getJMenuBar()
-                            .refreshDockableMenu();
+                    EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("NoGo");
+                    EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
                 }
 
                 // It shouldn't display message but take a default action
@@ -145,42 +117,121 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
             }
 
         }
-        
-        
-        
-        
-        
-        
-        notifyUpdate(false);
-        nogoPanel.newRequest();
-        boolean nogoUpdated = false;
-        Date now = new Date();
-        
-//        
-//        System.out.println("Standard locations at:");
-//        System.out.println("south east point:" + southEastPoint);
-//        System.out.println("north west point: " + northWestPoint);
-        
-        
-        if (getLastUpdate() == null || now.getTime() - getLastUpdate().getTime() > pollInterval * 1000) {
-            // Poll for data from shore
-            try {
-                if (poll()) {
-                    nogoUpdated = true;
-                }
-                setLastUpdate(now);
-            } catch (ShoreServiceException e) {
-                LOG.error("Failed to get NoGo from shore: " + e.getMessage());
 
-                nogoFailed = true;
-                nogoUpdated = true;
-                setLastUpdate(now);
+        this.resetLayer();
+
+        nogoPanel.newRequest();
+
+        nogoData = new ArrayList<NoGoDataEntry>();
+        // New Request - determine how many time slices are needed to complete the request or if we even need to do slices
+
+        // Calculate slices
+        if (this.useSlices) {
+
+            minutesBetween = 10;
+
+            DateTime startDate = new DateTime(validFrom.getTime());
+            DateTime endDate = new DateTime(validTo.getTime());
+
+            DateTime currentVal;
+
+            currentVal = startDate.plusMinutes(minutesBetween);
+
+            NoGoDataEntry nogoDataEntry = new NoGoDataEntry(startDate, currentVal);
+            nogoData.add(nogoDataEntry);
+
+            while (currentVal.isBefore(endDate)) {
+                startDate = currentVal;
+                currentVal = startDate.plusMinutes(minutesBetween);
+
+                nogoDataEntry = new NoGoDataEntry(startDate, currentVal);
+                nogoData.add(nogoDataEntry);
+
+                System.out.println("Entry created going from " + startDate + " to " + currentVal);
+
             }
+
+            createWorker(0).run();
+
+            // Create the workers
+            for (int i = 1; i < nogoData.size(); i++) {
+                System.out.println("Next worker " + i);
+                NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, i);
+                nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i)
+                        .getValidTo());
+
+                nogoWorker.start();
+                System.out.println("Run created for " + i);
+            }
+
+        } else {
+            // Do a single request
+
+            DateTime startDate = new DateTime(validFrom.getTime());
+            DateTime endDate = new DateTime(validTo.getTime());
+
+            NoGoDataEntry nogoDataEntry = new NoGoDataEntry(startDate, endDate);
+            nogoData.add(nogoDataEntry);
+
+            NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, 0);
+
+            nogoWorker.setValues(draught, northWestPoint, southEastPoint, startDate, endDate);
+
+            nogoWorker.start();
         }
-        // Notify if update
-        if (nogoUpdated) {
-            notifyUpdate(true);
-            nogoPanel.requestCompleted(nogoFailed, noGoErrorCode, nogoPolygons, validFrom, validTo, draught);
+
+        // if (poll()) {
+
+        // Poll for data from shore
+        // try {
+        // if (poll()) {
+        // nogoUpdated = true;
+        // }
+        // setLastUpdate(now);
+        // } catch (ShoreServiceException e) {
+        // LOG.error("Failed to get NoGo from shore: " + e.getMessage());
+        //
+        // nogoFailed = true;
+        // nogoUpdated = true;
+        // setLastUpdate(now);
+        // }
+        //
+        // // Notify if update
+        // if (nogoUpdated) {
+        // notifyUpdate(true);
+        // nogoPanel.requestCompleted(nogoFailed, noGoErrorCode, nogoPolygons, validFrom, validTo, draught);
+        // }
+    }
+
+    private NoGoWorker createWorker(int i) {
+        NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, i);
+        nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i).getValidTo());
+        return nogoWorker;
+    }
+
+    public void nogoFailed() {
+        // Handle failures
+        System.out.println("NoGo Failures");
+    }
+
+    public void nogoWorkerCompleted(int i, NogoResponse response) {
+
+        System.out.println("NoGo worker " + i + " has completed its request");
+
+        NoGoDataEntry dataEntry = nogoData.get(i);
+
+        dataEntry.setNogoPolygons(response.getPolygons());
+        dataEntry.setNoGoMessage(response.getNoGoMessage());
+        dataEntry.setNoGoErrorCode(response.getErrorCode());
+
+        // Special handling of slices
+        if (this.useSlices) {
+
+        } else {
+            nogoPanel.requestCompleted(nogoFailed, dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), validFrom, validTo,
+                    draught);
+
+            updateLayerSingleResult();
         }
 
     }
@@ -193,45 +244,62 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
         return southEastPoint;
     }
 
-    public void notifyUpdate(boolean completed) {
-        if (nogoLayer != null) {
-            nogoLayer.doUpdate(completed);
-        }
+    private void resetLayer() {
+        nogoLayer.addFrame(northWestPoint, southEastPoint);
     }
 
-    public boolean poll() throws ShoreServiceException {
+    private void updateLayerSingleResult() {
 
-        if (shoreServices == null) {
-            return false;
-        }
-
-        // Date date = new Date();
-        // Send a rest to shoreServices for NoGo
-//        System.out.println(draught);
-//        System.out.println(northWestPoint);
-//        System.out.println(southEastPoint);
-//        System.out.println(validFrom);
-//        System.out.println(validTo);
-        
-        
-        NogoResponse nogoResponse = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
-
-        nogoPolygons = nogoResponse.getPolygons();
-        validFrom = nogoResponse.getValidFrom();
-        validTo = nogoResponse.getValidTo();
-        noGoErrorCode = nogoResponse.getNoGoErrorCode();
-        noGoMessage = nogoResponse.getNoGoMessage();
-
-//        System.out.println(nogoResponse.getNoGoErrorCode());
-//        System.out.println(nogoResponse.getNoGoMessage());
-//        System.out.println(nogoResponse.getPolygons().size());
-
-        if (nogoResponse == null || nogoResponse.getPolygons() == null) {
-            return false;
-        }
-        return true;
-
+        // Single result returned
+        nogoLayer.singleResultCompleted(nogoData.get(0));
     }
+
+    // private boolean poll() throws ShoreServiceException {
+    //
+    // if (shoreServices == null) {
+    // return false;
+    // }
+    //
+    // // Date date = new Date();
+    // // Send a rest to shoreServices for NoGo
+    // // System.out.println(draught);
+    // // System.out.println(northWestPoint);
+    // // System.out.println(southEastPoint);
+    // // System.out.println(validFrom);
+    // // System.out.println(validTo);
+    //
+    // if (useSlices) {
+    //
+    // } else {
+    //
+    // }
+    //
+    // NogoResponse nogoResponse = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
+    //
+    // System.out.println("Response 1");
+    // NogoResponse nogoResponse2 = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
+    // System.out.println("Response 2");
+    // NogoResponse nogoResponse3 = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
+    // System.out.println("Response 3");
+    // NogoResponse nogoResponse4 = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
+    // System.out.println("Response 4");
+    //
+    // // nogoPolygons = nogoResponse.getPolygons();
+    // validFrom = nogoResponse.getValidFrom();
+    // validTo = nogoResponse.getValidTo();
+    // noGoErrorCode = nogoResponse.getNoGoErrorCode();
+    // noGoMessage = nogoResponse.getNoGoMessage();
+    //
+    // // System.out.println(nogoResponse.getNoGoErrorCode());
+    // // System.out.println(nogoResponse.getNoGoMessage());
+    // // System.out.println(nogoResponse.getPolygons().size());
+    //
+    // if (nogoResponse == null || nogoResponse.getPolygons() == null) {
+    // return false;
+    // }
+    // return true;
+    //
+    // }
 
     public Double getDraught() {
         return draught;
@@ -250,15 +318,7 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
     }
 
     public synchronized List<NogoPolygon> getPolygons() {
-        return nogoPolygons;
-    }
-
-    public synchronized Date getLastUpdate() {
-        return lastUpdate;
-    }
-
-    private synchronized void setLastUpdate(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
+        return null;
     }
 
     public boolean toggleLayer() {

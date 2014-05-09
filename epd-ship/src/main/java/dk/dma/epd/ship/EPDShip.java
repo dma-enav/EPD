@@ -77,7 +77,6 @@ import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.notification.NotificationCenter;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
 import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
-import dk.dma.epd.ship.nogo.DynamicNogoHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
@@ -113,7 +112,6 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private ShoreServicesCommon shoreServices;
     private MonaLisaRouteOptimization monaLisaRouteExchange;
     private NogoHandler nogoHandler;
-    private DynamicNogoHandler dynamicNoGoHandler;
     private TransponderFrame transponderFrame;
     private VoyageEventDispatcher voyageEventDispatcher;
     private VOCTManager voctManager;
@@ -121,7 +119,6 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     // Maritime Cloud services
     private IntendedRouteHandler intendedRouteHandler;
 
-    
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
      * 
@@ -137,7 +134,8 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     /**
      * Constructor
      * 
-     * @param path the home path to use
+     * @param path
+     *            the home path to use
      */
     private EPDShip(String path) throws IOException {
         super();
@@ -147,7 +145,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         } else {
             homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-ship"));
         }
-        
+
         new Bootstrap().run(this, new String[] { "epd-ship.properties", "enc_navicon.properties", "settings.properties",
                 "transponder.xml" }, new String[] { "routes", "layout/static", "shape/GSHHS_shp", "identities" });
 
@@ -230,11 +228,6 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         nogoHandler = new NogoHandler(getSettings().getEnavSettings());
         mapHandler.add(nogoHandler);
 
-        // Create dynamic NoGo handler
-        // Create NoGo handler
-        dynamicNoGoHandler = new DynamicNogoHandler(getSettings().getEnavSettings());
-        mapHandler.add(dynamicNoGoHandler);
-
         // Create Maritime Cloud service
         maritimeCloudService = new MaritimeCloudService();
         mapHandler.add(maritimeCloudService);
@@ -251,14 +244,14 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // Create the route suggestion handler
         routeSuggestionHandler = new RouteSuggestionHandler();
         mapHandler.add(routeSuggestionHandler);
-        
+
         // Create a chat service handler
         chatServiceHandler = new ChatServiceHandlerCommon();
         mapHandler.add(chatServiceHandler);
-        
+
         // Create voyage event dispatcher
         voyageEventDispatcher = new VoyageEventDispatcher();
-        
+
         // Create identity handler
         identityHandler = new IdentityHandler();
         mapHandler.add(identityHandler);
@@ -347,7 +340,8 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             break;
         case SERIAL:
             // aisSensor = new NmeaSerialSensor(sensorSettings.getAisHostOrSerialPort());
-            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisSerialPortBaudRate());
+            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort(),
+                    sensorSettings.getAisSerialPortBaudRate());
             break;
         case FILE:
             aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(), sensorSettings);
@@ -367,7 +361,8 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             gpsSensor = new NmeaUdpSensor(sensorSettings.getGpsTcpOrUdpPort());
             break;
         case SERIAL:
-            gpsSensor = NmeaSerialSensorFactory.create(sensorSettings.getGpsHostOrSerialPort(), sensorSettings.getGpsSerialPortBaudRate());
+            gpsSensor = NmeaSerialSensorFactory.create(sensorSettings.getGpsHostOrSerialPort(),
+                    sensorSettings.getGpsSerialPortBaudRate());
             break;
         case FILE:
             gpsSensor = new NmeaFileSensor(sensorSettings.getGpsFilename(), sensorSettings);
@@ -387,7 +382,8 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             msPntSensor = new NmeaUdpSensor(sensorSettings.getMsPntTcpOrUdpPort());
             break;
         case SERIAL:
-            msPntSensor = NmeaSerialSensorFactory.create(sensorSettings.getMsPntHostOrSerialPort(), sensorSettings.getMsPntSerialPortBaudRate());
+            msPntSensor = NmeaSerialSensorFactory.create(sensorSettings.getMsPntHostOrSerialPort(),
+                    sensorSettings.getMsPntSerialPortBaudRate());
             break;
         case FILE:
             msPntSensor = new NmeaFileSensor(sensorSettings.getMsPntFilename(), sensorSettings);
@@ -487,7 +483,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             LOG.warn("Restarting Maritime Cloud connection");
             maritimeCloudService.stop();
             maritimeCloudService.start();
-            
+
             // Update intended route filter settings.
             LOG.warn("Updating intended route filter settings.");
             this.intendedRouteHandler.updateSettings(this.settings.getEnavSettings());
@@ -523,7 +519,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // Create and set up the main window
         mainFrame = new MainFrame();
         mainFrame.setVisible(true);
-        
+
         // Create the system tray
         systemTray = new SystemTrayCommon();
         mapHandler.add(systemTray);
@@ -531,7 +527,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // Create the notification center
         notificationCenter = new NotificationCenter(getMainFrame());
         mapHandler.add(notificationCenter);
-                
+
         // Create keybinding shortcuts
         makeKeyBindings();
 
@@ -705,7 +701,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
         // Stop the system tray
         systemTray.shutdown();
-        
+
         // Stop sensors
         stopSensors();
 
@@ -744,9 +740,10 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             }
         }
     }
-    
+
     /**
      * Returns the MMSI of the own-ship, or null if not defined
+     * 
      * @return the MMSI of the own-ship
      */
     @Override
@@ -756,6 +753,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
     /**
      * Returns the maritime id of the own-ship, or null if not defined
+     * 
      * @return the maritime id of the own-ship
      */
     @Override
@@ -766,13 +764,13 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
     /**
      * Returns the current position of the ship
+     * 
      * @return the current position of the ship
      */
     @Override
     public Position getPosition() {
         return getPntHandler().getCurrentData().getPosition();
     }
-
 
     public NmeaSensor getAisSensor() {
         return aisSensor;
@@ -792,20 +790,21 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
     /**
      * Returns a reference to the AIS handler
+     * 
      * @return a reference to the AIS handler
      */
     @Override
     public AisHandler getAisHandler() {
-        return (AisHandler)aisHandler;
+        return (AisHandler) aisHandler;
     }
 
     public OwnShipHandler getOwnShipHandler() {
         return ownShipHandler;
     }
-    
+
     @Override
     public RouteManager getRouteManager() {
-        return (RouteManager)routeManager;
+        return (RouteManager) routeManager;
     }
 
     public MapHandler getMapHandler() {
@@ -819,7 +818,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     public MonaLisaRouteOptimization getMonaLisaRouteExchange() {
         return monaLisaRouteExchange;
     }
-    
+
     public double elapsed(long start) {
         double elapsed = System.nanoTime() - start;
         return elapsed / 1000000.0;
@@ -834,16 +833,16 @@ public final class EPDShip extends EPD implements IOwnShipListener {
      */
     @Override
     public StrategicRouteHandler getStrategicRouteHandler() {
-        return (StrategicRouteHandler)strategicRouteHandler;
+        return (StrategicRouteHandler) strategicRouteHandler;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public RouteSuggestionHandler getRouteSuggestionHandler() {
-        return (RouteSuggestionHandler)routeSuggestionHandler;
+        return (RouteSuggestionHandler) routeSuggestionHandler;
     }
-    
+
     /**
      * Get the system wide voyage event dispatcher.
      * 
@@ -866,10 +865,9 @@ public final class EPDShip extends EPD implements IOwnShipListener {
      */
     @Override
     public NotificationCenter getNotificationCenter() {
-        return (NotificationCenter)super.getNotificationCenter();
+        return (NotificationCenter) super.getNotificationCenter();
     }
-    
-    
+
     @Override
     public Path getHomePath() {
         return homePath;
@@ -888,27 +886,27 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     /**
      * {@inheritDoc}
      */
-    @Override 
-    public void ownShipUpdated(OwnShipHandler ownShipHandler) { 
+    @Override
+    public void ownShipUpdated(OwnShipHandler ownShipHandler) {
     }
-    
+
     /**
      * {@inheritDoc}
      */
-    @Override 
+    @Override
     public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
-        
-        // Broadcast a message to remove the intended route 
+
+        // Broadcast a message to remove the intended route
         if (getRouteManager().isRouteActive()) {
             intendedRouteHandler.broadcastIntendedRoute(null, false);
         }
-        
+
         // Restart maritime cloud
         LOG.warn("Restarting Maritime Cloud connection");
         maritimeCloudService.stop();
         maritimeCloudService.start();
 
-        // Broadcast a message to add the intended route 
+        // Broadcast a message to add the intended route
         if (getRouteManager().isRouteActive()) {
             intendedRouteHandler.broadcastIntendedRoute(getRouteManager().getActiveRoute(), true);
         }

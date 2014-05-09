@@ -147,11 +147,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             aisPanel.receiveHighlight(vessel.getMmsi(), vessel.getPositionData().getCog(), rhumbLineDistance, rhumbLineBearing,
                     vessel.getPositionData().getSog());
         }
-        if (vessel.getStaticData() != null && ownShipHandler.isPositionDefined()) {
-            aisPanel.dynamicNogoAvailable(true);
-        } else {
-            aisPanel.dynamicNogoAvailable(false);
-        }
+
 
         doPrepare();
 

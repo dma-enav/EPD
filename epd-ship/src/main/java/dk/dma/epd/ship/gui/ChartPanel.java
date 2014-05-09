@@ -66,15 +66,14 @@ import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
-import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
+import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
 import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDMapSettings;
-import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -94,7 +93,6 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     private OwnShipLayer ownShipLayer;
     private VoyageLayer voyageLayer;
     private NogoLayer nogoLayer;
-    private DynamicNogoLayer dynamicNogoLayer;
     private VoctLayer voctLayer;
     private CommonRulerLayer rulerLayer;
 
@@ -242,10 +240,6 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         nogoLayer = new NogoLayer();
         nogoLayer.setVisible(true);
         mapHandler.add(nogoLayer);
-
-        dynamicNogoLayer = new DynamicNogoLayer();
-        dynamicNogoLayer.setVisible(true);
-        mapHandler.add(dynamicNogoLayer);
 
         // Create AIS layer
         aisLayer = new AisLayer(EPDShip.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);

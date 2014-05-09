@@ -121,6 +121,9 @@ public class NoGoComponentPanel extends OMComponentPanel implements DockableComp
      * @param completed
      */
     public void requestCompleted(boolean nogoFailed, int errorCodeOwn, List<NogoPolygon> polygonsOwn, Date validFrom, Date validTo, Double draught){
+        
+        System.out.println(nogoFailed + " error" + errorCodeOwn + " polys" + polygonsOwn);
+        
         if (nogoFailed){
             statusLabel.setText("Failed");
             statusLabel.setForeground(Color.RED);
