@@ -17,9 +17,9 @@
 	<description>eNavigation Prototype Display parent module</description>
 
 	<scm>
-		<connection>scm:git:git@github.com:dma-dk/epd.git</connection>
-		<developerConnection>scm:git:git@github.com:dma-dk/epd.git</developerConnection>
-		<url>https://github.com/dma-dk/epd</url>
+		<connection>scm:git:git@github.com:dma-enav/EPD.git</connection>
+		<developerConnection>scm:git:git@github.com:dma-enav/EPD.git</developerConnection>
+		<url>https://github.com/dma-enav/EPD</url>
 	</scm>
 
 	<dependencies>
