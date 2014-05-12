@@ -47,6 +47,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.EPDShip;
@@ -71,7 +72,8 @@ import dk.dma.epd.ship.layers.ruler.RulerLayer;
 import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.service.voct.VOCTManager;
-import dk.dma.epd.ship.settings.EPDMapSettings;
+import dk.dma.epd.ship.settings.gui.MapSettings;
+import dk.dma.epd.ship.settings.gui.MapSettings.IObserver;
 import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
 
 /**
@@ -107,8 +109,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
      * Constructor
      * @param activeWaypointPanel
      */
-    public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
-        super();
+    public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel, MapSettings<MapSettings.IObserver> mapSettings) {
+        super(mapSettings);
         
         // Set map handler
         mapHandler = EPDShip.getInstance().getMapHandler();
@@ -122,20 +124,24 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         setBackground(new Color(0.1f, 0.1f, 0.1f, 0.1f));
     }
 
+    @Override
+    public MapSettings<MapSettings.IObserver> getMapSettings() {
+        // TODO Auto-generated method stub
+        return (MapSettings<IObserver>) super.getMapSettings();
+    }
+    
     /**
      * Initialize the chart panel
      */
     public void initChart() {
 
-        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings()
-                .getMapSettings();
         Properties props = EPDShip.getInstance().getProperties();
 
         // Try to create ENC layer
         EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip
                 .getInstance().getSettings().getMapSettings());
         encLayer = encLayerFactory.getEncLayer();
-
+        
         // Add WMS Layer
         if (mapSettings.isUseWms()) {
             wmsLayer = new WMSLayer(mapSettings.getWmsQuery());

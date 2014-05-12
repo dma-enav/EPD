@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.Point;
 import java.util.List;
+import java.util.Objects;
 
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
@@ -45,7 +46,7 @@ import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.RouteEditLayerCommon;
 import dk.dma.epd.common.prototype.layers.util.LayerVisibilityAdapter;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
-import dk.dma.epd.common.prototype.settings.MapSettings;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -56,7 +57,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     
     private static final long serialVersionUID = 1L;
 
-    protected int maxScale = 5000;
+//    protected int maxScale = 5000;
     
     // Mouse modes
     protected String mouseMode;
@@ -83,20 +84,27 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected LayerVisibilityAdapter encVisibilityAdapter = new LayerVisibilityAdapter();
     protected HistoryListener historyListener;
     
+    private MapCommonSettings<?> mapSettings;
+    
     /**
      * Constructor
      */
-    protected ChartPanelCommon() {
-        maxScale = EPD.getInstance().getSettings().getMapSettings().getMaxScale();
+    protected ChartPanelCommon(MapCommonSettings<?> mapSettings) {
+        this.mapSettings = Objects.requireNonNull(mapSettings);
+//        maxScale = EPD.getInstance().getSettings().getMapSettings().getMaxScale();
+    }
+    
+    public MapCommonSettings<?> getMapSettings() {
+        return mapSettings;
     }
     
     /**
      * Save chart settings for workspace
      */
     public void saveSettings() {
-        MapSettings mapSettings = EPD.getInstance().getSettings().getMapSettings();
+//        MapSettings mapSettings = EPD.getInstance().getSettings().getMapSettings();
         mapSettings.setCenter((LatLonPoint) map.getCenter());
-        mapSettings.setScale(map.getScale());
+        mapSettings.setInitialMapScale(map.getScale());
     }
 
     /**
@@ -187,12 +195,11 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
      */
     public void doZoom(float factor) {
         float newScale = map.getScale() * factor;
-        if (newScale < maxScale) {
-            newScale = maxScale;
+        if (newScale < mapSettings.getMinMapScale()) {
+            newScale = mapSettings.getMinMapScale();
         }
         map.setScale(newScale);
         forceAisLayerUpdate();
-
     }
     
     /**
@@ -244,8 +251,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
      */
     public void aisVisible(boolean visible) {
         if (aisLayer != null) {
-            aisLayer.setVisible(visible);
-            EPD.getInstance().getSettings().getAisSettings().setVisible(visible);   
+            aisLayer.getSettings().setVisible(visible);
         }
     }
 
@@ -274,6 +280,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         if (encLayer != null) {
             if (visible) {
                 mapHandler.remove(bgLayer);
+                // TODO update to encLayer.getSettings().setVisible(visible)...
                 encLayer.setVisible(true);
                 mapHandler.add(encLayer);
                 encLayer.doPrepare();
@@ -281,11 +288,13 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
             } else {
                 mapHandler.remove(encLayer);
                 mapHandler.add(bgLayer);
+                // TODO update to encLayer.getSettings().setVisible(visible)...
                 encLayer.setVisible(false);
                 bgLayer.doPrepare();
                 encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
             }
             if (persist) {
+                // TODO update to encLayer.getSettings().setEncVisible(visible);
                 EPD.getInstance().getSettings().getMapSettings().setEncVisible(visible);
             }
         } else {
