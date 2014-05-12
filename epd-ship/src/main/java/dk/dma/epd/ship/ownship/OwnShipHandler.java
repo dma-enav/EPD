@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
 import dk.dma.epd.common.util.Util;
 import net.jcip.annotations.ThreadSafe;
 
@@ -59,7 +60,6 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
     private static final String OWN_SHIP_FILE = EPD.getInstance().getHomePath()
             .resolve(".ownship").toString();
 
-    private final AisSettings aisSettings;
     private PntHandler pntHandler;
 
     private volatile VesselTarget aisTarget;
@@ -68,13 +68,18 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
     protected CopyOnWriteArrayList<IOwnShipListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
+     * Past track settings for own ship.
+     */
+    private PastTrackSettings<?> pastTrackSettings;
+    
+    /**
      * Constructor
      * 
      * @param aisSettings
      */
-    public OwnShipHandler(AisSettings aisSettings) {
+    public OwnShipHandler(PastTrackSettings<?> ownShipPastTrackSettings) {
         super();
-        this.aisSettings = aisSettings;
+        this.pastTrackSettings = Objects.requireNonNull(ownShipPastTrackSettings);
         initAisTarget();
         EPD.startThread(this, "OwnShipHandler");
     }
@@ -87,9 +92,9 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
         VesselTarget oldOwnShip = this.aisTarget;
         aisTarget = new VesselTarget();
         aisTarget.getSettings().setPastTrackDisplayTime(
-                aisSettings.getPastTrackDisplayTime());
+                pastTrackSettings.getPastTrackDisplayTime());
         aisTarget.getSettings().setPastTrackMinDist(
-                aisSettings.getPastTrackOwnShipMinDist());
+                pastTrackSettings.getPastTrackMinDist());
         // Inform listeners that this handler has changed the object used to
         // model own ship.
         publishOwnShipChanged(oldOwnShip);
@@ -257,7 +262,7 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
         Position pos = getPositionData().getPos();
         if (pos != null) {
             getAisTarget().getPastTrackData().addPosition(pos,
-                    aisSettings.getPastTrackMinDist());
+                    pastTrackSettings.getPastTrackMinDist());
         }
     }
 
@@ -267,7 +272,7 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
      */
     protected synchronized void updatePeriodic() {
         aisTarget.getPastTrackData().cleanup(
-                60 * aisSettings.getPastTrackMaxTime());
+                60 * pastTrackSettings.getPastTrackMaxTime());
     }
 
     /**
