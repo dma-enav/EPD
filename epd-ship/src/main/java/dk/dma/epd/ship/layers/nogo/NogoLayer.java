@@ -36,7 +36,7 @@ public class NogoLayer extends EPDLayerCommon {
      * Constructor
      */
     public NogoLayer() {
-        super();
+        super(null);
     }
 
     /**
