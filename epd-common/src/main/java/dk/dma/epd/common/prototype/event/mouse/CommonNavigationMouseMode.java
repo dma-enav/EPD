@@ -24,6 +24,7 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
+import java.util.Objects;
 
 import javax.swing.SwingUtilities;
 
@@ -35,6 +36,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 
 public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements KeyListener {
     
@@ -44,13 +46,13 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
     private static final long serialVersionUID = 1L;
     public final Cursor NAV_CURSOR; // Default cursor for navigation.
     private ChartPanelCommon chartPanel;
-    private int maxScale; // The max scaled size which can be zoomed into the map.
     private boolean doZoom;
     private boolean mouseExited;
     private boolean layerMouseDrag;
 
     protected boolean mouseDragged;
     protected Point point1, point2;
+    protected MapCommonSettings<?> mapSettings;
     
     /**
      * Creates a new CommonNavigationMouseMode.<br>
@@ -59,15 +61,14 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
      * 
      * @param chartPanel
      *          The chart panel of the object which called this constructor. 
-     * @param maxScale
-     *          The max scale value of the application settings.
+     * @param mapSettings
+     *          The (application wide) map settings.
      * @param modeid 
      */
-    public CommonNavigationMouseMode(ChartPanelCommon chartPanel, int maxScale, String modeid) {
+    public CommonNavigationMouseMode(ChartPanelCommon chartPanel, MapCommonSettings<?> mapSettings, String modeid) {
         super(modeid, true);
         this.chartPanel = chartPanel;
-        this.maxScale = maxScale;
-        
+        this.mapSettings = Objects.requireNonNull(mapSettings);
         // Create the cursor for navigation.
         // This cursor can be used in the classes which will inherit from this class.
         Toolkit tk = Toolkit.getDefaultToolkit();
@@ -88,8 +89,8 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
         
         float newScale = currentScale * scaleFactor;
         
-        if (newScale < this.maxScale) {
-            newScale = this.maxScale;
+        if (newScale < this.mapSettings.getMinMapScale()) {
+            newScale = this.mapSettings.getMinMapScale();
         }
         
         return newScale;
@@ -450,8 +451,8 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
                     
                     // Ensure that the scale level wont zoom to far into
                     // the map.
-                    if (scale < this.maxScale) {
-                        scale = this.maxScale;
+                    if (scale < this.mapSettings.getMinMapScale()) {
+                        scale = this.mapSettings.getMinMapScale();
                     }
 
                     // Go to new projection.
