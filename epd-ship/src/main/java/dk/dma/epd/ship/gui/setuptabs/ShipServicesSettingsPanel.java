@@ -17,16 +17,15 @@ package dk.dma.epd.ship.gui.setuptabs;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Objects;
 
 import javax.swing.ImageIcon;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter.FilterType;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.util.Converter;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.settings.EPDCloudSettings;
+import dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
@@ -41,7 +40,6 @@ import javax.swing.SpinnerNumberModel;
 public class ShipServicesSettingsPanel extends BaseSettingsPanel implements ActionListener {
     
     private static final long serialVersionUID = 1L;
-    private EPDCloudSettings cloudSettings;
     private JCheckBox chckbxBroadcastIntendedRoute;
     private JComboBox<String> comboBoxSelectMethod;
     private JPanel generalPanel;
@@ -51,17 +49,17 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     private JSpinner spinnerBackward;
     private JLabel lblTimeMeasurementForward;
     private JLabel lblTimeMesaurementBackward;
-    private FilterType filterType;
     private FilterType selectedType;
     private JSpinner spinnerFilterDistance;
     private JSpinner spinnerNotificationDistance;
     private JSpinner spinnerAlertDistance;
     private JSpinner spinnerTimeToLive;
-    private EnavSettings enavSettings;
+    private IntendedRouteHandlerSettings<?> handlerSettings;
     
-    public ShipServicesSettingsPanel() {
+    public ShipServicesSettingsPanel(IntendedRouteHandlerSettings<?> handlerSettings) {
         super("Services", new ImageIcon(
                 ShipServicesSettingsPanel.class.getResource("/images/settingspanels/services.png")));
+        this.handlerSettings = Objects.requireNonNull(handlerSettings);
         this.setLayout(null);
         
         
@@ -193,7 +191,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
      */
     private void updateGui() {
 
-        String measurement = ""; // The unit which the filter type is useing.
+        String measurement = ""; // The unit which the filter type is using.
         selectedType = null;     // The selected filter type.
         
         // Set measurement unit and selected filter type based on what
@@ -243,13 +241,13 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         
         // If the selected filter type is the same as the one stored in the settings,
         // load the values into the forward and backward spinners.
-        if (type.equals(this.filterType)) {
+        if (type.equals(handlerSettings.getIntendedRouteFilter().getType())) {
             if (this.comboBoxSelectMethod.getSelectedIndex() == 0) {
-                this.spinnerForward.setValue(Converter.metersToNm(this.cloudSettings.getIntendedRouteFilter().getForward()));
-                this.spinnerBackward.setValue(Converter.metersToNm(this.cloudSettings.getIntendedRouteFilter().getBackward()));                
+                this.spinnerForward.setValue(Converter.metersToNm(this.handlerSettings.getIntendedRouteFilter().getForward()));
+                this.spinnerBackward.setValue(Converter.metersToNm(this.handlerSettings.getIntendedRouteFilter().getBackward()));                
             } else {
-                this.spinnerForward.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
-                this.spinnerBackward.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward());
+                this.spinnerForward.setValue(this.handlerSettings.getIntendedRouteFilter().getForward());
+                this.spinnerBackward.setValue(this.handlerSettings.getIntendedRouteFilter().getBackward());
             }
 
         // If the selected filter type is not the same as the one stored in the settings,
@@ -292,17 +290,16 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         
         // Check for changes in generel settings.
         boolean changesWereMade = 
-                changed(this.cloudSettings.isBroadcastIntendedRoute(), this.chckbxBroadcastIntendedRoute.isSelected()) ||
-                changed(this.cloudSettings.getTimeBetweenBroadCast(), this.spinnerTimeBetweenBroadcast.getValue()) ||
-                changed(this.cloudSettings.getAdaptionTime(), this.spinnerAdaptionTime.getValue()) ||
-                changed(this.cloudSettings.getIntendedRouteFilter().getType(), this.selectedType) ||
+                changed(this.handlerSettings.isBroadcastIntendedRoute(), this.chckbxBroadcastIntendedRoute.isSelected()) ||
+                changed(this.handlerSettings.getTimeBetweenBroadCast(), this.spinnerTimeBetweenBroadcast.getValue()) ||
+                changed(this.handlerSettings.getAdaptionTime(), this.spinnerAdaptionTime.getValue()) ||
+                changed(this.handlerSettings.getIntendedRouteFilter().getType(), this.selectedType) ||
                 
-                // Changes in enav settings.
-                changed(this.enavSettings.getRouteTimeToLive(), 
+                changed(this.handlerSettings.getRouteTimeToLive(), 
                         TimeUnit.MINUTES.toMillis(Long.valueOf(this.spinnerTimeToLive.getValue().toString()))) ||
-                changed(this.enavSettings.getNotificationDistance(), this.spinnerNotificationDistance.getValue()) ||
-                changed(this.enavSettings.getAlertDistance(), this.spinnerAlertDistance.getValue()) ||
-                changed(this.enavSettings.getFilterDistance(), this.spinnerFilterDistance.getValue());
+                changed(this.handlerSettings.getNotificationDistance(), this.spinnerNotificationDistance.getValue()) ||
+                changed(this.handlerSettings.getAlertDistance(), this.spinnerAlertDistance.getValue()) ||
+                changed(this.handlerSettings.getFilterDistance(), this.spinnerFilterDistance.getValue());
         
         // If no changes were made to the other settings, check if changes were
         // made to the intended router filter settings.
@@ -310,19 +307,19 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
             
             // If the filter type is set to distance, convert the forward and backward 
             // values to meter and compare them to what is stored in the settings.
-            if (this.filterType.equals(FilterType.METERS)) {
+            if (handlerSettings.getIntendedRouteFilter().getType().equals(FilterType.METERS)) {
                 changesWereMade = 
-                        changed(this.cloudSettings.getIntendedRouteFilter().getForward(), 
+                        changed(this.handlerSettings.getIntendedRouteFilter().getForward(), 
                                 Math.round(Converter.nmToMeters((double) this.spinnerForward.getValue()))) ||
-                        changed(this.cloudSettings.getIntendedRouteFilter().getBackward(), 
+                        changed(this.handlerSettings.getIntendedRouteFilter().getBackward(), 
                                 Math.round(Converter.nmToMeters((double) this.spinnerBackward.getValue())));
             
             // If the filter type is set to any other type, compare the forward and backward
             // values to what is stored in the settings.
             } else {
                 changesWereMade =
-                        changed(this.cloudSettings.getIntendedRouteFilter().getForward(), this.spinnerForward.getValue()) ||
-                        changed(this.cloudSettings.getIntendedRouteFilter().getBackward(), this.spinnerBackward.getValue());
+                        changed(this.handlerSettings.getIntendedRouteFilter().getForward(), this.spinnerForward.getValue()) ||
+                        changed(this.handlerSettings.getIntendedRouteFilter().getBackward(), this.spinnerBackward.getValue());
             }
         }
 
@@ -334,42 +331,36 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
      */
     @Override
     protected void doLoadSettings() {
-
-        // Get cloud settings.
-        this.cloudSettings = EPDShip.getInstance().getSettings().getCloudSettings();
-        this.enavSettings = EPDShip.getInstance().getSettings().getEnavSettings();
         
         // Load cloud Intended Route Settings.
-        this.chckbxBroadcastIntendedRoute.setSelected(this.cloudSettings.isBroadcastIntendedRoute());
-        this.spinnerTimeBetweenBroadcast.setValue(this.cloudSettings.getTimeBetweenBroadCast());
-        this.spinnerAdaptionTime.setValue(this.cloudSettings.getAdaptionTime());
-        
-        this.filterType = this.cloudSettings.getIntendedRouteFilter().getType();
+        this.chckbxBroadcastIntendedRoute.setSelected(this.handlerSettings.isBroadcastIntendedRoute());
+        this.spinnerTimeBetweenBroadcast.setValue(this.handlerSettings.getTimeBetweenBroadCast());
+        this.spinnerAdaptionTime.setValue(this.handlerSettings.getAdaptionTime());
         
         // Set combobox selection.
-        if (filterType.equals(FilterType.METERS)) {
+        if (handlerSettings.getIntendedRouteFilter().getType().equals(FilterType.METERS)) {
             this.comboBoxSelectMethod.setSelectedIndex(0);
-        } else if (filterType.equals(FilterType.MINUTES)) {
+        } else if (handlerSettings.getIntendedRouteFilter().getType().equals(FilterType.MINUTES)) {
             this.comboBoxSelectMethod.setSelectedIndex(1);
-        } else if (filterType.equals(FilterType.COUNT)) {
+        } else if (handlerSettings.getIntendedRouteFilter().getType().equals(FilterType.COUNT)) {
             this.comboBoxSelectMethod.setSelectedIndex(2);
         }
         
         // Set value of backward and forward.
-        if (filterType.equals(FilterType.METERS)) {
-            this.spinnerForward.setValue(Converter.metersToNm(this.cloudSettings.getIntendedRouteFilter().getForward()));
-            this.spinnerBackward.setValue(Converter.metersToNm(this.cloudSettings.getIntendedRouteFilter().getBackward())); 
+        if (handlerSettings.getIntendedRouteFilter().getType().equals(FilterType.METERS)) {
+            this.spinnerForward.setValue(Converter.metersToNm(this.handlerSettings.getIntendedRouteFilter().getForward()));
+            this.spinnerBackward.setValue(Converter.metersToNm(this.handlerSettings.getIntendedRouteFilter().getBackward())); 
         } else {
-            this.spinnerForward.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
-            this.spinnerBackward.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward()); 
+            this.spinnerForward.setValue(this.handlerSettings.getIntendedRouteFilter().getForward());
+            this.spinnerBackward.setValue(this.handlerSettings.getIntendedRouteFilter().getBackward()); 
         }
         
         // Load intended route filter settings.
-        this.spinnerFilterDistance.setValue(this.enavSettings.getFilterDistance());
+        this.spinnerFilterDistance.setValue(this.handlerSettings.getFilterDistance());
         this.spinnerTimeToLive.setValue(
-                TimeUnit.MILLISECONDS.toMinutes(this.enavSettings.getRouteTimeToLive()));
-        this.spinnerAlertDistance.setValue(this.enavSettings.getAlertDistance());
-        this.spinnerNotificationDistance.setValue(this.enavSettings.getNotificationDistance());
+                TimeUnit.MILLISECONDS.toMinutes(this.handlerSettings.getRouteTimeToLive()));
+        this.spinnerAlertDistance.setValue(this.handlerSettings.getAlertDistance());
+        this.spinnerNotificationDistance.setValue(this.handlerSettings.getNotificationDistance());
     }
 
     /**
@@ -379,30 +370,30 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     protected void doSaveSettings() {
                 
         // Save cloud Intended Route Settings.
-        this.cloudSettings.setBroadcastIntendedRoute(this.chckbxBroadcastIntendedRoute.isSelected());
-        this.cloudSettings.setTimeBetweenBroadCast((Integer) this.spinnerTimeBetweenBroadcast.getValue());
-        this.cloudSettings.setAdaptionTime((Integer) this.spinnerAdaptionTime.getValue());
+        this.handlerSettings.setBroadcastIntendedRoute(this.chckbxBroadcastIntendedRoute.isSelected());
+        this.handlerSettings.setTimeBetweenBroadCast((Integer) this.spinnerTimeBetweenBroadcast.getValue());
+        this.handlerSettings.setAdaptionTime((Integer) this.spinnerAdaptionTime.getValue());
         
         // Save Intended route filter settings.
-        this.cloudSettings.getIntendedRouteFilter().setType(this.selectedType);
+        this.handlerSettings.getIntendedRouteFilter().setType(this.selectedType);
         
         // If the filter type is set to distance, the forward and backward values are
         // converted to meters and stored in the settings.
         if (this.comboBoxSelectMethod.getSelectedIndex() == 0) {
-            this.cloudSettings.getIntendedRouteFilter().setForward((int) Math.round(Converter.nmToMeters((double) this.spinnerForward.getValue())));
-            this.cloudSettings.getIntendedRouteFilter().setBackward((int) Math.round(Converter.nmToMeters((double) this.spinnerBackward.getValue())));
+            this.handlerSettings.getIntendedRouteFilter().setForward((int) Math.round(Converter.nmToMeters((double) this.spinnerForward.getValue())));
+            this.handlerSettings.getIntendedRouteFilter().setBackward((int) Math.round(Converter.nmToMeters((double) this.spinnerBackward.getValue())));
         // If the filter tupe is set to any other than distance, just save the
         // forward and backward values to the settings.
         } else {
-            this.cloudSettings.getIntendedRouteFilter().setForward((int) this.spinnerForward.getValue());
-            this.cloudSettings.getIntendedRouteFilter().setBackward((int) this.spinnerBackward.getValue());
+            this.handlerSettings.getIntendedRouteFilter().setForward((int) this.spinnerForward.getValue());
+            this.handlerSettings.getIntendedRouteFilter().setBackward((int) this.spinnerBackward.getValue());
         }
         
         // Save enav settings.
-        this.enavSettings.setFilterDistance((double) this.spinnerFilterDistance.getValue());
-        this.enavSettings.setAlertDistance((double) this.spinnerAlertDistance.getValue());
-        this.enavSettings.setNotificationDistance((double) this.spinnerNotificationDistance.getValue());
-        this.enavSettings.setRouteTimeToLive(
+        this.handlerSettings.setFilterDistance((double) this.spinnerFilterDistance.getValue());
+        this.handlerSettings.setAlertDistance((double) this.spinnerAlertDistance.getValue());
+        this.handlerSettings.setNotificationDistance((double) this.spinnerNotificationDistance.getValue());
+        this.handlerSettings.setRouteTimeToLive(
                 TimeUnit.MINUTES.toMillis(Long.valueOf(this.spinnerTimeToLive.getValue().toString())));
     }
 
