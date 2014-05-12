@@ -18,6 +18,7 @@ package dk.dma.epd.ship.layers.ownship;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.Date;
+import java.util.Objects;
 
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
@@ -41,6 +42,7 @@ import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
+import dk.dma.epd.ship.settings.layers.OwnShipLayerSettings;
 
 /**
  * Defines the own-ship layer
@@ -71,8 +73,8 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
     /**
      * Constructor
      */
-    public OwnShipLayer() {
-        super(null);
+    public OwnShipLayer(OwnShipLayerSettings<?> layerSettings) {
+        super(Objects.requireNonNull(layerSettings));
         
         graphics.setVague(true);
         
@@ -85,7 +87,13 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(OMGraphicList.class);
     }
-
+    
+    @Override
+    public OwnShipLayerSettings<?> getSettings() {
+        // TODO Auto-generated method stub
+        return (OwnShipLayerSettings<?>) super.getSettings();
+    }
+    
     /**
      * Checks whether an update is due, i.e. when a certain 
      * time interval has passed or when the current position 
@@ -190,7 +198,7 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
         
         // Handle resilient PNT error graphic
         if (rpntErrorGraphic == null) {
-            rpntErrorGraphic = new RpntErrorGraphic();
+            rpntErrorGraphic = new RpntErrorGraphic(getSettings());
             graphics.add(rpntErrorGraphic);
         }
         rpntErrorGraphic.setVisible(true);
