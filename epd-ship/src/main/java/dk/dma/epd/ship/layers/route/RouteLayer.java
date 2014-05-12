@@ -19,10 +19,10 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
+import java.util.Objects;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
 
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.metoc.MetocGraphic;
 import dk.dma.epd.common.prototype.layers.route.ActiveRouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
@@ -31,8 +31,9 @@ import dk.dma.epd.common.prototype.layers.route.SafeHavenArea;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.SuggestedRoute;
@@ -47,13 +48,14 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
     private SuggestedRouteGraphic suggestedRoute;
     private SafeHavenArea safeHavenArea = new SafeHavenArea();
     private boolean activeSafeHaven;
-
+    private MetocLayerCommonSettings<?> metocSettings;
+    
     /**
      * Constructor
      */
-    public RouteLayer() {
-        super();
-        
+    public RouteLayer(RouteLayerCommonSettings<?> localSettings, MetocLayerCommonSettings<?> metocSettings) {
+        super(localSettings);
+        this.metocSettings = Objects.requireNonNull(metocSettings);
         // Register ship-specific classes that will trigger the map menu        
         registerMapMenuClasses(SuggestedRouteGraphic.class);
         
@@ -136,7 +138,7 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
 
         graphics.clear();
 
-        float routeWidth = EPD.getInstance().getSettings().getNavSettings().getRouteWidth();
+        float routeWidth = getSettings().getRouteWidth();
         Stroke stroke = new BasicStroke(
                 routeWidth,             // Width
                 BasicStroke.CAP_SQUARE, // End cap
@@ -240,8 +242,7 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
             }
 
             if (routeManager.showMetocForRoute(route)) {
-                routeMetoc = new MetocGraphic(route, activeRoute, EPDShip.getInstance()
-                        .getSettings().getEnavSettings());
+                routeMetoc = new MetocGraphic(route, activeRoute, metocSettings);
                 metocGraphics.add(routeMetoc);
             }
         }
