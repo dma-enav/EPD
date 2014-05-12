@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.util.PropUtils;
 
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.settings.EPDMapSettings;
 
 /**
  * Factory class for creating ENC layer. If ENC is enabled is uses the file
@@ -42,7 +42,7 @@ public class EncLayerFactory {
     private static final Logger LOG = LoggerFactory
             .getLogger(EncLayerFactory.class);
     private Properties encProps = new Properties();
-    private EPDMapSettings mapSettings;
+    private ENCLayerCommonSettings<?> encLayerSettings;
     private OMGraphicHandlerLayer encLayer;
 
     private static void addSoftwareLibrary(File file) throws Exception {
@@ -61,10 +61,10 @@ public class EncLayerFactory {
         fieldSysPath.set(null, null);
     }
 
-    public EncLayerFactory(EPDMapSettings mapSettings) {
-        this.mapSettings = mapSettings;
+    public EncLayerFactory(ENCLayerCommonSettings<?> encLayerSettings) {
+        this.encLayerSettings = encLayerSettings;
         // Use ENC?
-        if (!mapSettings.isUseEnc()) {
+        if (!this.encLayerSettings.isEncInUse()) {
             return;
         }
 
@@ -179,27 +179,27 @@ public class EncLayerFactory {
 
             // Set settings from configuration
             marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHOW_TEXT",
-                    Boolean.toString(mapSettings.isS52ShowText()));
+                    Boolean.toString(encLayerSettings.isS52ShowText()));
             marinerSettings.setProperty(
                     "MARINER_PARAM.S52_MAR_SHALLOW_PATTERN",
-                    Boolean.toString(mapSettings.isS52ShallowPattern()));
+                    Boolean.toString(encLayerSettings.isS52ShallowPattern()));
             marinerSettings.setProperty(
                     "MARINER_PARAM.S52_MAR_SHALLOW_CONTOUR",
-                    Integer.toString(mapSettings.getS52ShallowContour()));
+                    Integer.toString(encLayerSettings.getS52ShallowContour()));
             marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SAFETY_DEPTH",
-                    Integer.toString(mapSettings.getS52SafetyDepth()));
+                    Integer.toString(encLayerSettings.getS52SafetyDepth()));
             marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SAFETY_CONTOUR",
-                    Integer.toString(mapSettings.getS52SafetyContour()));
+                    Integer.toString(encLayerSettings.getS52SafetyContour()));
             marinerSettings.setProperty("MARINER_PARAM.S52_MAR_DEEP_CONTOUR",
-                    Integer.toString(mapSettings.getS52DeepContour()));
+                    Integer.toString(encLayerSettings.getS52DeepContour()));
             marinerSettings.setProperty("MARINER_PARAM.useSimplePointSymbols",
-                    Boolean.toString(mapSettings.isUseSimplePointSymbols()));
+                    Boolean.toString(encLayerSettings.isUseSimplePointSymbols()));
             marinerSettings.setProperty("MARINER_PARAM.usePlainAreas",
-                    Boolean.toString(mapSettings.isUsePlainAreas()));
+                    Boolean.toString(encLayerSettings.isUsePlainAreas()));
             marinerSettings.setProperty("MARINER_PARAM.S52_MAR_TWO_SHADES",
-                    Boolean.toString(mapSettings.isS52TwoShades()));
-            marinerSettings.setProperty("MARINER_PARAM.color", mapSettings
-                    .getColor().toUpperCase());
+                    Boolean.toString(encLayerSettings.isS52TwoShades()));
+            marinerSettings.setProperty("MARINER_PARAM.color", encLayerSettings.
+                    getEncColorScheme().toString().toUpperCase());
 
             // Set settings on layer
             argTypes = new Class<?>[1];
@@ -262,43 +262,6 @@ public class EncLayerFactory {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
-            
-            
-//            Object obj = method.invoke(encLayer, arguments);
-//            marinerSettings = (Properties) obj;
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-//            
-//            Class<?> c;
-//            try {
-//                c = Class.forName("dk.navicon.s52.pure.presentation.S52Layer");
-//                
-//                
-//                
-////                
-////                Class<?> s52layer = (c) encLayer;
-//                
-//                
-//                Method m = c.getMethod("emptyCellCache");
-//                m.invoke(null);
-//
-//                Method m2 = c.getMethod("doPrepare");
-//                m2.invoke(null);
-//
-//            } catch (Exception e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
         }
     }
 
