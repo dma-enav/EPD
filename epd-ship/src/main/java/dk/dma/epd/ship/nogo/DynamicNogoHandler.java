@@ -34,7 +34,7 @@ import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
-import dk.dma.epd.ship.settings.EPDEnavSettings;
+import dk.dma.epd.ship.settings.gui.GUISettings;
 import dk.frv.enav.common.xml.nogo.response.NogoResponse;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
@@ -96,8 +96,7 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
 
     private Boolean isVisible = true;
 
-    public DynamicNogoHandler(EPDEnavSettings enavSettings) {
-        // pollInterval = enavSettings.getNogoPollInterval();
+    public DynamicNogoHandler() {
         self = EPDShip.startThread(this, "DynamicNoGoHandler");
     }
 
@@ -420,7 +419,7 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
         return dynamicNoGoActive;
     }
 
-    public void setDynamicNoGoActive(boolean dynamicNoGoActive) {
+    public void setDynamicNoGoActive(boolean dynamicNoGoActive, GUISettings<?> guiSettings) {
         this.dynamicNoGoActive = dynamicNoGoActive;
 
         System.out.println(dynamicNoGoActive);
@@ -434,12 +433,12 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
                     .isDockVisible("Dynamic NoGo")) {
 
                 // Show it display the message?
-                if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
+                if (guiSettings.isShowDockMessage()) {
                     new ShowDockableDialog(EPDShip.getInstance().getMainFrame(),
                             dock_type.DYN_NOGO);
                 } else {
 
-                    if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
+                    if (guiSettings.isAlwaysOpenDock()) {
                         EPDShip.getInstance().getMainFrame().getDockableComponents()
                                 .openDock("Dynamic NoGo");
                         EPDShip.getInstance().getMainFrame().getJMenuBar()
