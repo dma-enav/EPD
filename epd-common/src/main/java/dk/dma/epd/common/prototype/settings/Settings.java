@@ -15,19 +15,16 @@
  */
 package dk.dma.epd.common.prototype.settings;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Path;
-import java.util.Properties;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 
 /**
  * Abstract parent class the encapsulates the 
@@ -37,21 +34,66 @@ public abstract class Settings {
 
     private static final Logger LOG = LoggerFactory.getLogger(Settings.class);
     
-    public abstract GuiSettings getGuiSettings();
+    /**
+     * Filename for the file with AIS layer settings.
+     */
+    protected final String aisLayerSettingsFile = "AIS-Layer_settings.yaml";
 
-    public abstract MapSettings getMapSettings();
+    /**
+     * Filename for the file with general gui settings.
+     */
+    protected final String guiSettingsFile = "gui_settings.yaml";
+    
+    /**
+     * Filename for the file with map settings.
+     */
+    protected final String mapSettingsFile = "map_settings.yaml";
+    
+    /**
+     * Filename for the file with route manager settings.
+     */
+    protected final String routeManagerSettingsFile = "route-manager_settings.yaml";
+    
+    /**
+     * The primary/global AIS layer settings.
+     * If more AIS layers are to coexists, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     */
+    protected AisLayerCommonSettings<?> primaryAisLayerSettings;
+    
+    protected S57LayerSettings s57LayerSettings;
+    
+    public abstract GUICommonSettings<?> getGuiSettings();
+    
+    public abstract MapCommonSettings<?> getMapSettings();
+    
+    public abstract RouteManagerCommonSettings<?> getRouteManagerSettings();
+    
+    /**
+     * Gets the primary (global) AIS layer settings.
+     * If more AIS layers are to coexists, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     * @return The primary (global) AIS layer settings.
+     */
+    public AisLayerCommonSettings<?> getPrimaryAisLayerSettings() {
+        return primaryAisLayerSettings;
+    }
+    
+    public S57LayerSettings getS57LayerSettings() {
+        return this.s57LayerSettings;
+    }
+    
+//    public abstract GuiSettings getGuiSettings();
 
-    public abstract SensorSettings getSensorSettings();
+//    public abstract MapSettings getMapSettings();
 
-    public abstract NavSettings getNavSettings();
+//    public abstract SensorSettings getSensorSettings();
 
-    public abstract AisSettings getAisSettings();
+//    public abstract NavSettings getNavSettings();
 
-    public abstract EnavSettings getEnavSettings();
+//    public abstract EnavSettings getEnavSettings();
 
     public abstract S57LayerSettings getS57Settings();
     
-    public abstract CloudSettings getCloudSettings();
+//    public abstract CloudSettings getCloudSettings();
 
     /**
      * Resolves the given file in the current home folder
@@ -62,66 +104,80 @@ public abstract class Settings {
         return EPD.getInstance().getHomePath().resolve(file);
     }
     
-    /**
-     * Loads the given properties file
-     * @param props the properties to load the file into
-     * @param file the properties file to load
-     * @return success or failure
-     */
-    protected boolean loadProperties(Properties props, String file) {
-        if (file.startsWith("/")) {
-            file = file.substring(1);
-        }
-        try {
-            props.load(new FileInputStream(resolve(file).toFile()));
-        } catch (FileNotFoundException e) {
-            LOG.error("No settings file found: " + resolve(file));
-            return false;
-        } catch (IOException e) {
-            LOG.error("Settings file could not be loaded: " + resolve(file));
-            return false;
-        }
-        
-        LOG.info("Settings file loaded, path=" + resolve(file));
-        return true;
-    }
+//    /**
+//     * Loads the given properties file
+//     * @param props the properties to load the file into
+//     * @param file the properties file to load
+//     * @return success or failure
+//     */
+//    protected boolean loadProperties(Properties props, String file) {
+//        if (file.startsWith("/")) {
+//            file = file.substring(1);
+//        }
+//        try {
+//            props.load(new FileInputStream(resolve(file).toFile()));
+//        } catch (FileNotFoundException e) {
+//            LOG.error("No settings file found: " + resolve(file));
+//            return false;
+//        } catch (IOException e) {
+//            LOG.error("Settings file could not be loaded: " + resolve(file));
+//            return false;
+//        }
+//        
+//        LOG.info("Settings file loaded, path=" + resolve(file));
+//        return true;
+//    }
     
-    /**
-     * Saves the properties to the given file
-     * @param props the properties to save
-     * @param file the file to save the properties to
-     * @return success or failure
-     */
-    protected boolean saveProperties(Properties props, String file, String header) {
-        if (file.startsWith("/")) {
-            file = file.substring(1);
-        }
-        try (
-                FileWriter outFile = new FileWriter(resolve(file).toFile());
-                PrintWriter out = new PrintWriter(outFile);) {
-                if (header != null) {
-                    out.println(header);
-                }
-                TreeSet<String> keys = new TreeSet<>();
-                for (Object key : props.keySet()) {
-                    keys.add((String) key);
-                }
-                for (String key : keys) {
-                    out.println(key + "=" + props.getProperty(key));
-                }
-        } catch (IOException e) {
-            LOG.error("Failed to save settings file " + resolve(file) + ": " + e.getMessage());
-            return false;
-        }
-        
-        LOG.info("Settings file updated, path=" + resolve(file));
-        return true;
-    }
-       
+//    /**
+//     * Saves the properties to the given file
+//     * @param props the properties to save
+//     * @param file the file to save the properties to
+//     * @return success or failure
+//     */
+//    protected boolean saveProperties(Properties props, String file, String header) {
+//        if (file.startsWith("/")) {
+//            file = file.substring(1);
+//        }
+//        try (
+//                FileWriter outFile = new FileWriter(resolve(file).toFile());
+//                PrintWriter out = new PrintWriter(outFile);) {
+//                if (header != null) {
+//                    out.println(header);
+//                }
+//                TreeSet<String> keys = new TreeSet<>();
+//                for (Object key : props.keySet()) {
+//                    keys.add((String) key);
+//                }
+//                for (String key : keys) {
+//                    out.println(key + "=" + props.getProperty(key));
+//                }
+//        } catch (IOException e) {
+//            LOG.error("Failed to save settings file " + resolve(file) + ": " + e.getMessage());
+//            return false;
+//        }
+//        
+//        LOG.info("Settings file updated, path=" + resolve(file));
+//        return true;
+//    }
+    
     /**
      * Load the settings files as well as the workspace files
      */
-    public abstract void loadFromFile();
+    public void loadFromFile() {
+        /*
+         * Load primary AIS layer settings.
+         * If ship/shore specific AIS layer settings are added later, move this to subclass.
+         */
+        AisLayerCommonSettings<AisLayerCommonSettings.IObserver> ais = ObservedSettings.loadFromFile(AisLayerCommonSettings.class, resolve(aisLayerSettingsFile).toFile());
+        // Use loaded instance or create new if the file was not found.
+        this.primaryAisLayerSettings = ais != null ? ais : new AisLayerCommonSettings<AisLayerCommonSettings.IObserver>();
+        /*
+         * Load S57 layer settings.
+         * If ship/shore specific S57 layer settings are added later, move this to subclass.
+         */
+        
+//        this.s57LayerSettings
+    }
 
     /**
      * Save the settings to the files

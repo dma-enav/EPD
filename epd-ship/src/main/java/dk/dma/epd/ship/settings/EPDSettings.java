@@ -15,11 +15,19 @@
  */
 package dk.dma.epd.ship.settings;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Properties;
 
+import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
+import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.ship.settings.gui.GUISettings;
+import dk.dma.epd.ship.settings.gui.MapSettings;
+import dk.dma.epd.ship.settings.handlers.RouteManagerSettings;
 
 
 /**
@@ -31,29 +39,51 @@ public class EPDSettings extends Settings implements Serializable {
 
     private final String settingsFile = "settings.properties";
 
-    private final EPDGuiSettings guiSettings = new EPDGuiSettings();
-    private final EPDMapSettings mapSettings = new EPDMapSettings();
     private final EPDSensorSettings sensorSettings = new EPDSensorSettings();
     private final EPDNavSettings navSettings = new EPDNavSettings();
-    private final EPDAisSettings aisSettings = new EPDAisSettings();
     private final EPDEnavSettings enavSettings = new EPDEnavSettings();
     private final EPDS57LayerSettings s57Settings = new EPDS57LayerSettings();
     private final EPDCloudSettings cloudSettings = new EPDCloudSettings();
-
+    
+    private GUISettings<GUISettings.IObserver> guiSettings;
+    
+    private MapSettings<MapSettings.IObserver> mapSettings;
+    
+    private RouteManagerSettings<RouteManagerSettings.IObserver> routeManagerSettings;
+    
     public EPDSettings() {
         super();
     }
-
+    
     /**
      * Load the settings files as well as the workspace files
      */
     @Override
     public void loadFromFile() {
+        // Do work in super to load non-specialized settings.
+        super.loadFromFile();
+        
+        // Load general gui settings.
+        GUISettings<GUISettings.IObserver> gui = ObservedSettings.loadFromFile(GUISettings.class, resolve(guiSettingsFile).toFile());
+        // Create new instance if no saved instance found.
+        guiSettings = gui != null ? gui : new GUISettings<>();
+        
+        // Load map settings.
+        MapSettings<MapSettings.IObserver> map = ObservedSettings.loadFromFile(MapSettings.class, resolve(mapSettingsFile).toFile());
+        // Create new instance if no saved instance found.
+        mapSettings = map != null ? map : new MapSettings<>();
+        
+        // Load route manager settings.
+        RouteManagerSettings<RouteManagerSettings.IObserver> rms = ObservedSettings.loadFromFile(RouteManagerSettings.class, resolve(routeManagerSettingsFile).toFile());
+        // Create new instance if no saved instance found.
+        routeManagerSettings = rms != null ? rms : new RouteManagerSettings<>();
+        
+        
         // Open properties file
         Properties props = new Properties();
         loadProperties(props, settingsFile);
 
-        aisSettings.readProperties(props);
+
         enavSettings.readProperties(props);
         guiSettings.readProperties(props);
         mapSettings.readProperties(props);
@@ -70,7 +100,6 @@ public class EPDSettings extends Settings implements Serializable {
     @Override
     public void saveToFile() {
         Properties props = new Properties();
-        aisSettings.setProperties(props);
         enavSettings.setProperties(props);
         guiSettings.setProperties(props);
         mapSettings.setProperties(props);
@@ -84,15 +113,15 @@ public class EPDSettings extends Settings implements Serializable {
     }
 
     @Override
-    public EPDGuiSettings getGuiSettings() {
-        return guiSettings;
+    public GUISettings<GUISettings.IObserver> getGuiSettings() {
+        return this.guiSettings;
     }
 
     @Override
-    public EPDMapSettings getMapSettings() {
-        return mapSettings;
+    public RouteManagerSettings<RouteManagerSettings.IObserver> getRouteManagerSettings() {
+        return this.routeManagerSettings;
     }
-
+    
     @Override
     public EPDSensorSettings getSensorSettings() {
         return sensorSettings;
