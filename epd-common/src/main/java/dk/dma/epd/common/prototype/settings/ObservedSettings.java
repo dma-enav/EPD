@@ -139,15 +139,20 @@ public abstract class ObservedSettings<OBSERVER> {
      * @param file
      *            The file from where the settings are loaded.
      * @return An instance of {@code typeToLoad} with properties set according
-     *         to the data stored in the given file.
-     * @throws FileNotFoundException
-     *             If the given {@code file} cannot be found.
+     *         to the data stored in the given file or null if the file was
+     *         not found.
      */
     public static <T extends ObservedSettings<?>> T loadFromFile(
-            Class<T> typeToLoad, File file) throws FileNotFoundException {
-        InputStream is = new FileInputStream(file);
-        Yaml yaml = new Yaml();
-        return yaml.loadAs(is, typeToLoad);
+            Class<T> typeToLoad, File file) {
+        if(!file.exists())
+            return null;
+        try {
+            InputStream is = new FileInputStream(file);
+            Yaml yaml = new Yaml();
+            return yaml.loadAs(is, typeToLoad);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
     }
 
     /**
