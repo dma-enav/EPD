@@ -43,6 +43,8 @@ import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
@@ -50,6 +52,7 @@ import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.service.RouteSuggestionHandler;
 import dk.dma.epd.ship.service.SuggestedRoute;
 import dk.dma.epd.ship.service.SuggestedRoute.SuggestedRouteStatus;
+import dk.dma.epd.ship.settings.handlers.RouteManagerSettings;
 
 /**
  * Manager for handling a collection of routes and active route
@@ -68,14 +71,22 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
     private List<SuggestedRoute> suggestedRoutes = new LinkedList<>();    
     private RouteSuggestionDialog routeSuggestionDialog;
     
-
     /**
      * Constructor
      */
-    public RouteManager() {
-        super();
+    protected RouteManager(RouteManagerSettings<?> routeManagerSettings, MetocHandlerCommonSettings<?> metocHandlerSettings) {
+        super(routeManagerSettings, metocHandlerSettings);
     }
 
+    /**
+     * Gets the {@link RouteManagerSettings} of this {@link RouteManager}.
+     * @return The {@link RouteManagerSettings} of this {@link RouteManager}.
+     */
+    @Override
+    public RouteManagerSettings<?> getRouteManagerSettings() {
+        return (RouteManagerSettings<?>) super.getRouteManagerSettings();
+    }
+    
     /**
      * Called when receiving a position update
      * @param pntData the updated position
@@ -146,11 +157,9 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
             activeRoute = new ActiveRoute(route, pntHandler.getCurrentData());
 
             // Set the minimum WP circle radius
-            activeRoute.setWpCircleMin(EPDShip.getInstance().getSettings().getNavSettings()
-                    .getMinWpRadius());
+            activeRoute.setWpCircleMin(getRouteManagerSettings().getMinWpRadius());
             // Set relaxed WP change
-            activeRoute.setRelaxedWpChange(EPDShip.getInstance().getSettings().getNavSettings()
-                    .isRelaxedWpChange());
+            activeRoute.setRelaxedWpChange(getRouteManagerSettings().isRelaxedWpChange());
             // Inject the current position
             activeRoute.update(pntHandler.getCurrentData());
             // Set start time to now
@@ -360,8 +369,8 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
      * default routes file.
      * @return the new route manager
      */
-    public static RouteManager loadRouteManager() {
-        RouteManager manager = new RouteManager();
+    public static RouteManager loadRouteManager(RouteManagerSettings<?> routeManagerSettings, MetocHandlerCommonSettings<?> metocHandlerSettings) {
+        RouteManager manager = new RouteManager(routeManagerSettings, metocHandlerSettings);
         try (
             FileInputStream fileIn = new FileInputStream(ROUTES_FILE);
             ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
