@@ -28,6 +28,10 @@ public class GeneralLayer extends EPDLayerCommon {
 
     private static final long serialVersionUID = 1L;
 
+    public GeneralLayer() {
+        super(null);
+    }
+    
     /**
      * Provides default behavior for right-clicks by
      * showing the general menu.
