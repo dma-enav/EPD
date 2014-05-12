@@ -22,6 +22,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.RenderingHints;
+import java.util.Objects;
 
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMEllipse;
@@ -35,7 +36,7 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.sensor.nmea.PntSource;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData.JammingFlag;
-import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.settings.layers.OwnShipLayerSettings;
 
 /**
  * Draws the resilient PNT indicators around the own-ship graphics:
@@ -67,12 +68,14 @@ public class RpntErrorGraphic  extends OMGraphicList {
     private OMCircle hplCicle = new OMCircle();
     private OMEllipse errorEllipse = new OMEllipse(new LatLonPoint.Double(0d, 0d), 0d, 0d, Length.METER, 0d);
     
+    private OwnShipLayerSettings<?> layerSettings;
+    
     /**
      * Constructor
      */
-    public RpntErrorGraphic() {
+    public RpntErrorGraphic(OwnShipLayerSettings<?> layerSettings) {
         super();
-
+        layerSettings = Objects.requireNonNull(layerSettings);
         hplCicle.setRenderType(RENDERTYPE_LATLON);
         hplCicle.setLatLon(0, 0); // Avoid NPE's
         hplCicle.setLinePaint(COLOR_PNT_SRC_GPS);
@@ -96,15 +99,6 @@ public class RpntErrorGraphic  extends OMGraphicList {
         add(errorEllipse);
     }
     
-    
-    /**
-     * Returns if the "Resilient PNT Layer" is visible or not
-     * @return if the "Resilient PNT Layer" is visible or not
-     */
-    public boolean isResilientPntLayerVisible() {
-        return EPDShip.getInstance().getSettings().getMapSettings().isMsPntVisible();
-    }
-    
     /**
      * Sets the visible state of the RPNT graphics,
      * taking into account the "Resilient PNT Layer" setting
@@ -113,7 +107,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
      */
     public void setVisible(boolean visible) {
         // Check if the "Resilient PNT Layer" layer is visible
-        visible = visible & isResilientPntLayerVisible();
+        visible = visible & layerSettings.isMultiSourcePntVisible();
         super.setVisible(visible);
     }
     
@@ -145,7 +139,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
      */
     public void update(VesselPositionData vesselPositionData, ResilientPntData rpntData) {
         // Check if the "Resilient PNT layer is visible
-        if (!isResilientPntLayerVisible()) {
+        if (!layerSettings.isMultiSourcePntVisible()) {
             return;
         }
         
