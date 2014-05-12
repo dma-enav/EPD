@@ -16,8 +16,8 @@
 package dk.dma.epd.ship.gui.setuptabs;
 
 import dk.dma.epd.common.prototype.gui.settings.CommonAisSettingsPanel;
-import dk.dma.epd.common.prototype.settings.AisSettings;
-import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -39,14 +39,15 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
     private JSpinner spinnerCogVectorLengthScaleStepSize;
     private JSpinner spinnerCogVectorHideBelow;
     private JSpinner spinnerAISRedraw;
-    private AisSettings aisSettings;
     private JCheckBox chckbxShowShipLabels;
-
+    private AisLayerCommonSettings<?> layerSettings;
+    
     /**
      * Constructs a new ShipAisSettingsPanel object.
      */
-    public ShipAisSettingsPanel() {
-
+    public ShipAisSettingsPanel(AisHandlerCommonSettings<?> handlerSettings, AisLayerCommonSettings<?> layerSettings) {
+        super(handlerSettings);
+        this.layerSettings = layerSettings;
         // Get the transponderPanel from super class.
         super.getTransponderPanel().setLocation(6, 6);
         
@@ -119,16 +120,13 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         // Load the settings for the common components.
         super.doLoadSettings();
         
-        // Get settings.
-        aisSettings = EPDShip.getInstance().getSettings().getAisSettings();
-        
         // Load appearance settings.
-        chckbxShowShipLabels.setSelected(aisSettings.isShowNameLabels());
-        spinnerCogVectorLengthMin.setValue(aisSettings.getCogVectorLengthMin());
-        spinnerCogVectorLengthMax.setValue(aisSettings.getCogVectorLengthMax());
-        spinnerCogVectorLengthScaleStepSize.setValue(aisSettings.getCogVectorLengthScaleInterval());
-        spinnerCogVectorHideBelow.setValue(aisSettings.getCogVectorHideBelow());
-        spinnerAISRedraw.setValue(aisSettings.getMinRedrawInterval());
+        chckbxShowShipLabels.setSelected(layerSettings.isShowAllAisNameLabels());
+        spinnerCogVectorLengthMin.setValue(layerSettings.getMovementVectorLengthMin());
+        spinnerCogVectorLengthMax.setValue(layerSettings.getMovementVectorLengthMax());
+        spinnerCogVectorLengthScaleStepSize.setValue(layerSettings.getMovementVectorLengthStepSize());
+        spinnerCogVectorHideBelow.setValue(layerSettings.getMovementVectorHideBelow());
+        spinnerAISRedraw.setValue(layerSettings.getLayerRedrawInterval());
     }
     
     public void doSaveSettings() {
@@ -137,12 +135,12 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         super.doSaveSettings();
         
         // Save appearance settings.
-        aisSettings.setShowNameLabels(chckbxShowShipLabels.isSelected());
-        aisSettings.setCogVectorLengthMin((Integer) spinnerCogVectorLengthMin.getValue());
-        aisSettings.setCogVectorLengthMax((Integer) spinnerCogVectorLengthMax.getValue());
-        aisSettings.setCogVectorLengthScaleInterval((Float) spinnerCogVectorLengthScaleStepSize.getValue());
-        aisSettings.setCogVectorHideBelow((Float) spinnerCogVectorHideBelow.getValue());
-        aisSettings.setMinRedrawInterval((Integer) spinnerAISRedraw.getValue());
+        layerSettings.setShowAllAisNameLabels(chckbxShowShipLabels.isSelected());
+        layerSettings.setMovementVectorLengthMin((Integer) spinnerCogVectorLengthMin.getValue());
+        layerSettings.setMovementVectorLengthMax((Integer) spinnerCogVectorLengthMax.getValue());
+        layerSettings.setMovementVectorLengthStepSize((Float) spinnerCogVectorLengthScaleStepSize.getValue());
+        layerSettings.setMovementVectorHideBelow((Float) spinnerCogVectorHideBelow.getValue());
+        layerSettings.setLayerRedrawInterval((Integer) spinnerAISRedraw.getValue());
     }
     
     public boolean checkSettingsChanged() {
@@ -159,12 +157,12 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         if (!changesWereMade) {
             changesWereMade = 
                     // Changes were made to appearance settings.
-                    changed(aisSettings.isShowNameLabels(), chckbxShowShipLabels.isSelected()) ||
-                    changed(aisSettings.getCogVectorLengthMin(), spinnerCogVectorLengthMin.getValue()) ||
-                    changed(aisSettings.getCogVectorLengthMax(), spinnerCogVectorLengthMax.getValue()) ||
-                    changed(aisSettings.getCogVectorLengthScaleInterval(), spinnerCogVectorLengthScaleStepSize.getValue()) ||
-                    changed(aisSettings.getCogVectorHideBelow(), spinnerCogVectorHideBelow.getValue()) ||
-                    changed(aisSettings.getMinRedrawInterval(), spinnerAISRedraw.getValue());
+                    changed(layerSettings.isShowAllAisNameLabels(), chckbxShowShipLabels.isSelected()) ||
+                    changed(layerSettings.getMovementVectorLengthMin(), spinnerCogVectorLengthMin.getValue()) ||
+                    changed(layerSettings.getMovementVectorLengthMax(), spinnerCogVectorLengthMax.getValue()) ||
+                    changed(layerSettings.getMovementVectorLengthStepSize(), spinnerCogVectorLengthScaleStepSize.getValue()) ||
+                    changed(layerSettings.getMovementVectorHideBelow(), spinnerCogVectorHideBelow.getValue()) ||
+                    changed(layerSettings.getLayerRedrawInterval(), spinnerAISRedraw.getValue());
         }
         
         return changesWereMade;
