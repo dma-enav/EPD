@@ -26,7 +26,9 @@ import javax.swing.border.EtchedBorder;
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.ais.message.AisMessage;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.panels.AisTargetPanel;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
@@ -171,7 +173,7 @@ public class AisComponentPanel extends OMComponentPanel implements ItemListener 
                 
                 internalSet = true;
                 // new Thread(dynamicNogoHandler.updateNogo());
-                dynamicNogoHandler.setDynamicNoGoActive(true);
+                dynamicNogoHandler.setDynamicNoGoActive(true, EPDShip.getInstance().getSettings().getGuiSettings());
                 // dynamicNogoHandler.forceUpdate();
                 System.out.println("It's selected");
 
@@ -183,7 +185,7 @@ public class AisComponentPanel extends OMComponentPanel implements ItemListener 
             else {
                 if (mmsi == dynamicNogoHandler.getMmsiTarget() && !internalSet) {
                     dynamicNogoHandler.setMmsiTarget(-1);
-                    dynamicNogoHandler.setDynamicNoGoActive(false);
+                    dynamicNogoHandler.setDynamicNoGoActive(false, EPDShip.getInstance().getSettings().getGuiSettings());
                     System.out.println("Deselecting");
                 }
 
