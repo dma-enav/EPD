@@ -40,7 +40,7 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
      * @param chartPanel
      */
     public NavigationMouseMode(ChartPanel chartPanel) {
-        super(chartPanel, EPDShip.getInstance().getSettings().getMapSettings().getMaxScale(), MODE_ID);
+        super(chartPanel, EPDShip.getInstance().getSettings().getMapSettings(), MODE_ID);
         this.clickTimer = ClickTimer.getClickTimer();
         
         this.setModeCursor(super.NAV_CURSOR);
