@@ -119,7 +119,7 @@ public class VOCTManager extends VOCTManagerCommon {
         SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
 
         SearchPatternRoute searchRoute = searchPatternGenerator.generateSearchPattern(type, sarData, EPDShip.getInstance().getSettings()
-                .getNavSettings(), id);
+                .getRouteManagerSettings(), id);
 
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
