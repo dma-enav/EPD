@@ -41,7 +41,7 @@ public class RulerLayer extends EPDLayerCommon {
      * Constructor
      */
     public RulerLayer() {
-        super();
+        super(null);
     }
     
     /**
