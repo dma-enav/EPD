@@ -17,6 +17,7 @@ package dk.dma.epd.ship.layers.msi;
 
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.Objects;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MouseDelegator;
@@ -30,8 +31,9 @@ import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
+import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
 import dk.dma.epd.common.util.Calculator;
-import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
@@ -48,13 +50,14 @@ public class MsiLayer extends MsiLayerCommon {
     private MouseDelegator mouseDelegator;
     private LatLonPoint mousePosition;
     private NewRouteContainerLayer newRouteLayer;
-
+    private MSIHandlerCommonSettings<?> handlerSettings;
+    
     /**
      * Constructor
      */
-    public MsiLayer() {
-        super();
-
+    public MsiLayer(MSILayerCommonSettings<?> layerSettings, MSIHandlerCommonSettings<?> handlerSettings) {
+        super(layerSettings);
+        this.handlerSettings = Objects.requireNonNull(handlerSettings);
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(MsiSymbolGraphic.class, MsiDirectionalIcon.class);
     }
@@ -76,7 +79,7 @@ public class MsiLayer extends MsiLayerCommon {
     @Override
     protected boolean filterMessage(MsiMessageExtended message) {
         // Filtering begins here
-        if(EPDShip.getInstance().getSettings().getEnavSettings().isMsiFilter()){
+        if(handlerSettings.isMsiFilter()){
             // It is set to be visible
             if(!message.visible) {
                 if(mousePosition == null) {
@@ -91,12 +94,12 @@ public class MsiLayer extends MsiLayerCommon {
                 boolean visibleToOther = false;
                 for (int i = 0; i < newRouteLayer.getRoute().getWaypoints().size(); i++) {
                     double distance2 = distanceToPoint(message, newRouteLayer.getRoute().getWaypoints().get(i).getPos());
-                    if(distance2 <= EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint()){
+                    if(distance2 <= getSettings().getMsiVisibilityFromNewWaypoint()){
                         visibleToOther = true;
                     }
                 }
                 
-                boolean visibleToSelf = distance <= EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint();
+                boolean visibleToSelf = distance <= getSettings().getMsiVisibilityFromNewWaypoint();
                 
                 if (!visibleToSelf && !visibleToOther){
                     return false;
