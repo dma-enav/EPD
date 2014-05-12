@@ -300,7 +300,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
                 
                 final StringBuilder aboutText = new StringBuilder();
                 aboutText.append("The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\n");
-                aboutText.append("The user manual is available from service.e-navigation.net\n\n");
+                aboutText.append("The user manual is available from e-navigation.net\n\n");
                 aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
                 aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
                 aboutText.append("Build date: " + VersionInfo.getBuildDate() + "\n");
