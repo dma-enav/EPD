@@ -37,7 +37,7 @@ public class RouteEditEndRoute extends JMenuItem implements IMapMenuAction {
     private static final long serialVersionUID = 1L;
     private NewRouteContainerLayer newRouteLayer;
     private RouteManager routeManager;
-
+    
     public RouteEditEndRoute(String text) {
         super();
         setText(text);
@@ -57,13 +57,13 @@ public class RouteEditEndRoute extends JMenuItem implements IMapMenuAction {
             for (RouteWaypoint routeWaypoint : waypoints) {
                 if (routeWaypoint.getOutLeg() != null) {
                     RouteLeg outLeg = routeWaypoint.getOutLeg();
-                    double xtd = EPDShip.getInstance().getSettings().getNavSettings().getDefaultXtd();
+                    double xtd = routeManager.getRouteManagerSettings().getDefaultXtd();
                     outLeg.setXtdPort(xtd);
                     outLeg.setXtdStarboard(xtd);
                     outLeg.setHeading(Heading.RL);
-                    outLeg.setSpeed(EPDShip.getInstance().getSettings().getNavSettings().getDefaultSpeed());
+                    outLeg.setSpeed(routeManager.getRouteManagerSettings().getDefaultSpeed());
                 }
-                routeWaypoint.setTurnRad(EPDShip.getInstance().getSettings().getNavSettings().getDefaultTurnRad());
+                routeWaypoint.setTurnRad(routeManager.getRouteManagerSettings().getDefaultTurnRad());
                 routeWaypoint.setName(String.format("WP_%03d", i));
                 i++;
             }
