@@ -15,8 +15,6 @@
  */
 package dk.dma.epd.ship.layers.ais;
 
-import java.text.DecimalFormat;
-
 import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.AisTarget.Status;
 import dk.dma.epd.common.prototype.ais.AtoNTarget;
@@ -27,9 +25,6 @@ import dk.dma.epd.common.prototype.ais.VesselTarget.AisClass;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.EPDShip;
-import dk.frv.enav.common.xml.risk.response.Risk;
-import dk.frv.enav.common.xml.risk.response.RiskList;
 
 /**
  * AIS target mouse over info
@@ -93,50 +88,11 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
         }
         str.append("<br/>");
 
-        /*
-         * Get the risk object
-         */
-        RiskList riskList = EPDShip.getInstance().getRiskHandler().getRiskList(
-                vesselTarget.getMmsi());
-        // if( riskList!=null && !riskList.getRisks().isEmpty()){
-        // Risk risk = riskList.getRisks().iterator().next();
-        // str.append("length : " + risk.getLength() + " m " );
-        //
-        // }
-
         if (callsign != null) {
             str.append(callsign + "<br/>");
         }
         str.append("COG " + cog + "  SOG " + sog + "<br/>");
 
-        Risk riskIndex = EPDShip.getInstance().getRiskHandler().getRiskLevel(
-                vesselTarget.getMmsi());
-        if (riskIndex != null) {
-            DecimalFormat fmt = new DecimalFormat("#.####");
-            str.append("risk index : "
-                    + fmt.format(riskIndex.getRiskNorm())
-                    + " ("
-                    + fmt.format(riskIndex.getProbability()
-                            * riskIndex.getConsequence() * 1000000)
-                    + "$) <br/>");
-        }
-
-        if (riskList != null) {
-            double total = 0;
-            for (Risk risk : riskList.getRisks()) {
-                if (risk.getAccidentType().equals("MACHINERYFAILURE")) {
-                    continue;
-                }
-                total += risk.getRiskNorm();
-            }
-            for (Risk risk : riskList.getRisks()) {
-                if (risk.getAccidentType().equals("MACHINERYFAILURE")) {
-                    continue;
-                }
-                str.append(risk.getAccidentType() + " : "
-                        + (int) (risk.getRiskNorm() / total * 100) + " % <br/>");
-            }
-        }
         str.append("</html>");
 
         showText(str.toString());
