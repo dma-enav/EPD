@@ -68,9 +68,9 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
     @GuardedBy("this")
     protected int activeRouteIndex = -1;
     
-    protected RouteManagerCommonSettings<?> routeManagerSettings;
+    private RouteManagerCommonSettings<?> routeManagerSettings;
     
-    protected MetocHandlerCommonSettings<?> metocSettings;
+    private MetocHandlerCommonSettings<?> metocSettings;
     /**
      * Constructor
      */
@@ -78,6 +78,22 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
         this.routeManagerSettings = routeManagerSettings;
         this.metocSettings = metocSettings;
         EPD.startThread(this, "RouteManager");
+    }
+    
+    /**
+     * Gets the {@link RouteManagerCommonSettings} of this {@link RouteManagerCommon}.
+     * @return The {@link RouteManagerCommonSettings} of this {@link RouteManagerCommon}.
+     */
+    public RouteManagerCommonSettings<?> getRouteManagerSettings() {
+        return this.routeManagerSettings;
+    }
+    
+    /**
+     * Gets the {@link MetocHandlerCommonSettings} of this {@link RouteManagerCommon}.
+     * @return The {@link MetocHandlerCommonSettings} of this {@link RouteManagerCommon}.
+     */
+    public MetocHandlerCommonSettings<?> getMetocHandlerSettings() {
+        return this.metocSettings;
     }
     
     /**************************************/

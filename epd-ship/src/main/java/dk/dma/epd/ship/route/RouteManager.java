@@ -44,7 +44,6 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
-import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
