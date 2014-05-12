@@ -72,7 +72,7 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
      * Constructor
      */
     public OwnShipLayer() {
-        super();
+        super(null);
         
         graphics.setVague(true);
         
@@ -186,7 +186,7 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
         }
         // re-show outline graphic in case it was hidden by standard ownship graphic
         this.vesselOutlineGraphic.setVisible(true);
-        this.vesselOutlineGraphic.update(this.ownShipHandler.getAisTarget(), null, this.getProjection().getScale());
+        this.vesselOutlineGraphic.update(this.ownShipHandler.getAisTarget(), this.getProjection().getScale());
         
         // Handle resilient PNT error graphic
         if (rpntErrorGraphic == null) {
