@@ -72,7 +72,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
      * Constructor
      */
     public VoyageLayer() {
-        super();
+        super(null);
         
         // Automatically add info panels
         registerInfoPanel(voyageHandlingMouseOverPanel, WaypointCircle.class, RouteLegGraphic.class);
