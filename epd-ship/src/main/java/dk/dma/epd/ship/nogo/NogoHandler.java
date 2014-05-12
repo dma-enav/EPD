@@ -34,7 +34,7 @@ import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
-import dk.dma.epd.ship.settings.EPDEnavSettings;
+import dk.dma.epd.ship.settings.gui.GUISettings;
 import dk.frv.enav.common.xml.nogo.response.NogoResponse;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
@@ -107,8 +107,7 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
 
     private Boolean isVisible = true;
 
-    public NogoHandler(EPDEnavSettings enavSettings) {
-        // pollInterval = enavSettings.getNogoPollInterval();
+    public NogoHandler() {
         EPDShip.startThread(this, "NogoHandler");
     }
 
@@ -120,7 +119,7 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
         }
     }
 
-    public synchronized void updateNogo() {
+    public synchronized void updateNogo(GUISettings<?> guiSettings) {
         
         
         // If the dock isn't visible should it show it?
@@ -128,12 +127,12 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
                 .isDockVisible("NoGo")) {
 
             // Show it display the message?
-            if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
+            if (guiSettings.isShowDockMessage()) {
                 new ShowDockableDialog(EPDShip.getInstance().getMainFrame(),
                         dock_type.NOGO);
             } else {
 
-                if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
+                if (guiSettings.isAlwaysOpenDock()) {
                     EPDShip.getInstance().getMainFrame().getDockableComponents()
                             .openDock("NoGo");
                     EPDShip.getInstance().getMainFrame().getJMenuBar()
@@ -204,15 +203,6 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
         if (shoreServices == null) {
             return false;
         }
-
-        // Date date = new Date();
-        // Send a rest to shoreServices for NoGo
-//        System.out.println(draught);
-//        System.out.println(northWestPoint);
-//        System.out.println(southEastPoint);
-//        System.out.println(validFrom);
-//        System.out.println(validTo);
-        
         
         NogoResponse nogoResponse = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
 
@@ -221,10 +211,6 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
         validTo = nogoResponse.getValidTo();
         noGoErrorCode = nogoResponse.getNoGoErrorCode();
         noGoMessage = nogoResponse.getNoGoMessage();
-
-//        System.out.println(nogoResponse.getNoGoErrorCode());
-//        System.out.println(nogoResponse.getNoGoMessage());
-//        System.out.println(nogoResponse.getPolygons().size());
 
         if (nogoResponse == null || nogoResponse.getPolygons() == null) {
             return false;
