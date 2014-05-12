@@ -16,9 +16,9 @@
 package dk.dma.epd.ship.service.shore;
 
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
-import dk.dma.epd.ship.settings.EPDEnavSettings;
 import dk.frv.enav.common.xml.PositionReport;
 import dk.frv.enav.common.xml.ShoreServiceRequest;
 
@@ -36,8 +36,8 @@ public class ShoreServices extends ShoreServicesCommon {
      * 
      * @param enavSettings
      */
-    public ShoreServices(EPDEnavSettings enavSettings) {
-        super(enavSettings);
+    public ShoreServices(NetworkSettings<?> shoreServicesConnectionSettings, NetworkSettings<?> monaLisaConnectionSettings) {
+        super(shoreServicesConnectionSettings, monaLisaConnectionSettings);
     }
     
     
