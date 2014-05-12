@@ -157,6 +157,9 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
         NogoResponse nogoResponse = (NogoResponse) makeRequest("/api/xml/nogo", "dk.frv.enav.common.xml.nogo.request",
                 "dk.frv.enav.common.xml.nogo.response", nogoRequest);
+        
+        System.out.println(nogoResponse);
+        
         return nogoResponse;
     }
 

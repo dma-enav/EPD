@@ -60,7 +60,7 @@ public class NoGoWorker extends Thread {
         LOG.info("NoGo Worker " + id + " has started its request");
 
         if (shoreServices == null) {
-            nogoHandler.nogoFailed();
+            nogoHandler.noNetworkConnection();
             // Send fault message
 
             return;
@@ -68,11 +68,11 @@ public class NoGoWorker extends Thread {
 
         try {
             NogoResponse nogoResponse = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
-
+            
             // Check the nogoresponse stuff
 
             if (nogoResponse == null || nogoResponse.getPolygons() == null) {
-                nogoHandler.nogoFailed();
+                nogoHandler.nogoTimedOut();
                 return;
             }
 
@@ -81,6 +81,7 @@ public class NoGoWorker extends Thread {
             nogoHandler.nogoWorkerCompleted(id, nogoResponse);
         } catch (ShoreServiceException e) {
             // TODO Auto-generated catch block
+            nogoHandler.noNetworkConnection();
             LOG.error("Failed to get NoGo from shore: " + e.getMessage());
         }
         // Perform the thing

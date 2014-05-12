@@ -120,7 +120,15 @@ public class NogoHandler extends MapHandlerChild {
 
         this.resetLayer();
 
-        nogoPanel.newRequest();
+        // Setup the panel
+        if (this.useSlices) {
+            nogoPanel.activateMultiple();
+            nogoPanel.newRequestMultiple();
+        } else {
+            nogoPanel.activateSingle();
+            nogoPanel.newRequestSingle();
+
+        }
 
         nogoData = new ArrayList<NoGoDataEntry>();
         // New Request - determine how many time slices are needed to complete the request or if we even need to do slices
@@ -179,28 +187,6 @@ public class NogoHandler extends MapHandlerChild {
 
             nogoWorker.start();
         }
-
-        // if (poll()) {
-
-        // Poll for data from shore
-        // try {
-        // if (poll()) {
-        // nogoUpdated = true;
-        // }
-        // setLastUpdate(now);
-        // } catch (ShoreServiceException e) {
-        // LOG.error("Failed to get NoGo from shore: " + e.getMessage());
-        //
-        // nogoFailed = true;
-        // nogoUpdated = true;
-        // setLastUpdate(now);
-        // }
-        //
-        // // Notify if update
-        // if (nogoUpdated) {
-        // notifyUpdate(true);
-        // nogoPanel.requestCompleted(nogoFailed, noGoErrorCode, nogoPolygons, validFrom, validTo, draught);
-        // }
     }
 
     private NoGoWorker createWorker(int i) {
@@ -209,9 +195,23 @@ public class NogoHandler extends MapHandlerChild {
         return nogoWorker;
     }
 
-    public void nogoFailed() {
-        // Handle failures
-        System.out.println("NoGo Failures");
+    /**
+     * Handles a failed NoGo request, either because of data error, or no connection
+     */
+    public void nogoTimedOut() {
+        if (this.useSlices) {
+            nogoPanel.nogoFailedMultiple();
+        } else {
+            nogoPanel.nogoFailedSingle();
+        }
+    }
+
+    public void noNetworkConnection() {
+        if (this.useSlices) {
+            nogoPanel.noConnectionMultiple();
+        } else {
+            nogoPanel.noConnectionSingle();
+        }
     }
 
     public void nogoWorkerCompleted(int i, NogoResponse response) {
@@ -222,15 +222,15 @@ public class NogoHandler extends MapHandlerChild {
 
         dataEntry.setNogoPolygons(response.getPolygons());
         dataEntry.setNoGoMessage(response.getNoGoMessage());
-        dataEntry.setNoGoErrorCode(response.getErrorCode());
+        dataEntry.setNoGoErrorCode(response.getNoGoErrorCode());
 
         // Special handling of slices
         if (this.useSlices) {
-
-        } else {
-            nogoPanel.requestCompleted(nogoFailed, dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), validFrom, validTo,
+            nogoPanel.requestCompletedMultiple(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), validFrom, validTo,
                     draught);
-
+        } else {
+            nogoPanel
+                    .requestCompletedSingle(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), validFrom, validTo, draught);
             updateLayerSingleResult();
         }
 
@@ -249,7 +249,6 @@ public class NogoHandler extends MapHandlerChild {
     }
 
     private void updateLayerSingleResult() {
-
         // Single result returned
         nogoLayer.singleResultCompleted(nogoData.get(0));
     }
