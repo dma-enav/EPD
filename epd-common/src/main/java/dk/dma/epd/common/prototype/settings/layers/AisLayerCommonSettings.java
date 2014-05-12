@@ -29,7 +29,7 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  *            {@code AisLayerCommonSettings} for changes.
  * @author Janus Varmarken
  */
-public abstract class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettings.IObserver>
+public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettings.IObserver>
         extends VesselLayerSettings<OBSERVER> {
 
     /**
