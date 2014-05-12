@@ -70,8 +70,7 @@ public class NoGoPanel extends JPanel {
     private JSlider slider;
 
     private DecimalFormat df = new DecimalFormat("#.#");
-
-    // private final JLabel label = new JLabel("NoGo");
+    SimpleDateFormat sdf = new SimpleDateFormat("dd MMM , HH:mm");
 
     public NoGoPanel() {
 
@@ -81,14 +80,13 @@ public class NoGoPanel extends JPanel {
         singleNoGoPanel = new JPanel();
         multipleNoGoPanel = new JPanel();
 
-        // this.add(singleNoGoPanel);
-        // this.add(multipleNoGoPanel);
-
         createSingleRequestPanel();
         createSliderRequestPanel();
 
-        activateSinglePanel();
-        // activateSliderPanel();
+         activateSinglePanel();
+//        activateSliderPanel();
+        // this.add(singleNoGoPanel);
+        // this.add(multipleNoGoPanel);
     }
 
     public void activateSliderPanel() {
@@ -103,8 +101,8 @@ public class NoGoPanel extends JPanel {
 
     private void createSliderRequestPanel() {
         GridBagLayout gridBagLayout = new GridBagLayout();
-        gridBagLayout.columnWidths = new int[] { 125, 153 };
-        gridBagLayout.rowHeights = new int[] { 20, 16, 15, 0, 0, 0, 0, 0, 10 };
+        gridBagLayout.columnWidths = new int[] { 125, 90 };
+        gridBagLayout.rowHeights = new int[] { 20, 16, 15, 0, 0, 0, 0, 0, 30 };
         gridBagLayout.columnWeights = new double[] { 0.0, 1.0 };
         gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
         multipleNoGoPanel.setLayout(gridBagLayout);
@@ -196,7 +194,7 @@ public class NoGoPanel extends JPanel {
         GridBagConstraints gbc_additionalTxtTitleLabel = new GridBagConstraints();
         gbc_additionalTxtTitleLabel.gridwidth = 2;
         gbc_additionalTxtTitleLabel.insets = new Insets(0, 0, 5, 0);
-        gbc_additionalTxtTitleLabel.anchor = GridBagConstraints.NORTHWEST;
+        gbc_additionalTxtTitleLabel.anchor = GridBagConstraints.NORTH;
         gbc_additionalTxtTitleLabel.gridx = 0;
         gbc_additionalTxtTitleLabel.gridy = 5;
         multipleNoGoPanel.add(additionalTxtTitleLabelSlider, gbc_additionalTxtTitleLabel);
@@ -204,42 +202,34 @@ public class NoGoPanel extends JPanel {
         additionalTxtTitleLabel2Slider.setHorizontalAlignment(SwingConstants.LEFT);
         additionalTxtTitleLabel2Slider.setFont(new Font("Segoe UI", Font.BOLD, 12));
         GridBagConstraints gbc_additionalTxtTitleLabel2 = new GridBagConstraints();
+        gbc_additionalTxtTitleLabel2.anchor = GridBagConstraints.NORTH;
         gbc_additionalTxtTitleLabel2.insets = new Insets(0, 0, 5, 0);
-        gbc_additionalTxtTitleLabel2.anchor = GridBagConstraints.WEST;
         gbc_additionalTxtTitleLabel2.gridwidth = 2;
         gbc_additionalTxtTitleLabel2.gridx = 0;
         gbc_additionalTxtTitleLabel2.gridy = 6;
         multipleNoGoPanel.add(additionalTxtTitleLabel2Slider, gbc_additionalTxtTitleLabel2);
 
-        slider = new JSlider(JSlider.HORIZONTAL, 0, 60, 0);
+        slider = new JSlider(JSlider.HORIZONTAL, 1, 10, 1);
         slider.setSnapToTicks(true);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
-        slider.setMajorTickSpacing(10);
-        slider.setMinorTickSpacing(10);
+        slider.setMajorTickSpacing(1);
+        slider.setMinorTickSpacing(1);
         // slider.addChangeListener(this);
         slider.setEnabled(false);
-
+        //
         GridBagConstraints gbc_label = new GridBagConstraints();
-        gbc_label.anchor = GridBagConstraints.NORTHWEST;
         gbc_label.insets = new Insets(0, 0, 5, 0);
         gbc_label.gridwidth = 2;
         gbc_label.gridx = 0;
         gbc_label.gridy = 7;
-        // multipleNoGoPanel.add(slider, gbc_label);
+        multipleNoGoPanel.add(slider, gbc_label);
 
-        // GridBagConstraints gbc_label = new GridBagConstraints();
-        // gbc_label.insets = new Insets(0, 0, 0, 5);
-        // gbc_label.gridx = 0;
-        // gbc_label.gridy = 7;
-        // test.setHorizontalAlignment(SwingConstants.CENTER);
-        // test.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        // multipleNoGoPanel.add(test, gbc_label);
     }
 
     private void createSingleRequestPanel() {
         GridBagLayout gridBagLayout = new GridBagLayout();
-        gridBagLayout.columnWidths = new int[] { 125, 153 };
+        gridBagLayout.columnWidths = new int[] { 125, 90 };
         gridBagLayout.rowHeights = new int[] { 20, 16, 15, 0, 0, 0, 0, 0, 10 };
         gridBagLayout.columnWeights = new double[] { 0.0, 1.0 };
         gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
@@ -340,6 +330,7 @@ public class NoGoPanel extends JPanel {
         additionalTxtTitleLabel2.setHorizontalAlignment(SwingConstants.LEFT);
         additionalTxtTitleLabel2.setFont(new Font("Segoe UI", Font.BOLD, 12));
         GridBagConstraints gbc_additionalTxtTitleLabel2 = new GridBagConstraints();
+        gbc_additionalTxtTitleLabel2.anchor = GridBagConstraints.NORTH;
         gbc_additionalTxtTitleLabel2.gridwidth = 2;
         gbc_additionalTxtTitleLabel2.gridx = 0;
         gbc_additionalTxtTitleLabel2.gridy = 6;
@@ -414,6 +405,7 @@ public class NoGoPanel extends JPanel {
 
         additionalTxtTitleLabelSlider.setText("Requesting NoGo");
         additionalTxtTitleLabel2Slider.setText("Please standby");
+        slider.setEnabled(false);
     }
 
     public void singleRequestFailed() {
@@ -464,8 +456,6 @@ public class NoGoPanel extends JPanel {
         draught = -draught;
 
         // int draughtInt = (int) Math.round(draught);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM , HH:mm");
 
         String validFromStr = "";
         String validToStr = "";
@@ -601,6 +591,47 @@ public class NoGoPanel extends JPanel {
             return;
         }
 
+    }
+
+    public void initializeSlider(int count) {
+
+        // slider = new JSlider(JSlider.HORIZONTAL, 0, 10, 0);
+        slider.setMaximum(count);
+
+        // slider.addChangeListener(this);
+
+    }
+
+    public void setCompletedRequests(int completed, int total) {
+        additionalTxtTitleLabel2Slider.setText("Completed: " + completed + " / " + total);
+
+        if (completed == total) {
+            slider.setEnabled(true);
+            slider.setValue(0);
+        }else{
+            slider.setEnabled(false);
+        }
+    }
+
+    /**
+     * @return the slider
+     */
+    public JSlider getSlider() {
+        return slider;
+    }
+
+    public void setToAndFromSliderOptions(Date validFrom, Date validTo) {
+
+        String validFromStr = "";
+        String validToStr = "";
+
+        if (validFrom != null) {
+            validFromStr = sdf.format(validFrom);
+            validToStr = sdf.format(validTo);
+        }
+
+        validFromTxtLabelSlider.setText(validFromStr);
+        validToTxtLabelSlider.setText(validToStr);
     }
 
 }

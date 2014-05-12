@@ -21,11 +21,16 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -40,6 +45,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.joda.time.DateTime;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.event.NoGoMouseMode;
@@ -51,7 +58,7 @@ import dk.dma.epd.ship.ownship.OwnShipHandler;
 /**
  * The nogo dialog
  */
-public class NogoDialog extends JDialog implements ActionListener, Runnable {
+public class NogoDialog extends JDialog implements ActionListener, Runnable, ItemListener {
     private static final long serialVersionUID = 1L;
     private JButton requestNogo;
     private JButton cancelButton;
@@ -72,9 +79,16 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
     Position northWestPoint;
     Position southEastPoint;
 
+    private JCheckBox chckbxUseSlices;
+    private JComboBox<Integer> minuteSlices;
+
+    private boolean useSlices;
+
+    private int sliceInMinutes;
+    private JLabel slicesCount;
+
     @SuppressWarnings("deprecation")
-    public NogoDialog(JFrame parent, NogoHandler nogoHandler,
-            OwnShipHandler ownShipHandler) {
+    public NogoDialog(JFrame parent, NogoHandler nogoHandler, OwnShipHandler ownShipHandler) {
         super(parent, "Request Nogo", true);
 
         mainFrame = (MainFrame) parent;
@@ -96,8 +110,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         getContentPane().add(contentPanel, BorderLayout.CENTER);
 
         JPanel panel = new JPanel();
-        panel.setBorder(new TitledBorder(null, "Area Selection",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        panel.setBorder(new TitledBorder(null, "Area Selection", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         panel.setBounds(15, 30, 327, 115);
 
         JLabel lblNogoRequest = new JLabel("Nogo Request:");
@@ -130,8 +143,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         contentPanel.add(lblNogoRequest);
 
         JPanel panel_1 = new JPanel();
-        panel_1.setBorder(new TitledBorder(null, "Time Selected",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        panel_1.setBorder(new TitledBorder(null, "Time Selected", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         panel_1.setBounds(15, 156, 327, 94);
         contentPanel.add(panel_1);
         panel_1.setLayout(null);
@@ -158,8 +170,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
             @Override
             public void stateChanged(ChangeEvent arg0) {
 
-                if (((Date) spinnerTimeEnd.getValue()).getTime() < ((Date) spinnerTimeStart
-                        .getValue()).getTime()) {
+                if (((Date) spinnerTimeEnd.getValue()).getTime() < ((Date) spinnerTimeStart.getValue()).getTime()) {
 
                     spinnerTimeEnd.setValue(spinnerTimeStart.getValue());
                 }
@@ -167,27 +178,42 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
             }
         });
 
-        spinnerTimeStart.setModel(new SpinnerDateModel(date, null, date48hour,
-                Calendar.HOUR));
+        spinnerTimeStart.setModel(new SpinnerDateModel(date, null, date48hour, Calendar.HOUR));
         spinnerTimeStart.setBounds(10, 41, 98, 20);
 
-        spinnerTimeEnd.setModel(new SpinnerDateModel(date, null, date48hour,
-                Calendar.HOUR));
+        spinnerTimeEnd.setModel(new SpinnerDateModel(date, null, date48hour, Calendar.HOUR));
         spinnerTimeEnd.setBounds(10, 64, 98, 20);
 
         panel_1.add(spinnerTimeStart);
         panel_1.add(spinnerTimeEnd);
 
-        spinnerTimeStart.setEditor(new JSpinner.DateEditor(spinnerTimeStart,
-                "HH:mm-dd-MM-yy"));
-        spinnerTimeEnd.setEditor(new JSpinner.DateEditor(spinnerTimeEnd,
-                "HH:mm-dd-MM-yy"));
+        spinnerTimeStart.setEditor(new JSpinner.DateEditor(spinnerTimeStart, "HH:mm-dd-MM-yy"));
+        spinnerTimeEnd.setEditor(new JSpinner.DateEditor(spinnerTimeEnd, "HH:mm-dd-MM-yy"));
+
+        chckbxUseSlices = new JCheckBox("Use Slices");
+        chckbxUseSlices.setBounds(153, 24, 97, 23);
+        chckbxUseSlices.addItemListener(this);
+
+        panel_1.add(chckbxUseSlices);
+
+        minuteSlices = new JComboBox<Integer>();
+        minuteSlices.setModel(new DefaultComboBoxModel<Integer>(new Integer[] { 10, 20, 30, 40, 50, 60 }));
+        minuteSlices.setEnabled(false);
+        minuteSlices.setBounds(155, 49, 43, 20);
+        panel_1.add(minuteSlices);
+        minuteSlices.addItemListener(this);
+
+        JLabel lblMinutes = new JLabel("Minutes");
+        lblMinutes.setBounds(208, 49, 46, 14);
+        panel_1.add(lblMinutes);
+
+        slicesCount = new JLabel("");
+        slicesCount.setBounds(153, 72, 165, 14);
+        panel_1.add(slicesCount);
 
         JPanel panel_2 = new JPanel();
-        panel_2.setBorder(new TitledBorder(UIManager
-                .getBorder("TitledBorder.border"), "Depth",
-                TitledBorder.LEADING, TitledBorder.TOP, null,
-                new Color(0, 0, 0)));
+        panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Depth", TitledBorder.LEADING,
+                TitledBorder.TOP, null, new Color(0, 0, 0)));
         panel_2.setBounds(15, 259, 327, 59);
         contentPanel.add(panel_2);
         panel_2.setLayout(null);
@@ -226,8 +252,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         }
 
         if (ownShipHandler != null && ownShipHandler.getStaticData() != null) {
-            double draught = (double) (ownShipHandler.getStaticData()
-                    .getDraught() / 10);
+            double draught = (double) (ownShipHandler.getStaticData().getDraught() / 10);
             spinnerDraught.setValue(draught);
         }
 
@@ -238,15 +263,11 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         // Find out what is the max of the selection made
         if (points[0].getY() > points[1].getY()) {
             // points 0 is the top left
-            northWestPoint = Position
-                    .create(points[0].getY(), points[0].getX());
-            southEastPoint = Position
-                    .create(points[1].getY(), points[1].getX());
+            northWestPoint = Position.create(points[0].getY(), points[0].getX());
+            southEastPoint = Position.create(points[1].getY(), points[1].getX());
         } else {
-            northWestPoint = Position
-                    .create(points[1].getY(), points[1].getX());
-            southEastPoint = Position
-                    .create(points[0].getY(), points[0].getX());
+            northWestPoint = Position.create(points[1].getY(), points[1].getX());
+            southEastPoint = Position.create(points[0].getY(), points[0].getX());
         }
 
         nwPtlbl.setText(Formatter.latToPrintable(northWestPoint.getLatitude())
@@ -269,14 +290,10 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
             // Send off the request
             if (northWestPoint != null & southEastPoint != null) {
 
-                double westEastDistance = northWestPoint
-                        .rhumbLineDistanceTo(Position.create(
-                                northWestPoint.getLatitude(),
-                                southEastPoint.getLongitude()));
-                double northSouthDistance = northWestPoint
-                        .rhumbLineDistanceTo(Position.create(
-                                southEastPoint.getLatitude(),
-                                northWestPoint.getLongitude()));
+                double westEastDistance = northWestPoint.rhumbLineDistanceTo(Position.create(northWestPoint.getLatitude(),
+                        southEastPoint.getLongitude()));
+                double northSouthDistance = northWestPoint.rhumbLineDistanceTo(Position.create(southEastPoint.getLatitude(),
+                        northWestPoint.getLongitude()));
 
                 // 1300000000
                 // 1300000
@@ -285,16 +302,13 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
                     this.setVisible(false);
                     nogoHandler.setNorthWestPoint(northWestPoint);
                     nogoHandler.setSouthEastPoint(southEastPoint);
-                    double draught = ((Double) spinnerDraught.getValue())
-                            .doubleValue();
+                    double draught = ((Double) spinnerDraught.getValue()).doubleValue();
                     nogoHandler.setDraught(draught);
-                    nogoHandler
-                            .setValidFrom((Date) spinnerTimeStart.getValue());
+                    nogoHandler.setValidFrom((Date) spinnerTimeStart.getValue());
                     nogoHandler.setValidTo((Date) spinnerTimeEnd.getValue());
 
                     if (mainFrame != null) {
-                        mainFrame.getJMenuBar().getNogoLayer()
-                                .setSelected(true);
+                        mainFrame.getJMenuBar().getNogoLayer().setSelected(true);
                         nogoHandler.getNogoLayer().setVisible(true);
                     }
                     new Thread(this).start();
@@ -310,8 +324,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
             }
 
             // Set the mouse mode back to navigation.
-            this.chartPanel.setMouseMode(this.chartPanel.getNoGoMouseMode()
-                    .getPreviousMouseModeID());
+            this.chartPanel.setMouseMode(this.chartPanel.getNoGoMouseMode().getPreviousMouseModeID());
             // this.chartPanel.getMouseDelegator().getActiveMouseMode().s
         }
         if (e.getSource() == cancelButton) {
@@ -325,17 +338,61 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
             chartPanel.setNogoDialog(this);
 
             // Set the previous active mouse mode.
-            this.chartPanel.getNoGoMouseMode().setPreviousMouseModeID(
-                    this.chartPanel.getMouseDelegator().getActiveMouseModeID());
+            this.chartPanel.getNoGoMouseMode().setPreviousMouseModeID(this.chartPanel.getMouseDelegator().getActiveMouseModeID());
 
             chartPanel.setMouseMode(NoGoMouseMode.MODE_ID);
         }
     }
 
+    private int calculateSlicesAmount() {
+
+        nogoHandler.setValidFrom((Date) spinnerTimeStart.getValue());
+        nogoHandler.setValidTo((Date) spinnerTimeEnd.getValue());
+
+        DateTime startDate = new DateTime((Date) spinnerTimeStart.getValue());
+        DateTime endDate = new DateTime((Date) spinnerTimeEnd.getValue());
+
+        DateTime currentVal;
+
+        currentVal = startDate.plusMinutes(sliceInMinutes);
+
+        int counts = 0;
+
+        while (currentVal.isBefore(endDate)) {
+            counts = counts + 1;
+            startDate = currentVal;
+            currentVal = startDate.plusMinutes(sliceInMinutes);
+
+        }
+
+        return counts;
+    }
+
     @Override
     public void run() {
-        nogoHandler.updateNogo();
+        nogoHandler.updateNogo(useSlices, sliceInMinutes);
         this.dispose();
     }
 
+    @Override
+    public void itemStateChanged(ItemEvent arg0) {
+
+        if (arg0.getSource() == chckbxUseSlices) {
+            if (chckbxUseSlices.isSelected()) {
+                useSlices = true;
+                minuteSlices.setEnabled(true);
+            } else {
+                minuteSlices.setEnabled(false);
+                useSlices = false;
+                slicesCount.setText("");
+            }
+        }
+
+        if (arg0.getSource() == minuteSlices) {
+            sliceInMinutes = (int) minuteSlices.getSelectedItem();
+
+//            slicesCount.setText(calculateSlicesAmount() + " slices");
+        }
+
+    }
 }

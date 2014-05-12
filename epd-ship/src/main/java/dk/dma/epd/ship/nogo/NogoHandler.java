@@ -64,13 +64,12 @@ public class NogoHandler extends MapHandlerChild {
     private Date validFrom;
     private Date validTo;
 
-    private int minutesBetween;
+//    private int minutesBetween;
     private boolean useSlices;
 
-    // private int noGoErrorCode;
-    // private String noGoMessage;
-
     private NoGoComponentPanel nogoPanel;
+
+    int completedRequests;
 
     public NogoLayer getNogoLayer() {
         return nogoLayer;
@@ -97,7 +96,8 @@ public class NogoHandler extends MapHandlerChild {
     public NogoHandler(EPDEnavSettings enavSettings) {
     }
 
-    public synchronized void updateNogo() {
+    public synchronized void updateNogo(boolean useSlices, int minutesBetween) {
+      
         LOG.info("New NoGo Requested Initiated");
         // If the dock isn't visible should it show it?
         if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("NoGo")) {
@@ -117,7 +117,11 @@ public class NogoHandler extends MapHandlerChild {
             }
 
         }
+        this.useSlices = useSlices;
+//        this.minutesBetween = minutesBetween;
 
+        
+        
         this.resetLayer();
 
         // Setup the panel
@@ -136,7 +140,7 @@ public class NogoHandler extends MapHandlerChild {
         // Calculate slices
         if (this.useSlices) {
 
-            minutesBetween = 10;
+           
 
             DateTime startDate = new DateTime(validFrom.getTime());
             DateTime endDate = new DateTime(validTo.getTime());
@@ -154,10 +158,13 @@ public class NogoHandler extends MapHandlerChild {
 
                 nogoDataEntry = new NoGoDataEntry(startDate, currentVal);
                 nogoData.add(nogoDataEntry);
-
                 System.out.println("Entry created going from " + startDate + " to " + currentVal);
-
             }
+
+            nogoPanel.initializeSlider(nogoData.size());
+            nogoLayer.initializeNoGoStorage(nogoData.size());
+
+            completedRequests = 0;
 
             createWorker(0).run();
 
@@ -168,7 +175,7 @@ public class NogoHandler extends MapHandlerChild {
                 nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i)
                         .getValidTo());
 
-                nogoWorker.start();
+                nogoWorker.run();
                 System.out.println("Run created for " + i);
             }
 
@@ -214,7 +221,9 @@ public class NogoHandler extends MapHandlerChild {
         }
     }
 
-    public void nogoWorkerCompleted(int i, NogoResponse response) {
+    public synchronized void nogoWorkerCompleted(int i, NogoResponse response) {
+
+        completedRequests = completedRequests + 1;
 
         System.out.println("NoGo worker " + i + " has completed its request");
 
@@ -228,9 +237,13 @@ public class NogoHandler extends MapHandlerChild {
         if (this.useSlices) {
             nogoPanel.requestCompletedMultiple(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), validFrom, validTo,
                     draught);
+            updateLayerMultipleResult(i);
+
+            nogoPanel.setCompletedSlices(completedRequests, nogoData.size());
         } else {
             nogoPanel
                     .requestCompletedSingle(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), validFrom, validTo, draught);
+
             updateLayerSingleResult();
         }
 
@@ -246,6 +259,11 @@ public class NogoHandler extends MapHandlerChild {
 
     private void resetLayer() {
         nogoLayer.addFrame(northWestPoint, southEastPoint);
+    }
+
+    private void updateLayerMultipleResult(int i) {
+        System.out.println("Value " + i + " is ready");
+        nogoLayer.addResultFromMultipleRequest(nogoData.get(i), i);
     }
 
     private void updateLayerSingleResult() {
@@ -343,6 +361,17 @@ public class NogoHandler extends MapHandlerChild {
             nogoPanel = (NoGoComponentPanel) obj;
         }
 
+    }
+
+    public void showNoGoIndex(int id) {
+        nogoLayer.drawSpecificResult(id - 1);
+    }
+
+    /**
+     * @return the nogoData
+     */
+    public List<NoGoDataEntry> getNogoData() {
+        return nogoData;
     }
 
 }

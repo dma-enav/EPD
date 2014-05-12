@@ -21,16 +21,20 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.JLabel;
+import javax.swing.JSlider;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.panels.NoGoPanel;
+import dk.dma.epd.ship.nogo.NoGoDataEntry;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
-public class NoGoComponentPanel extends OMComponentPanel implements DockableComponentPanel {
+public class NoGoComponentPanel extends OMComponentPanel implements DockableComponentPanel, ChangeListener {
 
     private static final long serialVersionUID = 1L;
     private AisHandler aisHandler;
@@ -45,6 +49,8 @@ public class NoGoComponentPanel extends OMComponentPanel implements DockableComp
     private JLabel additionalTxttLabel;
     private JLabel additionalTxt2Label;
 
+    private JSlider slider;
+
     public NoGoComponentPanel() {
         super();
 
@@ -58,6 +64,17 @@ public class NoGoComponentPanel extends OMComponentPanel implements DockableComp
 
         setVisible(false);
 
+        slider = nogoPanel.getSlider();
+        slider.addChangeListener(this);
+
+    }
+
+    public void setCompletedSlices(int completedSlices, int total) {
+        nogoPanel.setCompletedRequests(completedSlices, total);
+    }
+
+    public void initializeSlider(int count) {
+        nogoPanel.initializeSlider(count);
     }
 
     public void activateSingle() {
@@ -214,5 +231,20 @@ public class NoGoComponentPanel extends OMComponentPanel implements DockableComp
     @Override
     public boolean includeInPanelsMenu() {
         return true;
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        JSlider source = (JSlider) e.getSource();
+        if (!source.getValueIsAdjusting()) {
+            int index = (int) source.getValue();
+
+            NoGoDataEntry entry = nogoHandler.getNogoData().get(index - 1);
+
+            nogoPanel.setToAndFromSliderOptions(new Date(entry.getValidFrom().getMillis()),
+                    new Date(entry.getValidTo().getMillis()));
+            nogoHandler.showNoGoIndex(index);
+
+        }
     }
 }
