@@ -677,10 +677,10 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     }
 
     public final class AisMessageExtended {
-        public String name;
-        public long MMSI;
-        public double hdg;
-        public String dst;
+        public volatile String name;
+        public volatile long MMSI;
+        public volatile double hdg;
+        public volatile String dst;
 
         public AisMessageExtended(String name, Long key, double hdg, String dst2) {
             this.name = name;
@@ -688,7 +688,17 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             this.hdg = hdg;
             this.dst = dst2;
         }
-
+        
+        /**
+         * Overwrites the fields of this object with the values from their corresponding fields in {@code other}
+         * @param other The object to copy data from.
+         */
+        public void updateFrom(AisMessageExtended other) {
+            this.name = other.name;
+            this.MMSI = other.MMSI;
+            this.hdg = other.hdg;
+            this.dst = other.dst;
+        }
     }
 
 }

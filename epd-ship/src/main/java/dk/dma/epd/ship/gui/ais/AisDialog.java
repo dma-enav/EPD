@@ -47,6 +47,8 @@ import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -68,7 +70,7 @@ import dk.dma.epd.ship.layers.ais.AisLayer;
 /**
  * AIS targets dialog
  */
-public class AisDialog extends ComponentDialog implements ListSelectionListener, ActionListener, IAisTargetListener, WindowListener {
+public class AisDialog extends ComponentDialog implements ListSelectionListener, ActionListener, WindowListener {
     private static final long serialVersionUID = 1L;
 
     private AisLayer aisLayer;
@@ -166,8 +168,9 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
 
         aisTable.setModel(aisTableModel);
         
-        aisSelectionModel = aisTable.getSelectionModel();
-        aisTable.setSelectionModel(aisSelectionModel);
+//        aisTableModel.addTableModelListener(this);
+//        aisSelectionModel = aisTable.getSelectionModel();
+//        aisTable.setSelectionModel(aisSelectionModel);
 
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(aisTable.getModel());
         
@@ -196,6 +199,12 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
                 return -1;
             }
             
+        });
+        sorter.setComparator(1, new Comparator<Long>() {
+            @Override
+            public int compare(Long o1, Long o2) {
+                return Long.compare(o1, o2);
+            }
         });
         
         sorter.toggleSortOrder(1);
@@ -245,42 +254,42 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
         }
     }
     
-    private void updateTable() {
-        if (aisTable != null) {
-            int selectedRow = aisTable.getSelectedRow();
+//    private void updateTable() {
+//        if (aisTable != null) {
+//            int selectedRow = aisTable.getSelectedRow();
+//    
+//            long selectedMMSI = -1;
+//            if (selectedRow >=0 && selectedRow < aisTable.getRowCount()) {
+//                selectedMMSI = (Long) aisTable.getValueAt(selectedRow, 1);
+//            }            
+//                
+//            if (aisTableModel != null) {
+//                aisTableModel.updateShips(); //nonblocking background task
+//
+//                if (selectedRow >= 0 && selectedRow < aisTable.getRowCount()) {
+//                    setSelected(selectedRow, false);
+//                } else {
+//                    if (selectedRow >= 0) {
+//                        selectedRow = aisTable.getRowCount() - 1;
+//                        setSelected(selectedRow, false);
+//                    }
+//                }
+//                updateDetails();
+//                setSelection(selectedMMSI, false);
+//            }
+//        }
+//    }
     
-            long selectedMMSI = -1;
-            if (selectedRow >=0 && selectedRow < aisTable.getRowCount()) {
-                selectedMMSI = (Long) aisTable.getValueAt(selectedRow, 1);
-            }            
-                
-            if (aisTableModel != null) {
-                aisTableModel.updateShips(); //nonblocking background task
-
-                if (selectedRow >= 0 && selectedRow < aisTable.getRowCount()) {
-                    setSelected(selectedRow, false);
-                } else {
-                    if (selectedRow >= 0) {
-                        selectedRow = aisTable.getRowCount() - 1;
-                        setSelected(selectedRow, false);
-                    }
-                }
-                updateDetails();
-                setSelection(selectedMMSI, false);
-            }
-        }
-    }
-    
-    private void updateTable(final AisTarget aisTarget) {
-        if (aisTable != null) {
-            if (aisTableModel != null) {
-                if (aisTarget instanceof VesselTarget) {
-                    aisTableModel.queueShip((VesselTarget)aisTarget);
-                    
-                }
-            }
-        }
-    }    
+//    private void updateTable(final AisTarget aisTarget) {
+//        if (aisTable != null) {
+//            if (aisTableModel != null) {
+//                if (aisTarget instanceof VesselTarget) {
+//                    aisTableModel.queueShip((VesselTarget)aisTarget);
+//                    
+//                }
+//            }
+//        }
+//    }    
     
     
     private void updateDetails() {
@@ -422,10 +431,10 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
     return false;
 }
 
-    public AisMessageExtended getMessage(int i) {
-        List<AisMessageExtended> messages = aisTableModel.getShips();
-        return messages.get(i);
-    }
+//    public AisMessageExtended getMessage(int i) {
+//        List<AisMessageExtended> messages = aisTableModel.getShips();
+//        return messages.get(i);
+//    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -453,7 +462,7 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
         }
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler)obj;
-            aisHandler.addListener(this);
+//            aisHandler.addListener(this);
             initGui();
         }        
     }
@@ -463,11 +472,6 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
     }
     
     public int getMMSISelection(long mmsi){
-        
-        if (aisTable.getRowCount() > 0){
-            updateTable();
-        }
-        
         for (int i = 0; i < aisTable.getRowCount(); i++){
             Long currentValue = (Long) aisTable.getValueAt(i, 1);
             if (currentValue == mmsi){
@@ -478,23 +482,23 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
         return 0;
     }
 
-    @Override
-    public void targetUpdated(final AisTarget aisTarget) {
-        // Only update table if dialog is visible
-        if (isVisible()) {
-            if (aisTarget instanceof VesselTarget) {
-
-                SwingUtilities.invokeLater(new Runnable() {
-                        
-                    @Override
-                    public void run() {
-                        updateTable(aisTarget);
-                        
-                    }
-                });
-            }
-        }
-    }
+//    @Override
+//    public void targetUpdated(final AisTarget aisTarget) {
+//        // Only update table if dialog is visible
+//        if (isVisible()) {
+//            if (aisTarget instanceof VesselTarget) {
+//
+//                SwingUtilities.invokeLater(new Runnable() {
+//                        
+//                    @Override
+//                    public void run() {
+//                        updateTable(aisTarget);
+//                        
+//                    }
+//                });
+//            }
+//        }
+//    }
     
     @Override
     public void valueChanged(ListSelectionEvent e) {
@@ -506,7 +510,7 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
      */
     @Override
     public void windowActivated(WindowEvent e) {
-        updateTable();
+//        updateTable();
     }
 
     @Override
@@ -532,5 +536,5 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
     @Override
     public void windowDeactivated(WindowEvent e) {
     }
-
+    
 }
