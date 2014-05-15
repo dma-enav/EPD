@@ -17,8 +17,8 @@ package dk.dma.epd.ship.gui.ais;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
@@ -31,7 +31,7 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 
 /**
- * Table model for MSI dialog
+ * Table model for "nearby AIS targets" dialog.
  */
 public class AisTableModel extends AbstractTableModel implements IAisTargetListener {
     
@@ -39,6 +39,14 @@ public class AisTableModel extends AbstractTableModel implements IAisTargetListe
 
     private static final String[] COLUMN_NAMES = { "Name", "MMSI", "HDG", "DST" };
 
+    public static final String COL_NAME = "Name";
+    
+    public static final String COL_MMSI = "MMSI";
+    
+    public static final String COL_HDG = "HDG";
+    
+    public static final String COL_DST = "DST";
+    
     private AisHandler aisHandler;
     
     /**
@@ -52,71 +60,32 @@ public class AisTableModel extends AbstractTableModel implements IAisTargetListe
      * The value-set of this map is the same set of objects as contained in {@link #items}.<br/>
      * <b>IMPORTANT:</b> Always use {@link #addVessel(VesselTarget)} and {@link #deleteVessel(Long)} when modifying this map (to keep {@link #items} in sync).
      */
-    private ConcurrentHashMap<Long, AisMessageExtended> mappedItems = new ConcurrentHashMap<>();
+    private HashMap<Long, AisMessageExtended> mappedItems = new HashMap<>();
     
     public AisTableModel(AisHandler aisHandler) {
         super();
         this.aisHandler = aisHandler;
         // TODO where to remove listener?
         this.aisHandler.addListener(this);
-        // TODO where to stop thread?
-//        publisher.start();
-
-//        ships = new ArrayList<AisHandler.AisMessageExtended>();
-//        queue = new ConcurrentLinkedQueue<VesselTarget>();
-
-//        worker = new UpdateShipQueueWorker(this, this.queue);
-//        worker.execute();
-
     }
 
-//    public void queueShip(VesselTarget vesselTarget) {
-//        queue.add(vesselTarget);
-//    }
-
-//    public synchronized void updateShips() {
-//        List<AisMessageExtended> shipsList = aisHandler.getShipList();
-//
-//        ships.clear();
-//        ships.addAll(shipsList);
-//        fireTableDataChanged();
-//
-//    }
-
-//    public synchronized void updateShip(VesselTarget aisTarget) {
-//        // still takes O(n), but only updates a single target
-//
-//        
-//        
-//        final Long mmsi = aisTarget.getMmsi();
-//        int count = 0;
-//        List<AisMessageExtended> ships = getShips();
-//        for (AisMessageExtended ship : ships) {
-//            if (mmsi == ship.MMSI) {
-//                AisMessageExtended s = aisHandler.getShip(aisTarget, EPDShip.getInstance().getPntHandler().getCurrentData());
-//                ships.set(count, s);
-//                fireTableRowsUpdated(count, count);
-//                return;
-//            }
-//            count++;
-//        }
-//
-//        // if ship was not found in the list, add it
-//        this.addRow(aisTarget);
-//
-//    }
-
-//    private void addRow(VesselTarget aisTarget) {
-//        AisMessageExtended s = aisHandler.getShip(aisTarget, EPDShip.getInstance().getPntHandler().getCurrentData());
-//        this.ships.add(s);
-//        fireTableRowsInserted(ships.size() - 1, ships.size() - 1);
-//
-//    }
-
-//    public List<AisMessageExtended> getShips() {
-//        return ships;
-//    }
-
+    /**
+     * Gets column index by column name.
+     * Column names are given as static fields, see e.g. {@link AisTableModel#COL_MMSI}.
+     * @param colName Name of column.
+     * @return The index of column with name equal to {@code colName} or -1 if no such column exists.
+     */
+    public int getColumnIndex(String colName) {
+        int index = 0;
+        for(String s : COLUMN_NAMES) {
+            if(s.equals(colName)) {
+                return index;
+            }
+            index++;
+        }
+        return -1;
+    }
+    
     @Override
     public String getColumnName(int column) {
         return COLUMN_NAMES[column];
@@ -130,16 +99,9 @@ public class AisTableModel extends AbstractTableModel implements IAisTargetListe
     @Override
     public int getRowCount() {
         if(!SwingUtilities.isEventDispatchThread()) {
-            throw new RuntimeException("getRowCount should only be called on EDT");
+            throw new RuntimeException("getRowCount should only be called on the EDT");
         }
-//        return ships.size();
-        // return 0;
-//        try {
-//            itemsLock.readLock().lock();
-            return items.size();
-//        } finally {
-//            itemsLock.readLock().unlock();
-//        }
+        return items.size();
     }
 
     @Override
@@ -153,89 +115,30 @@ public class AisTableModel extends AbstractTableModel implements IAisTargetListe
 
     @Override
     public synchronized Object getValueAt(int rowIndex, int columnIndex) {
-
-//        itemsLock.readLock().lock();
+        if(!SwingUtilities.isEventDispatchThread()) {
+            throw new RuntimeException("Model can only be accessed on the EDT.");
+        }
         if(rowIndex >= items.size()) {
-//            itemsLock.readLock().unlock();
             return null;
         }
-
         AisMessageExtended ship = items.get(rowIndex);
-//        itemsLock.readLock().unlock();
-        
         switch (columnIndex) {
         case 0:
-            // return "Name";
             return ship.name;
         case 1:
-            // return "MMSI";
             return ship.MMSI;
         case 2:
-            // return "???";
             return ship.hdg;
         case 3:
             NumberFormat nf = NumberFormat.getInstance();
             nf.setMaximumFractionDigits(2);// set as you need
             // String dst = nf.format(ship.dst);
             return ship.dst;
-            // return "DST";
         default:
             return "";
-
         }
 
     }
-
-//    class UpdateShipQueueWorker extends SwingWorker<Void, Void> {
-//        private AisTableModel model;
-//        private ConcurrentLinkedQueue<VesselTarget> queue;
-//
-//        UpdateShipQueueWorker(AisTableModel model,
-//                ConcurrentLinkedQueue<VesselTarget> queue) {
-//            this.model = model;
-//            this.queue = queue;
-//        }
-//
-//        @Override
-//        protected Void doInBackground() throws Exception {
-//            while (true) {
-//                VesselTarget vt = this.queue.poll();
-//
-//                if (vt == null) {
-//                    // System.out.println("DONE WITH QUEUE");
-//                    Thread.sleep(2000);
-//
-//                } else {
-//                    // System.out.println(this.queue.size());
-//                    assert this.queue.size() < 2000;
-//                    this.model.updateShip(vt);
-//                }
-//            }
-//        }
-//        
-//    }
-
-//    private class UpdatePublisherThread extends Thread {
-//        
-//        @Override
-//        public void run() {
-//            while(AisTableModel.this.keepAlive) {
-//                if(AisTableModel.this.updatesPending) {
-//                    System.out.println("[## PUBLISHING TABLE UPDATES ##]");
-////                    AisTableModel.this.fireTableDataChanged();
-//                    AisTableModel.this.updatesPending = false;
-//                }
-//                // Check for updates every 2 seconds.
-//                try {
-//                    Thread.sleep(2000);
-//                } catch (InterruptedException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//        
-//    }
     
     @Override
     public void targetUpdated(final AisTarget aisTarget) {
@@ -269,112 +172,67 @@ public class AisTableModel extends AbstractTableModel implements IAisTargetListe
                     AisTableModel.this.addVessel(vessel);
                 }
             }
+            
         });
-        
-       /* 
-        
-        if(!(aisTarget instanceof VesselTarget)) {
-            // We are only interested in vessels.
-            return;
-        }
-        VesselTarget vessel = (VesselTarget) aisTarget;
-        if(vessel.isGone() && !mappedItems.containsKey(vessel.getMmsi())) {
-            // Vessel is gone and not managed in model, do nothing.
-            return;
-        }
-        
-        // We now know that we need to either add, remove or update a model item - updates are pending.
-        updatesPending = true;
-        if(vessel.isGone()) {
-            // If target is gone, we remove it from the model.
-//            int idx = this.deleteVessel(vessel.getMmsi());
-//            fireTableRowsDeleted(idx, idx);
-            this.deleteVessel(vessel.getMmsi());
-            return;
-        }
-        
-        // Attempt to retrieve existing model object.
-        AisMessageExtended item = mappedItems.get(vessel.getMmsi());
-        if(item != null) {
-            // Found existing model object.
-            // Use AisHandler factory method. TODO hacky PNT access.
-            AisMessageExtended newValues = aisHandler.getShip(vessel, EPDShip.getInstance().getPntHandler().getCurrentData());
-            // Copy new values into existing object.
-            item.updateFrom(newValues);
-            // TODO 
-        } else {
-            // No existing model object, add new.
-            this.addVessel(vessel);
-//            itemsLock.readLock().lock();
-//            item = mappedItems.get(vessel.getMmsi());
-//            int index = items.indexOf(item);
-                
-//            fireTableRowsInserted(index, index);
-
-//            itemsLock.readLock().unlock();
-        }
-        */
     }
     
     /**
-     * Adds a vessel to the model.
+     * Adds a new vessel to the model. <b>Should always be called on the EDT.</b>
      * @param vessel The vessel to add to the model.
      */
     private void addVessel(final VesselTarget vessel) {
-//        SwingUtilities.invokeLater(new Runnable() {
-            // Table model must be modified on the on EDT.
-//            @Override
-//            public void run() {
-                // TODO hacky PNT access.
-                AisMessageExtended item = AisTableModel.this.aisHandler.getShip(vessel, EPDShip.getInstance().getPntHandler().getCurrentData());
-                // Add to map providing model lookup based on MMSI.
-                AisTableModel.this.mappedItems.put(item.MMSI, item);
-                // Add to model.
-//                AisTableModel.this.itemsLock.writeLock().lock();
-                AisTableModel.this.items.add(item);
-                int idx = AisTableModel.this.items.size() - 1;
-                AisTableModel.this.fireTableRowsInserted(idx, idx);
-//                AisTableModel.this.itemsLock.writeLock().unlock();
-//            }
-//        });
+        // Table model must be modified on the on EDT.
+        if(!SwingUtilities.isEventDispatchThread()) {
+            // TODO update with more specific exception.
+            throw new RuntimeException(getClass().getSimpleName() + ": attempt to add to model outside the EDT");
+        }
+        // TODO hacky PNT access.
+        AisMessageExtended item = AisTableModel.this.aisHandler.getShip(vessel, EPDShip.getInstance().getPntHandler().getCurrentData());
+        // Add to map providing model lookup based on MMSI.
+        AisTableModel.this.mappedItems.put(item.MMSI, item);
+        // Add to model.
+        AisTableModel.this.items.add(item);
+        int idx = AisTableModel.this.items.size() - 1;
+        AisTableModel.this.fireTableRowsInserted(idx, idx);
     }
     
+    /**
+     * Updates a model item. <b>Should always be called on the EDT.</b>
+     * @param vessel Contains new data for the model item.
+     */
     private void updateVessel(final VesselTarget vessel) {
-//        SwingUtilities.invokeLater(new Runnable() {
-            // Table model must be modified on the on EDT.
-//            @Override
-//            public void run() {
-                AisMessageExtended current = AisTableModel.this.mappedItems.get(vessel.getMmsi());
-                AisMessageExtended newValues = AisTableModel.this.aisHandler.getShip(vessel, EPDShip.getInstance().getPntHandler().getCurrentData());
-                // Update current with new values
-                current.updateFrom(newValues);
-                // notify view
-                int idx = AisTableModel.this.items.indexOf(current);
-                fireTableRowsUpdated(idx, idx);
-//            }
-//        });
+        // Table model must be modified on the on EDT.
+        if(!SwingUtilities.isEventDispatchThread()) {
+            // TODO update with more specific exception.
+            throw new RuntimeException(getClass().getSimpleName() + ": attempt to update model item outside the EDT");
+        }
+        AisMessageExtended current = AisTableModel.this.mappedItems.get(vessel.getMmsi());
+        AisMessageExtended newValues = AisTableModel.this.aisHandler.getShip(vessel, EPDShip.getInstance().getPntHandler().getCurrentData());
+        // Update current with new values
+        current.updateFrom(newValues);
+        // notify view
+        int idx = AisTableModel.this.items.indexOf(current);
+        fireTableRowsUpdated(idx, idx);
     }
     
     /**
      * Removes a vessel from the model.
+     * <b>Should always be called on the EDT.</b>
      * @param mmsi The MMSI of the vessel to remove.
      */
     private void deleteVessel(final Long mmsi) {
-//        SwingUtilities.invokeLater(new Runnable() {
-            // Table model must be modified on the on EDT.
-//            @Override
-//            public void run() {
-                // Present in map?
-                AisMessageExtended removed = AisTableModel.this.mappedItems.remove(mmsi);
-                if(removed != null) {
-                    // Vessel was present in map, also remove from model.
-//                    AisTableModel.this.itemsLock.writeLock().lock();
-                    int idx = AisTableModel.this.items.indexOf(removed);
-                    AisTableModel.this.items.remove(idx);
-//                    AisTableModel.this.itemsLock.writeLock().unlock();
-                    AisTableModel.this.fireTableRowsDeleted(idx, idx);
-                }
-//            }
-//        });
+        // Table model must be modified on the on EDT.
+        if(!SwingUtilities.isEventDispatchThread()) {
+            // TODO update with more specific exception.
+            throw new RuntimeException(getClass().getSimpleName() + ": attempt to delete from model outside the EDT");
+        }
+        // Present in map?
+        AisMessageExtended removed = AisTableModel.this.mappedItems.remove(mmsi);
+        if(removed != null) {
+            // Vessel was present in map, also remove from model.
+            int idx = AisTableModel.this.items.indexOf(removed);
+            AisTableModel.this.items.remove(idx);
+            AisTableModel.this.fireTableRowsDeleted(idx, idx);
+        }
     }
 }
