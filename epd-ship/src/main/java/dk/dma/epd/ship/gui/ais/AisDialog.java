@@ -406,8 +406,14 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == gotoBtn) {
             int selectedRow = aisTable.getSelectedRow();
-            long selectedMMSI = (Long) aisTable.getValueAt(selectedRow, 1);
-        
+            if(selectedRow == -1) {
+                // no row selected.
+                return;
+            }
+            // convert view row to model row.
+            int modelRow = aisTable.convertRowIndexToModel(selectedRow);
+            // lookup MMSI in model data.
+            long selectedMMSI = (Long) aisTableModel.getValueAt(modelRow, aisTableModel.getColumnIndex(AisTableModel.COL_MMSI));
             aisLayer.zoomTo(aisHandler.getVesselTarget(selectedMMSI).getPositionData().getPos());
         
         } else if (e.getSource() == closeBtn) {
