@@ -74,7 +74,6 @@ import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
-import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.IntendedRouteHandler;
 import dk.dma.epd.ship.service.MaritimeCloudService;
@@ -103,7 +102,6 @@ public final class EPDShip extends EPD {
     private PntHandler pntHandler;
     private MultiSourcePntHandler msPntHandler;
     private OwnShipHandler ownShipHandler;
-    private RiskHandler riskHandler;
     private RouteManager routeManager;
     private ShoreServicesCommon shoreServices;
     private MonaLisaRouteOptimization monaLisaRouteExchange;
@@ -175,9 +173,6 @@ public final class EPDShip extends EPD {
         if (guard.isAlreadyRunning()) {
             handleEpdAlreadyRunning();
         }
-
-        // start riskHandler
-        startRiskHandler();
 
         // Enable PNT timer by adding it to bean context
         PntTime.init();
@@ -484,10 +479,6 @@ public final class EPDShip extends EPD {
             LOG.warn("Updating intended route filter settings.");
             this.intendedRouteHandler.updateSettings(this.settings.getEnavSettings());
         }
-    }
-
-    public void startRiskHandler() {
-        riskHandler = new RiskHandler();
     }
 
     @Override
@@ -807,10 +798,6 @@ public final class EPDShip extends EPD {
     public double elapsed(long start) {
         double elapsed = System.nanoTime() - start;
         return elapsed / 1000000.0;
-    }
-
-    public RiskHandler getRiskHandler() {
-        return riskHandler;
     }
 
     /**
