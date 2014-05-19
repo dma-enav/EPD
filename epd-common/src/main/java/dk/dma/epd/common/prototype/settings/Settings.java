@@ -24,6 +24,7 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
@@ -83,6 +84,8 @@ public abstract class Settings {
      */
     protected final String enavServicesHttpSettingsFile = "enav-services-http_settings.yaml";
     
+    protected final String metocHandlerSettingsFile = "metoc-handler_settings.yaml";
+    
     /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
@@ -103,6 +106,8 @@ public abstract class Settings {
      * Connection parameters used when connecting to e-Nav services.
      */
     protected NetworkSettings<NetworkSettings.IObserver> enavServicesHttpSettings;
+    
+    protected MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> metocHandlerSettings;
     
     public abstract GUICommonSettings<? extends GUICommonSettings.IObserver> getGuiSettings();
     
@@ -144,6 +149,10 @@ public abstract class Settings {
      */
     public NetworkSettings<NetworkSettings.IObserver> getEnavServicesHttpSettings() {
         return this.enavServicesHttpSettings;
+    }
+    
+    public MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> getMetocHandlerSettings() {
+        return this.metocHandlerSettings;
     }
 
 //    public abstract NavSettings getNavSettings();
@@ -268,6 +277,8 @@ public abstract class Settings {
         // Loaded or new instance no ready for use.
         this.enavServicesHttpSettings = enavServices;
         
+        MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> metoc = ObservedSettings.loadFromFile(MetocHandlerCommonSettings.class, resolve(metocHandlerSettingsFile).toFile());
+        this.metocHandlerSettings = metoc != null ? metoc : new MetocHandlerCommonSettings<>();
     }
 
     /**
