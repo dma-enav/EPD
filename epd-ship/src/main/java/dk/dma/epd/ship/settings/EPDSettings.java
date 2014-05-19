@@ -35,7 +35,6 @@ public class EPDSettings extends Settings implements Serializable {
 
     private final String settingsFile = "settings.properties";
 
-//    private final EPDSensorSettings sensorSettings = new EPDSensorSettings();
 //    private final EPDNavSettings navSettings = new EPDNavSettings();
 //    private final EPDEnavSettings enavSettings = new EPDEnavSettings();
 //    private final EPDCloudSettings cloudSettings = new EPDCloudSettings();

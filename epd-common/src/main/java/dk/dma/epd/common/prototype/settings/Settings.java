@@ -23,8 +23,10 @@ import org.slf4j.LoggerFactory;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 
 /**
@@ -38,7 +40,7 @@ public abstract class Settings {
     /**
      * Filename for the file with AIS layer settings.
      */
-    protected final String aisLayerSettingsFile = "AIS-Layer_settings.yaml";
+    protected final String aisLayerSettingsFile = "ais-layer_settings.yaml";
 
     /**
      * Filename for the file with general gui settings.
@@ -66,12 +68,30 @@ public abstract class Settings {
     protected final String externalSensorsSettingsFile = "external-sensors_settings.yaml";
     
     /**
+     * Filename for the file with MSI handler settings.
+     */
+    protected final String msiHandlerSettingsFile = "msi-handler_settings.yaml";
+    
+    /**
+     * Filename for the file with MSI layer settings.
+     */
+    protected final String msiLayerSettingsFile = "msi-layer_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
-     * If more AIS layers are to coexists, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
     protected AisLayerCommonSettings<AisLayerCommonSettings.IObserver> primaryAisLayerSettings;
     
+    /**
+     * The primary/global MSI layer settings.
+     * If more MSI layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     */
+    protected MSILayerCommonSettings<MSILayerCommonSettings.IObserver> msiLayerSettings;
+    
     protected S57LayerSettings s57LayerSettings;
+    
+    protected MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> msiHandlerSettings;
     
     public abstract GUICommonSettings<? extends GUICommonSettings.IObserver> getGuiSettings();
     
@@ -83,7 +103,7 @@ public abstract class Settings {
     
     /**
      * Gets the primary (global) AIS layer settings.
-     * If more AIS layers are to coexists, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      * @return The primary (global) AIS layer settings.
      */
     public AisLayerCommonSettings<AisLayerCommonSettings.IObserver> getPrimaryAisLayerSettings() {
@@ -94,17 +114,22 @@ public abstract class Settings {
         return this.s57LayerSettings;
     }
     
-//    public abstract GuiSettings getGuiSettings();
-
-//    public abstract MapSettings getMapSettings();
-
-//    public abstract SensorSettings getSensorSettings();
+    public MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> getMsiHandlerSettings() {
+        return this.msiHandlerSettings;
+    }
+    
+    /**
+     * Gets the primary (global) MSI layer settings.
+     * If more MSI layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     * @return The primary (global) MSI layer settings.
+     */
+    public MSILayerCommonSettings<MSILayerCommonSettings.IObserver> getPrimaryMsiLayerSettings() {
+        return this.msiLayerSettings;
+    }
 
 //    public abstract NavSettings getNavSettings();
 
 //    public abstract EnavSettings getEnavSettings();
-
-//    public abstract S57LayerSettings getS57Settings();
     
 //    public abstract CloudSettings getCloudSettings();
 
@@ -178,12 +203,12 @@ public abstract class Settings {
      */
     public void loadFromFile() {
         /*
-         * Load primary AIS layer settings.
+         * Load primary/global AIS layer settings.
          * If ship/shore specific AIS layer settings are added later, move this to subclass.
          */
         AisLayerCommonSettings<AisLayerCommonSettings.IObserver> ais = ObservedSettings.loadFromFile(AisLayerCommonSettings.class, resolve(aisLayerSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
-        this.primaryAisLayerSettings = ais != null ? ais : new AisLayerCommonSettings<AisLayerCommonSettings.IObserver>();
+        this.primaryAisLayerSettings = ais != null ? ais : new AisLayerCommonSettings<>();
         
         /*
          * Load S57 layer settings.
@@ -191,6 +216,20 @@ public abstract class Settings {
          */
         this.s57LayerSettings = new S57LayerSettings();
         this.s57LayerSettings.readSettings(resolve(s57LayerSettingsFile).toString());
+        
+        /*
+         * Load MSI handler settings.
+         * If ship/shore specific MSI handler settings are added later, move this to subclass.
+         */
+        MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> msiHandlerSett = ObservedSettings.loadFromFile(MSIHandlerCommonSettings.class, resolve(msiHandlerSettingsFile).toFile());
+        this.msiHandlerSettings = msiHandlerSett != null ? msiHandlerSett : new MSIHandlerCommonSettings<>();
+        
+        /*
+         * Load primary/global MSI layer settings.
+         * If ship/shore specific MSI layer settings are added later, move this to subclass.
+         */
+        MSILayerCommonSettings<MSILayerCommonSettings.IObserver> msiLayerSett = ObservedSettings.loadFromFile(MSILayerCommonSettings.class, resolve(msiLayerSettingsFile).toFile());
+        this.msiLayerSettings = msiLayerSett != null ? msiLayerSett : new MSILayerCommonSettings<>();
     }
 
     /**
