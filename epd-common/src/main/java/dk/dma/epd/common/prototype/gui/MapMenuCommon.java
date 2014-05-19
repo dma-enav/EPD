@@ -41,7 +41,6 @@ import javax.swing.JPopupMenu;
 import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.CenterVesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
@@ -69,6 +68,7 @@ import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
@@ -128,6 +128,8 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected AisHandlerCommon aisHandler;
     protected IntendedRouteHandlerCommon intendedRouteHandler;
     protected MsiHandler msiHandler;
+    
+    protected IntendedRouteLayerCommon intendedRouteLayer;
     
     // bean context
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(this);
@@ -330,7 +332,9 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
      * @param items the intended route menu items to check
      */
     protected void checkIntendedRouteItems(JMenuItem... items) {
-        if (!EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute()) {
+//        if (!EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute()) {
+        // Hide if there is no intended route layer or if it is invisible.
+        if(intendedRouteLayer == null || intendedRouteLayer.getSettings().isVisible()) {
             for (JMenuItem item : items) {
                 item.setEnabled(false);
             }
@@ -406,6 +410,9 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         }
         if (obj instanceof MsiHandler) {
             msiHandler = (MsiHandler) obj;
+        }
+        if(obj instanceof IntendedRouteLayerCommon) {
+            intendedRouteLayer = (IntendedRouteLayerCommon) obj;
         }
     }
 
