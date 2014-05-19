@@ -55,6 +55,11 @@ public abstract class Settings {
     protected final String routeManagerSettingsFile = "route-manager_settings.yaml";
     
     /**
+     * Filename for the file with S57 layer settings.
+     */
+    protected final String s57LayerSettingsFile = "s57Props.properties";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexists, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -175,8 +180,8 @@ public abstract class Settings {
          * Load S57 layer settings.
          * If ship/shore specific S57 layer settings are added later, move this to subclass.
          */
-        
-//        this.s57LayerSettings
+        this.s57LayerSettings = new S57LayerSettings();
+        this.s57LayerSettings.readSettings(resolve(s57LayerSettingsFile).toString());
     }
 
     /**

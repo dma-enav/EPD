@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Properties;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
+import dk.dma.epd.common.prototype.settings.S57LayerSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
@@ -42,7 +43,6 @@ public class EPDSettings extends Settings implements Serializable {
     private final EPDSensorSettings sensorSettings = new EPDSensorSettings();
     private final EPDNavSettings navSettings = new EPDNavSettings();
     private final EPDEnavSettings enavSettings = new EPDEnavSettings();
-    private final EPDS57LayerSettings s57Settings = new EPDS57LayerSettings();
     private final EPDCloudSettings cloudSettings = new EPDCloudSettings();
     
     private GUISettings<GUISettings.IObserver> guiSettings;
@@ -90,8 +90,6 @@ public class EPDSettings extends Settings implements Serializable {
         navSettings.readProperties(props);
         sensorSettings.readProperties(props);
         cloudSettings.readProperties(props);
-        
-        s57Settings.readSettings(resolve("s57Props.properties").toString());
     }
 
     /**
