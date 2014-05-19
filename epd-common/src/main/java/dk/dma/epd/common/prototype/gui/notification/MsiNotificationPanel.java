@@ -165,7 +165,7 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
         }
         
         // Is filtered or not?
-        boolean filtered = EPD.getInstance().getSettings().getEnavSettings().isMsiFilter();
+        boolean filtered = EPD.getInstance().getSettings().getMsiHandlerSettings().isMsiFilter();
         List<MsiNotification> notifications = new ArrayList<>();
         List<MsiMessageExtended> messages = 
                 filtered 
