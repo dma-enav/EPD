@@ -22,6 +22,10 @@ Runnable jar files are located here
 
     distribution/EPD-Ship-Singlejar/target/epd-ship-dist-X.Y-SNAPSHOT.jar
     distribution/EPD-Shore-Singlejar/target/epd-shore-dist-X.Y-SNAPSHOT.jar
+    
+To run from command line
+
+    java -jar distribution/EPD-Ship-Singlejar/target/epd-ship-dist-X.Y-SNAPSHOT.jar
 
 Folders with settings files are created in the home folder
 
