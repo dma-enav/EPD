@@ -27,6 +27,7 @@ import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
@@ -84,7 +85,15 @@ public abstract class Settings {
      */
     protected final String enavServicesHttpSettingsFile = "enav-services-http_settings.yaml";
     
+    /**
+     * Filename for the file with METOC handler settings.
+     */
     protected final String metocHandlerSettingsFile = "metoc-handler_settings.yaml";
+    
+    /**
+     * Filename for the file with ENC layer settings.
+     */
+    protected final String encLayerSettingsFile = "enc-layer_settings.yaml";
     
     /**
      * The primary/global AIS layer settings.
@@ -116,6 +125,8 @@ public abstract class Settings {
     public abstract RouteManagerCommonSettings<? extends RouteManagerCommonSettings.IObserver> getRouteManagerSettings();
     
     public abstract ExternalSensorsCommonSettings<? extends ExternalSensorsCommonSettings.IObserver> getExternalSensorsSettings();
+    
+    public abstract ENCLayerCommonSettings<? extends ENCLayerCommonSettings.IObserver> getENCLayerSettings();
     
     /**
      * Gets the primary (global) AIS layer settings.

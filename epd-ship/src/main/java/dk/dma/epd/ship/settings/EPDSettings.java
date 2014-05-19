@@ -20,6 +20,7 @@ import java.io.Serializable;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.ship.settings.gui.GUISettings;
 import dk.dma.epd.ship.settings.gui.MapSettings;
@@ -46,6 +47,8 @@ public class EPDSettings extends Settings implements Serializable {
     private RouteManagerSettings<RouteManagerSettings.IObserver> routeManagerSettings;
     
     private ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> externalSensorsSettings;
+    
+    private ENCLayerCommonSettings<ENCLayerCommonSettings.IObserver> encLayerSettings;
     
     public EPDSettings() {
         super();
@@ -81,6 +84,14 @@ public class EPDSettings extends Settings implements Serializable {
         ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> ext = ObservedSettings.loadFromFile(ExternalSensorsCommonSettings.class, resolve(externalSensorsSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
         this.externalSensorsSettings = ext != null ? ext : new ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver>();
+        
+        /*
+         *  Load ENC layer settings.
+         *  Even though ship uses common version, we need to load it here instead of in super class as shore uses specific version.
+         */
+        ENCLayerCommonSettings<ENCLayerCommonSettings.IObserver> enc = ObservedSettings.loadFromFile(ENCLayerCommonSettings.class, resolve(encLayerSettingsFile).toFile());
+        // Use loaded instance or create new if the file was not found.
+        this.encLayerSettings = enc != null ? enc : new ENCLayerCommonSettings<>();
         
 //        // Open properties file
 //        Properties props = new Properties();
@@ -131,6 +142,11 @@ public class EPDSettings extends Settings implements Serializable {
     @Override
     public ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> getExternalSensorsSettings() {
         return this.externalSensorsSettings;
+    }
+    
+    @Override
+    public ENCLayerCommonSettings<ENCLayerCommonSettings.IObserver> getENCLayerSettings() {
+        return this.encLayerSettings;
     }
     
 //    @Override

@@ -28,10 +28,12 @@ import com.bbn.openmap.util.PropUtils;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.S57LayerSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.IObserver;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.settings.gui.ENCLayerSettings;
 import dk.dma.epd.shore.settings.sensor.ExternalSensorsSettings;
 
 /**
@@ -62,6 +64,8 @@ public class EPDSettings extends Settings implements Serializable {
     
     private ExternalSensorsSettings externalSensorsSettings;
     
+    private ENCLayerSettings encLayerSettings;
+    
     public EPDSettings() {
         super();
     }
@@ -71,10 +75,15 @@ public class EPDSettings extends Settings implements Serializable {
      */
     @Override
     public void loadFromFile() {
+        
         // Load external sensors settings. 
         ExternalSensorsSettings ext = ObservedSettings.loadFromFile(ExternalSensorsSettings.class, resolve(externalSensorsSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
         this.externalSensorsSettings = ext != null ? ext : new ExternalSensorsSettings();
+        
+        // Load ENC layer settings.
+        ENCLayerSettings enc = ObservedSettings.loadFromFile(ENCLayerSettings.class, resolve(encLayerSettingsFile).toFile());
+        this.encLayerSettings = enc != null ? enc : new ENCLayerSettings();
         
         // Open properties file
         Properties props = new Properties();
@@ -109,6 +118,11 @@ public class EPDSettings extends Settings implements Serializable {
     @Override
     public ExternalSensorsSettings getExternalSensorsSettings() {
         return this.externalSensorsSettings;
+    }
+    
+    @Override
+    public ENCLayerSettings getENCLayerSettings() {
+        return this.encLayerSettings;
     }
     
     /**

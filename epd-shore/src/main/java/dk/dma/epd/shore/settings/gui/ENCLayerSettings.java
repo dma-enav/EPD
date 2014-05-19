@@ -22,8 +22,7 @@ import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
  * 
  * @author Janus Varmarken
  */
-public class ENCLayerSettings<OBSERVER extends ENCLayerSettings.IObserver>
-        extends ENCLayerCommonSettings<OBSERVER> {
+public class ENCLayerSettings extends ENCLayerCommonSettings<ENCLayerSettings.IObserver> {
 
     /**
      * Used internally to check if new map windows should try to make dongle
@@ -64,7 +63,7 @@ public class ENCLayerSettings<OBSERVER extends ENCLayerSettings.IObserver>
             }
             // There was a change, update and notify observers.
             this.encSuccess = encSuccess;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 obs.encSuccessChanged(encSuccess);
             }
         } finally {
