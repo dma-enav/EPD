@@ -29,6 +29,7 @@ import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 
@@ -96,6 +97,11 @@ public abstract class Settings {
     protected final String encLayerSettingsFile = "enc-layer_settings.yaml";
     
     /**
+     * Filename for the file with WMS layer settings.
+     */
+    protected final String wmsLayerSettingsFile = "wms-layer_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -108,6 +114,12 @@ public abstract class Settings {
     protected MSILayerCommonSettings<MSILayerCommonSettings.IObserver> msiLayerSettings;
     
     protected S57LayerSettings s57LayerSettings;
+    
+    /**
+     * The primary/global WMS layer settings.
+     * If more WMS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     */
+    protected WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> primaryWmsLayerSettings;
     
     protected MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> msiHandlerSettings;
     
@@ -130,7 +142,7 @@ public abstract class Settings {
     
     /**
      * Gets the primary (global) AIS layer settings.
-     * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
      * @return The primary (global) AIS layer settings.
      */
     public AisLayerCommonSettings<AisLayerCommonSettings.IObserver> getPrimaryAisLayerSettings() {
@@ -147,11 +159,20 @@ public abstract class Settings {
     
     /**
      * Gets the primary (global) MSI layer settings.
-     * If more MSI layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     * If more MSI layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
      * @return The primary (global) MSI layer settings.
      */
     public MSILayerCommonSettings<MSILayerCommonSettings.IObserver> getPrimaryMsiLayerSettings() {
         return this.msiLayerSettings;
+    }
+    
+    /**
+     * Gets the primary (global) WMS layer settings.
+     * If more WMS layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
+     * @return The primary (global) WMS layer settings.
+     */
+    public WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> getPrimaryWMSLayerSettings() {
+        return this.primaryWmsLayerSettings;
     }
     
     /**
@@ -288,8 +309,19 @@ public abstract class Settings {
         // Loaded or new instance no ready for use.
         this.enavServicesHttpSettings = enavServices;
         
+        /*
+         * Load METOC handler settings.
+         * If ship/shore specific METOC handler settings are added later, move this to subclass.
+         */
         MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> metoc = ObservedSettings.loadFromFile(MetocHandlerCommonSettings.class, resolve(metocHandlerSettingsFile).toFile());
         this.metocHandlerSettings = metoc != null ? metoc : new MetocHandlerCommonSettings<>();
+        
+        /*
+         * Load primary/global WMS layer settings.
+         * If ship/shore specific WMS layer settings are added later, move this to subclass.
+         */
+        WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> wms = ObservedSettings.loadFromFile(WMSLayerCommonSettings.class, resolve(wmsLayerSettingsFile).toFile());
+        this.primaryWmsLayerSettings = wms != null ? wms : new WMSLayerCommonSettings<>();
     }
 
     /**
