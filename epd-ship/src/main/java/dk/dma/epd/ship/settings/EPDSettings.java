@@ -143,11 +143,6 @@ public class EPDSettings extends Settings implements Serializable {
     }
 
     @Override
-    public EPDS57LayerSettings getS57Settings() {
-        return s57Settings;
-    }
-
-    @Override
     public EPDCloudSettings getCloudSettings() {
         return cloudSettings;
     }
