@@ -32,6 +32,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
+import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 
 
 /**
@@ -137,7 +138,7 @@ public abstract class MainFrameCommon extends JFrame {
      */
     public void saveSettings() {
         // Save gui settings
-        GuiSettings guiSettings = EPD.getInstance().getSettings().getGuiSettings();
+        GUICommonSettings<?> guiSettings = EPD.getInstance().getSettings().getGuiSettings();
         if (!guiSettings.isFullscreen()) {
             guiSettings.setMaximized((getExtendedState() & MAXIMIZED_BOTH) > 0);
             guiSettings.setAppLocation(getLocation());
@@ -168,7 +169,7 @@ public abstract class MainFrameCommon extends JFrame {
      * @param saveBounds save the bounds of the frame before entering fullscreen
      */
     protected void doFullScreen(boolean saveBounds) {
-        GuiSettings guiSettings = EPD.getInstance().getSettings().getGuiSettings();
+        GUICommonSettings<?> guiSettings = EPD.getInstance().getSettings().getGuiSettings();
         guiSettings.setFullscreen(true);
         if (saveBounds) {
             guiSettings.setMaximized((getExtendedState() & MAXIMIZED_BOTH) > 0);
@@ -189,7 +190,7 @@ public abstract class MainFrameCommon extends JFrame {
      * Leaves full screen
      */
     public void doNormal() {
-        GuiSettings guiSettings = EPD.getInstance().getSettings().getGuiSettings();
+        GUICommonSettings<?> guiSettings = EPD.getInstance().getSettings().getGuiSettings();
         guiSettings.setFullscreen(false);
         
         setVisible(false);
