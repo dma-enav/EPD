@@ -30,6 +30,13 @@ import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.CommonENavSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.CommonMapSettingsPanel;
 import dk.dma.epd.common.prototype.settings.Settings;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -112,10 +119,19 @@ public class SetupDialogCommon extends JDialog implements ActionListener {
         btnCancel = new JButton("Cancel", EPD.res().getCachedImageIcon("images/settings/btncancel.png"));
         btnPanel.add(btnCancel);
 
+        // Get references to settings data.
+        NetworkSettings<?> enavServicesHttpSettings = EPD.getInstance().getSettings().getEnavServicesHttpSettings();
+        MetocHandlerCommonSettings<?> metocHandlerSettings = EPD.getInstance().getSettings().getMetocHandlerSettings();
+        MSIHandlerCommonSettings<?> msiHandlerSettings = EPD.getInstance().getSettings().getMsiHandlerSettings();
+        MSILayerCommonSettings<?> msiLayerSettings = EPD.getInstance().getSettings().getPrimaryMsiLayerSettings();
+        MapCommonSettings<?> mapCommonSettings = EPD.getInstance().getSettings().getMapSettings();
+        ENCLayerCommonSettings<?> encLayerSettings = EPD.getInstance().getSettings().getENCLayerSettings();
+        WMSLayerCommonSettings<?> wmsLayerSettings = EPD.getInstance().getSettings().getPrimaryWMSLayerSettings();
+        
         // Create the panels.
         settingsPanels = new ArrayList<BaseSettingsPanel>();
-        enavSettings   = new CommonENavSettingsPanel();
-        mapSettings    = new CommonMapSettingsPanel();
+        enavSettings   = new CommonENavSettingsPanel(enavServicesHttpSettings, metocHandlerSettings, msiHandlerSettings, msiLayerSettings);
+        mapSettings    = new CommonMapSettingsPanel(mapCommonSettings, encLayerSettings, wmsLayerSettings);
 
         // Register the panels to the tab menu.
         registerSettingsPanels(
