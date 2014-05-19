@@ -25,6 +25,7 @@ import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 
 /**
  * Abstract parent class the encapsulates the 
@@ -60,25 +61,32 @@ public abstract class Settings {
     protected final String s57LayerSettingsFile = "s57Props.properties";
     
     /**
+     * Filename for the file with external sensors settings.
+     */
+    protected final String externalSensorsSettingsFile = "external-sensors_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexists, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
-    protected AisLayerCommonSettings<?> primaryAisLayerSettings;
+    protected AisLayerCommonSettings<AisLayerCommonSettings.IObserver> primaryAisLayerSettings;
     
     protected S57LayerSettings s57LayerSettings;
     
-    public abstract GUICommonSettings<?> getGuiSettings();
+    public abstract GUICommonSettings<? extends GUICommonSettings.IObserver> getGuiSettings();
     
-    public abstract MapCommonSettings<?> getMapSettings();
+    public abstract MapCommonSettings<? extends MapCommonSettings.IObserver> getMapSettings();
     
-    public abstract RouteManagerCommonSettings<?> getRouteManagerSettings();
+    public abstract RouteManagerCommonSettings<? extends RouteManagerCommonSettings.IObserver> getRouteManagerSettings();
+    
+    public abstract ExternalSensorsCommonSettings<? extends ExternalSensorsCommonSettings.IObserver> getExternalSensorsSettings();
     
     /**
      * Gets the primary (global) AIS layer settings.
      * If more AIS layers are to coexists, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      * @return The primary (global) AIS layer settings.
      */
-    public AisLayerCommonSettings<?> getPrimaryAisLayerSettings() {
+    public AisLayerCommonSettings<AisLayerCommonSettings.IObserver> getPrimaryAisLayerSettings() {
         return primaryAisLayerSettings;
     }
     
@@ -96,7 +104,7 @@ public abstract class Settings {
 
 //    public abstract EnavSettings getEnavSettings();
 
-    public abstract S57LayerSettings getS57Settings();
+//    public abstract S57LayerSettings getS57Settings();
     
 //    public abstract CloudSettings getCloudSettings();
 
@@ -176,6 +184,7 @@ public abstract class Settings {
         AisLayerCommonSettings<AisLayerCommonSettings.IObserver> ais = ObservedSettings.loadFromFile(AisLayerCommonSettings.class, resolve(aisLayerSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
         this.primaryAisLayerSettings = ais != null ? ais : new AisLayerCommonSettings<AisLayerCommonSettings.IObserver>();
+        
         /*
          * Load S57 layer settings.
          * If ship/shore specific S57 layer settings are added later, move this to subclass.

@@ -15,17 +15,12 @@
  */
 package dk.dma.epd.ship.settings;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Properties;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
-import dk.dma.epd.common.prototype.settings.S57LayerSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
-import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
-import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
-import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.ship.settings.gui.GUISettings;
 import dk.dma.epd.ship.settings.gui.MapSettings;
 import dk.dma.epd.ship.settings.handlers.RouteManagerSettings;
@@ -40,16 +35,18 @@ public class EPDSettings extends Settings implements Serializable {
 
     private final String settingsFile = "settings.properties";
 
-    private final EPDSensorSettings sensorSettings = new EPDSensorSettings();
-    private final EPDNavSettings navSettings = new EPDNavSettings();
-    private final EPDEnavSettings enavSettings = new EPDEnavSettings();
-    private final EPDCloudSettings cloudSettings = new EPDCloudSettings();
+//    private final EPDSensorSettings sensorSettings = new EPDSensorSettings();
+//    private final EPDNavSettings navSettings = new EPDNavSettings();
+//    private final EPDEnavSettings enavSettings = new EPDEnavSettings();
+//    private final EPDCloudSettings cloudSettings = new EPDCloudSettings();
     
     private GUISettings<GUISettings.IObserver> guiSettings;
     
     private MapSettings<MapSettings.IObserver> mapSettings;
     
     private RouteManagerSettings<RouteManagerSettings.IObserver> routeManagerSettings;
+    
+    private ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> externalSensorsSettings;
     
     public EPDSettings() {
         super();
@@ -78,18 +75,25 @@ public class EPDSettings extends Settings implements Serializable {
         // Create new instance if no saved instance found.
         routeManagerSettings = rms != null ? rms : new RouteManagerSettings<>();
         
+        /*
+         *  Load external sensors settings.
+         *  Even though ship uses common version, we need to load it here instead of in super class as shore uses specific version.
+         */
+        ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> ext = ObservedSettings.loadFromFile(ExternalSensorsCommonSettings.class, resolve(externalSensorsSettingsFile).toFile());
+        // Use loaded instance or create new if the file was not found.
+        this.externalSensorsSettings = ext != null ? ext : new ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver>();
         
-        // Open properties file
-        Properties props = new Properties();
-        loadProperties(props, settingsFile);
-
-
-        enavSettings.readProperties(props);
-        guiSettings.readProperties(props);
-        mapSettings.readProperties(props);
-        navSettings.readProperties(props);
-        sensorSettings.readProperties(props);
-        cloudSettings.readProperties(props);
+//        // Open properties file
+//        Properties props = new Properties();
+//        loadProperties(props, settingsFile);
+//
+//
+//        enavSettings.readProperties(props);
+//        guiSettings.readProperties(props);
+//        mapSettings.readProperties(props);
+//        navSettings.readProperties(props);
+//        sensorSettings.readProperties(props);
+//        cloudSettings.readProperties(props);
     }
 
     /**
@@ -97,17 +101,17 @@ public class EPDSettings extends Settings implements Serializable {
      */
     @Override
     public void saveToFile() {
-        Properties props = new Properties();
-        enavSettings.setProperties(props);
-        guiSettings.setProperties(props);
-        mapSettings.setProperties(props);
-        navSettings.setProperties(props);
-        sensorSettings.setProperties(props);
-        cloudSettings.setProperties(props);
-        
-        saveProperties(props, settingsFile, "# EPD-ship settings saved: " + new Date());
-        
-        s57Settings.saveSettings(resolve("s57Props.properties").toString());
+//        Properties props = new Properties();
+//        enavSettings.setProperties(props);
+//        guiSettings.setProperties(props);
+//        mapSettings.setProperties(props);
+//        navSettings.setProperties(props);
+//        sensorSettings.setProperties(props);
+//        cloudSettings.setProperties(props);
+//        
+//        saveProperties(props, settingsFile, "# EPD-ship settings saved: " + new Date());
+//        
+//        s57Settings.saveSettings(resolve("s57Props.properties").toString());
     }
 
     @Override
@@ -116,34 +120,44 @@ public class EPDSettings extends Settings implements Serializable {
     }
 
     @Override
+    public MapCommonSettings<MapSettings.IObserver> getMapSettings() {
+        return this.mapSettings;
+    }
+    
+    @Override
     public RouteManagerSettings<RouteManagerSettings.IObserver> getRouteManagerSettings() {
         return this.routeManagerSettings;
     }
     
     @Override
-    public EPDSensorSettings getSensorSettings() {
-        return sensorSettings;
+    public ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> getExternalSensorsSettings() {
+        return this.externalSensorsSettings;
     }
-
-    @Override
-    public EPDNavSettings getNavSettings() {
-        return navSettings;
-    }
-
-    @Override
-    public EPDAisSettings getAisSettings() {
-        return aisSettings;
-    }
-
-    @Override
-    public EPDEnavSettings getEnavSettings() {
-        return enavSettings;
-    }
-
-    @Override
-    public EPDCloudSettings getCloudSettings() {
-        return cloudSettings;
-    }
+    
+//    @Override
+//    public EPDSensorSettings getSensorSettings() {
+//        return sensorSettings;
+//    }
+//
+//    @Override
+//    public EPDNavSettings getNavSettings() {
+//        return navSettings;
+//    }
+//
+//    @Override
+//    public EPDAisSettings getAisSettings() {
+//        return aisSettings;
+//    }
+//
+//    @Override
+//    public EPDEnavSettings getEnavSettings() {
+//        return enavSettings;
+//    }
+//
+//    @Override
+//    public EPDCloudSettings getCloudSettings() {
+//        return cloudSettings;
+//    }
     
     public String getSettingsFile() {
         return settingsFile;

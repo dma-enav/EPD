@@ -13,23 +13,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.settings;
+package dk.dma.epd.shore.settings.sensor;
 
-import dk.dma.epd.common.prototype.settings.SensorSettings;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 
 /**
- * Sensor settings
+ * @author Janus Varmarken
  */
-public class EPDSensorSettings extends SensorSettings{
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * Constructor
-     */
-    public EPDSensorSettings() {
+public class ExternalSensorsSettings extends
+        ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> {
+    
+    public ExternalSensorsSettings() {
         super();
-        
-        // Default aisTcpOrUdpPort is 4001 for edp-ship, but 4002 for edp-shore
+        // Shore defaults to port 4002 while ship defaults to 4001.
         setAisTcpOrUdpPort(4002);
     }
+    
 }

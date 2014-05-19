@@ -25,10 +25,14 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.util.PropUtils;
 
+import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.S57LayerSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.IObserver;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.settings.sensor.ExternalSensorsSettings;
 
 /**
  * Settings class
@@ -55,6 +59,9 @@ public class EPDSettings extends Settings implements Serializable {
     
     private Workspace workspace = new Workspace();
 
+    
+    private ExternalSensorsSettings externalSensorsSettings;
+    
     public EPDSettings() {
         super();
     }
@@ -64,6 +71,11 @@ public class EPDSettings extends Settings implements Serializable {
      */
     @Override
     public void loadFromFile() {
+        // Load external sensors settings. 
+        ExternalSensorsSettings ext = ObservedSettings.loadFromFile(ExternalSensorsSettings.class, resolve(externalSensorsSettingsFile).toFile());
+        // Use loaded instance or create new if the file was not found.
+        this.externalSensorsSettings = ext != null ? ext : new ExternalSensorsSettings();
+        
         // Open properties file
         Properties props = new Properties();
         loadProperties(props, settingsFile);
@@ -94,6 +106,11 @@ public class EPDSettings extends Settings implements Serializable {
         }
     }
 
+    @Override
+    public ExternalSensorsSettings getExternalSensorsSettings() {
+        return this.externalSensorsSettings;
+    }
+    
     /**
      * Load a workspace
      * 
