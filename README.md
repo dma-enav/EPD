@@ -28,6 +28,17 @@ Folders with settings files are created in the home folder
     <home folder>/.epd-ship
     <home folder>/.epd-shore
 
+## Creating Windows EXE files ##
+
+Windows execulateables can be created by using the followig Maven profile
+
+    mvn clean install -Pexe
+
+The executables will be located in here
+
+    distribution/EPD-Ship-Singlejar/target/epd-ship.exe
+    distribution/EPD-Shore-Singlejar/target/epd-shore.exe
+
 ## Eclipse development ##
 
 Use M2 Eclipse plugin or use Maven eclipse target
