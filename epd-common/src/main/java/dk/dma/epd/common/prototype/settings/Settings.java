@@ -27,6 +27,7 @@ import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 
 /**
@@ -78,6 +79,11 @@ public abstract class Settings {
     protected final String msiLayerSettingsFile = "msi-layer_settings.yaml";
     
     /**
+     * Filename for the file with e-Nav services HTTP settings.
+     */
+    protected final String enavServicesHttpSettingsFile = "enav-services-http_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -92,6 +98,11 @@ public abstract class Settings {
     protected S57LayerSettings s57LayerSettings;
     
     protected MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> msiHandlerSettings;
+    
+    /**
+     * Connection parameters used when connecting to e-Nav services.
+     */
+    protected NetworkSettings<NetworkSettings.IObserver> enavServicesHttpSettings;
     
     public abstract GUICommonSettings<? extends GUICommonSettings.IObserver> getGuiSettings();
     
@@ -125,6 +136,14 @@ public abstract class Settings {
      */
     public MSILayerCommonSettings<MSILayerCommonSettings.IObserver> getPrimaryMsiLayerSettings() {
         return this.msiLayerSettings;
+    }
+    
+    /**
+     * Get settings specifying connection parameters for the e-Nav services connection.
+     * @return Settings specifying connection parameters for the e-Nav services connection
+     */
+    public NetworkSettings<NetworkSettings.IObserver> getEnavServicesHttpSettings() {
+        return this.enavServicesHttpSettings;
     }
 
 //    public abstract NavSettings getNavSettings();
@@ -230,6 +249,25 @@ public abstract class Settings {
          */
         MSILayerCommonSettings<MSILayerCommonSettings.IObserver> msiLayerSett = ObservedSettings.loadFromFile(MSILayerCommonSettings.class, resolve(msiLayerSettingsFile).toFile());
         this.msiLayerSettings = msiLayerSett != null ? msiLayerSett : new MSILayerCommonSettings<>();
+        
+        /*
+         * Load e-Nav services connection settings.
+         * If ship/shore specific e-Nav services connection settings are added later, move this to subclass.
+         */
+        NetworkSettings<NetworkSettings.IObserver> enavServices = ObservedSettings.loadFromFile(NetworkSettings.class, resolve(enavServicesHttpSettingsFile).toFile());
+        if(enavServices == null) {
+            // Create new instance if no saved instance present.
+            enavServices = new NetworkSettings<>();
+            /*
+             *  Default network settings connect to localhost.
+             *  Update to use external server by default.
+             */
+            enavServices.setHost("service.e-navigation.net");
+            enavServices.setPort(80);
+        }
+        // Loaded or new instance no ready for use.
+        this.enavServicesHttpSettings = enavServices;
+        
     }
 
     /**
