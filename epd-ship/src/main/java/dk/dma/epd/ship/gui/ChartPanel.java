@@ -47,7 +47,6 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
-import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.EPDShip;
@@ -73,7 +72,6 @@ import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.gui.MapSettings;
-import dk.dma.epd.ship.settings.gui.MapSettings.IObserver;
 import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
 
 /**
@@ -143,8 +141,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         encLayer = encLayerFactory.getEncLayer();
         
         // Add WMS Layer
-        if (mapSettings.isUseWms()) {
-            wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
+        if (EPDShip.getInstance().getSettings().getPrimaryWMSLayerSettings().isUseWms()) {
+            wmsLayer = new WMSLayer(EPDShip.getInstance().getSettings().getPrimaryWMSLayerSettings());
             mapHandler.add(wmsLayer);
         }
 
@@ -211,7 +209,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         mapHandler.add(voctLayer);
 
         // Create route layer
-        routeLayer = new RouteLayer();
+        routeLayer = new RouteLayer(EPDShip.getInstance().getSettings().getPrimaryRouteLayerSettings(), EPDShip.getInstance().getSettings().getPrimaryMetocLayerSettings());
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
 
@@ -234,7 +232,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         mapHandler.add(routeEditLayer);
 
         // Create MSI layer
-        msiLayer = new MsiLayer();
+        msiLayer = new MsiLayer(EPDShip.getInstance().getSettings().getPrimaryMsiLayerSettings(), EPDShip.getInstance().getSettings().getMsiHandlerSettings());
         msiLayer.setVisible(true);
         mapHandler.add(msiLayer);
 
@@ -248,17 +246,17 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         mapHandler.add(dynamicNogoLayer);
 
         // Create AIS layer
-        aisLayer = new AisLayer(EPDShip.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
+        aisLayer = new AisLayer(EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings());
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
 
         // Create own ship layer layer
-        ownShipLayer = new OwnShipLayer();
+        ownShipLayer = new OwnShipLayer(EPDShip.getInstance().getSettings().getOwnShipLayerSettings());
         ownShipLayer.setVisible(true);
         mapHandler.add(ownShipLayer);
 
         // Create Intended Route Layer
-        intendedRouteLayer = new IntendedRouteLayerCommon();
+        intendedRouteLayer = new IntendedRouteLayerCommon(EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings());
         intendedRouteLayer.setVisible(true);
         mapHandler.add(intendedRouteLayer);
 
@@ -292,10 +290,10 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         encLayerFactory.setMapSettings();
 
         // Set last postion
-        map.setCenter(mapSettings.getCenter());
+        map.setCenter(getMapSettings().getCenter());
 
         // Get from settings
-        map.setScale(mapSettings.getScale());
+        map.setScale(getMapSettings().getInitalMapScale());
         // Set ENC map settings
 
         add(map);
@@ -311,18 +309,22 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         EPDShip.getInstance().getPntHandler().addListener(this);
 
         // Show AIS or not
-        aisVisible(EPDShip.getInstance().getSettings().getAisSettings()
+        aisVisible(EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings()
                 .isVisible());
         // Show ENC or not
-        encVisible(EPDShip.getInstance().getSettings().getMapSettings()
-                .isEncVisible());
+        // (updated this to also check use)
+        // (previous version only checked layer visibility)
+        encVisible(EPDShip.getInstance().getSettings().getENCLayerSettings().isEncInUse() &&
+                EPDShip.getInstance().getSettings().getENCLayerSettings().isVisible());
 
         // Show WMS or not
-        wmsVisible(EPDShip.getInstance().getSettings().getMapSettings()
-                .isWmsVisible());
+        // (updated this to also check use)
+        // (previous version only checked layer visibility)
+        wmsVisible(EPDShip.getInstance().getSettings().getPrimaryWMSLayerSettings().isUseWms() &&
+                EPDShip.getInstance().getSettings().getPrimaryWMSLayerSettings().isVisible());
 
         // Show intended routes or not
-        intendedRouteLayerVisible(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+        intendedRouteLayerVisible(EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().isVisible());
         
         getMap().addMouseWheelListener(this);
 
@@ -402,7 +404,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     public void zoomTo(List<Position> waypoints) {
         if (waypoints.size() > 0) {
             // Disable auto follow
-            EPDShip.getInstance().getSettings().getNavSettings()
+            EPDShip.getInstance().getSettings().getMapSettings()
                 .setAutoFollow(false);
             topPanel.updateButtons();
 
@@ -489,7 +491,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
      */
     public void autoFollow() {
         // Do auto follow
-        if (!EPDShip.getInstance().getSettings().getNavSettings()
+        if (!EPDShip.getInstance().getSettings().getMapSettings()
                 .isAutoFollow()) {
             return;
         }
@@ -500,7 +502,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         }
 
         boolean lookahead = EPDShip.getInstance().getSettings()
-                .getNavSettings().isLookAhead();
+                .getMapSettings().isLookAhead();
 
         // Find desired location (depends on look-ahead or not)
 
@@ -550,7 +552,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
         // LOG.info("pctOffX: " + pctOffX + " pctOffY: " + pctOffY);
 
-        int tollerated = EPDShip.getInstance().getSettings().getNavSettings()
+        int tollerated = EPDShip.getInstance().getSettings().getMapSettings()
                 .getAutoFollowPctOffTollerance();
         if (pctOffX < tollerated && pctOffY < tollerated) {
             return;
