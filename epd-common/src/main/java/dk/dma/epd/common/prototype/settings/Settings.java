@@ -28,6 +28,7 @@ import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
@@ -119,6 +120,11 @@ public abstract class Settings {
     protected final String monaLisaHttpSettingsFile = "mona-lisa-http_settings.yaml";
     
     /**
+     * Filename for the file with intended route layer settings.
+     */
+    protected final String intendedRouteLayerSettingsFile = "intended-route-layer_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -149,6 +155,12 @@ public abstract class Settings {
      * If more route layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
     protected RouteLayerCommonSettings<RouteLayerCommonSettings.IObserver> primaryRouteLayerSettings;
+
+    /**
+     * The primary/global intended route layer settings.
+     * If more intended route layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     */
+    protected IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettings.IObserver> primaryIntendedRouteLayerSettings;
     
     protected MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> msiHandlerSettings;
     
@@ -225,6 +237,15 @@ public abstract class Settings {
      */
     public RouteLayerCommonSettings<RouteLayerCommonSettings.IObserver> getPrimaryRouteLayerSettings() {
         return this.primaryRouteLayerSettings;
+    }
+    
+    /**
+     * Gets the primary (global) intended route layer settings.
+     * If more intended route layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
+     * @return The primary (global) intended route layer settings.
+     */
+    public IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettings.IObserver> getPrimaryIntendedRouteLayerSettings() {
+        return this.primaryIntendedRouteLayerSettings;
     }
     
     /**
@@ -414,6 +435,13 @@ public abstract class Settings {
         }
         // Loaded or new instance no ready for use.
         this.monaLisaHttpSettings = monaLisaHttp;
+        
+        /*
+         * Load primary/global intended route layer settings.
+         * If ship/shore specific intended route layer settings are added later, move this to subclass.
+         */
+        IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettings.IObserver> intendedRouteLayer = ObservedSettings.loadFromFile(IntendedRouteLayerCommonSettings.class, resolve(intendedRouteLayerSettingsFile).toFile());
+        this.primaryIntendedRouteLayerSettings = intendedRouteLayer != null ? intendedRouteLayer : new IntendedRouteLayerCommonSettings<>();
     }
 
     /**
