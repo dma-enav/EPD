@@ -42,6 +42,7 @@ import javax.swing.event.ChangeListener;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.NoGoMouseMode;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.MainFrame;
@@ -315,7 +316,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
 
     @Override
     public void run() {
-        nogoHandler.updateNogo();
+        nogoHandler.updateNogo(EPDShip.getInstance().getSettings().getGuiSettings());
         this.dispose();
     }
 
