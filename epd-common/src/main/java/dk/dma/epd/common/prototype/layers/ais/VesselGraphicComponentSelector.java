@@ -21,6 +21,7 @@ import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 
 /**
@@ -36,7 +37,7 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
      * The {@link VesselTarget} received in the latest target update.
      */
     private VesselTarget vesselTarget;
-
+    
     /**
      * The current display mode for this graphic (i.e. Outline, Dot or
      * Triangle).
@@ -70,14 +71,16 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
     /**
      * Creates a new {@code VesselGraphicComponentSelector}.
      * 
+     * @param layerSettings
+     *            Settings for the layer that displays this graphic.
      * @param showName
      *            If this graphic's sub graphics should display AIS name labels.
      */
-    public VesselGraphicComponentSelector(boolean showName) {
+    public VesselGraphicComponentSelector(VesselLayerSettings<?> layerSettings, boolean showName) {
         super();
-        this.vesselTriangleGraphic = new VesselTriangleGraphicComponent();
+        this.vesselTriangleGraphic = new VesselTriangleGraphicComponent(layerSettings);
         this.vesselTriangleGraphic.setShowNameLabel(showName);
-        this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(
+        this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(layerSettings,
                 ColorConstants.VESSEL_COLOR, 2.0f);
         this.vesselOutlineGraphic.setShowNameLabel(showName);
         this.vesselDotGraphic = new VesselDotGraphicComponent();

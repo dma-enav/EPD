@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
 import java.awt.Paint;
+import java.util.Objects;
 
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -30,6 +31,7 @@ import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
 
 /**
@@ -64,8 +66,11 @@ public class SpeedVectorGraphic extends OMGraphicList {
 
     private VesselPositionData lastUpdate;
 
-    public SpeedVectorGraphic(Paint lineColour) {
+    private final VesselLayerSettings<?> layerSettings;
+    
+    public SpeedVectorGraphic(VesselLayerSettings<?> layerSettings, Paint lineColour) {
         this.paintUsed = lineColour;
+        this.layerSettings = Objects.requireNonNull(layerSettings);
         this.init();
     }
 
@@ -90,7 +95,7 @@ public class SpeedVectorGraphic extends OMGraphicList {
         this.startPos = new LatLonPoint.Double(newPos.getLatitude(), newPos.getLongitude());
         // Calculate the length of the speed vector
         double sog = posData.getSog();
-        float cogVectorLength = ScaleDependentValues.getCogVectorLength(currentMapScale);
+        float cogVectorLength = ScaleDependentValues.getCogVectorLength(currentMapScale, this.layerSettings);
         float length = (float) Length.NM.toRadians(cogVectorLength * (sog / 60.0));
         this.endPos = this.startPos.getPoint(length, cogR);
         this.speedLL[2] = endPos.getLatitude();
@@ -108,11 +113,9 @@ public class SpeedVectorGraphic extends OMGraphicList {
                 this.marks.add(vtm);
             }
         }
-
-        if (EPD.getInstance().getSettings().getAisSettings().getCogVectorHideBelow() < posData.getSog()) {
+        if (this.layerSettings.getMovementVectorHideBelow() < posData.getSog()) {
             this.setVisible(true);
         }
-
         else {
             this.setVisible(false);
         }

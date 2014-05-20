@@ -20,6 +20,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.Objects;
 
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMText;
@@ -29,6 +30,7 @@ import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 
 /**
  * A concrete implementation of {@link VesselGraphicComponent} that displays a
@@ -73,18 +75,25 @@ public class VesselOutlineGraphicComponent extends VesselGraphicComponent {
     private OMText aisName;
 
     /**
+     * Settings for the layer that displays this graphic.
+     */
+    private final VesselLayerSettings<?> layerSettings;
+    
+    /**
      * Create a new {@code VesselOutlineGraphicComponent} with a given line
      * color and a given line thickness.
      * 
+     * @param layerSettings
+     *            Settings for the layer that displays this graphic.
      * @param lineColor
      *            Line color to use when painting the vessel outline.
      * @param lineThickness
      *            Line thickness to use when painting the vessel outline.
      */
-    public VesselOutlineGraphicComponent(Color lineColor, float lineThickness) {
+    public VesselOutlineGraphicComponent(VesselLayerSettings<?> layerSettings, Color lineColor, float lineThickness) {
         this.lineColor = lineColor;
         this.lineThickness = lineThickness;
-
+        this.layerSettings = Objects.requireNonNull(layerSettings);
         Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
         this.aisName = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
         this.add(aisName);
@@ -133,7 +142,7 @@ public class VesselOutlineGraphicComponent extends VesselGraphicComponent {
             this.vesselOutline.updateGraphic(vesselTarget, mapScale);
             // Create speed vector if this is the first update we receive
             if (this.speedVector == null) {
-                this.speedVector = new SpeedVectorGraphic(this.lineColor);
+                this.speedVector = new SpeedVectorGraphic(this.layerSettings, this.lineColor);
                 this.add(this.speedVector);
             }
             // TODO can pos data be null?

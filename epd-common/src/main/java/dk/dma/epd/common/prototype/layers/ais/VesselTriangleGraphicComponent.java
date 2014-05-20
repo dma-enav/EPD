@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.Font;
+import java.util.Objects;
 
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMText;
@@ -28,6 +29,7 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 
 /**
  * A concrete implementation of {@link VesselGraphicComponent} that displays a
@@ -65,6 +67,21 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
     private SpeedVectorGraphic speedVector;
 
     /**
+     * Settings for the layer that displays this graphic.
+     */
+    private final VesselLayerSettings<?> layerSettings;
+    
+    /**
+     * Creates a new {@link VesselTriangleGraphicComponent}.
+     * 
+     * @param layerSettings
+     *             Settings for the layer that displays this graphic.
+     */
+    public VesselTriangleGraphicComponent(VesselLayerSettings<?> layerSettings) {
+        this.layerSettings = Objects.requireNonNull(layerSettings);
+    }
+    
+    /**
      * Initializes sub graphics.
      * 
      * @param aisSettings
@@ -82,7 +99,7 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
         this.font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
         this.label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
 
-        this.speedVector = new SpeedVectorGraphic(
+        this.speedVector = new SpeedVectorGraphic(this.layerSettings,
                 ColorConstants.VESSEL_HEADING_COLOR);
 
         add(label);

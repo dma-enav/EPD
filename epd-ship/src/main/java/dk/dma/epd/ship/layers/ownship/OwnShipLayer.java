@@ -189,7 +189,7 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
         }
         // init if this is the first time displaying ship outline
         if (this.vesselOutlineGraphic == null) {
-            this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(ColorConstants.OWNSHIP_COLOR, 2.0f);
+            this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(this.getSettings(), ColorConstants.OWNSHIP_COLOR, 2.0f);
             this.graphics.add(this.vesselOutlineGraphic);
         }
         // re-show outline graphic in case it was hidden by standard ownship graphic

@@ -22,6 +22,7 @@ import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.layers.ais.SpeedVectorGraphic;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 
 public class OwnShipSpeedVectorGraphic extends SpeedVectorGraphic {
 
@@ -29,9 +30,8 @@ public class OwnShipSpeedVectorGraphic extends SpeedVectorGraphic {
     private RotationalPoly frontShipArrow;
     private RotationalPoly backShipArrow;
 
-    public OwnShipSpeedVectorGraphic(Paint lineColour) {
-        super(lineColour);
-        // TODO Auto-generated constructor stub
+    public OwnShipSpeedVectorGraphic(VesselLayerSettings<?> layerSettings, Paint lineColour) {
+        super(layerSettings, lineColour);
     }
 
     protected void init() {
