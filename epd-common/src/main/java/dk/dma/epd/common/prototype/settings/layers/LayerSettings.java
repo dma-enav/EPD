@@ -15,8 +15,6 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
-import com.bbn.openmap.omGraphics.OMGraphic;
-
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
 /**
@@ -50,14 +48,6 @@ public abstract class LayerSettings<OBSERVER extends LayerSettings.IObserver>
      * Specifies if the layer should be displayed.
      */
     private boolean visible = true;
-
-    /**
-     * Specifies the radius of an invisible circle surrounding the mouse cursor
-     * for which any overlapping {@link OMGraphic} is considered interactable
-     * (i.e. can be clicked, hovered etc.). Increasing this value will make the
-     * layer more tolerant to imprecise mouse selection/pointing.
-     */
-    private float graphicInteractTolerance = 5.0f;
 
     /**
      * Get if the layer should be displayed.
@@ -98,49 +88,6 @@ public abstract class LayerSettings<OBSERVER extends LayerSettings.IObserver>
     }
 
     /**
-     * Get the value that specifies the radius (in pixels) of an invisible
-     * circle surrounding the mouse cursor for which any overlapping
-     * {@link OMGraphic} is considered interactable (i.e. can be clicked,
-     * hovered etc.).
-     * 
-     * @return The interaction radius in pixels.
-     */
-    public float getGraphicInteractTolerance() {
-        try {
-            this.settingLock.readLock().lock();
-            return this.graphicInteractTolerance;
-        } finally {
-            this.settingLock.readLock().unlock();
-        }
-    }
-
-    /**
-     * Set the value that specifies the radius (in pixels) of an invisible
-     * circle surrounding the mouse cursor for which any overlapping
-     * {@link OMGraphic} is considered interactable (i.e. can be clicked,
-     * hovered etc.). Increasing this value will make the layer more tolerant to
-     * imprecise mouse selection/pointing.
-     * 
-     * @param graphicInteractTolerance
-     *            The new interaction radius in pixels.
-     */
-    public void setGraphicInteractTolerance(float graphicInteractTolerance) {
-        try {
-            this.settingLock.writeLock().lock();
-            if (this.graphicInteractTolerance == graphicInteractTolerance) {
-                // No change, no need to notify observers.
-                return;
-            }
-            this.graphicInteractTolerance = graphicInteractTolerance;
-            for (OBSERVER obs : this.observers) {
-                obs.graphicInteractToleranceChanged(this.graphicInteractTolerance);
-            }
-        } finally {
-            this.settingLock.writeLock().unlock();
-        }
-    }
-
-    /**
      * Base interface for observing a {@link LayerSettings} for changes. I.e.
      * <i>this interface should only contain callbacks for changes to settings that
      * are relevant to all layer types.</i>
@@ -162,13 +109,6 @@ public abstract class LayerSettings<OBSERVER extends LayerSettings.IObserver>
          */
         void isVisibleChanged(boolean newValue);
 
-        /**
-         * Invoked when the graphic interact tolerance setting has been changed.
-         * 
-         * @param newValue
-         *            The new tolerance level in pixels.
-         */
-        void graphicInteractToleranceChanged(float newValue);
     }
     
 }
