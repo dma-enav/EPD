@@ -25,6 +25,7 @@ import dk.dma.epd.ship.settings.gui.GUISettings;
 import dk.dma.epd.ship.settings.gui.MapSettings;
 import dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings;
 import dk.dma.epd.ship.settings.handlers.RouteManagerSettings;
+import dk.dma.epd.ship.settings.layers.OwnShipLayerSettings;
 
 
 /**
@@ -40,6 +41,11 @@ public class EPDSettings extends Settings implements Serializable {
 //    private final EPDEnavSettings enavSettings = new EPDEnavSettings();
 //    private final EPDCloudSettings cloudSettings = new EPDCloudSettings();
     
+    /**
+     * Filename for the file with own ship layer settings.
+     */
+    protected final String ownShipLayerSettingsFile = "own-ship-layer_settings.yaml";
+    
     private GUISettings<GUISettings.IObserver> guiSettings;
     
     private MapSettings mapSettings;
@@ -51,6 +57,8 @@ public class EPDSettings extends Settings implements Serializable {
     private ENCLayerCommonSettings<ENCLayerCommonSettings.IObserver> encLayerSettings;
     
     private IntendedRouteHandlerSettings intendedRouteHandlerSettings;
+    
+    private OwnShipLayerSettings ownShipLayerSettings;
     
     public EPDSettings() {
         super();
@@ -99,6 +107,11 @@ public class EPDSettings extends Settings implements Serializable {
         IntendedRouteHandlerSettings intendedRouteHandler = ObservedSettings.loadFromFile(IntendedRouteHandlerSettings.class, resolve(intendedRouteHandlerSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
         this.intendedRouteHandlerSettings = intendedRouteHandler != null ? intendedRouteHandler : new IntendedRouteHandlerSettings();
+        
+        // Load own ship layer settings.
+        OwnShipLayerSettings ownShipLayer = ObservedSettings.loadFromFile(OwnShipLayerSettings.class, resolve(ownShipLayerSettingsFile).toFile());
+        // Use loaded instance or create new if the file was not found.
+        this.ownShipLayerSettings = ownShipLayer != null ? ownShipLayer : new OwnShipLayerSettings();
         
 //        // Open properties file
 //        Properties props = new Properties();
@@ -159,6 +172,10 @@ public class EPDSettings extends Settings implements Serializable {
     @Override
     public IntendedRouteHandlerSettings getIntendedRouteHandlerSettings() {
         return this.intendedRouteHandlerSettings;
+    }
+    
+    public OwnShipLayerSettings getOwnShipLayerSettings() {
+        return this.ownShipLayerSettings;
     }
     
 //    @Override
