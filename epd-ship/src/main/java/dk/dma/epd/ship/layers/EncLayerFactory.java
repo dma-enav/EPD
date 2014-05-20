@@ -216,7 +216,7 @@ public class EncLayerFactory {
             // Set s57 settings
             Properties s57Props = new Properties();
             s57Props.setProperty("enc.viewGroupSettings", EPDShip.getInstance().getSettings()
-                    .getS57Settings().getS52mapSettings());
+                    .getS57LayerSettings().getS52mapSettings());
 
             encLayer.setProperties(s57Props);
             
