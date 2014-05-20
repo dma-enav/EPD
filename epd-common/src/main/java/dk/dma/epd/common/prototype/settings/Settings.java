@@ -30,6 +30,7 @@ import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
@@ -108,6 +109,11 @@ public abstract class Settings {
     protected final String metocLayerSettingsFile = "metoc-layer_settings.yaml";
     
     /**
+     * Filename for the file with route layer settings.
+     */
+    protected final String routeLayerSettingsFile = "route-layer_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -132,6 +138,12 @@ public abstract class Settings {
      * If more METOC layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
     protected MetocLayerCommonSettings<MetocLayerCommonSettings.IObserver> primaryMetocLayerSettings;
+    
+    /**
+     * The primary/global route layer settings.
+     * If more route layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     */
+    protected RouteLayerCommonSettings<RouteLayerCommonSettings.IObserver> primaryRouteLayerSettings;
     
     protected MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> msiHandlerSettings;
     
@@ -194,6 +206,15 @@ public abstract class Settings {
      */
     public MetocLayerCommonSettings<MetocLayerCommonSettings.IObserver> getPrimaryMetocLayerSettings() {
         return this.primaryMetocLayerSettings;
+    }
+    
+    /**
+     * Gets the primary (global) route layer settings.
+     * If more route layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
+     * @return The primary (global) route layer settings.
+     */
+    public RouteLayerCommonSettings<RouteLayerCommonSettings.IObserver> getPrimaryRouteLayerSettings() {
+        return this.primaryRouteLayerSettings;
     }
     
     /**
@@ -350,6 +371,13 @@ public abstract class Settings {
          */
         MetocLayerCommonSettings<MetocLayerCommonSettings.IObserver> metocLayer = ObservedSettings.loadFromFile(MetocLayerCommonSettings.class, resolve(metocLayerSettingsFile).toFile());
         this.primaryMetocLayerSettings = metocLayer != null ? metocLayer : new MetocLayerCommonSettings<>();
+        
+        /*
+         * Load primary/global route layer settings.
+         * If ship/shore specific route layer settings are added later, move this to subclass.
+         */
+        RouteLayerCommonSettings<RouteLayerCommonSettings.IObserver> routeLayer = ObservedSettings.loadFromFile(RouteLayerCommonSettings.class, resolve(routeLayerSettingsFile).toFile());
+        this.primaryRouteLayerSettings = routeLayer != null ? routeLayer : new RouteLayerCommonSettings<>();
     }
 
     /**
