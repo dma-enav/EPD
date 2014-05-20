@@ -18,7 +18,6 @@ package dk.dma.epd.ship.layers.ownship;
 import java.awt.BasicStroke;
 import java.awt.Stroke;
 
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -63,7 +62,7 @@ public class OwnShipGraphic extends OMGraphicList {
     /**
      * The layer where this graphic is drawn.
      */
-    private OMGraphicHandlerLayer parentLayer;
+    private OwnShipLayer parentLayer;
     
     /**
      * The most recent PNT update.
@@ -81,7 +80,7 @@ public class OwnShipGraphic extends OMGraphicList {
      * Create an OwnShipGraphic.
      * @param parentLayer The layer where this graphic is to be drawn.
      */
-    public OwnShipGraphic(OMGraphicHandlerLayer parentLayer) {
+    public OwnShipGraphic(OwnShipLayer parentLayer) {
         this.parentLayer = parentLayer;
         this.setVague(true);
         Stroke stroke = new BasicStroke(STROKE_WIDTH);
@@ -89,7 +88,7 @@ public class OwnShipGraphic extends OMGraphicList {
         this.circle2 = new OMCircle(0, 0, 0, 0, 8, 8);
         this.circle1.setStroke(stroke);
         this.circle2.setStroke(stroke);
-        this.speedVector = new OwnShipSpeedVectorGraphic(ColorConstants.OWNSHIP_HEADING_COLOR);
+        this.speedVector = new OwnShipSpeedVectorGraphic(this.parentLayer.getSettings(), ColorConstants.OWNSHIP_HEADING_COLOR);
         
         int[] angularX = {-20,20};
         int[] angularY = {0,0};
