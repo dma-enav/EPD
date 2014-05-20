@@ -114,6 +114,11 @@ public abstract class Settings {
     protected final String routeLayerSettingsFile = "route-layer_settings.yaml";
     
     /**
+     * Filename for the file with MonaLisa HTTP settings.
+     */
+    protected final String monaLisaHttpSettingsFile = "mona-lisa-http_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -151,6 +156,11 @@ public abstract class Settings {
      * Connection parameters used when connecting to e-Nav services.
      */
     protected NetworkSettings<NetworkSettings.IObserver> enavServicesHttpSettings;
+    
+    /**
+     * Connection parameters used when connecting to MonaLisa services.
+     */
+    protected NetworkSettings<NetworkSettings.IObserver> monaLisaHttpSettings;
     
     protected MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> metocHandlerSettings;
     
@@ -223,6 +233,14 @@ public abstract class Settings {
      */
     public NetworkSettings<NetworkSettings.IObserver> getEnavServicesHttpSettings() {
         return this.enavServicesHttpSettings;
+    }
+    
+    /**
+     * Get settings specifying connection parameters for the MonaLisa services connection.
+     * @return Settings specifying connection parameters for the MonaLisa services connection
+     */
+    public NetworkSettings<NetworkSettings.IObserver> getMonaLisaHttpSettings() {
+        return this.monaLisaHttpSettings;
     }
     
     public MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> getMetocHandlerSettings() {
@@ -378,6 +396,24 @@ public abstract class Settings {
          */
         RouteLayerCommonSettings<RouteLayerCommonSettings.IObserver> routeLayer = ObservedSettings.loadFromFile(RouteLayerCommonSettings.class, resolve(routeLayerSettingsFile).toFile());
         this.primaryRouteLayerSettings = routeLayer != null ? routeLayer : new RouteLayerCommonSettings<>();
+        
+        /*
+         * Load MonaLisa services connection settings.
+         * If ship/shore specific MonaLisa services connection settings are added later, move this to subclass.
+         */
+        NetworkSettings<NetworkSettings.IObserver> monaLisaHttp = ObservedSettings.loadFromFile(NetworkSettings.class, resolve(monaLisaHttpSettingsFile).toFile());
+        if(monaLisaHttp == null) {
+            // Create new instance if no saved instance present.
+            monaLisaHttp = new NetworkSettings<>();
+            /*
+             *  Default network settings connect to localhost.
+             *  Update with proper defaults.
+             */
+            monaLisaHttp.setHost("www.optiroute.se/RouteRequest");
+            monaLisaHttp.setPort(80);
+        }
+        // Loaded or new instance no ready for use.
+        this.monaLisaHttpSettings = monaLisaHttp;
     }
 
     /**

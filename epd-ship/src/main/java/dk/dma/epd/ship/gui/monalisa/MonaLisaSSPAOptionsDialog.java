@@ -195,7 +195,7 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         serverTxtField.setBounds(95, 8, 217, 20);
         panel_2.add(serverTxtField);
         serverTxtField.setColumns(10);
-        serverTxtField.setText(EPDShip.getInstance().getSettings().getEnavSettings().getMonaLisaServer());
+        serverTxtField.setText(EPDShip.getInstance().getSettings().getMonaLisaHttpSettings().getHost());
         serverTxtField.setEditable(false);
 
         JLabel lblPort = new JLabel("Port:");
@@ -206,7 +206,7 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         portTxtField.setBounds(95, 33, 39, 20);
         panel_2.add(portTxtField);
         portTxtField.setColumns(10);
-        portTxtField.setText(String.valueOf(EPDShip.getInstance().getSettings().getEnavSettings().getMonaLisaPort()));
+        portTxtField.setText(String.valueOf(EPDShip.getInstance().getSettings().getMonaLisaHttpSettings().getPort()));
         portTxtField.setEditable(false);
 
         JLabel lblTimeout = new JLabel("Timeout in ms:");
