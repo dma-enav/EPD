@@ -94,7 +94,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
 //        maxScale = EPD.getInstance().getSettings().getMapSettings().getMaxScale();
     }
     
-    public MapCommonSettings<?> getMapSettings() {
+    protected MapCommonSettings<?> getMapSettings() {
         return mapSettings;
     }
     
@@ -317,6 +317,8 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
      */
     public void wmsVisible(boolean visible) {
         if (wmsLayer != null) {
+            // TODO update to call on settings rather than layer.
+            // Layer should observe its settings.
             wmsLayer.setVisible(visible);
             EPD.getInstance().getSettings().getMapSettings().setWmsVisible(visible);
         }
@@ -329,6 +331,8 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
      */
     public void intendedRouteLayerVisible(boolean visible) {
         if (intendedRouteLayer != null) {
+            // TODO update to call on settings rather than layer.
+            // Layer should observe its settings.
             intendedRouteLayer.setVisible(visible);
             EPD.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(visible);
         }
