@@ -42,6 +42,7 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Util;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
@@ -526,13 +527,13 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
      * @return the default METOC settings
      */
     public RouteMetocSettings getDefaultRouteMetocSettings() {
-        EnavSettings enavSettings = EPD.getInstance().getSettings().getEnavSettings();
+        MetocLayerCommonSettings<?> metocSettings = EPD.getInstance().getSettings().getPrimaryMetocLayerSettings();
         RouteMetocSettings routeMetocSettings = new RouteMetocSettings();
-        routeMetocSettings.setWindWarnLimit(enavSettings
+        routeMetocSettings.setWindWarnLimit(metocSettings
                 .getDefaultWindWarnLimit());
-        routeMetocSettings.setCurrentWarnLimit(enavSettings
+        routeMetocSettings.setCurrentWarnLimit(metocSettings
                 .getDefaultCurrentWarnLimit());
-        routeMetocSettings.setWaveWarnLimit(enavSettings
+        routeMetocSettings.setWaveWarnLimit(metocSettings
                 .getDefaultWaveWarnLimit());
         return routeMetocSettings;
     }
