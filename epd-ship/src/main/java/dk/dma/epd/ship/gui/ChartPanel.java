@@ -109,7 +109,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
      * Constructor
      * @param activeWaypointPanel
      */
-    public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel, MapSettings<MapSettings.IObserver> mapSettings) {
+    public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel, MapSettings mapSettings) {
         super(mapSettings);
         
         // Set map handler
@@ -125,9 +125,9 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     }
 
     @Override
-    public MapSettings<MapSettings.IObserver> getMapSettings() {
+    public MapSettings getMapSettings() {
         // TODO Auto-generated method stub
-        return (MapSettings<IObserver>) super.getMapSettings();
+        return (MapSettings) super.getMapSettings();
     }
     
     /**
@@ -139,7 +139,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
         // Try to create ENC layer
         EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip
-                .getInstance().getSettings().getMapSettings());
+                .getInstance().getSettings().getENCLayerSettings());
         encLayer = encLayerFactory.getEncLayer();
         
         // Add WMS Layer

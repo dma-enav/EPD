@@ -42,7 +42,7 @@ public class EPDSettings extends Settings implements Serializable {
     
     private GUISettings<GUISettings.IObserver> guiSettings;
     
-    private MapSettings<MapSettings.IObserver> mapSettings;
+    private MapSettings mapSettings;
     
     private RouteManagerSettings<RouteManagerSettings.IObserver> routeManagerSettings;
     
@@ -68,9 +68,9 @@ public class EPDSettings extends Settings implements Serializable {
         guiSettings = gui != null ? gui : new GUISettings<>();
         
         // Load map settings.
-        MapSettings<MapSettings.IObserver> map = ObservedSettings.loadFromFile(MapSettings.class, resolve(mapSettingsFile).toFile());
+        MapSettings map = ObservedSettings.loadFromFile(MapSettings.class, resolve(mapSettingsFile).toFile());
         // Create new instance if no saved instance found.
-        mapSettings = map != null ? map : new MapSettings<>();
+        mapSettings = map != null ? map : new MapSettings();
         
         // Load route manager settings.
         RouteManagerSettings<RouteManagerSettings.IObserver> rms = ObservedSettings.loadFromFile(RouteManagerSettings.class, resolve(routeManagerSettingsFile).toFile());
@@ -130,7 +130,7 @@ public class EPDSettings extends Settings implements Serializable {
     }
 
     @Override
-    public MapCommonSettings<MapSettings.IObserver> getMapSettings() {
+    public MapSettings getMapSettings() {
         return this.mapSettings;
     }
     

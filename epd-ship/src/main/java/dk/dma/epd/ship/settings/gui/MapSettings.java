@@ -23,8 +23,7 @@ import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
  * 
  * @author Janus Varmarken
  */
-public class MapSettings<OBSERVER extends MapSettings.IObserver> extends
-        MapCommonSettings<OBSERVER> {
+public class MapSettings extends MapCommonSettings<MapSettings.IObserver> {
 
     private int autoFollowPctOffTollerance = 10;
 
@@ -60,7 +59,7 @@ public class MapSettings<OBSERVER extends MapSettings.IObserver> extends
             }
             // There was a change, update and notify observers.
             this.autoFollowPctOffTollerance = autoFollowPctOffTollerance;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 obs.autoFollowPctOffToleranceChanged(autoFollowPctOffTollerance);
             }
         } finally {
@@ -92,7 +91,7 @@ public class MapSettings<OBSERVER extends MapSettings.IObserver> extends
             }
             // There was a change, update and notify observers.
             this.lookAhead = lookAhead;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 obs.lookAheadChanged(lookAhead);
             }
         } finally {
@@ -133,7 +132,7 @@ public class MapSettings<OBSERVER extends MapSettings.IObserver> extends
             }
             // There was a change, update and notify observers.
             this.autoFollow = autoFollow;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 obs.autoFollowChanged(autoFollow);
             }
         } finally {
