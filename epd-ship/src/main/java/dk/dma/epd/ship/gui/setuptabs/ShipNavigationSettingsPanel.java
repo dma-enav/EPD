@@ -19,8 +19,10 @@ import javax.swing.ImageIcon;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
+import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.settings.EPDNavSettings;
+import dk.dma.epd.ship.settings.gui.MapSettings;
+import dk.dma.epd.ship.settings.handlers.RouteManagerSettings;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -39,13 +41,16 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
     private static final long serialVersionUID = 1L;
     private JCheckBox chckbxLookAhead;
     private JSpinner spinnerAutoFollowTolerance;
-    private JSpinner spinnerScaleToShowMinuteMarks;
-    private EPDNavSettings settings;
+//    private JSpinner spinnerScaleToShowMinuteMarks;
     private JSpinner spinnerScaleToShowRouteArrows;
     private JSpinner spinnerNewRouteDefaultSpeed;
     private JSpinner spinnerNewRouteDefaultTurnRadius;
     private JSpinner spinnerNewRouteDefaultXtd;
 
+    private MapSettings mapSettings;
+    private RouteManagerSettings<?> routeManagerSettings;
+    private RouteLayerCommonSettings<?> routeLayerSettings;
+    
     /**
      * Constructs a new ShipNavigationSettingsPanel object.
      */
@@ -74,9 +79,9 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
         lblAutoFollowTolerance.setBounds(103, 47, 156, 16);
         ownShipPanel.add(lblAutoFollowTolerance);
         
-        this.spinnerScaleToShowMinuteMarks = new JSpinner();
-        this.spinnerScaleToShowMinuteMarks.setBounds(16, 70, 75, 20);
-        ownShipPanel.add(this.spinnerScaleToShowMinuteMarks);
+//        this.spinnerScaleToShowMinuteMarks = new JSpinner();
+//        this.spinnerScaleToShowMinuteMarks.setBounds(16, 70, 75, 20);
+//        ownShipPanel.add(this.spinnerScaleToShowMinuteMarks);
         
         JLabel lblScaleToShow = new JLabel("Scale to show minute marks (screen distance in pixed)");
         lblScaleToShow.setBounds(103, 72, 342, 16);
@@ -136,15 +141,15 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
         
         return
                 // Check for changes in own ship settings.
-                changed(this.settings.isLookAhead(), this.chckbxLookAhead.isSelected()) ||
-                changed(this.settings.getAutoFollowPctOffTollerance(), this.spinnerAutoFollowTolerance.getValue()) ||
-                changed(this.settings.getShowMinuteMarksSelf(), this.spinnerScaleToShowMinuteMarks.getValue()) ||
+                changed(this.mapSettings.isLookAhead(), this.chckbxLookAhead.isSelected()) ||
+                changed(this.mapSettings.getAutoFollowPctOffTollerance(), this.spinnerAutoFollowTolerance.getValue()) ||
+//                changed(this.settings.getShowMinuteMarksSelf(), this.spinnerScaleToShowMinuteMarks.getValue()) ||
                 
                 // Check for changes in route settings.
-                changed(this.settings.getShowArrowScale(), this.spinnerScaleToShowRouteArrows.getValue()) ||
-                changed(this.settings.getDefaultSpeed(), this.spinnerNewRouteDefaultSpeed.getValue()) ||
-                changed(this.settings.getDefaultTurnRad(), this.spinnerNewRouteDefaultTurnRadius.getValue()) ||
-                changed(this.settings.getDefaultXtd(), this.spinnerNewRouteDefaultXtd.getValue());
+                changed(this.routeLayerSettings.getShowArrowScale(), this.spinnerScaleToShowRouteArrows.getValue()) ||
+                changed(this.routeManagerSettings.getDefaultSpeed(), this.spinnerNewRouteDefaultSpeed.getValue()) ||
+                changed(this.routeManagerSettings.getDefaultTurnRad(), this.spinnerNewRouteDefaultTurnRadius.getValue()) ||
+                changed(this.routeManagerSettings.getDefaultXtd(), this.spinnerNewRouteDefaultXtd.getValue());
     }
 
     /**
@@ -152,19 +157,21 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doLoadSettings() {
-        
-        settings = EPDShip.getInstance().getSettings().getNavSettings();
+//        settings = EPDShip.getInstance().getSettings().getNavSettings();
+        this.mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
+        this.routeManagerSettings = EPDShip.getInstance().getSettings().getRouteManagerSettings();
+        this.routeLayerSettings = EPDShip.getInstance().getSettings().getPrimaryRouteLayerSettings();
         
         // Initialize Own Ship settings.
-        this.chckbxLookAhead.setSelected(this.settings.isLookAhead());
-        this.spinnerAutoFollowTolerance.setValue(this.settings.getAutoFollowPctOffTollerance());
-        this.spinnerScaleToShowMinuteMarks.setValue(this.settings.getShowMinuteMarksSelf());
+        this.chckbxLookAhead.setSelected(this.mapSettings.isLookAhead());
+        this.spinnerAutoFollowTolerance.setValue(this.mapSettings.getAutoFollowPctOffTollerance());
+//        this.spinnerScaleToShowMinuteMarks.setValue(this.mapSettings.getShowMinuteMarksSelf());
         
         // Initialize Route settings.
-        this.spinnerScaleToShowRouteArrows.setValue(this.settings.getShowArrowScale());
-        this.spinnerNewRouteDefaultSpeed.setValue(this.settings.getDefaultSpeed());
-        this.spinnerNewRouteDefaultTurnRadius.setValue(this.settings.getDefaultTurnRad());
-        this.spinnerNewRouteDefaultXtd.setValue(this.settings.getDefaultXtd());
+        this.spinnerScaleToShowRouteArrows.setValue(this.routeLayerSettings.getShowArrowScale());
+        this.spinnerNewRouteDefaultSpeed.setValue(this.routeManagerSettings.getDefaultSpeed());
+        this.spinnerNewRouteDefaultTurnRadius.setValue(this.routeManagerSettings.getDefaultTurnRad());
+        this.spinnerNewRouteDefaultXtd.setValue(this.routeManagerSettings.getDefaultXtd());
         
     }
 
@@ -175,15 +182,15 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
     protected void doSaveSettings() {
         
         // Save Onw Ship settings.
-        this.settings.setLookAhead(this.chckbxLookAhead.isSelected());
-        this.settings.setAutoFollowPctOffTollerance((Integer) this.spinnerAutoFollowTolerance.getValue());
-        this.settings.setShowMinuteMarksSelf((Integer) this.spinnerScaleToShowMinuteMarks.getValue());
+        this.mapSettings.setLookAhead(this.chckbxLookAhead.isSelected());
+        this.mapSettings.setAutoFollowPctOffTollerance((Integer) this.spinnerAutoFollowTolerance.getValue());
+//        this.settings.setShowMinuteMarksSelf((Integer) this.spinnerScaleToShowMinuteMarks.getValue());
         
         // Save route settings.
-        this.settings.setShowArrowScale((Float) this.spinnerScaleToShowRouteArrows.getValue());
-        this.settings.setDefaultSpeed((Double) this.spinnerNewRouteDefaultSpeed.getValue());
-        this.settings.setDefaultTurnRad((Double) this.spinnerNewRouteDefaultTurnRadius.getValue());
-        this.settings.setDefaultXtd((Double) this.spinnerNewRouteDefaultXtd.getValue());
+        this.routeLayerSettings.setShowArrowScale((Float) this.spinnerScaleToShowRouteArrows.getValue());
+        this.routeManagerSettings.setDefaultSpeed((Double) this.spinnerNewRouteDefaultSpeed.getValue());
+        this.routeManagerSettings.setDefaultTurnRad((Double) this.spinnerNewRouteDefaultTurnRadius.getValue());
+        this.routeManagerSettings.setDefaultXtd((Double) this.spinnerNewRouteDefaultXtd.getValue());
     }
 
     /**
