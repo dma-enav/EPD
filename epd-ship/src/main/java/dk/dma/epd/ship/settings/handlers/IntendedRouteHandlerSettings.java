@@ -22,8 +22,7 @@ import dk.dma.epd.ship.service.IntendedRouteHandler;
 /**
  * Maintains settings for an {@link IntendedRouteHandler}.
  */
-public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerSettings.IObserver>
-        extends IntendedRouteHandlerCommonSettings<OBSERVER> {
+public class IntendedRouteHandlerSettings extends IntendedRouteHandlerCommonSettings<IntendedRouteHandlerSettings.IObserver> {
 
     /**
      * Specifies if the ship should broadcast its intended route.
@@ -84,7 +83,7 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
             }
             // There was a change, update and notify observers.
             this.broadcastIntendedRoute = broadcastIntendedRoute;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 obs.broadcastIntendedRouteChanged(broadcastIntendedRoute);
             }
         } finally {
@@ -123,7 +122,7 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
             }
             // There was a change, update and notify observers.
             this.timeBetweenBroadcast = timeBetweenBroadcast;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 obs.timeBetweenBroadcastChanged(timeBetweenBroadcast);
             }
         } finally {
@@ -162,7 +161,7 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
             }
             // There was a change, update and notify observers.
             this.adaptionTime = adaptionTime;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 obs.adaptionTimeChanged(adaptionTime);
             }
         } finally {
@@ -201,7 +200,7 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
             // There was a change, update and notify observers.
             // TODO create copy to avoid reference leak.
             this.intendedRouteFilter = intendedRouteFilter;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 // TODO create copy to avoid reference leak.
                 obs.intendedRouteFilterChanged(intendedRouteFilter);
             }
@@ -239,7 +238,7 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IntendedRouteHandlerS
             }
             // There was a change, update and notify observers.
             this.broadcastRadius = broadcastRadius;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 obs.broadcastRadiusChanged(broadcastRadius);
             }
         } finally {

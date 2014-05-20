@@ -54,9 +54,9 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     private JSpinner spinnerNotificationDistance;
     private JSpinner spinnerAlertDistance;
     private JSpinner spinnerTimeToLive;
-    private IntendedRouteHandlerSettings<?> handlerSettings;
+    private IntendedRouteHandlerSettings handlerSettings;
     
-    public ShipServicesSettingsPanel(IntendedRouteHandlerSettings<?> handlerSettings) {
+    public ShipServicesSettingsPanel(IntendedRouteHandlerSettings handlerSettings) {
         super("Services", new ImageIcon(
                 ShipServicesSettingsPanel.class.getResource("/images/settingspanels/services.png")));
         this.handlerSettings = Objects.requireNonNull(handlerSettings);

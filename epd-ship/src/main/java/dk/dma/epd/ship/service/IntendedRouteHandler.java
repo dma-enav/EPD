@@ -69,13 +69,13 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     /**
      * Constructor
      */
-    public IntendedRouteHandler(IntendedRouteHandlerSettings<?> settings) {
+    public IntendedRouteHandler(IntendedRouteHandlerSettings settings) {
         super(settings);
     }
 
     @Override
-    protected IntendedRouteHandlerSettings<?> getSettings() {
-        return (IntendedRouteHandlerSettings<?>) super.getSettings();
+    protected IntendedRouteHandlerSettings getSettings() {
+        return (IntendedRouteHandlerSettings) super.getSettings();
     }
     
     /**
