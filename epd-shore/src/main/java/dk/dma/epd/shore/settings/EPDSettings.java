@@ -28,6 +28,7 @@ import com.bbn.openmap.util.PropUtils;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.S57LayerSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
+import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.IObserver;
@@ -66,6 +67,8 @@ public class EPDSettings extends Settings implements Serializable {
     
     private ENCLayerSettings encLayerSettings;
     
+    private IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettings.IObserver> intendedRouteHandlerSettings;
+    
     public EPDSettings() {
         super();
     }
@@ -84,6 +87,15 @@ public class EPDSettings extends Settings implements Serializable {
         // Load ENC layer settings.
         ENCLayerSettings enc = ObservedSettings.loadFromFile(ENCLayerSettings.class, resolve(encLayerSettingsFile).toFile());
         this.encLayerSettings = enc != null ? enc : new ENCLayerSettings();
+        
+        /*
+         *  Load intended route handler settings.
+         *  Even though Shore uses common version, we need to load it here instead of in super class as Ship uses specific version.
+         */
+        IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettings.IObserver> intendedRouteHandler = ObservedSettings.loadFromFile(IntendedRouteHandlerCommonSettings.class, resolve(intendedRouteHandlerSettingsFile).toFile());
+        this.intendedRouteHandlerSettings = intendedRouteHandler != null ? intendedRouteHandler : new IntendedRouteHandlerCommonSettings<>();
+        
+        
         
         // Open properties file
         Properties props = new Properties();
@@ -123,6 +135,11 @@ public class EPDSettings extends Settings implements Serializable {
     @Override
     public ENCLayerSettings getENCLayerSettings() {
         return this.encLayerSettings;
+    }
+    
+    @Override
+    public IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettings.IObserver> getIntendedRouteHandlerSettings() {
+        return this.intendedRouteHandlerSettings;
     }
     
     /**

@@ -24,6 +24,7 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
@@ -136,6 +137,11 @@ public abstract class Settings {
     protected final String aisHandlerSettingsFile = "ais-handler_settings.yaml";
     
     /**
+     * Filename for the file with intended route handler settings.
+     */
+    protected final String intendedRouteHandlerSettingsFile = "intended-route-handler_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -194,6 +200,9 @@ public abstract class Settings {
     
     protected AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings;
     
+    
+    
+    
     public abstract GUICommonSettings<? extends GUICommonSettings.IObserver> getGuiSettings();
     
     public abstract MapCommonSettings<? extends MapCommonSettings.IObserver> getMapSettings();
@@ -203,6 +212,8 @@ public abstract class Settings {
     public abstract ExternalSensorsCommonSettings<? extends ExternalSensorsCommonSettings.IObserver> getExternalSensorsSettings();
     
     public abstract ENCLayerCommonSettings<? extends ENCLayerCommonSettings.IObserver> getENCLayerSettings();
+    
+    public abstract IntendedRouteHandlerCommonSettings<? extends IntendedRouteHandlerCommonSettings.IObserver> getIntendedRouteHandlerSettings();
     
     /**
      * Gets the primary (global) AIS layer settings.

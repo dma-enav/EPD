@@ -24,7 +24,7 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  * clients to register for notifications of changes to any setting maintained by
  * this class.
  */
-public abstract class IntendedRouteHandlerCommonSettings<OBSERVER extends IntendedRouteHandlerCommonSettings.IObserver>
+public class IntendedRouteHandlerCommonSettings<OBSERVER extends IntendedRouteHandlerCommonSettings.IObserver>
         extends HandlerSettings<OBSERVER> {
 
     /**
