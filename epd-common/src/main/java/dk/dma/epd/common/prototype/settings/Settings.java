@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
@@ -130,6 +131,11 @@ public abstract class Settings {
     protected final String maritimeCloudHttpSettingsFile = "maritime-cloud-http_settings.yaml";
     
     /**
+     * Filename for the file with AIS handler settings.
+     */
+    protected final String aisHandlerSettingsFile = "ais-handler_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -185,6 +191,8 @@ public abstract class Settings {
     protected NetworkSettings<NetworkSettings.IObserver> maritimeCloudHttpSettings;
     
     protected MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> metocHandlerSettings;
+    
+    protected AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings;
     
     public abstract GUICommonSettings<? extends GUICommonSettings.IObserver> getGuiSettings();
     
@@ -284,6 +292,10 @@ public abstract class Settings {
     
     public MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> getMetocHandlerSettings() {
         return this.metocHandlerSettings;
+    }
+    
+    public AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> getAisHandlerSettings() {
+        return this.aisHandlerSettings;
     }
 
 //    public abstract NavSettings getNavSettings();
@@ -474,6 +486,13 @@ public abstract class Settings {
         }
         // Loaded or new instance now ready for use.
         this.maritimeCloudHttpSettings = maritimeCloud;
+        
+        /*
+         * Load AIS handler settings.
+         * If ship/shore specific AIS handler settings are added later, move this to subclass.
+         */
+        AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandler = ObservedSettings.loadFromFile(AisHandlerCommonSettings.class, resolve(aisHandlerSettingsFile).toFile());
+        this.aisHandlerSettings = ais != null ? aisHandler : new AisHandlerCommonSettings<>();
     }
 
     /**
