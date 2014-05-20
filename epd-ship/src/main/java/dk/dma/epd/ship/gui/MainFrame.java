@@ -51,7 +51,7 @@ import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.gui.route.strategic.SendStrategicRouteDialog;
-import dk.dma.epd.ship.settings.EPDGuiSettings;
+import dk.dma.epd.ship.settings.gui.GUISettings;
 
 /**
  * The main frame containing map and panels
@@ -132,7 +132,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private void initGUI() {
         MapHandler mapHandler = EPDShip.getInstance().getMapHandler();
         // Get settings
-        EPDGuiSettings guiSettings = EPDShip.getInstance().getSettings().getGuiSettings();
+        GUISettings<?> guiSettings = EPDShip.getInstance().getSettings().getGuiSettings();
 
         // Set location and size
         if (guiSettings.isMaximized()) {
@@ -152,7 +152,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         gpsPanel = new PntComponentPanel();
         cursorPanel = new CursorComponentPanel();
         activeWaypointPanel = new ActiveWaypointComponentPanel();
-        chartPanel = new ChartPanel(activeWaypointPanel);
+        chartPanel = new ChartPanel(activeWaypointPanel, EPDShip.getInstance().getSettings().getMapSettings());
         aisComponentPanel = new AisComponentPanel();
         dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
