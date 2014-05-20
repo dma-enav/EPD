@@ -23,7 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
@@ -85,15 +84,9 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     protected OMGraphic closest;
 
     /**
-     * Settings local to this layer settings.
+     * Settings local to this layer.
      */
     private LayerSettings<?> localSettings;
-    
-    /**
-     * Settings that are global to all layers.
-     * TODO update access.
-     */
-    private LayerSettings<?> globalSettings = EPD.getInstance().getSettings().getLayerSettings();
     
     private Timer timer;
     private CopyOnWriteArrayList<LayerVisiblityListener> visibilityListener = new CopyOnWriteArrayList<>();
@@ -408,7 +401,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
      * @return the mouse selection tolerance
      */
     public float getMouseSelectTolerance() {
-        return this.globalSettings.getGraphicInteractTolerance();
+        return EPD.getInstance().getSettings().getGuiSettings().getGraphicInteractTolerance();
     }
 
     /**
