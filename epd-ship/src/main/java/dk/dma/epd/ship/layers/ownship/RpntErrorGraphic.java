@@ -68,12 +68,12 @@ public class RpntErrorGraphic  extends OMGraphicList {
     private OMCircle hplCicle = new OMCircle();
     private OMEllipse errorEllipse = new OMEllipse(new LatLonPoint.Double(0d, 0d), 0d, 0d, Length.METER, 0d);
     
-    private OwnShipLayerSettings<?> layerSettings;
+    private OwnShipLayerSettings layerSettings;
     
     /**
      * Constructor
      */
-    public RpntErrorGraphic(OwnShipLayerSettings<?> layerSettings) {
+    public RpntErrorGraphic(OwnShipLayerSettings layerSettings) {
         super();
         layerSettings = Objects.requireNonNull(layerSettings);
         hplCicle.setRenderType(RENDERTYPE_LATLON);

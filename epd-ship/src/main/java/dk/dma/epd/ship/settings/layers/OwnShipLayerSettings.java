@@ -23,8 +23,7 @@ import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
  * 
  * @author Janus Varmarken
  */
-public class OwnShipLayerSettings<OBSERVER extends OwnShipLayerSettings.IObserver>
-        extends VesselLayerSettings<OBSERVER> {
+public class OwnShipLayerSettings extends VesselLayerSettings<OwnShipLayerSettings.IObserver> {
 
     /**
      * Display multi source PNT.
@@ -64,7 +63,7 @@ public class OwnShipLayerSettings<OBSERVER extends OwnShipLayerSettings.IObserve
             }
             // There was a change, update and notify observers.
             this.multiSourcePntVisible = multiSourcePntVisible;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 obs.multiSourcePntVisibilityChanged(multiSourcePntVisible);
             }
         } finally {

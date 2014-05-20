@@ -73,7 +73,7 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
     /**
      * Constructor
      */
-    public OwnShipLayer(OwnShipLayerSettings<?> layerSettings) {
+    public OwnShipLayer(OwnShipLayerSettings layerSettings) {
         super(Objects.requireNonNull(layerSettings));
         
         graphics.setVague(true);
@@ -89,9 +89,8 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
     }
     
     @Override
-    public OwnShipLayerSettings<?> getSettings() {
-        // TODO Auto-generated method stub
-        return (OwnShipLayerSettings<?>) super.getSettings();
+    public OwnShipLayerSettings getSettings() {
+        return (OwnShipLayerSettings) super.getSettings();
     }
     
     /**
