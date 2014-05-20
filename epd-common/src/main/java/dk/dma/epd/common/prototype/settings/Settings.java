@@ -125,6 +125,11 @@ public abstract class Settings {
     protected final String intendedRouteLayerSettingsFile = "intended-route-layer_settings.yaml";
     
     /**
+     * Filename for the file with Maritime Cloud HTTP settings.
+     */
+    protected final String maritimeCloudHttpSettingsFile = "maritime-cloud-http_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -173,6 +178,11 @@ public abstract class Settings {
      * Connection parameters used when connecting to MonaLisa services.
      */
     protected NetworkSettings<NetworkSettings.IObserver> monaLisaHttpSettings;
+    
+    /**
+     * Connection parameters used when connecting to Maritime Cloud services.
+     */
+    protected NetworkSettings<NetworkSettings.IObserver> maritimeCloudHttpSettings;
     
     protected MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> metocHandlerSettings;
     
@@ -262,6 +272,14 @@ public abstract class Settings {
      */
     public NetworkSettings<NetworkSettings.IObserver> getMonaLisaHttpSettings() {
         return this.monaLisaHttpSettings;
+    }
+    
+    /**
+     * Get settings specifying connection parameters for the Maritime Cloud services connection.
+     * @return Settings specifying connection parameters for the Maritime Cloud services connection
+     */
+    public NetworkSettings<NetworkSettings.IObserver> getMaritimeCloudHttpSettings() {
+        return this.maritimeCloudHttpSettings;
     }
     
     public MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> getMetocHandlerSettings() {
@@ -387,7 +405,7 @@ public abstract class Settings {
             enavServices.setHost("service.e-navigation.net");
             enavServices.setPort(80);
         }
-        // Loaded or new instance no ready for use.
+        // Loaded or new instance now ready for use.
         this.enavServicesHttpSettings = enavServices;
         
         /*
@@ -433,7 +451,7 @@ public abstract class Settings {
             monaLisaHttp.setHost("www.optiroute.se/RouteRequest");
             monaLisaHttp.setPort(80);
         }
-        // Loaded or new instance no ready for use.
+        // Loaded or new instance now ready for use.
         this.monaLisaHttpSettings = monaLisaHttp;
         
         /*
@@ -442,6 +460,20 @@ public abstract class Settings {
          */
         IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettings.IObserver> intendedRouteLayer = ObservedSettings.loadFromFile(IntendedRouteLayerCommonSettings.class, resolve(intendedRouteLayerSettingsFile).toFile());
         this.primaryIntendedRouteLayerSettings = intendedRouteLayer != null ? intendedRouteLayer : new IntendedRouteLayerCommonSettings<>();
+        
+        NetworkSettings<NetworkSettings.IObserver> maritimeCloud = ObservedSettings.loadFromFile(NetworkSettings.class, resolve(maritimeCloudHttpSettingsFile).toFile());
+        if(maritimeCloud == null) {
+            // Create new instance if no saved instance present.
+            maritimeCloud = new NetworkSettings<>();
+            /*
+             *  Default network settings connect to localhost.
+             *  Update with proper defaults.
+             */
+            maritimeCloud.setHost("test.maritimecloud.net");
+            maritimeCloud.setPort(43234);
+        }
+        // Loaded or new instance now ready for use.
+        this.maritimeCloudHttpSettings = maritimeCloud;
     }
 
     /**

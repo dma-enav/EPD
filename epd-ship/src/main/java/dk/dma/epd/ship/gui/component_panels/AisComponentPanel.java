@@ -26,7 +26,6 @@ import javax.swing.border.EtchedBorder;
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.ais.message.AisMessage;
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
