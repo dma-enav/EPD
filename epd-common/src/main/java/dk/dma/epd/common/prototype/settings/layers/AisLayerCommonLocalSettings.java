@@ -155,16 +155,4 @@ public class AisLayerCommonLocalSettings<OBSERVER extends AisLayerCommonSettings
          */
         this.setVisible(newValue);
     }
-
-    /**
-     * Invoked when the global value for graphic interact tolerance has changed.
-     */
-    @Override
-    public void graphicInteractToleranceChanged(float newValue) {
-        /*
-         * The setting was changed on the global AIS layer settings instance. We
-         * need to obey to this for this local settings instance.
-         */
-        this.setGraphicInteractTolerance(newValue);
-    }
 }
