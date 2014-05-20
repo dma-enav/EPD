@@ -29,6 +29,7 @@ import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
@@ -102,6 +103,11 @@ public abstract class Settings {
     protected final String wmsLayerSettingsFile = "wms-layer_settings.yaml";
     
     /**
+     * Filename for the file with METOC layer settings.
+     */
+    protected final String metocLayerSettingsFile = "metoc-layer_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -120,6 +126,12 @@ public abstract class Settings {
      * If more WMS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
     protected WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> primaryWmsLayerSettings;
+    
+    /**
+     * The primary/global METOC layer settings.
+     * If more METOC layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     */
+    protected MetocLayerCommonSettings<MetocLayerCommonSettings.IObserver> primaryMetocLayerSettings;
     
     protected MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> msiHandlerSettings;
     
@@ -173,6 +185,15 @@ public abstract class Settings {
      */
     public WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> getPrimaryWMSLayerSettings() {
         return this.primaryWmsLayerSettings;
+    }
+    
+    /**
+     * Gets the primary (global) METOC layer settings.
+     * If more METOC layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
+     * @return The primary (global) METOC layer settings.
+     */
+    public MetocLayerCommonSettings<MetocLayerCommonSettings.IObserver> getPrimaryMetocLayerSettings() {
+        return this.primaryMetocLayerSettings;
     }
     
     /**
@@ -322,6 +343,13 @@ public abstract class Settings {
          */
         WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> wms = ObservedSettings.loadFromFile(WMSLayerCommonSettings.class, resolve(wmsLayerSettingsFile).toFile());
         this.primaryWmsLayerSettings = wms != null ? wms : new WMSLayerCommonSettings<>();
+        
+        /*
+         * Load primary/global METOC layer settings.
+         * If ship/shore specific METOC layer settings are added later, move this to subclass.
+         */
+        MetocLayerCommonSettings<MetocLayerCommonSettings.IObserver> metocLayer = ObservedSettings.loadFromFile(MetocLayerCommonSettings.class, resolve(metocLayerSettingsFile).toFile());
+        this.primaryMetocLayerSettings = metocLayer != null ? metocLayer : new MetocLayerCommonSettings<>();
     }
 
     /**
