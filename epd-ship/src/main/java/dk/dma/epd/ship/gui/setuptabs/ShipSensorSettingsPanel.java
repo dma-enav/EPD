@@ -15,11 +15,6 @@
  */
 package dk.dma.epd.ship.gui.setuptabs;
 
-import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.FILE;
-import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.SERIAL;
-import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.TCP;
-import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.UDP;
-
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
@@ -27,9 +22,9 @@ import java.awt.event.ActionListener;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
-import dk.dma.epd.common.prototype.settings.SensorSettings;
-import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
-import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.PntSourceSetting;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.SensorConnectionType;
 import dk.dma.epd.ship.EPDShip;
 
 import javax.swing.DefaultComboBoxModel;
@@ -59,7 +54,7 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
     private JComboBox<PntSourceSetting> comboBoxPntSource;
     private JComboBox<SensorConnectionType> comboBoxGPSConnectionType;
     private JComboBox<SensorConnectionType> comboBoxMsPntConnectionType;
-    private SensorSettings settings;
+    private ExternalSensorsCommonSettings<?> settings;
     private JSpinner spinnerGpsPort;
     private JTextField textFieldAisFilename;
     private JTextField textFieldAisHostOrSerialPort;
@@ -281,9 +276,9 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
         this.aisConnectionPanel.setEnabled(aisEnabled);
         this.setEnabled(aisConnectionPanel, aisEnabled, JLabel.class);
         this.comboBoxAisConnectionType.setEnabled(aisEnabled);
-        this.textFieldAisHostOrSerialPort.setEnabled(aisEnabled && (aisConType == TCP || aisConType == SERIAL));
-        this.spinnerAisPort.setEnabled(aisEnabled && (aisConType == TCP || aisConType == UDP));
-        this.textFieldAisFilename.setEnabled(aisEnabled && aisConType == FILE);
+        this.textFieldAisHostOrSerialPort.setEnabled(aisEnabled && (aisConType == SensorConnectionType.TCP || aisConType == SensorConnectionType.SERIAL));
+        this.spinnerAisPort.setEnabled(aisEnabled && (aisConType == SensorConnectionType.TCP || aisConType == SensorConnectionType.UDP));
+        this.textFieldAisFilename.setEnabled(aisEnabled && aisConType == SensorConnectionType.FILE);
         
         // Set enabled state of GPS connection components.
         boolean gpsEnabled = pntSrc == PntSourceSetting.AUTO || pntSrc == PntSourceSetting.GPS;
@@ -291,9 +286,9 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
         this.gpsConnectionPanel.setEnabled(gpsEnabled);
         this.setEnabled(this.gpsConnectionPanel, gpsEnabled, JLabel.class);
         this.comboBoxGPSConnectionType.setEnabled(gpsEnabled);
-        this.textFieldGpsHostOrSerialPort.setEnabled(gpsEnabled && (gpsConType == TCP || gpsConType == SERIAL));
-        this.spinnerGpsPort.setEnabled(gpsEnabled && (gpsConType == TCP || gpsConType == UDP));
-        this.textFieldGpsFilename.setEnabled(gpsConType == FILE);
+        this.textFieldGpsHostOrSerialPort.setEnabled(gpsEnabled && (gpsConType == SensorConnectionType.TCP || gpsConType == SensorConnectionType.SERIAL));
+        this.spinnerGpsPort.setEnabled(gpsEnabled && (gpsConType == SensorConnectionType.TCP || gpsConType == SensorConnectionType.UDP));
+        this.textFieldGpsFilename.setEnabled(gpsConType == SensorConnectionType.FILE);
         
         // Set enabled state of Multi-source PNT connection components
         boolean msPntEnabled = pntSrc == PntSourceSetting.AUTO || pntSrc == PntSourceSetting.MSPNT;
@@ -301,9 +296,9 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
         this.msPntConnectionPanel.setEnabled(msPntEnabled);
         this.setEnabled(this.msPntConnectionPanel, msPntEnabled, JLabel.class);
         this.comboBoxMsPntConnectionType.setEnabled(msPntEnabled);
-        this.textFieldMsPntHostOrSerialPort.setEnabled(msPntEnabled && (msPntConType == TCP || msPntConType == SERIAL));
-        this.spinnerMsPntPort.setEnabled(msPntEnabled && (msPntConType == TCP || msPntConType == UDP));
-        this.textFieldMsPntFileName.setEnabled(msPntConType == FILE);
+        this.textFieldMsPntHostOrSerialPort.setEnabled(msPntEnabled && (msPntConType == SensorConnectionType.TCP || msPntConType == SensorConnectionType.SERIAL));
+        this.spinnerMsPntPort.setEnabled(msPntEnabled && (msPntConType == SensorConnectionType.TCP || msPntConType == SensorConnectionType.UDP));
+        this.textFieldMsPntFileName.setEnabled(msPntConType == SensorConnectionType.FILE);
     }
     
     /**
@@ -368,7 +363,7 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
     protected void doLoadSettings() {
         
         // Get the settings for EPDShip sensor settings.
-        this.settings = EPDShip.getInstance().getSettings().getSensorSettings();
+        this.settings = EPDShip.getInstance().getSettings().getExternalSensorsSettings();
         
         // Load the PNT source settings.
         this.comboBoxPntSource.setSelectedItem(this.settings.getPntSource());
