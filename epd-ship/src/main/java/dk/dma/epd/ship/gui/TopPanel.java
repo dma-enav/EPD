@@ -36,6 +36,8 @@ import dk.dma.epd.common.prototype.gui.GoBackButton;
 import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -143,7 +145,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         aisBtn.setToolTipText("Show/hide AIS targets");
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
         encBtn.setToolTipText("Show/hide ENC");
-        encBtn.setEnabled(EPDShip.getInstance().getSettings().getMapSettings().isUseEnc());
+        encBtn.setEnabled(EPDShip.getInstance().getSettings().getENCLayerSettings().isEncInUse());
         toggleIntendedRoute.setToolTipText("Show/hide intended routes");
         toggleIntendedRouteFilter.setToolTipText("Toggle Intended Route Filter");
         
@@ -217,25 +219,26 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     }
 
     public void updateButtons() {
-        autoFollowBtn.setSelected(EPDShip.getInstance().getSettings().getNavSettings()
+        autoFollowBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
                 .isAutoFollow());
-        aisBtn.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isVisible());
-        encBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
-                .isEncVisible());
-        wmsBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
-                .isWmsVisible());
-        aisToggleName.setSelected(EPDShip.getInstance().getSettings().getAisSettings()
-                .isShowNameLabels());
+        aisBtn.setSelected(EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().isVisible());
+        ENCLayerCommonSettings<?> encLayerSettings = EPDShip.getInstance().getSettings().getENCLayerSettings();
+        WMSLayerCommonSettings<?> wmsLayerSettings = EPDShip.getInstance().getSettings().getPrimaryWMSLayerSettings();
+        // Updated these two to also check use (previous version only checked layer visibility)
+        encBtn.setSelected(encLayerSettings.isEncInUse() && encLayerSettings.isVisible());
+        wmsBtn.setSelected(wmsLayerSettings.isUseWms() && wmsLayerSettings.isVisible());
+        aisToggleName.setSelected(EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings()
+                .isShowAllAisNameLabels());
 
         navigationMouseMode.setSelected(true);
         // range circles mode is disabled by default.
         toggleDistanceCircleMode.setSelected(false);
         
-        toggleIntendedRoute.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+        toggleIntendedRoute.setSelected(EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().isVisible());
     }
 
     public void disableAutoFollow() {
-        EPDShip.getInstance().getSettings().getNavSettings().setAutoFollow(false);
+        EPDShip.getInstance().getSettings().getMapSettings().setAutoFollow(false);
         if (autoFollowBtn.isSelected()) {
             autoFollowBtn.setSelected(false);
         }
@@ -327,13 +330,13 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     public void mouseReleased(MouseEvent e) {
 
         if (e.getSource() == autoFollowBtn) {
-            EPDShip.getInstance().getSettings().getNavSettings()
+            EPDShip.getInstance().getSettings().getMapSettings()
                     .setAutoFollow(autoFollowBtn.isSelected());
             if (autoFollowBtn.isSelected()) {
                 mainFrame.getChartPanel().autoFollow();
             }
             menuBar.getAutoFollow().setSelected(
-                    EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow());
+                    EPDShip.getInstance().getSettings().getMapSettings().isAutoFollow());
             
         }
         else if (e.getSource() == zoomInBtn) {
@@ -383,7 +386,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             
         } else if (e.getSource() == aisToggleName) {
             boolean showNameLabels = aisToggleName.isSelected();
-            EPDShip.getInstance().getSettings().getAisSettings().setShowNameLabels(showNameLabels);    
+            EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().setShowAllAisNameLabels(showNameLabels);    
             
         } else if (e.getSource() == toggleSafeHaven) {
             routeLayer.toggleSafeHaven();
