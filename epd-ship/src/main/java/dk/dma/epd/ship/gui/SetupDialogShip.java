@@ -20,10 +20,14 @@ import javax.swing.JTabbedPane;
 
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
 import dk.dma.epd.common.prototype.gui.settings.CommonCloudSettingsPanel;
+import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.setuptabs.ShipAisSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipNavigationSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipSensorSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipServicesSettingsPanel;
+import dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings;
 
 /**
  * This is the setup dialog made specific for ship, by
@@ -53,11 +57,14 @@ public class SetupDialogShip extends SetupDialogCommon {
         super.setSize(super.getWidth()+69, super.getHeight());
 
         // Constructs some panels for the setup dialog.
-        this.cloudSettings      = new CommonCloudSettingsPanel();
-        this.aisSettings        = new ShipAisSettingsPanel();
+        this.cloudSettings      = new CommonCloudSettingsPanel(EPDShip.getInstance().getSettings().getMaritimeCloudHttpSettings());
+        AisHandlerCommonSettings<?> aisHandlerSettings = EPDShip.getInstance().getSettings().getAisHandlerSettings();
+        AisLayerCommonSettings<?> aisLayerSettings = EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings();
+        this.aisSettings        = new ShipAisSettingsPanel(aisHandlerSettings, aisLayerSettings);
         this.navigationSettings = new ShipNavigationSettingsPanel();
         this.sensorSettings     = new ShipSensorSettingsPanel();
-        this.serviceSettings    = new ShipServicesSettingsPanel();
+        IntendedRouteHandlerSettings intendedRouteHandlerSettings = EPDShip.getInstance().getSettings().getIntendedRouteHandlerSettings();
+        this.serviceSettings    = new ShipServicesSettingsPanel(intendedRouteHandlerSettings);
         
         // Register the panels in the setup dialog.
         super.registerSettingsPanels( 
