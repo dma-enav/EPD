@@ -88,7 +88,7 @@ public class AdvancedSettingsWindow extends JDialog {
             Method m = c.getMethod("viewGrpSettingsAsString");
             String result = (String) m.invoke(null);
 
-            EPDShip.getInstance().getSettings().getS57Settings().setS52mapSettings(result);
+            EPDShip.getInstance().getSettings().getS57LayerSettings().setS52mapSettings(result);
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
