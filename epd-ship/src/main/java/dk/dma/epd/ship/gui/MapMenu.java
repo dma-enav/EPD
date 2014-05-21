@@ -181,10 +181,10 @@ public class MapMenu extends MapMenuCommon {
             add(showIntendedRoutes);
             add(newRoute);
             addSeparator();
-            if (!EPDShip.getInstance().getSettings().getGuiSettings().isRiskNogoDisabled()) {
-                add(nogoRequest);
-                addSeparator();
-            }
+           
+            add(nogoRequest);
+            addSeparator();
+            
             add(showPastTracks);
             add(hidePastTracks);
             addSeparator();
