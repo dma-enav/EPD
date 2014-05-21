@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
+
 /**
  * <p>
  * An abstract base class that can be used when writing classes that maintain a
@@ -73,7 +75,7 @@ public abstract class ObservedSettings<OBSERVER> {
     /**
      * Used when outputting this instance to a file. A subclass can provide its
      * own instance, e.g. in case it want to exclude some properties from YAML
-     * serialization.
+     * serialization. See {@link GUICommonSettings} for example usage.
      */
     protected Yaml yamlEmitter;
 

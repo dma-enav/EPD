@@ -18,6 +18,12 @@ package dk.dma.epd.common.prototype.settings.gui;
 import java.awt.Dimension;
 import java.awt.Point;
 
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
+
 import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
@@ -55,7 +61,7 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
      * Setting specifying the application window dimensions.
      */
     private Dimension appDimensions = new Dimension(1280, 800);
-    
+
     /**
      * Specifies the radius of an invisible circle surrounding the mouse cursor
      * for which any overlapping {@link OMGraphic} is considered interactable
@@ -63,6 +69,11 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
      * layer more tolerant to imprecise mouse selection/pointing.
      */
     private float graphicInteractTolerance = 5.0f;
+
+    public GUICommonSettings() {
+        super();
+        this.yamlEmitter = new Yaml(new GUICommonSettingsRepresenter());
+    }
 
     /**
      * Gets the setting specifying if the application should run in full screen
@@ -254,7 +265,7 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
             this.settingLock.writeLock().unlock();
         }
     }
-    
+
     /**
      * Get the value that specifies the radius (in pixels) of an invisible
      * circle surrounding the mouse cursor for which any overlapping
@@ -271,7 +282,7 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
             this.settingLock.readLock().unlock();
         }
     }
-    
+
     /**
      * Set the value that specifies the radius (in pixels) of an invisible
      * circle surrounding the mouse cursor for which any overlapping
@@ -297,7 +308,34 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
             this.settingLock.writeLock().unlock();
         }
     }
-    
+
+    /**
+     * A specialized {@link Representer} that skips recursive properties in
+     * {@link Dimension} and {@link Point} objects.
+     * 
+     * @author Janus Varmarken
+     * 
+     */
+    protected static class GUICommonSettingsRepresenter extends Representer {
+
+        @Override
+        protected NodeTuple representJavaBeanProperty(Object javaBean,
+                Property property, Object propertyValue, Tag customTag) {
+            if (javaBean instanceof Dimension
+                    && "size".equals(property.getName())) {
+                // Do not serialize as it produces infinite recursion.
+                return null;
+            } else if (javaBean instanceof Point
+                    && "location".equals(property.getName())) {
+                // Do not serialize as it produces infinite recursion.
+                return null;
+            }
+            return super.representJavaBeanProperty(javaBean, property,
+                    propertyValue, customTag);
+        }
+
+    }
+
     /**
      * Interface for observing a {@link GUICommonSettings} for changes.
      * 
@@ -311,25 +349,25 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
          * 
          * @param fullscreen
          *            {@code true} if the application should run in full screen
-         *            mode, {@code false} if the application should not run in full
-         *            screen mode.
+         *            mode, {@code false} if the application should not run in
+         *            full screen mode.
          */
         void isFullscreenChanged(boolean fullscreen);
 
         /**
-         * Invoked when the setting, specifying if the main frame of the application
-         * should be maximized, has been changed.
+         * Invoked when the setting, specifying if the main frame of the
+         * application should be maximized, has been changed.
          * 
          * @param maximized
-         *            {@code true} if the main frame of the application should be
-         *            maximized, {@code false} if the main frame of the application
-         *            should not be maximized.
+         *            {@code true} if the main frame of the application should
+         *            be maximized, {@code false} if the main frame of the
+         *            application should not be maximized.
          */
         void isMaximizedChanged(boolean maximized);
 
         /**
-         * Invoked when the setting, specifying the dimensions of the main frame of
-         * the application, has been changed.
+         * Invoked when the setting, specifying the dimensions of the main frame
+         * of the application, has been changed.
          * 
          * @param newDimension
          *            The new dimension value.
@@ -337,8 +375,8 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
         void appDimensionsChanged(Dimension newDimension);
 
         /**
-         * Invoked when the setting, specifying the location of the application on
-         * screen, has been changed.
+         * Invoked when the setting, specifying the location of the application
+         * on screen, has been changed.
          * 
          * @param newLocation
          *            A {@link Point} representing where the location of the top
@@ -346,7 +384,7 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
          *            placed on the screen.
          */
         void appScreenLocationChanged(Point newLocation);
-        
+
         /**
          * Invoked when the graphic interact tolerance setting has been changed.
          * 
