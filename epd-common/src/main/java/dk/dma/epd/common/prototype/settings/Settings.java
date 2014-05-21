@@ -33,6 +33,7 @@ import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
 import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
@@ -142,6 +143,11 @@ public abstract class Settings {
     protected final String intendedRouteHandlerSettingsFile = "intended-route-handler_settings.yaml";
     
     /**
+     * Filename for the file with past track settings.
+     */
+    protected final String pastTrackSettingsFile = "past-track_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -199,6 +205,8 @@ public abstract class Settings {
     protected MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> metocHandlerSettings;
     
     protected AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings;
+    
+    protected PastTrackSettings<PastTrackSettings.IObserver> pastTrackSettings;
     
     
     
@@ -307,6 +315,10 @@ public abstract class Settings {
     
     public AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> getAisHandlerSettings() {
         return this.aisHandlerSettings;
+    }
+    
+    public PastTrackSettings<PastTrackSettings.IObserver> getPastTrackSettings() {
+        return this.pastTrackSettings;
     }
 
 //    public abstract NavSettings getNavSettings();
@@ -504,6 +516,13 @@ public abstract class Settings {
          */
         AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandler = ObservedSettings.loadFromFile(AisHandlerCommonSettings.class, resolve(aisHandlerSettingsFile).toFile());
         this.aisHandlerSettings = ais != null ? aisHandler : new AisHandlerCommonSettings<>();
+        
+        /*
+         * Load past track settings.
+         * If ship/shore specific past track settings are added later, move this to subclass.
+         */
+        PastTrackSettings<PastTrackSettings.IObserver> pastTrack = ObservedSettings.loadFromFile(PastTrackSettings.class, resolve(pastTrackSettingsFile).toFile());
+        this.pastTrackSettings = pastTrack != null ? pastTrack : new PastTrackSettings<>();
     }
 
     /**
