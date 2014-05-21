@@ -69,7 +69,14 @@ public abstract class ObservedSettings<OBSERVER> {
      * and no threads can read when one thread is writing.
      */
     protected ReentrantReadWriteLock settingLock;
-    
+
+    /**
+     * Used when outputting this instance to a file. A subclass can provide its
+     * own instance, e.g. in case it want to exclude some properties from YAML
+     * serialization.
+     */
+    protected Yaml yamlEmitter;
+
     /**
      * Creates a new {@link ObservedSettings}.
      */
@@ -77,6 +84,7 @@ public abstract class ObservedSettings<OBSERVER> {
         this.settingLock = new ReentrantReadWriteLock(true);
         this.observers = new CopyOnWriteArrayList<>();
         this.logger = LoggerFactory.getLogger(this.getClass());
+        this.yamlEmitter = new Yaml();
     }
 
     /**
@@ -108,7 +116,10 @@ public abstract class ObservedSettings<OBSERVER> {
     }
 
     /**
-     * Save this settings instance to a file. If an error occurs, this method calls {@link #onSaveFailure(IOException)} with the error. Subclasses may override {@link #onSaveFailure(IOException)} to perform recovery or logging.
+     * Save this settings instance to a file. If an error occurs, this method
+     * calls {@link #onSaveFailure(IOException)} with the error. Subclasses may
+     * override {@link #onSaveFailure(IOException)} to perform recovery or
+     * logging.
      * 
      * @param file
      *            The file where the settings are to be stored.
@@ -120,9 +131,8 @@ public abstract class ObservedSettings<OBSERVER> {
              * single point in time. Release the lock in finally block.
              */
             this.settingLock.readLock().lock();
-            Yaml yaml = new Yaml();
             FileWriter writer = new FileWriter(file);
-            yaml.dump(this, writer);
+            this.yamlEmitter.dump(this, writer);
         } catch (IOException e) {
             this.onSaveFailure(e);
         } finally {
@@ -139,12 +149,12 @@ public abstract class ObservedSettings<OBSERVER> {
      * @param file
      *            The file from where the settings are loaded.
      * @return An instance of {@code typeToLoad} with properties set according
-     *         to the data stored in the given file or null if the file was
-     *         not found.
+     *         to the data stored in the given file or null if the file was not
+     *         found.
      */
     public static <T extends ObservedSettings<?>> T loadFromFile(
             Class<T> typeToLoad, File file) {
-        if(!file.exists())
+        if (!file.exists())
             return null;
         try {
             InputStream is = new FileInputStream(file);
