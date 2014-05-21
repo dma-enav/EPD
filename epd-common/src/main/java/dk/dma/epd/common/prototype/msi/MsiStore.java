@@ -68,7 +68,7 @@ public class MsiStore implements Serializable {
     private Set<Integer> relevant = new HashSet<>();
     private Set<Integer> allVisible = new HashSet<>();
 
-    private MSIHandlerCommonSettings<?> settings;
+    private transient MSIHandlerCommonSettings<?> settings;
     
     public MsiStore(Path homePath, MSIHandlerCommonSettings<?> settings) {
         msiFile = homePath.resolve(".msi").toString();
@@ -301,6 +301,9 @@ public class MsiStore implements Serializable {
         try (FileInputStream fileIn = new FileInputStream(msiFile);
                 ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
             MsiStore msiStore = (MsiStore) objectIn.readObject();            
+            // Settings are not serialized.
+            // We inject them instead.
+            msiStore.settings = settings;
             return msiStore;
         } catch (FileNotFoundException e) {
             // Not an error
