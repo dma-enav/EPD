@@ -68,6 +68,11 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
 
     }
     
+    @Override
+    public WMSLayerCommonSettings<?> getSettings() {
+        // TODO Auto-generated method stub
+        return (WMSLayerCommonSettings<?>) super.getSettings();
+    }
     /**
      * Constructor that starts the WMS layer in a separate thread
      * @param query the WMS query
