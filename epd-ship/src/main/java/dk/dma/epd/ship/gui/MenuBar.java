@@ -253,7 +253,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         });
 
         // TODO remove? selected is determined earlier based on isVisible.
-        aisLayer.setSelected(EPDShip.getInstance().getSettings().getAisHandlerSettings().isStrict());
+//        aisLayer.setSelected(EPDShip.getInstance().getSettings().getAisHandlerSettings().isStrict());
         
         // Intended route layer
         intendedRouteLayer = new JCheckBoxMenuItem("Intended route Layer");

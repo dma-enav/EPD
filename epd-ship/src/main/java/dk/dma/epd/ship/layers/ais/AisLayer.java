@@ -72,7 +72,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     public AisLayer(AisLayerCommonSettings<AisLayerCommonSettings.IObserver> settings) {
         super(settings);
-        
+        // Register self as observer of settings.
+        settings.addObserver(this);
         // Register graphics for mouse over notifications
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselGraphic.class, AtonTargetGraphic.class);
         this.registerInfoPanel(this.sarTargetInfoPanel, SartGraphic.class);

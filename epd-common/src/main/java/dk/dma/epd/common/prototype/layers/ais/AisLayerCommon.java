@@ -66,7 +66,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * Creates a new {@link AisLayerCommon}.
      * @param settings An {@link AisLayerCommonSettings} instance that is to control the appearance of the new layer. It is up to the caller to register this layer as observer of the given settings.
      */
-    public AisLayerCommon(AisLayerCommonSettings<?> settings) {
+    public AisLayerCommon(AisLayerCommonSettings<? extends AisLayerCommonSettings.IObserver> settings) {
         super(settings.getLayerRedrawInterval() * 1000, settings);
         // receive left-click events for the following set of classes.
         this.registerMouseClickClasses(VesselGraphic.class);
