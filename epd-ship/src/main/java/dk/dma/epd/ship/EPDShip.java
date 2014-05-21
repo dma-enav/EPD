@@ -61,8 +61,8 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
-import dk.dma.epd.common.prototype.settings.SensorSettings;
-import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.PntSourceSetting;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -81,7 +81,6 @@ import dk.dma.epd.ship.service.RouteSuggestionHandler;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
 import dk.dma.epd.ship.service.shore.ShoreServices;
 import dk.dma.epd.ship.service.voct.VOCTManager;
-import dk.dma.epd.ship.settings.EPDSensorSettings;
 import dk.dma.epd.ship.settings.EPDSettings;
 
 /**
@@ -186,27 +185,27 @@ public final class EPDShip extends EPD {
         msPntHandler = new MultiSourcePntHandler();
         msPntHandler.addPntListener(pntHandler);
         mapHandler.add(msPntHandler);
-
+        
         // Start AIS target monitoring
-        aisHandler = new AisHandler(settings.getSensorSettings(), settings.getAisSettings());
+        aisHandler = new AisHandler(settings.getAisHandlerSettings(), settings.getPastTrackSettings(), settings.getExternalSensorsSettings());
         aisHandler.loadView();
         EPD.startThread(aisHandler, "AisHandler");
         mapHandler.add(aisHandler);
 
         // Start own-ship handler
-        ownShipHandler = new OwnShipHandler(settings.getAisSettings());
+        ownShipHandler = new OwnShipHandler(getSettings().getOwnShipPastTrackSettings());
         ownShipHandler.loadView();
         mapHandler.add(ownShipHandler);
 
         // Load routeManager and register as GPS data listener
-        routeManager = RouteManager.loadRouteManager();
+        routeManager = RouteManager.loadRouteManager(getSettings().getRouteManagerSettings(), getSettings().getMetocHandlerSettings());
         mapHandler.add(routeManager);
 
         voctManager = VOCTManager.loadVOCTManager();
         mapHandler.add(voctManager);
 
         // Create shore services
-        shoreServices = new ShoreServices(getSettings().getEnavSettings());
+        shoreServices = new ShoreServices(getSettings().getEnavServicesHttpSettings(), getSettings().getMonaLisaHttpSettings());
         mapHandler.add(shoreServices);
 
         // Create mona lisa route exchange
@@ -214,20 +213,20 @@ public final class EPDShip extends EPD {
         mapHandler.add(monaLisaRouteExchange);
 
         // Create MSI handler
-        msiHandler = new MsiHandler(getSettings().getEnavSettings());
+        msiHandler = new MsiHandler(getSettings().getMsiHandlerSettings());
         mapHandler.add(msiHandler);
 
         // Create NoGo handler
-        nogoHandler = new NogoHandler(getSettings().getEnavSettings());
+        nogoHandler = new NogoHandler();
         mapHandler.add(nogoHandler);
 
         // Create dynamic NoGo handler
         // Create NoGo handler
-        dynamicNoGoHandler = new DynamicNogoHandler(getSettings().getEnavSettings());
+        dynamicNoGoHandler = new DynamicNogoHandler();
         mapHandler.add(dynamicNoGoHandler);
 
         // Create Maritime Cloud service
-        maritimeCloudService = new MaritimeCloudService();
+        maritimeCloudService = new MaritimeCloudService(getSettings().getMaritimeCloudHttpSettings());
         mapHandler.add(maritimeCloudService);
         maritimeCloudService.start();
 
@@ -235,8 +234,7 @@ public final class EPDShip extends EPD {
         mapHandler.add(strategicRouteHandler);
 
         // Create intended route handler
-        intendedRouteHandler = new IntendedRouteHandler();
-        intendedRouteHandler.updateSettings(settings.getEnavSettings());
+        intendedRouteHandler = new IntendedRouteHandler(getSettings().getIntendedRouteHandlerSettings());
         mapHandler.add(intendedRouteHandler);
 
         // Create the route suggestion handler
@@ -278,7 +276,7 @@ public final class EPDShip extends EPD {
         transponderFrame = new TransponderFrame(getHomePath().resolve("transponder.xml").toString(), true, mainFrame);
         mapHandler.add(transponderFrame);
 
-        if (settings.getSensorSettings().isStartTransponder()) {
+        if (settings.getExternalSensorsSettings().isStartTransponder()) {
             transponderFrame.startTransponder();
         }
 
@@ -321,7 +319,7 @@ public final class EPDShip extends EPD {
      */
     @Override
     protected void startSensors() {
-        EPDSensorSettings sensorSettings = getSettings().getSensorSettings();
+        ExternalSensorsCommonSettings<?> sensorSettings = getSettings().getExternalSensorsSettings();
         switch (sensorSettings.getAisConnectionType()) {
         case NONE:
             aisSensor = null;
@@ -475,9 +473,11 @@ public final class EPDShip extends EPD {
             maritimeCloudService.stop();
             maritimeCloudService.start();
             
-            // Update intended route filter settings.
-            LOG.warn("Updating intended route filter settings.");
-            this.intendedRouteHandler.updateSettings(this.settings.getEnavSettings());
+            /*
+             *  TODO previously called updateSettings on intendedRouteHandler
+             *  here to update reapply filter and redraw TCPA.
+             *  This should now happen automatically using observer pattern.
+             */
         }
     }
 
