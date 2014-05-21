@@ -528,5 +528,26 @@ public abstract class Settings {
     /**
      * Save the settings to the files
      */
-    public abstract void saveToFile();        
+    public void saveToFile() {
+        this.getAisHandlerSettings().saveToYamlFile(resolve(aisHandlerSettingsFile).toFile());
+        this.getEnavServicesHttpSettings().saveToYamlFile(resolve(enavServicesHttpSettingsFile).toFile());
+        this.getENCLayerSettings().saveToYamlFile(resolve(encLayerSettingsFile).toFile());
+        this.getExternalSensorsSettings().saveToYamlFile(resolve(externalSensorsSettingsFile).toFile());
+        this.getGuiSettings().saveToYamlFile(resolve(guiSettingsFile).toFile());
+        this.getIntendedRouteHandlerSettings().saveToYamlFile(resolve(intendedRouteHandlerSettingsFile).toFile());
+        this.getMapSettings().saveToYamlFile(resolve(mapSettingsFile).toFile());
+        this.getMaritimeCloudHttpSettings().saveToYamlFile(resolve(maritimeCloudHttpSettingsFile).toFile());
+        this.getMetocHandlerSettings().saveToYamlFile(resolve(metocHandlerSettingsFile).toFile());
+        this.getMonaLisaHttpSettings().saveToYamlFile(resolve(monaLisaHttpSettingsFile).toFile());
+        this.getMsiHandlerSettings().saveToYamlFile(resolve(msiHandlerSettingsFile).toFile());
+        this.getPastTrackSettings().saveToYamlFile(resolve(pastTrackSettingsFile).toFile());
+        this.getPrimaryAisLayerSettings().saveToYamlFile(resolve(aisLayerSettingsFile).toFile());
+        this.getPrimaryIntendedRouteLayerSettings().saveToYamlFile(resolve(intendedRouteLayerSettingsFile).toFile());
+        this.getPrimaryMetocLayerSettings().saveToYamlFile(resolve(metocLayerSettingsFile).toFile());
+        this.getPrimaryMsiLayerSettings().saveToYamlFile(resolve(msiLayerSettingsFile).toFile());
+        this.getPrimaryRouteLayerSettings().saveToYamlFile(resolve(routeLayerSettingsFile).toFile());
+        this.getPrimaryWMSLayerSettings().saveToYamlFile(resolve(wmsLayerSettingsFile).toFile());
+        this.getRouteManagerSettings().saveToYamlFile(resolve(routeManagerSettingsFile).toFile());
+        // TODO S57 settings...?
+    }
 }

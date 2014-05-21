@@ -147,6 +147,9 @@ public class EPDSettings extends Settings implements Serializable {
      */
     @Override
     public void saveToFile() {
+        super.saveToFile();
+        this.ownShipLayerSettings.saveToYamlFile(resolve(ownShipLayerSettingsFile).toFile());
+        this.ownShipPastTrackSettings.saveToYamlFile(resolve(ownShipPastTrackSettingsFile).toFile());
 //        Properties props = new Properties();
 //        enavSettings.setProperties(props);
 //        guiSettings.setProperties(props);
