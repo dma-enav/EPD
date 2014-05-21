@@ -84,11 +84,12 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     /**
      * Constructs a new CommonMapSettingsPanel object.
      */
-    public CommonMapSettingsPanel(MapCommonSettings<?> mapSettings, ENCLayerCommonSettings<?> encLayerSettings, WMSLayerCommonSettings<?> wnsLayerSettings) {
+    public CommonMapSettingsPanel(MapCommonSettings<?> mapSettings, ENCLayerCommonSettings<?> encLayerSettings, WMSLayerCommonSettings<?> wmsLayerSettings) {
         super("Map", new ImageIcon(CommonMapSettingsPanel.class.getResource
                 ("/images/settings/map.png")));
         this.mapSettings = Objects.requireNonNull(mapSettings);
         this.encLayerSettings = Objects.requireNonNull(encLayerSettings);
+        this.wmsLayerSettings = Objects.requireNonNull(wmsLayerSettings);
         setLayout(null);
         
         
