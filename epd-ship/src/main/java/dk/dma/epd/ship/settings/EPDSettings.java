@@ -20,6 +20,7 @@ import java.io.Serializable;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.ship.settings.gui.GUISettings;
 import dk.dma.epd.ship.settings.gui.MapSettings;
@@ -46,6 +47,11 @@ public class EPDSettings extends Settings implements Serializable {
      */
     protected final String ownShipLayerSettingsFile = "own-ship-layer_settings.yaml";
     
+    /**
+     * Filename for the file with own ship past track settings.
+     */
+    protected final String ownShipPastTrackSettingsFile = "own-ship-past-track_settings.yaml";
+    
     private GUISettings<GUISettings.IObserver> guiSettings;
     
     private MapSettings mapSettings;
@@ -59,6 +65,11 @@ public class EPDSettings extends Settings implements Serializable {
     private IntendedRouteHandlerSettings intendedRouteHandlerSettings;
     
     private OwnShipLayerSettings ownShipLayerSettings;
+    
+    /**
+     * Past track settings for own ship.
+     */
+    private PastTrackSettings<PastTrackSettings.IObserver> ownShipPastTrackSettings;
     
     public EPDSettings() {
         super();
@@ -112,6 +123,11 @@ public class EPDSettings extends Settings implements Serializable {
         OwnShipLayerSettings ownShipLayer = ObservedSettings.loadFromFile(OwnShipLayerSettings.class, resolve(ownShipLayerSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
         this.ownShipLayerSettings = ownShipLayer != null ? ownShipLayer : new OwnShipLayerSettings();
+        
+        // Load own ship past track settings.
+        PastTrackSettings<PastTrackSettings.IObserver> ownShipPastTrack = ObservedSettings.loadFromFile(PastTrackSettings.class, resolve(ownShipPastTrackSettingsFile).toFile());
+        // Use loaded instance or create new if the file was not found.
+        this.ownShipPastTrackSettings = ownShipPastTrack != null ? ownShipPastTrack : new PastTrackSettings<>();
         
 //        // Open properties file
 //        Properties props = new Properties();
@@ -176,6 +192,11 @@ public class EPDSettings extends Settings implements Serializable {
     
     public OwnShipLayerSettings getOwnShipLayerSettings() {
         return this.ownShipLayerSettings;
+    }
+    
+    
+    public PastTrackSettings<PastTrackSettings.IObserver> getOwnShipPastTrackSettings() {
+        return this.ownShipPastTrackSettings;
     }
     
 //    @Override
