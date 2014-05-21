@@ -34,6 +34,14 @@ public class PartialRouteFilter {
     private int backward;
     
     /**
+     * <b>Do not use this constructor in code.</b>
+     * It is provided as it is required when restoring application settings from YAML files. 
+     */
+    public PartialRouteFilter() {
+        
+    }
+    
+    /**
      * Constructor
      */
     public PartialRouteFilter(FilterType type, int forward, int backward) {

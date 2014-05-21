@@ -197,7 +197,6 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
      *            of {@code GUICommonSettings} remain synchronized.
      */
     public void setAppLocation(Point newAppLocation) {
-        // TODO does YamlBeans handle this setter correctly?
         try {
             this.settingLock.writeLock().lock();
             Point copy = new Point(newAppLocation);
