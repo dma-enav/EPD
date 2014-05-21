@@ -295,7 +295,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
             }
             if (persist) {
                 // TODO update to encLayer.getSettings().setEncVisible(visible);
-                EPD.getInstance().getSettings().getMapSettings().setEncVisible(visible);
+                EPD.getInstance().getSettings().getENCLayerSettings().setVisible(visible);
             }
         } else {
             bgLayer.setVisible(true);
@@ -317,10 +317,8 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
      */
     public void wmsVisible(boolean visible) {
         if (wmsLayer != null) {
-            // TODO update to call on settings rather than layer.
-            // Layer should observe its settings.
-            wmsLayer.setVisible(visible);
-            EPD.getInstance().getSettings().getMapSettings().setWmsVisible(visible);
+            // TODO Layer should observe its settings.
+            wmsLayer.getSettings().setVisible(visible);
         }
     }
 
@@ -331,10 +329,8 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
      */
     public void intendedRouteLayerVisible(boolean visible) {
         if (intendedRouteLayer != null) {
-            // TODO update to call on settings rather than layer.
-            // Layer should observe its settings.
-            intendedRouteLayer.setVisible(visible);
-            EPD.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(visible);
+            // TODO Layer should observe its settings.
+            intendedRouteLayer.getSettings().setVisible(visible);
         }
     }
 
