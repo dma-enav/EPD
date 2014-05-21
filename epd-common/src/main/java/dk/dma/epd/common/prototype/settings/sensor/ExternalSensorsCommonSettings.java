@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.settings.sensor;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
@@ -590,15 +591,15 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setReplayStartDate(final Date replayStartDate) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.replayStartDate.equals(replayStartDate)) {
+            if(Objects.equals(this.replayStartDate, replayStartDate)) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             // Use clones to avoid reference leak.
-            this.replayStartDate = (Date) replayStartDate.clone();
+            this.replayStartDate = replayStartDate == null ? null : (Date) replayStartDate.clone();
             for(OBSERVER obs : this.observers) {
-                obs.replayStartDateChanged((Date) replayStartDate.clone());
+                obs.replayStartDateChanged(replayStartDate == null ? null : (Date) replayStartDate.clone());
             }
         } finally {
             this.settingLock.writeLock().unlock();
