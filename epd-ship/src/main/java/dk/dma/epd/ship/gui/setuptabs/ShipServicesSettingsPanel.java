@@ -74,11 +74,11 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         chckbxBroadcastIntendedRoute.setBounds(16, 20, 189, 20);
         generalPanel.add(chckbxBroadcastIntendedRoute);
         
-        JLabel lblTimeBetweenBroadcast = new JLabel("Time between broadcast (min)");
+        JLabel lblTimeBetweenBroadcast = new JLabel("Time between broadcast (seconds)");
         lblTimeBetweenBroadcast.setBounds(103, 47, 189, 16);
         generalPanel.add(lblTimeBetweenBroadcast);
         
-        spinnerTimeBetweenBroadcast = new JSpinner();
+        spinnerTimeBetweenBroadcast = new JSpinner(new SpinnerNumberModel(new Long(1), new Long(1), null, new Long(1)));
         spinnerTimeBetweenBroadcast.setBounds(16, 45, 75, 20);
         generalPanel.add(spinnerTimeBetweenBroadcast);
         
@@ -86,8 +86,8 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         spinnerAdaptionTime.setBounds(16, 70, 75, 20);
         generalPanel.add(spinnerAdaptionTime);
         
-        JLabel lblAdaptionTime = new JLabel("Adaption time");
-        lblAdaptionTime.setBounds(103, 72, 89, 16);
+        JLabel lblAdaptionTime = new JLabel("Adaption time (seconds)");
+        lblAdaptionTime.setBounds(103, 72, 120, 16);
         generalPanel.add(lblAdaptionTime);
         
         DefaultComboBoxModel<String> defaultComboBox = new DefaultComboBoxModel<String>();
@@ -371,7 +371,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
                 
         // Save cloud Intended Route Settings.
         this.handlerSettings.setBroadcastIntendedRoute(this.chckbxBroadcastIntendedRoute.isSelected());
-        this.handlerSettings.setTimeBetweenBroadCast((Integer) this.spinnerTimeBetweenBroadcast.getValue());
+        this.handlerSettings.setTimeBetweenBroadCast((Long) this.spinnerTimeBetweenBroadcast.getValue());
         this.handlerSettings.setAdaptionTime((Integer) this.spinnerAdaptionTime.getValue());
         
         // Save Intended route filter settings.
