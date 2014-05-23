@@ -109,7 +109,7 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettings.IObserver>
      * @return At what scale the map should be initialized when the application
      *         is launched.
      */
-    public float getInitalMapScale() {
+    public float getInitialMapScale() {
         try {
             this.settingLock.readLock().lock();
             return this.initialMapScale;

@@ -293,7 +293,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         map.setCenter(getMapSettings().getCenter());
 
         // Get from settings
-        map.setScale(getMapSettings().getInitalMapScale());
+        map.setScale(getMapSettings().getInitialMapScale());
         // Set ENC map settings
 
         add(map);

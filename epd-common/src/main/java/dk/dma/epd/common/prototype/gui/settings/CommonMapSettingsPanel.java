@@ -287,7 +287,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     @Override
     protected boolean checkSettingsChanged() {
         return 
-                changed(this.mapSettings.getInitalMapScale(), this.spinnerDefaultMapScale.getValue()) ||
+                changed(this.mapSettings.getInitialMapScale(), this.spinnerDefaultMapScale.getValue()) ||
                 changed(this.mapSettings.getMinMapScale(), this.spinnerMaximumScale.getValue()) ||
                 changed(this.mapSettings.getCenter().getLatitude(), this.spinnerLatitude.getValue()) ||
                 changed(this.mapSettings.getCenter().getLongitude(), this.spinnerLongitude.getValue()) ||
@@ -328,7 +328,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     protected void doLoadSettings() {
         
         // Load settings for generel panel.
-        this.spinnerDefaultMapScale.setValue(this.mapSettings.getInitalMapScale());
+        this.spinnerDefaultMapScale.setValue(this.mapSettings.getInitialMapScale());
         this.spinnerMaximumScale.setValue(this.mapSettings.getMinMapScale());
         Float latitude  = this.mapSettings.getCenter().getLatitude();
         Float longitude = this.mapSettings.getCenter().getLongitude();
