@@ -15,6 +15,12 @@
  */
 package dk.dma.epd.common.prototype.settings.gui;
 
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
+
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
@@ -45,6 +51,11 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettings.IObserver>
      * scale.
      */
     private int minMapScale = 5000;
+
+    public MapCommonSettings() {
+        super();
+        this.yamlEmitter = new Yaml(new MapCommonSettingsRepresenter());
+    }
 
     /**
      * Get the point that the map should be centered around when the application
@@ -175,6 +186,95 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettings.IObserver>
             }
         } finally {
             this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * <b>NOT INTENDED FOR USE - use {@link #getCenter()} instead</b> This
+     * method targets the SnakeYAML library used for serialization of settings.
+     * SnakeYAML could not serialize a {@link LatLonPoint} correctly, so it is
+     * serialized using two simple values instead, namely the latitude and the
+     * longitude of the map center.
+     * 
+     * @return The latitude of the map center setting.
+     */
+    @Deprecated
+    public double getCenterLat() {
+        try {
+            this.settingLock.readLock().lock();
+            return center.getLatitude();
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * <b>NOT INTENDED FOR USE - use {@link #setCenter(LatLonPoint)}
+     * instead</b>. This method targets the SnakeYAML library used for
+     * serialization of settings. SnakeYAML could not serialize a
+     * {@link LatLonPoint} correctly, so it is serialized using two simple
+     * values instead, namely the latitude and the longitude of the map center.
+     * 
+     * @param lat
+     *            The new latitude of the map center setting.
+     */
+    @Deprecated
+    public void setCenterLat(double lat) {
+        this.settingLock.writeLock().lock();
+        this.center.setLatitude(lat);
+        this.settingLock.writeLock().unlock();
+    }
+
+    /**
+     * <b>NOT INTENDED FOR USE - use {@link #getCenter()} instead</b> This
+     * method targets the SnakeYAML library used for serialization of settings.
+     * SnakeYAML could not serialize a {@link LatLonPoint} correctly, so it is
+     * serialized using two simple values instead, namely the latitude and the
+     * longitude of the map center.
+     * 
+     * @return The longitude of the map center setting.
+     */
+    @Deprecated
+    public double getCenterLon() {
+        try {
+            this.settingLock.readLock().lock();
+            return center.getLongitude();
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * <b>NOT INTENDED FOR USE - use {@link #setCenter(LatLonPoint)} instead</b>
+     * This method targets the SnakeYAML library used for serialization of
+     * settings. SnakeYAML could not serialize a {@link LatLonPoint} correctly,
+     * so it is serialized using two simple values instead, namely the latitude
+     * and the longitude of the map center.
+     * 
+     * @param lon
+     *            The new longitude of the map center setting.
+     */
+    @Deprecated
+    public void setCenterLon(double lon) {
+        this.settingLock.writeLock().lock();
+        center.setLongitude(lon);
+        this.settingLock.writeLock().unlock();
+    }
+
+    protected static class MapCommonSettingsRepresenter extends Representer {
+        @Override
+        protected NodeTuple representJavaBeanProperty(Object javaBean,
+                Property property, Object propertyValue, Tag customTag) {
+            if (javaBean instanceof MapCommonSettings
+                    && property.getName().equals("center")) {
+                /*
+                 * Do not attempt to serialize center as LatLonPoint as its
+                 * inner properties are never dumped.
+                 */
+                return null;
+            }
+            return super.representJavaBeanProperty(javaBean, property,
+                    propertyValue, customTag);
         }
     }
 
