@@ -80,7 +80,7 @@ public abstract class LayerSettings<OBSERVER extends LayerSettings.IObserver>
             }
             this.visible = visible;
             for (OBSERVER obs : this.observers) {
-                obs.isVisibleChanged(this.visible);
+                obs.isVisibleChanged(this, this.visible);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -89,26 +89,28 @@ public abstract class LayerSettings<OBSERVER extends LayerSettings.IObserver>
 
     /**
      * Base interface for observing a {@link LayerSettings} for changes. I.e.
-     * <i>this interface should only contain callbacks for changes to settings that
-     * are relevant to all layer types.</i>
+     * <i>this interface should only contain callbacks for changes to settings
+     * that are relevant to all layer types.</i>
      * 
      * @author Janus Varmarken
      */
     public interface IObserver {
         /*
-         * Specify setting-changed callbacks that are relevant to all layer types
-         * here.
+         * Specify setting-changed callbacks that are relevant to all layer
+         * types here.
          */
 
         /**
          * Invoked when the visibility of a layer is toggled on/off.
          * 
+         * @param source
+         *            The {@link LayerSettings} instance that fired this event.
          * @param newValue
-         *            {@code true} if the layer should now be visible, {@code false}
-         *            if the layer should now be invisible.
+         *            {@code true} if the layer should now be visible,
+         *            {@code false} if the layer should now be invisible.
          */
-        void isVisibleChanged(boolean newValue);
+        void isVisibleChanged(LayerSettings<?> source, boolean newValue);
 
     }
-    
+
 }

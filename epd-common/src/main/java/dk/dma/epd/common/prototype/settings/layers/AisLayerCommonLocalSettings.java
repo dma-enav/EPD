@@ -27,15 +27,14 @@ import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
  * This is implemented in the following manner: Clients can change the state of
  * the local settings by invoking the different setters of this class on the
  * local settings instance. Invoking these setters will fire notifications to
- * all the {@link IObserver}s registered with the local
- * settings instance.<br/>
- * However, this class is also an {@link IObserver}
- * itself, and its instances are registered as observers of the singleton
- * instance of {@link AisLayerCommonGlobalSettings}. As such, whenever a global
- * setting is changed, instances of this class are notified. These instances
- * will update their local version of the value updated on the global singleton
- * and will then subsequently notify their own observers of the change to the
- * local value.
+ * all the {@link IObserver}s registered with the local settings instance.<br/>
+ * However, this class is also an {@link IObserver} itself, and its instances
+ * are registered as observers of the singleton instance of
+ * {@link AisLayerCommonGlobalSettings}. As such, whenever a global setting is
+ * changed, instances of this class are notified. These instances will update
+ * their local version of the value updated on the global singleton and will
+ * then subsequently notify their own observers of the change to the local
+ * value.
  * </p>
  * 
  * @param <OBSERVER>
@@ -148,11 +147,14 @@ public class AisLayerCommonLocalSettings<OBSERVER extends AisLayerCommonSettings
      * Invoked when the global value for layer visibility has changed.
      */
     @Override
-    public void isVisibleChanged(boolean newValue) {
-        /*
-         * The setting was changed on the global AIS layer settings instance. We
-         * need to obey to this for this local settings instance.
-         */
-        this.setVisible(newValue);
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if (source instanceof AisLayerCommonSettings<?>) {
+            /*
+             * The setting was changed on the global AIS layer settings
+             * instance. We need to obey to this for this local settings
+             * instance.
+             */
+            this.setVisible(newValue);
+        }
     }
 }

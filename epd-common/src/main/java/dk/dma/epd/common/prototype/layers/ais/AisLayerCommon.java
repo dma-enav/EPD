@@ -34,6 +34,7 @@ import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.LazyLayerCommon;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 
 /**
  * @author Janus Varmarken
@@ -320,8 +321,10 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * layer.
      */
     @Override
-    public void isVisibleChanged(boolean newValue) {
-        this.setVisible(newValue);
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if (source instanceof AisLayerCommonSettings<?>) {
+            this.setVisible(newValue);
+        }
     }
     
     /**
