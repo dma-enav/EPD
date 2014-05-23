@@ -228,7 +228,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         encBtn.setSelected(encLayerSettings.isEncInUse() && encLayerSettings.isVisible());
         wmsBtn.setSelected(wmsLayerSettings.isUseWms() && wmsLayerSettings.isVisible());
         aisToggleName.setSelected(EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings()
-                .isShowAllAisNameLabels());
+                .isShowVesselNameLabels());
 
         navigationMouseMode.setSelected(true);
         // range circles mode is disabled by default.
@@ -386,7 +386,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             
         } else if (e.getSource() == aisToggleName) {
             boolean showNameLabels = aisToggleName.isSelected();
-            EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().setShowAllAisNameLabels(showNameLabels);    
+            EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().setShowVesselNameLabels(showNameLabels);    
             
         } else if (e.getSource() == toggleSafeHaven) {
             routeLayer.toggleSafeHaven();

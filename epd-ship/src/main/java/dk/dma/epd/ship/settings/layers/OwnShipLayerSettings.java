@@ -30,6 +30,12 @@ public class OwnShipLayerSettings extends VesselLayerSettings<OwnShipLayerSettin
      */
     private boolean multiSourcePntVisible; // Default is false
 
+    public OwnShipLayerSettings() {
+        super();
+        // By default we do not show vessel name label for own ship.
+        this.setShowVesselNameLabels(false);
+    }
+    
     /**
      * Gets the setting that specifies if multi source PNT should be displayed.
      * 

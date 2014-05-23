@@ -234,7 +234,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // Create and insert
         if (targetGraphic == null) {
             if (aisTarget instanceof VesselTarget) {
-                targetGraphic = new VesselGraphicComponentSelector(this.getSettings(), this.getSettings().isShowAllAisNameLabels());
+                targetGraphic = new VesselGraphicComponentSelector(this.getSettings(), this.getSettings().isShowVesselNameLabels());
             } else if (aisTarget instanceof SarTarget) {
                 targetGraphic = new SarTargetGraphic();
             } else if (aisTarget instanceof AtoNTarget) {
@@ -340,7 +340,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * layer.
      */
     @Override
-    public void showAllAisNameLabelsChanged(boolean newValue) {
+    public void showVesselNameLabelsChanged(boolean newValue) {
         for(TargetGraphic tg : this.targets.values()) {
             if(tg instanceof VesselGraphicComponentSelector) {
                 ((VesselGraphicComponentSelector)tg).setShowNameLabel(newValue);

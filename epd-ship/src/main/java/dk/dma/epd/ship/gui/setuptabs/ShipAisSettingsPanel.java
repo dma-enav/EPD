@@ -121,7 +121,7 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         super.doLoadSettings();
         
         // Load appearance settings.
-        chckbxShowShipLabels.setSelected(layerSettings.isShowAllAisNameLabels());
+        chckbxShowShipLabels.setSelected(layerSettings.isShowVesselNameLabels());
         spinnerCogVectorLengthMin.setValue(layerSettings.getMovementVectorLengthMin());
         spinnerCogVectorLengthMax.setValue(layerSettings.getMovementVectorLengthMax());
         spinnerCogVectorLengthScaleStepSize.setValue(layerSettings.getMovementVectorLengthStepSize());
@@ -135,7 +135,7 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         super.doSaveSettings();
         
         // Save appearance settings.
-        layerSettings.setShowAllAisNameLabels(chckbxShowShipLabels.isSelected());
+        layerSettings.setShowVesselNameLabels(chckbxShowShipLabels.isSelected());
         layerSettings.setMovementVectorLengthMin((Integer) spinnerCogVectorLengthMin.getValue());
         layerSettings.setMovementVectorLengthMax((Integer) spinnerCogVectorLengthMax.getValue());
         layerSettings.setMovementVectorLengthStepSize((Float) spinnerCogVectorLengthScaleStepSize.getValue());
@@ -157,7 +157,7 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         if (!changesWereMade) {
             changesWereMade = 
                     // Changes were made to appearance settings.
-                    changed(layerSettings.isShowAllAisNameLabels(), chckbxShowShipLabels.isSelected()) ||
+                    changed(layerSettings.isShowVesselNameLabels(), chckbxShowShipLabels.isSelected()) ||
                     changed(layerSettings.getMovementVectorLengthMin(), spinnerCogVectorLengthMin.getValue()) ||
                     changed(layerSettings.getMovementVectorLengthMax(), spinnerCogVectorLengthMax.getValue()) ||
                     changed(layerSettings.getMovementVectorLengthStepSize(), spinnerCogVectorLengthScaleStepSize.getValue()) ||

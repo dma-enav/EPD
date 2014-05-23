@@ -33,11 +33,6 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettings.IObs
         extends VesselLayerSettings<OBSERVER> {
 
     /**
-     * Specifies if all AIS name labels should be shown.
-     */
-    private boolean showAllAisNameLabels = true;
-
-    /**
      * Specifies if all past tracks should be shown.
      */
     private boolean showAllPastTracks;
@@ -47,47 +42,6 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettings.IObs
      * seconds).
      */
     private int layerRedrawInterval = 5;
-
-    /**
-     * Get the value of the setting specifying if all AIS name labels should be
-     * shown.
-     * 
-     * @return {@code true} if all AIS name labels should be shown,
-     *         {@code false} if all AIS name labels should be hidden.
-     */
-    public boolean isShowAllAisNameLabels() {
-        try {
-            this.settingLock.readLock().lock();
-            return this.showAllAisNameLabels;
-        } finally {
-            this.settingLock.readLock().unlock();
-        }
-    }
-
-    /**
-     * Changes the setting specifying if all AIS name labels should be shown.
-     * The registered observers are notified of this change.
-     * 
-     * @param show
-     *            {@code true} to show all AIS name labels, {@code false} to
-     *            hide all AIS name labels.
-     */
-    public void setShowAllAisNameLabels(final boolean show) {
-        try {
-            this.settingLock.writeLock().lock();
-            if(this.showAllAisNameLabels == show) {
-                // No change, no need to notify observers.
-                return;
-            }
-            // There was a change, update and notify observers.
-            this.showAllAisNameLabels = show;
-            for(OBSERVER obs : this.observers) {
-                obs.showAllAisNameLabelsChanged(show);
-            }
-        } finally {
-            this.settingLock.writeLock().unlock();
-        }
-    }
 
     /**
      * Get the value of the setting specifying if all past tracks should be
@@ -183,15 +137,6 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettings.IObs
      * @author Janus Varmarken
      */
     public interface IObserver extends VesselLayerSettings.IObserver {
-
-        /**
-         * Invoked when the setting specifying whether to show all AIS name labels
-         * has been changed on the observed instance.
-         * 
-         * @param newValue
-         *            The updated value of the setting.
-         */
-        void showAllAisNameLabelsChanged(boolean newValue);
 
         /**
          * Invoked when the setting specifying whether to show all past tracks has

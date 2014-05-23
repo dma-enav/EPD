@@ -34,6 +34,11 @@ public class VesselLayerSettings<OBSERVER extends VesselLayerSettings.IObserver>
         extends LayerSettings<OBSERVER> {
 
     /**
+     * Boolean indicating whether vessel name labels should be displayed.
+     */
+    private boolean showVesselNameLabels;
+
+    /**
      * The minimum length (in minutes) of the vector that indicates COG and
      * speed.
      */
@@ -64,6 +69,45 @@ public class VesselLayerSettings<OBSERVER extends VesselLayerSettings.IObserver>
      * displayed.
      */
     private float movementVectorHideBelow = 0.1f;
+
+    /**
+     * Gets whether vessel name labels should be displayed.
+     * 
+     * @return {@code true} if vessel name labels should be displayed,
+     *         {@code false} if vessel name labels should be hidden.
+     */
+    public boolean isShowVesselNameLabels() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.showVesselNameLabels;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Sets whether vessel name labels should be displayed.
+     * 
+     * @param show
+     *            {@code true} if vessel name labels should be displayed,
+     *            {@code false} if vessel name labels should be hidden.
+     */
+    public void setShowVesselNameLabels(final boolean show) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.showVesselNameLabels == show) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.showVesselNameLabels = show;
+            for(OBSERVER obs : this.observers) {
+                obs.showVesselNameLabelsChanged(show);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
 
     /**
      * Gets the setting that specifies the minimum length (in minutes) of the
@@ -269,19 +313,29 @@ public class VesselLayerSettings<OBSERVER extends VesselLayerSettings.IObserver>
             this.settingLock.writeLock().unlock();
         }
     }
-    
+
     /**
      * Interface for observing a {@link VesselLayerSettings} for changes. This
-     * interface contains callbacks for changes to settings that are relevant to all
-     * layers that visualize one or more vessels.
+     * interface contains callbacks for changes to settings that are relevant to
+     * all layers that visualize one or more vessels.
      * 
      * @author Janus Varmarken
      */
     public interface IObserver extends LayerSettings.IObserver {
 
         /**
-         * Invoked when the setting specifying the minimum length (in minutes) of
-         * the movement vector has been changed.
+         * Invoked when display of vessel name labels has been toggled on/off.
+         * 
+         * @param show
+         *            {@code true} if vessel name labels display was toggled on,
+         *            {@code false} if vessel name label display was toggled
+         *            off.
+         */
+        void showVesselNameLabelsChanged(boolean show);
+
+        /**
+         * Invoked when the setting specifying the minimum length (in minutes)
+         * of the movement vector has been changed.
          * 
          * @param newMinLengthMinutes
          *            The new minimum length (in minutes).
@@ -289,8 +343,8 @@ public class VesselLayerSettings<OBSERVER extends VesselLayerSettings.IObserver>
         void movementVectorLengthMinChanged(int newMinLengthMinutes);
 
         /**
-         * Invoked when the setting specifying the maximum length (in minutes) of
-         * the movement vector has been changed.
+         * Invoked when the setting specifying the maximum length (in minutes)
+         * of the movement vector has been changed.
          * 
          * @param newMaxLengthMinutes
          *            The new maximum length (in minutes).
@@ -302,8 +356,8 @@ public class VesselLayerSettings<OBSERVER extends VesselLayerSettings.IObserver>
          * successive length values for the movement vector has been changed.
          * 
          * @param newStepSize
-         *            The new difference in scale between two successive values for
-         *            the length of the movement vector.
+         *            The new difference in scale between two successive values
+         *            for the length of the movement vector.
          */
         void movementVectorLengthStepSizeChanged(float newStepSize);
 
@@ -312,10 +366,10 @@ public class VesselLayerSettings<OBSERVER extends VesselLayerSettings.IObserver>
          * travel with for its movement vector to be displayed has changed.
          * 
          * @param newMinSpeed
-         *            The new minimum speed a vessel must travel with for its speed
-         *            vector to be displayed (in nautical miles per hour).
+         *            The new minimum speed a vessel must travel with for its
+         *            speed vector to be displayed (in nautical miles per hour).
          */
         void movementVectorHideBelowChanged(float newMinSpeed);
     }
-    
+
 }

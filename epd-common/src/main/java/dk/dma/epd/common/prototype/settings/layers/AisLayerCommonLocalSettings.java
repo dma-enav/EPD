@@ -63,10 +63,10 @@ public class AisLayerCommonLocalSettings<OBSERVER extends AisLayerCommonSettings
      * Invoked when the global value for display of AIS name labels has changed.
      */
     @Override
-    public void showAllAisNameLabelsChanged(boolean newValue) {
+    public void showVesselNameLabelsChanged(boolean newValue) {
         // The "display AIS labels" was changed on the global settings object.
         // We need to obey to this for our local settings:
-        this.setShowAllAisNameLabels(newValue);
+        this.setShowVesselNameLabels(newValue);
     }
 
     /**
