@@ -75,7 +75,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
      */
     public RpntErrorGraphic(OwnShipLayerSettings layerSettings) {
         super();
-        layerSettings = Objects.requireNonNull(layerSettings);
+        this.layerSettings = Objects.requireNonNull(layerSettings);
         hplCicle.setRenderType(RENDERTYPE_LATLON);
         hplCicle.setLatLon(0, 0); // Avoid NPE's
         hplCicle.setLinePaint(COLOR_PNT_SRC_GPS);
