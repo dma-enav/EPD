@@ -17,9 +17,6 @@ package dk.dma.epd.common.prototype.settings;
 
 import java.nio.file.Path;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
@@ -44,8 +41,6 @@ import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings
  * list of specialized settings 
  */
 public abstract class Settings {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Settings.class);
     
     /**
      * Filename for the file with AIS layer settings.
@@ -207,10 +202,7 @@ public abstract class Settings {
     protected AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings;
     
     protected PastTrackSettings<PastTrackSettings.IObserver> pastTrackSettings;
-    
-    
-    
-    
+       
     public abstract GUICommonSettings<? extends GUICommonSettings.IObserver> getGuiSettings();
     
     public abstract MapCommonSettings<? extends MapCommonSettings.IObserver> getMapSettings();
@@ -321,12 +313,6 @@ public abstract class Settings {
         return this.pastTrackSettings;
     }
 
-//    public abstract NavSettings getNavSettings();
-
-//    public abstract EnavSettings getEnavSettings();
-    
-//    public abstract CloudSettings getCloudSettings();
-
     /**
      * Resolves the given file in the current home folder
      * @param file the file to resolve
@@ -336,65 +322,10 @@ public abstract class Settings {
         return EPD.getInstance().getHomePath().resolve(file);
     }
     
-//    /**
-//     * Loads the given properties file
-//     * @param props the properties to load the file into
-//     * @param file the properties file to load
-//     * @return success or failure
-//     */
-//    protected boolean loadProperties(Properties props, String file) {
-//        if (file.startsWith("/")) {
-//            file = file.substring(1);
-//        }
-//        try {
-//            props.load(new FileInputStream(resolve(file).toFile()));
-//        } catch (FileNotFoundException e) {
-//            LOG.error("No settings file found: " + resolve(file));
-//            return false;
-//        } catch (IOException e) {
-//            LOG.error("Settings file could not be loaded: " + resolve(file));
-//            return false;
-//        }
-//        
-//        LOG.info("Settings file loaded, path=" + resolve(file));
-//        return true;
-//    }
-    
-//    /**
-//     * Saves the properties to the given file
-//     * @param props the properties to save
-//     * @param file the file to save the properties to
-//     * @return success or failure
-//     */
-//    protected boolean saveProperties(Properties props, String file, String header) {
-//        if (file.startsWith("/")) {
-//            file = file.substring(1);
-//        }
-//        try (
-//                FileWriter outFile = new FileWriter(resolve(file).toFile());
-//                PrintWriter out = new PrintWriter(outFile);) {
-//                if (header != null) {
-//                    out.println(header);
-//                }
-//                TreeSet<String> keys = new TreeSet<>();
-//                for (Object key : props.keySet()) {
-//                    keys.add((String) key);
-//                }
-//                for (String key : keys) {
-//                    out.println(key + "=" + props.getProperty(key));
-//                }
-//        } catch (IOException e) {
-//            LOG.error("Failed to save settings file " + resolve(file) + ": " + e.getMessage());
-//            return false;
-//        }
-//        
-//        LOG.info("Settings file updated, path=" + resolve(file));
-//        return true;
-//    }
-    
     /**
      * Load the settings files as well as the workspace files
      */
+    @SuppressWarnings("unchecked")
     public void loadFromFile() {
         /*
          * Load primary/global AIS layer settings.
@@ -548,6 +479,8 @@ public abstract class Settings {
         this.getPrimaryRouteLayerSettings().saveToYamlFile(resolve(routeLayerSettingsFile).toFile());
         this.getPrimaryWMSLayerSettings().saveToYamlFile(resolve(wmsLayerSettingsFile).toFile());
         this.getRouteManagerSettings().saveToYamlFile(resolve(routeManagerSettingsFile).toFile());
-        // TODO S57 settings...?
+        
+        // Save S57 settings
+        this.getS57LayerSettings().saveSettings(resolve(s57LayerSettingsFile).toString());
     }
 }
