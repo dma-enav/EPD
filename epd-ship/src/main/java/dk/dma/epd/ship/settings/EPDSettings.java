@@ -37,10 +37,6 @@ public class EPDSettings extends Settings implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final String settingsFile = "settings.properties";
-
-//    private final EPDNavSettings navSettings = new EPDNavSettings();
-//    private final EPDEnavSettings enavSettings = new EPDEnavSettings();
-//    private final EPDCloudSettings cloudSettings = new EPDCloudSettings();
     
     /**
      * Filename for the file with own ship layer settings.
@@ -78,6 +74,7 @@ public class EPDSettings extends Settings implements Serializable {
     /**
      * Load the settings files as well as the workspace files
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void loadFromFile() {
         // Do work in super to load non-specialized settings.
@@ -128,18 +125,7 @@ public class EPDSettings extends Settings implements Serializable {
         PastTrackSettings<PastTrackSettings.IObserver> ownShipPastTrack = ObservedSettings.loadFromFile(PastTrackSettings.class, resolve(ownShipPastTrackSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
         this.ownShipPastTrackSettings = ownShipPastTrack != null ? ownShipPastTrack : new PastTrackSettings<>();
-        
-//        // Open properties file
-//        Properties props = new Properties();
-//        loadProperties(props, settingsFile);
-//
-//
-//        enavSettings.readProperties(props);
-//        guiSettings.readProperties(props);
-//        mapSettings.readProperties(props);
-//        navSettings.readProperties(props);
-//        sensorSettings.readProperties(props);
-//        cloudSettings.readProperties(props);
+
     }
 
     /**
@@ -150,16 +136,7 @@ public class EPDSettings extends Settings implements Serializable {
         super.saveToFile();
         this.ownShipLayerSettings.saveToYamlFile(resolve(ownShipLayerSettingsFile).toFile());
         this.ownShipPastTrackSettings.saveToYamlFile(resolve(ownShipPastTrackSettingsFile).toFile());
-//        Properties props = new Properties();
-//        enavSettings.setProperties(props);
-//        guiSettings.setProperties(props);
-//        mapSettings.setProperties(props);
-//        navSettings.setProperties(props);
-//        sensorSettings.setProperties(props);
-//        cloudSettings.setProperties(props);
-//        
-//        saveProperties(props, settingsFile, "# EPD-ship settings saved: " + new Date());
-//        
+      
 //        s57Settings.saveSettings(resolve("s57Props.properties").toString());
     }
 
@@ -201,31 +178,6 @@ public class EPDSettings extends Settings implements Serializable {
     public PastTrackSettings<PastTrackSettings.IObserver> getOwnShipPastTrackSettings() {
         return this.ownShipPastTrackSettings;
     }
-    
-//    @Override
-//    public EPDSensorSettings getSensorSettings() {
-//        return sensorSettings;
-//    }
-//
-//    @Override
-//    public EPDNavSettings getNavSettings() {
-//        return navSettings;
-//    }
-//
-//    @Override
-//    public EPDAisSettings getAisSettings() {
-//        return aisSettings;
-//    }
-//
-//    @Override
-//    public EPDEnavSettings getEnavSettings() {
-//        return enavSettings;
-//    }
-//
-//    @Override
-//    public EPDCloudSettings getCloudSettings() {
-//        return cloudSettings;
-//    }
     
     public String getSettingsFile() {
         return settingsFile;
