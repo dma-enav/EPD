@@ -97,6 +97,7 @@ public class VesselOutlineGraphicComponent extends VesselGraphicComponent {
         Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
         this.aisName = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
         this.add(aisName);
+        this.aisName.setVisible(layerSettings.isShowVesselNameLabels());
     }
 
     /**

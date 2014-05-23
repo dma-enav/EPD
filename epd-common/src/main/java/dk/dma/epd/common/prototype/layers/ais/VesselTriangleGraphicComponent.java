@@ -103,7 +103,7 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
                 ColorConstants.VESSEL_HEADING_COLOR);
 
         add(label);
-//        this.label.setVisible(aisSettings.isShowNameLabels());
+        this.label.setVisible(this.layerSettings.isShowVesselNameLabels());
         add(0, vessel);
         this.add(this.speedVector);
         add(heading);

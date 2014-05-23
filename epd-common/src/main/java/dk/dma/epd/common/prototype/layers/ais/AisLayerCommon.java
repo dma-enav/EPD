@@ -234,7 +234,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // Create and insert
         if (targetGraphic == null) {
             if (aisTarget instanceof VesselTarget) {
-                targetGraphic = new VesselGraphicComponentSelector(this.getSettings(), this.getSettings().isShowVesselNameLabels());
+                targetGraphic = new VesselGraphicComponentSelector(this.getSettings());
             } else if (aisTarget instanceof SarTarget) {
                 targetGraphic = new SarTargetGraphic();
             } else if (aisTarget instanceof AtoNTarget) {

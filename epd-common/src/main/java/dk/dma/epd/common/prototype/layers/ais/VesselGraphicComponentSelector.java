@@ -76,13 +76,11 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
      * @param showName
      *            If this graphic's sub graphics should display AIS name labels.
      */
-    public VesselGraphicComponentSelector(VesselLayerSettings<?> layerSettings, boolean showName) {
+    public VesselGraphicComponentSelector(VesselLayerSettings<?> layerSettings) {
         super();
         this.vesselTriangleGraphic = new VesselTriangleGraphicComponent(layerSettings);
-        this.vesselTriangleGraphic.setShowNameLabel(showName);
         this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(layerSettings,
                 ColorConstants.VESSEL_COLOR, 2.0f);
-        this.vesselOutlineGraphic.setShowNameLabel(showName);
         this.vesselDotGraphic = new VesselDotGraphicComponent();
     }
 
