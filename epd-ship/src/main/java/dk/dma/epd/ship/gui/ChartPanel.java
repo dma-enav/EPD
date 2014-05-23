@@ -289,7 +289,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
         encLayerFactory.setMapSettings();
 
-        // Set last postion
+        // Set last position
         map.setCenter(getMapSettings().getCenter());
 
         // Get from settings
