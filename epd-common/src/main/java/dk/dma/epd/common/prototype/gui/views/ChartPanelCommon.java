@@ -240,6 +240,22 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         forceAisLayerUpdate();
     }
     
+    @Override
+    public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        if(obj instanceof AisLayerCommon<?>) {
+            /*
+             * Toggle layer visibility according to layer settings.
+             * This is required as layers must be visible in order
+             * to be added to the map bean. Hence we must wait until
+             * the layer is properly added to the map bean before we
+             * set its visibility.
+             */
+            AisLayerCommon<?> alc = (AisLayerCommon<?>) obj;
+            alc.setVisible(alc.getSettings().isVisible());
+        }
+    }
+    
     /*******************************/
     /** Layer visibility          **/
     /*******************************/

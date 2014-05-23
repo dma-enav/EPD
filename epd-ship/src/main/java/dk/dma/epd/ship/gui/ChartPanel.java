@@ -592,6 +592,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
      */
     @Override
     public void findAndInit(Object obj) {
+        super.findAndInit(obj);
         if (obj instanceof TopPanel) {
             topPanel = (TopPanel) obj;
             // Maybe no S52 layer
