@@ -104,25 +104,13 @@ public class NoGoComponentPanel extends OMComponentPanel implements DockableComp
     }
 
     public void noConnectionSingle() {
-        statusLabel.setText("Failed");
-        statusLabel.setForeground(Color.RED);
-        additionalTxttLabel.setText("No network connection");
-        additionalTxt2Label.setText("Reestablish network and try again");
 
-        validFromLabel.setEnabled(false);
-        validToLabel.setEnabled(false);
-        draughtLabel.setEnabled(false);
+        nogoPanel.noConnectionSingle();
+
     }
 
     public void noConnectionMultiple() {
-        statusLabel.setText("Failed");
-        statusLabel.setForeground(Color.RED);
-        additionalTxttLabel.setText("No network connection");
-        additionalTxt2Label.setText("Reestablish network and try again");
-
-        validFromLabel.setEnabled(false);
-        validToLabel.setEnabled(false);
-        draughtLabel.setEnabled(false);
+        nogoPanel.noConnectionMultiple();
     }
 
     /**
