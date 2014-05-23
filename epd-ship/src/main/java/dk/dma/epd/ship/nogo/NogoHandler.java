@@ -147,6 +147,7 @@ public class NogoHandler extends MapHandlerChild {
 
             DateTime currentVal;
 
+            
             currentVal = startDate.plusMinutes(minutesBetween);
 
             NoGoDataEntry nogoDataEntry = new NoGoDataEntry(startDate, currentVal);
@@ -155,10 +156,8 @@ public class NogoHandler extends MapHandlerChild {
             while (currentVal.isBefore(endDate)) {
                 startDate = currentVal;
                 currentVal = startDate.plusMinutes(minutesBetween);
-
                 nogoDataEntry = new NoGoDataEntry(startDate, currentVal);
                 nogoData.add(nogoDataEntry);
-                System.out.println("Entry created going from " + startDate + " to " + currentVal);
             }
 
             nogoPanel.initializeSlider(nogoData.size());
@@ -170,13 +169,13 @@ public class NogoHandler extends MapHandlerChild {
 
             // Create the workers
             for (int i = 1; i < nogoData.size(); i++) {
-                System.out.println("Next worker " + i);
+//                System.out.println("Next worker " + i);
                 NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, i);
                 nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i)
                         .getValidTo());
 
                 nogoWorker.run();
-                System.out.println("Run created for " + i);
+//                System.out.println("Run created for " + i);
             }
 
         } else {
@@ -225,7 +224,7 @@ public class NogoHandler extends MapHandlerChild {
 
         completedRequests = completedRequests + 1;
 
-        System.out.println("NoGo worker " + i + " has completed its request");
+//        System.out.println("NoGo worker " + i + " has completed its request");
 
         NoGoDataEntry dataEntry = nogoData.get(i);
 
@@ -235,8 +234,8 @@ public class NogoHandler extends MapHandlerChild {
 
         // Special handling of slices
         if (this.useSlices) {
-            nogoPanel.requestCompletedMultiple(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), validFrom, validTo,
-                    draught);
+            nogoPanel.requestCompletedMultiple(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), dataEntry.getValidFrom(), dataEntry.getValidTo(),
+                    draught, i);
             updateLayerMultipleResult(i);
 
             nogoPanel.setCompletedSlices(completedRequests, nogoData.size());
@@ -262,7 +261,7 @@ public class NogoHandler extends MapHandlerChild {
     }
 
     private void updateLayerMultipleResult(int i) {
-        System.out.println("Value " + i + " is ready");
+//        System.out.println("Value " + i + " is ready");
         nogoLayer.addResultFromMultipleRequest(nogoData.get(i), i);
     }
 

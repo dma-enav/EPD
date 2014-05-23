@@ -84,7 +84,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
 
     private boolean useSlices;
 
-    private int sliceInMinutes;
+    private int sliceInMinutes = 10;
     private JLabel slicesCount;
 
     @SuppressWarnings("deprecation")
@@ -174,6 +174,16 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
 
                     spinnerTimeEnd.setValue(spinnerTimeStart.getValue());
                 }
+
+                calculateSlices();
+
+            }
+        });
+
+        spinnerTimeEnd.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent arg0) {
+                calculateSlices();
 
             }
         });
@@ -344,30 +354,6 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
         }
     }
 
-    private int calculateSlicesAmount() {
-
-        nogoHandler.setValidFrom((Date) spinnerTimeStart.getValue());
-        nogoHandler.setValidTo((Date) spinnerTimeEnd.getValue());
-
-        DateTime startDate = new DateTime((Date) spinnerTimeStart.getValue());
-        DateTime endDate = new DateTime((Date) spinnerTimeEnd.getValue());
-
-        DateTime currentVal;
-
-        currentVal = startDate.plusMinutes(sliceInMinutes);
-
-        int counts = 0;
-
-        while (currentVal.isBefore(endDate)) {
-            counts = counts + 1;
-            startDate = currentVal;
-            currentVal = startDate.plusMinutes(sliceInMinutes);
-
-        }
-
-        return counts;
-    }
-
     @Override
     public void run() {
         nogoHandler.updateNogo(useSlices, sliceInMinutes);
@@ -381,6 +367,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
             if (chckbxUseSlices.isSelected()) {
                 useSlices = true;
                 minuteSlices.setEnabled(true);
+                calculateSlices();
             } else {
                 minuteSlices.setEnabled(false);
                 useSlices = false;
@@ -391,8 +378,27 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
         if (arg0.getSource() == minuteSlices) {
             sliceInMinutes = (int) minuteSlices.getSelectedItem();
 
-//            slicesCount.setText(calculateSlicesAmount() + " slices");
+            // slicesCount.setText(calculateSlicesAmount() + " slices");
+            calculateSlices();
         }
+
+    }
+
+    private void calculateSlices() {
+        int sliceCount = 1;
+
+        DateTime startDate = new DateTime(spinnerTimeStart.getValue());
+        DateTime endDate = new DateTime(spinnerTimeEnd.getValue());
+
+        DateTime currentVal = startDate.plusMinutes(sliceInMinutes);
+
+        while (currentVal.isBefore(endDate)) {
+            startDate = currentVal;
+            currentVal = startDate.plusMinutes(sliceInMinutes);
+            sliceCount = sliceCount + 1;
+        }
+
+        slicesCount.setText("Time Slices: " + sliceCount);
 
     }
 }

@@ -26,6 +26,8 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.joda.time.DateTime;
+
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.ship.ais.AisHandler;
@@ -175,9 +177,9 @@ public class NoGoComponentPanel extends OMComponentPanel implements DockableComp
      * 
      * @param completed
      */
-    public void requestCompletedMultiple(int errorCodeOwn, List<NogoPolygon> polygonsOwn, Date validFrom, Date validTo,
-            Double draught) {
-        nogoPanel.requestCompletedMultiple(errorCodeOwn, polygonsOwn, validFrom, validTo, draught);
+    public void requestCompletedMultiple(int errorCodeOwn, List<NogoPolygon> polygonsOwn, DateTime dateTime, DateTime dateTime2,
+            Double draught, int id) {
+        nogoPanel.requestCompletedMultiple(errorCodeOwn, polygonsOwn, new Date(dateTime.getMillis()), new Date(dateTime2.getMillis()), draught, id);
     }
 
     public void inactive() {

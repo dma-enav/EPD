@@ -83,8 +83,8 @@ public class NoGoPanel extends JPanel {
         createSingleRequestPanel();
         createSliderRequestPanel();
 
-         activateSinglePanel();
-//        activateSliderPanel();
+        activateSinglePanel();
+        // activateSliderPanel();
         // this.add(singleNoGoPanel);
         // this.add(multipleNoGoPanel);
     }
@@ -406,6 +406,7 @@ public class NoGoPanel extends JPanel {
         additionalTxtTitleLabelSlider.setText("Requesting NoGo");
         additionalTxtTitleLabel2Slider.setText("Please standby");
         slider.setEnabled(false);
+        slider.setValue(0);
     }
 
     public void singleRequestFailed() {
@@ -522,75 +523,78 @@ public class NoGoPanel extends JPanel {
     }
 
     public void requestCompletedMultiple(int errorCodeOwn, List<NogoPolygon> polygonsOwn, Date validFrom, Date validTo,
-            Double draught) {
-        draught = -draught;
+            Double draught, int id) {
 
-        // int draughtInt = (int) Math.round(draught);
+        if (id == 0) {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM , HH:mm");
+            draught = -draught;
 
-        String validFromStr = "";
-        String validToStr = "";
+            // int draughtInt = (int) Math.round(draught);
 
-        if (validFrom != null) {
-            validFromStr = sdf.format(validFrom);
-            validToStr = sdf.format(validTo);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM , HH:mm");
+
+            String validFromStr = "";
+            String validToStr = "";
+
+            if (validFrom != null) {
+                validFromStr = sdf.format(validFrom);
+                validToStr = sdf.format(validTo);
+            }
+
+            if (errorCodeOwn == 17) {
+                statusLabelSlider.setText("Failed");
+                statusLabelSlider.setForeground(Color.RED);
+                additionalTxtTitleLabelSlider.setText("No data for region");
+
+                validFromTxtLabelSlider.setEnabled(false);
+                validToTxtLabelSlider.setEnabled(false);
+                draughtTxtLabelSlider.setEnabled(false);
+
+                additionalTxtTitleLabel2Slider.setText("");
+                return;
+            }
+
+            if (errorCodeOwn == 18) {
+                statusLabelSlider.setText("Limited");
+                statusLabelSlider.setForeground(Color.ORANGE);
+                additionalTxtTitleLabelSlider.setText("No tide data available for region");
+                additionalTxtTitleLabel2Slider.setText("");
+                validFromTxtLabelSlider.setText("N/A");
+                validToTxtLabelSlider.setText("N/A");
+                draughtTxtLabelSlider.setText(df.format(draught) + " meters");
+                return;
+            }
+            if (polygonsOwn.size() == 0) {
+                statusLabelSlider.setText("Success");
+                statusLabelSlider.setForeground(Color.GREEN);
+                validFromTxtLabelSlider.setText(validFromStr);
+                validToTxtLabelSlider.setText(validToStr);
+                draughtTxtLabelSlider.setText(df.format(draught) + " meters");
+                additionalTxtTitleLabelSlider.setText("Entire region is Go");
+                additionalTxtTitleLabel2Slider.setText("");
+
+                validFromTxtLabelSlider.setEnabled(true);
+                validToTxtLabelSlider.setEnabled(true);
+                draughtTxtLabelSlider.setEnabled(true);
+                return;
+
+            }
+            if (errorCodeOwn == 0) {
+                statusLabelSlider.setText("Success");
+                statusLabelSlider.setForeground(Color.GREEN);
+                validFromTxtLabelSlider.setText(validFromStr);
+                validToTxtLabelSlider.setText(validToStr);
+
+                draughtTxtLabelSlider.setText(df.format(draught) + " meters");
+                additionalTxtTitleLabelSlider.setText("");
+                additionalTxtTitleLabel2Slider.setText("");
+
+                validFromTxtLabelSlider.setEnabled(true);
+                validToTxtLabelSlider.setEnabled(true);
+                draughtTxtLabelSlider.setEnabled(true);
+                return;
+            }
         }
-
-        if (errorCodeOwn == 17) {
-            statusLabelSlider.setText("Failed");
-            statusLabelSlider.setForeground(Color.RED);
-            additionalTxtTitleLabelSlider.setText("No data for region");
-
-            validFromTxtLabelSlider.setEnabled(false);
-            validToTxtLabelSlider.setEnabled(false);
-            draughtTxtLabelSlider.setEnabled(false);
-
-            additionalTxtTitleLabel2Slider.setText("");
-            return;
-        }
-
-        if (errorCodeOwn == 18) {
-            statusLabelSlider.setText("Limited");
-            statusLabelSlider.setForeground(Color.ORANGE);
-            additionalTxtTitleLabelSlider.setText("No tide data available for region");
-            additionalTxtTitleLabel2Slider.setText("");
-            validFromTxtLabelSlider.setText("N/A");
-            validToTxtLabelSlider.setText("N/A");
-            draughtTxtLabelSlider.setText(df.format(draught) + " meters");
-            return;
-        }
-        if (polygonsOwn.size() == 0) {
-            statusLabelSlider.setText("Success");
-            statusLabelSlider.setForeground(Color.GREEN);
-            validFromTxtLabelSlider.setText(validFromStr);
-            validToTxtLabelSlider.setText(validToStr);
-            draughtTxtLabelSlider.setText(df.format(draught) + " meters");
-            additionalTxtTitleLabelSlider.setText("Entire region is Go");
-            additionalTxtTitleLabel2Slider.setText("");
-
-            validFromTxtLabelSlider.setEnabled(true);
-            validToTxtLabelSlider.setEnabled(true);
-            draughtTxtLabelSlider.setEnabled(true);
-            return;
-
-        }
-        if (errorCodeOwn == 0) {
-            statusLabelSlider.setText("Success");
-            statusLabelSlider.setForeground(Color.GREEN);
-            validFromTxtLabelSlider.setText(validFromStr);
-            validToTxtLabelSlider.setText(validToStr);
-
-            draughtTxtLabelSlider.setText(df.format(draught) + " meters");
-            additionalTxtTitleLabelSlider.setText("");
-            additionalTxtTitleLabel2Slider.setText("");
-
-            validFromTxtLabelSlider.setEnabled(true);
-            validToTxtLabelSlider.setEnabled(true);
-            draughtTxtLabelSlider.setEnabled(true);
-            return;
-        }
-
     }
 
     public void initializeSlider(int count) {
@@ -608,7 +612,7 @@ public class NoGoPanel extends JPanel {
         if (completed == total) {
             slider.setEnabled(true);
             slider.setValue(0);
-        }else{
+        } else {
             slider.setEnabled(false);
         }
     }
