@@ -16,7 +16,6 @@
 package dk.dma.epd.ship.gui.nogo;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -24,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -63,21 +63,24 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
     private JButton requestNogo;
     private JButton cancelButton;
     private JButton btnSelectArea;
-    JSpinner spinnerDraught;
-    JSpinner spinnerTimeStart;
-    JSpinner spinnerTimeEnd;
+    private JSpinner spinnerDraught;
+    private JSpinner spinnerTimeStart;
+    private JSpinner spinnerTimeEnd;
+    private JSpinner spinnerUKC;
 
-    JLabel nwPtlbl;
-    JLabel nePtlbl;
-    JLabel swPtlbl;
-    JLabel sePtlbl;
+    private JLabel depthTxt;
 
-    ChartPanel chartPanel;
-    NogoHandler nogoHandler;
-    MainFrame mainFrame;
+    private JLabel nwPtlbl;
+    private JLabel nePtlbl;
+    private JLabel swPtlbl;
+    private JLabel sePtlbl;
 
-    Position northWestPoint;
-    Position southEastPoint;
+    private ChartPanel chartPanel;
+    private NogoHandler nogoHandler;
+    private MainFrame mainFrame;
+
+    private Position northWestPoint;
+    private Position southEastPoint;
 
     private JCheckBox chckbxUseSlices;
     private JComboBox<Integer> minuteSlices;
@@ -86,6 +89,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
 
     private int sliceInMinutes = 10;
     private JLabel slicesCount;
+    private Double totalDepth = 0.0;
 
     @SuppressWarnings("deprecation")
     public NogoDialog(JFrame parent, NogoHandler nogoHandler, OwnShipHandler ownShipHandler) {
@@ -96,7 +100,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
         this.chartPanel = mainFrame.getChartPanel();
         this.nogoHandler = nogoHandler;
 
-        setSize(384, 412);
+        setSize(384, 445);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
         setResizable(false);
@@ -222,13 +226,13 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
         panel_1.add(slicesCount);
 
         JPanel panel_2 = new JPanel();
-        panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Depth", TitledBorder.LEADING,
-                TitledBorder.TOP, null, new Color(0, 0, 0)));
-        panel_2.setBounds(15, 259, 327, 59);
+        panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Depth Contour", TitledBorder.LEADING,
+                TitledBorder.TOP, null, null));
+        panel_2.setBounds(15, 259, 327, 114);
         contentPanel.add(panel_2);
         panel_2.setLayout(null);
 
-        JLabel lblNewLabel = new JLabel("Current depth in meters: ");
+        JLabel lblNewLabel = new JLabel("Ship Draft in meters:");
         lblNewLabel.setBounds(12, 26, 139, 16);
         panel_2.add(lblNewLabel);
 
@@ -240,9 +244,41 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
         m_numberSpinnerModel = new SpinnerNumberModel(current, min, max, step);
 
         spinnerDraught = new JSpinner(m_numberSpinnerModel);
-        spinnerDraught.setBounds(151, 24, 38, 20);
+        spinnerDraught.setBounds(252, 24, 38, 20);
+
+        spinnerDraught.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent arg0) {
+                updateTotalDepthLabel();
+            }
+        });
 
         panel_2.add(spinnerDraught);
+
+        JLabel lblDesiredUnderKeel = new JLabel("Desired Under Keel Clearance (UKC) in meters:");
+        lblDesiredUnderKeel.setBounds(12, 53, 224, 14);
+        panel_2.add(lblDesiredUnderKeel);
+
+        JLabel lblTotalDepthIn = new JLabel("Total Depth in meters:");
+        lblTotalDepthIn.setBounds(10, 78, 226, 14);
+        panel_2.add(lblTotalDepthIn);
+
+        depthTxt = new JLabel("");
+        depthTxt.setBounds(257, 78, 65, 14);
+        panel_2.add(depthTxt);
+
+        spinnerUKC = new JSpinner();
+        spinnerUKC.setModel(new SpinnerNumberModel(new Integer(2), null, null, new Integer(1)));
+        spinnerUKC.setBounds(252, 55, 38, 20);
+
+        spinnerUKC.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent arg0) {
+                updateTotalDepthLabel();
+            }
+        });
+
+        panel_2.add(spinnerUKC);
         {
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -262,9 +298,24 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
         }
 
         if (ownShipHandler != null && ownShipHandler.getStaticData() != null) {
-            double draught = (double) (ownShipHandler.getStaticData().getDraught() / 10);
+
+            int shipDraught = (int) ownShipHandler.getStaticData().getDraught();
+
+            System.out.println("Pure value is " + ownShipHandler.getStaticData().getDraught());
+            double draught = shipDraught / 10.0;
+            System.out.println("Draught is " + draught);
             spinnerDraught.setValue(draught);
+
         }
+
+        updateTotalDepthLabel();
+
+    }
+
+    private void updateTotalDepthLabel() {
+        totalDepth = ((Double) spinnerDraught.getValue()).doubleValue() + (Integer) spinnerUKC.getValue();
+
+        depthTxt.setText(totalDepth.toString());
 
     }
 
@@ -312,7 +363,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
                     this.setVisible(false);
                     nogoHandler.setNorthWestPoint(northWestPoint);
                     nogoHandler.setSouthEastPoint(southEastPoint);
-                    double draught = ((Double) spinnerDraught.getValue()).doubleValue();
+                    double draught = this.totalDepth;
                     nogoHandler.setDraught(draught);
                     nogoHandler.setValidFrom((Date) spinnerTimeStart.getValue());
                     nogoHandler.setValidTo((Date) spinnerTimeEnd.getValue());

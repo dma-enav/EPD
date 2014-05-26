@@ -49,7 +49,7 @@ public class NoGoPanel extends JPanel {
     private final JLabel additionalTxtTitleLabelSlider = new JLabel("N/A");
     private final JLabel validFromLabelTitleSlider = new JLabel("Valid From");
     private final JLabel validToLabelTitleSlider = new JLabel("Valid to");
-    private final JLabel draughtLabelTitleSlider = new JLabel("Draught");
+    private final JLabel draughtLabelTitleSlider = new JLabel("Depth Contour");
     private final JLabel additionalTxtTitleLabel2Slider = new JLabel("N/A");
 
     private JLabel nogoTitleLabel = new JLabel("NoGo");
@@ -61,7 +61,7 @@ public class NoGoPanel extends JPanel {
     private final JLabel additionalTxtTitleLabel = new JLabel("N/A");
     private final JLabel validFromLabelTitle = new JLabel("Valid From");
     private final JLabel validToLabelTitle = new JLabel("Valid to");
-    private final JLabel draughtLabelTitle = new JLabel("Draught");
+    private final JLabel draughtLabelTitle = new JLabel("Depth Contour");
     private final JLabel additionalTxtTitleLabel2 = new JLabel("N/A");
 
     private JPanel singleNoGoPanel;
