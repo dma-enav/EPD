@@ -54,6 +54,7 @@ import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings.IObserver;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
@@ -716,7 +717,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     }
 
     @Override
-    public void showVesselNameLabelsChanged(boolean show) {
+    public void showVesselNameLabelsChanged(VesselLayerSettings<?> source, boolean show) {
         // Not relevant for MenuBar.
     }
 

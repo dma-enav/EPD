@@ -35,6 +35,7 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.LazyLayerCommon;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 
 /**
  * @author Janus Varmarken
@@ -343,14 +344,16 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * layer.
      */
     @Override
-    public void showVesselNameLabelsChanged(boolean newValue) {
-        for(TargetGraphic tg : this.targets.values()) {
-            if(tg instanceof VesselGraphicComponentSelector) {
-                ((VesselGraphicComponentSelector)tg).setShowNameLabel(newValue);
+    public void showVesselNameLabelsChanged(VesselLayerSettings<?> source, boolean newValue) {
+        if (source instanceof AisLayerCommonSettings<?>) {
+            for(TargetGraphic tg : this.targets.values()) {
+                if(tg instanceof VesselGraphicComponentSelector) {
+                    ((VesselGraphicComponentSelector)tg).setShowNameLabel(newValue);
+                }
             }
+            // do a repaint
+            this.doPrepare();
         }
-        // do a repaint
-        this.doPrepare();
     }
     
     /**

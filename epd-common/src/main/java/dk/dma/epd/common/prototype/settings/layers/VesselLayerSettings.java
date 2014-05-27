@@ -101,8 +101,8 @@ public class VesselLayerSettings<OBSERVER extends VesselLayerSettings.IObserver>
             }
             // There was a change, update and notify observers.
             this.showVesselNameLabels = show;
-            for(OBSERVER obs : this.observers) {
-                obs.showVesselNameLabelsChanged(show);
+            for (OBSERVER obs : this.observers) {
+                obs.showVesselNameLabelsChanged(this, show);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -326,12 +326,17 @@ public class VesselLayerSettings<OBSERVER extends VesselLayerSettings.IObserver>
         /**
          * Invoked when display of vessel name labels has been toggled on/off.
          * 
+         * @param source
+         *            The {@link VesselLayerSettings} instance that fired this
+         *            event.
+         * 
          * @param show
          *            {@code true} if vessel name labels display was toggled on,
          *            {@code false} if vessel name label display was toggled
          *            off.
          */
-        void showVesselNameLabelsChanged(boolean show);
+        void showVesselNameLabelsChanged(VesselLayerSettings<?> source,
+                boolean show);
 
         /**
          * Invoked when the setting specifying the minimum length (in minutes)

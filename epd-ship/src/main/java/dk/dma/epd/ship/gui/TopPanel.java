@@ -40,6 +40,7 @@ import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings.IObser
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
@@ -481,8 +482,12 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     }
 
     @Override
-    public void showVesselNameLabelsChanged(boolean show) {
-        // TODO update AIS name labels toggle button    
+    public void showVesselNameLabelsChanged(VesselLayerSettings<?> source, boolean show) {
+        if (source instanceof AisLayerCommonSettings<?>) {
+            // Name labels toggled for AIS layer.
+            // Update toggle button to reflect this.
+            this.aisToggleName.setSelected(show);
+        }
     }
 
     @Override
