@@ -308,20 +308,11 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         // Add this class as PNT data listener
         EPDShip.getInstance().getPntHandler().addListener(this);
 
-        // Show AIS or not
-        aisVisible(EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings()
-                .isVisible());
         // Show ENC or not
         // (updated this to also check use)
         // (previous version only checked layer visibility)
         encVisible(EPDShip.getInstance().getSettings().getENCLayerSettings().isEncInUse() &&
                 EPDShip.getInstance().getSettings().getENCLayerSettings().isVisible());
-
-        // Show WMS or not
-        // (updated this to also check use)
-        // (previous version only checked layer visibility)
-        wmsVisible(EPDShip.getInstance().getSettings().getPrimaryWMSLayerSettings().isUseWms() &&
-                EPDShip.getInstance().getSettings().getPrimaryWMSLayerSettings().isVisible());
 
         // Show intended routes or not
         intendedRouteLayerVisible(EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().isVisible());

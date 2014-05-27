@@ -254,6 +254,11 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
             AisLayerCommon<?> alc = (AisLayerCommon<?>) obj;
             alc.setVisible(alc.getSettings().isVisible());
         }
+        else if (obj instanceof WMSLayer) {
+            // Same as for AIS layer.
+            WMSLayer wl = (WMSLayer) obj;
+            wl.setVisible(wl.getSettings().isVisible());
+        }
     }
     
     /*******************************/
@@ -333,7 +338,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
      */
     public void wmsVisible(boolean visible) {
         if (wmsLayer != null) {
-            // TODO Layer should observe its settings.
+            // Layer observes its settings.
             wmsLayer.getSettings().setVisible(visible);
         }
     }

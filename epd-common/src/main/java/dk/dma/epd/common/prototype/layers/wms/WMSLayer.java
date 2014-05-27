@@ -32,7 +32,9 @@ import dk.dma.epd.common.graphics.CenterRaster;
 import dk.dma.epd.common.prototype.event.WMSEvent;
 import dk.dma.epd.common.prototype.event.WMSEventListener;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings.IObserver;
 
 /**
  * Layer handling all WMS data and displaying of it
@@ -40,7 +42,7 @@ import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
  * @author David A. Camre (davidcamre@gmail.com)
  * 
  */
-public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListener {
+public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListener, IObserver {
     
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(WMSLayer.class);
@@ -48,7 +50,7 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
     private static final int PROJ_SCALE_THRESHOLD = 3428460;
     
     volatile boolean shouldRun = true;
-    private StreamingTiledWmsService wmsService;
+    private volatile StreamingTiledWmsService wmsService;
     private int height = -1;
     private int width = -1;
     private float lastScale = -1F;
@@ -59,8 +61,9 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
      * Constructor that starts the WMS layer in a separate thread
      * @param query the WMS query
      */
-    public WMSLayer(WMSLayerCommonSettings<?> localSettings) {
+    public WMSLayer(WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> localSettings) {
         super(Objects.requireNonNull(localSettings));
+        localSettings.addObserver(this);
         LOG.debug("WMS Layer inititated");
         wmsService = new StreamingTiledWmsService(localSettings.getWmsQuery(), 4);
         wmsService.addWMSEventListener(this);
@@ -68,18 +71,20 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
 
     }
     
+    @SuppressWarnings("unchecked")
     @Override
-    public WMSLayerCommonSettings<?> getSettings() {
+    public WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> getSettings() {
         // TODO Auto-generated method stub
-        return (WMSLayerCommonSettings<?>) super.getSettings();
+        return (WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver>) super.getSettings();
     }
     /**
      * Constructor that starts the WMS layer in a separate thread
      * @param query the WMS query
      * @param sharedCache the shared cache to use
      */
-    public WMSLayer(WMSLayerCommonSettings<?> localSettings, ConcurrentHashMap<String, OMGraphicList> sharedCache) {
+    public WMSLayer(WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> localSettings, ConcurrentHashMap<String, OMGraphicList> sharedCache) {
         super(Objects.requireNonNull(localSettings));
+        localSettings.addObserver(this);
         wmsService = new StreamingTiledWmsService(localSettings.getWmsQuery(), 4, sharedCache);
         wmsService.addWMSEventListener(this);
         new Thread(this).start();
@@ -125,8 +130,6 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
             height = proj.getHeight();
             if (width > 0 && height > 0 && proj.getScale() <= PROJ_SCALE_THRESHOLD) {
                 wmsService.queue(proj);
-            } else {
-                this.setVisible(false);
             }
         }
 
@@ -196,5 +199,27 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
             OMGraphicList result = wmsService.getWmsList(proj);
             drawWMS(result);
         }
+    }
+
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if (source instanceof WMSLayerCommonSettings<?>) {
+            // WMS layer visibility was toggled.
+            this.setVisible(newValue);
+        }
+    }
+
+    @Override
+    public void isUseWmsChanged(boolean useWms) {
+        // TODO shouldRun = false?
+    }
+
+    @Override
+    public void wmsQueryChanged(String wmsQuery) {
+        // No longer listen to old service instance.
+        wmsService.removeMyChangeListener(this);
+        // Create new service instance and register.
+        wmsService = new StreamingTiledWmsService(wmsQuery, 4);
+        wmsService.addWMSEventListener(this);
     }
 }
