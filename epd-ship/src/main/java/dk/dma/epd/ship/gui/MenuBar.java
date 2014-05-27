@@ -53,6 +53,7 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings.IObserver;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.ship.EPDShip;
@@ -60,7 +61,7 @@ import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 
 public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextChild, BeanContextMembershipListener,
-        LightMapHandlerChild, IObserver {
+        LightMapHandlerChild, IObserver, IntendedRouteLayerCommonSettings.IObserver {
 
     private static final long serialVersionUID = 1L;
 
@@ -90,12 +91,12 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
 
     private JMenu layouts;
 
-    // private boolean fullscreenState;
-
     public MenuBar() {
         super();
         // Observe AIS layer settings
         EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().addObserver(this);
+        // Observe intended route layer settings
+        EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().addObserver(this);
     }
 
     private void initMenuBar() {
@@ -268,9 +269,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         intendedRouteLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean selected = !topPanel.getIntendedRouteButton().isSelected();
-                topPanel.getIntendedRouteButton().setSelected(selected);
-                EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().setVisible(selected);
+                mainFrame.getChartPanel().intendedRouteLayerVisible(intendedRouteLayer.isSelected());
             }
         });
 
@@ -699,10 +698,6 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     public JCheckBoxMenuItem getNogoLayer() {
         return nogoLayer;
     }
-    
-    public JCheckBoxMenuItem getIntendedRouteLayer() {
-        return intendedRouteLayer;
-    }
 
     public JCheckBoxMenuItem getNewRoute() {
         return newRoute;
@@ -743,12 +738,18 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
 
     @Override
     public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
-        if(source instanceof AisLayerCommonSettings<?> && aisLayer != null) {
+        if (source instanceof AisLayerCommonSettings<?> && aisLayer != null) {
             /*
              * AIS layer was toggled on/off.
              * Update menu bar accordingly.
              */
             aisLayer.setSelected(newValue);
+        } else if (source instanceof IntendedRouteLayerCommonSettings<?> && intendedRouteLayer != null) {
+            /*
+             * Intended route layer was toggled on/off.
+             * Update menu bar accordingly.
+             */
+            intendedRouteLayer.setSelected(newValue);
         }
     }
 
@@ -759,6 +760,21 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
 
     @Override
     public void layerRedrawIntervalChanged(int newValue) {
+        // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void showArrowScaleChanged(float maxScaleForArrowDisplay) {
+        // Not relevant for MenuBar.   
+    }
+
+    @Override
+    public void routeWidthChanged(float routeWidth) {
+        // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void isIntendedRouteFilterInUseChanged(boolean useFilter) {
         // Not relevant for MenuBar.
     }
 

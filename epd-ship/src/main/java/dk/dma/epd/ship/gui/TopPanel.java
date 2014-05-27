@@ -39,6 +39,7 @@ import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings.IObserver;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
@@ -55,7 +56,7 @@ import dk.dma.epd.ship.layers.route.RouteLayer;
  * The top buttons panel
  */
 public class TopPanel extends OMComponentPanel implements ActionListener,
-        MouseListener, HistoryNavigationPanelInterface, IObserver {
+        MouseListener, HistoryNavigationPanelInterface, IObserver, IntendedRouteLayerCommonSettings.IObserver {
 
     private static final long serialVersionUID = 1L;
 
@@ -129,9 +130,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     public TopPanel() {
         super();
         
-        // register self as observer of AIS layer settings
+        // Register self as observer of AIS layer settings
         EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().addObserver(this);
-
+        // Observe intended route layer settings for changes
+        EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().addObserver(this);
         setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
         this.setMinimumSize(new Dimension(0, 24));
@@ -420,10 +422,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             }
             
         } else if (e.getSource() == toggleIntendedRoute) {
-            boolean visible = toggleIntendedRoute.isSelected();
-            mainFrame.getChartPanel().intendedRouteLayerVisible(visible);
-            menuBar.getIntendedRouteLayer().setSelected(visible);
-        
+            mainFrame.getChartPanel().intendedRouteLayerVisible(toggleIntendedRoute.isSelected());    
         }        
         else if (e.getSource() == toggleIntendedRouteFilter) {
             boolean visible = toggleIntendedRouteFilter.isSelected();
@@ -446,10 +445,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
     public ToggleButtonLabel getEncBtn() {
         return encBtn;
-    }
-    
-    public ToggleButtonLabel getIntendedRouteButton() {
-        return toggleIntendedRoute;
     }
 
     public ToggleButtonLabel getAutoFollowBtn() {
@@ -518,6 +513,12 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
              * Update toggle button accordingly.
              */
             aisBtn.setSelected(newValue);
+        } else if (source instanceof IntendedRouteLayerCommonSettings<?>) {
+            /*
+             * Intended route layer visibility toggled.
+             * Update toggle button accordingly.
+             */
+            toggleIntendedRoute.setSelected(newValue);
         }
     }
 
@@ -529,6 +530,22 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     @Override
     public void layerRedrawIntervalChanged(int newValue) {
         // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void showArrowScaleChanged(float maxScaleForArrowDisplay) {
+        // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void routeWidthChanged(float routeWidth) {
+        // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void isIntendedRouteFilterInUseChanged(boolean useFilter) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

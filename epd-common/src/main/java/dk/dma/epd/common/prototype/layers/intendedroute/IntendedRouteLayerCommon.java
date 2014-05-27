@@ -37,12 +37,14 @@ import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings.IObserver;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
  */
 public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTargetListener, IIntendedRouteListener,
-        ProjectionListener {
+        ProjectionListener, IObserver {
 
     private static final long serialVersionUID = 1L;
     
@@ -66,8 +68,9 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
     /**
      * Constructor
      */
-    public IntendedRouteLayerCommon(IntendedRouteLayerCommonSettings<?> settings) {
+    public IntendedRouteLayerCommon(IntendedRouteLayerCommonSettings<IObserver> settings) {
         super(settings);
+        settings.addObserver(this);
 
         // Automatically add info panels
         registerInfoPanel(intendedRouteInfoPanel, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
@@ -80,10 +83,11 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         startTimer(100, REPAINT_TIME * 1000);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public IntendedRouteLayerCommonSettings<?> getSettings() {
+    public IntendedRouteLayerCommonSettings<IObserver> getSettings() {
         // TODO Auto-generated method stub
-        return (IntendedRouteLayerCommonSettings<?>) super.getSettings();
+        return (IntendedRouteLayerCommonSettings<IObserver>) super.getSettings();
     }
     
     /**
@@ -312,6 +316,32 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
 
     public boolean isUseFilter() {
         return useFilter;
+    }
+
+    @Override
+    public void showArrowScaleChanged(float maxScaleForArrowDisplay) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void routeWidthChanged(float routeWidth) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if (source instanceof IntendedRouteLayerCommonSettings<?>) {
+            // Toggle layer visibility according to new setting value.
+            this.setVisible(newValue);
+        }
+    }
+
+    @Override
+    public void isIntendedRouteFilterInUseChanged(boolean useFilter) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

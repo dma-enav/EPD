@@ -253,12 +253,16 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
              */
             AisLayerCommon<?> alc = (AisLayerCommon<?>) obj;
             alc.setVisible(alc.getSettings().isVisible());
-        }
-        else if (obj instanceof WMSLayer) {
+        } else if (obj instanceof WMSLayer) {
             // Same as for AIS layer.
             WMSLayer wl = (WMSLayer) obj;
             wl.setVisible(wl.getSettings().isVisible());
+        } else if  (obj instanceof IntendedRouteLayerCommon) {
+            // Same as for AIS layer.
+            IntendedRouteLayerCommon irlc = (IntendedRouteLayerCommon) obj;
+            irlc.setVisible(irlc.getSettings().isVisible());
         }
+        
     }
     
     /*******************************/
