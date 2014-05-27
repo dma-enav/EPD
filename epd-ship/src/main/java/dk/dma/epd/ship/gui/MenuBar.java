@@ -51,12 +51,15 @@ import com.bbn.openmap.gui.WindowSupport;
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings.IObserver;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 
 public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextChild, BeanContextMembershipListener,
-        LightMapHandlerChild {
+        LightMapHandlerChild, IObserver {
 
     private static final long serialVersionUID = 1L;
 
@@ -90,6 +93,8 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
 
     public MenuBar() {
         super();
+        // Observe AIS layer settings
+        EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().addObserver(this);
     }
 
     private void initMenuBar() {
@@ -221,9 +226,9 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         aisLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                topPanel.getAisBtn().setSelected(!topPanel.getAisBtn().isSelected());
-//                EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().setVisible(topPanel.getAisBtn().isSelected());
-                mainFrame.getChartPanel().aisVisible(topPanel.getAisBtn().isSelected());
+                // Toggle AIS layer visibility.
+                // Listeners will be notified.
+                mainFrame.getChartPanel().aisVisible(aisLayer.isSelected());
             }
         });
 
@@ -686,10 +691,6 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         return autoFollow;
     }
 
-    public JCheckBoxMenuItem getAisLayer() {
-        return aisLayer;
-    }
-
     public JCheckBoxMenuItem getEncLayer() {
         return encLayer;
     }
@@ -712,6 +713,52 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         Image newimg = img.getScaledInstance(16, 16, java.awt.Image.SCALE_DEFAULT);
         ImageIcon newImage = new ImageIcon(newimg);
         return newImage;
+    }
+
+    @Override
+    public void showVesselNameLabelsChanged(boolean show) {
+        // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void movementVectorLengthMinChanged(int newMinLengthMinutes) {
+        // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void movementVectorLengthMaxChanged(int newMaxLengthMinutes) {
+        // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void movementVectorLengthStepSizeChanged(float newStepSize) {
+        // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void movementVectorHideBelowChanged(float newMinSpeed) {
+        // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if(source instanceof AisLayerCommonSettings<?> && aisLayer != null) {
+            /*
+             * AIS layer was toggled on/off.
+             * Update menu bar accordingly.
+             */
+            aisLayer.setSelected(newValue);
+        }
+    }
+
+    @Override
+    public void showAllPastTracksChanged(boolean newValue) {
+        // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void layerRedrawIntervalChanged(int newValue) {
+        // Not relevant for MenuBar.
     }
 
 }

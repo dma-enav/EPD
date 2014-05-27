@@ -36,7 +36,10 @@ import dk.dma.epd.common.prototype.gui.GoBackButton;
 import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings.IObserver;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
@@ -51,7 +54,7 @@ import dk.dma.epd.ship.layers.route.RouteLayer;
  * The top buttons panel
  */
 public class TopPanel extends OMComponentPanel implements ActionListener,
-        MouseListener, HistoryNavigationPanelInterface {
+        MouseListener, HistoryNavigationPanelInterface, IObserver {
 
     private static final long serialVersionUID = 1L;
 
@@ -124,6 +127,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
     public TopPanel() {
         super();
+        
+        // register self as observer of AIS layer settings
+        EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().addObserver(this);
 
         setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
@@ -347,8 +353,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             
         } else if (e.getSource() == aisBtn) {
             mainFrame.getChartPanel().aisVisible(aisBtn.isSelected());
-            menuBar.getAisLayer().setSelected(aisBtn.isSelected());
-
         } else if (e.getSource() == encBtn) {
             mainFrame.getChartPanel().encVisible(encBtn.isSelected());
             menuBar.getEncLayer().setSelected(encBtn.isSelected());
@@ -439,10 +443,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         return this.toggleDistanceCircleMode;
     }
 
-    public ToggleButtonLabel getAisBtn() {
-        return aisBtn;
-    }
-
     public ToggleButtonLabel getEncBtn() {
         return encBtn;
     }
@@ -478,6 +478,52 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
                 java.awt.Image.SCALE_DEFAULT);
         ImageIcon newImage = new ImageIcon(newimg);
         return newImage;
+    }
+
+    @Override
+    public void showVesselNameLabelsChanged(boolean show) {
+        // TODO update AIS name labels toggle button    
+    }
+
+    @Override
+    public void movementVectorLengthMinChanged(int newMinLengthMinutes) {
+        // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void movementVectorLengthMaxChanged(int newMaxLengthMinutes) {
+        // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void movementVectorLengthStepSizeChanged(float newStepSize) {
+        // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void movementVectorHideBelowChanged(float newMinSpeed) {
+        // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if (source instanceof AisLayerCommonSettings<?>) {
+            /*
+             * AIS layer visibility toggled.
+             * Update toggle button accordingly.
+             */
+            aisBtn.setSelected(newValue);
+        }
+    }
+
+    @Override
+    public void showAllPastTracksChanged(boolean newValue) {
+        // Not relevant for TopPanel.   
+    }
+
+    @Override
+    public void layerRedrawIntervalChanged(int newValue) {
+        // Not relevant for TopPanel.
     }
 
 }
