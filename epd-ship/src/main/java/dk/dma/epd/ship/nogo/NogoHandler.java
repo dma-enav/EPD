@@ -64,7 +64,7 @@ public class NogoHandler extends MapHandlerChild {
     private Date validFrom;
     private Date validTo;
 
-//    private int minutesBetween;
+    // private int minutesBetween;
     private boolean useSlices;
 
     private NoGoComponentPanel nogoPanel;
@@ -97,7 +97,7 @@ public class NogoHandler extends MapHandlerChild {
     }
 
     public synchronized void updateNogo(boolean useSlices, int minutesBetween) {
-      
+
         LOG.info("New NoGo Requested Initiated");
         // If the dock isn't visible should it show it?
         if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("NoGo")) {
@@ -118,10 +118,8 @@ public class NogoHandler extends MapHandlerChild {
 
         }
         this.useSlices = useSlices;
-//        this.minutesBetween = minutesBetween;
+        // this.minutesBetween = minutesBetween;
 
-        
-        
         this.resetLayer();
 
         // Setup the panel
@@ -140,14 +138,11 @@ public class NogoHandler extends MapHandlerChild {
         // Calculate slices
         if (this.useSlices) {
 
-           
-
             DateTime startDate = new DateTime(validFrom.getTime());
             DateTime endDate = new DateTime(validTo.getTime());
 
             DateTime currentVal;
 
-            
             currentVal = startDate.plusMinutes(minutesBetween);
 
             NoGoDataEntry nogoDataEntry = new NoGoDataEntry(startDate, currentVal);
@@ -162,22 +157,6 @@ public class NogoHandler extends MapHandlerChild {
 
             nogoPanel.initializeSlider(nogoData.size());
             nogoLayer.initializeNoGoStorage(nogoData.size());
-
-            completedRequests = 0;
-
-            createWorker(0).run();
-
-            // Create the workers
-            for (int i = 1; i < nogoData.size(); i++) {
-//                System.out.println("Next worker " + i);
-                NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, i);
-                nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i)
-                        .getValidTo());
-
-                nogoWorker.run();
-//                System.out.println("Run created for " + i);
-            }
-
         } else {
             // Do a single request
 
@@ -186,18 +165,36 @@ public class NogoHandler extends MapHandlerChild {
 
             NoGoDataEntry nogoDataEntry = new NoGoDataEntry(startDate, endDate);
             nogoData.add(nogoDataEntry);
-
-            NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, 0);
-
-            nogoWorker.setValues(draught, northWestPoint, southEastPoint, startDate, endDate);
-
-            nogoWorker.start();
         }
+
+        NoGoWorker nogoWorker = createWorker(nogoData.size(), new DateTime(validFrom.getTime()), new DateTime(validTo.getTime()));
+
+        nogoWorker.start();
+
+        completedRequests = 0;
+
+        // createWorker(nogoData.size()).run();
+
+        // // Create the workers
+        // for (int i = 1; i < nogoData.size(); i++) {
+        // // System.out.println("Next worker " + i);
+        // NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, i);
+        // nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i)
+        // .getValidTo());
+        //
+        // nogoWorker.run();
+        // // System.out.println("Run created for " + i);
+        // }
+
+        // } else {
+
+        //
+
     }
 
-    private NoGoWorker createWorker(int i) {
-        NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, i);
-        nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i).getValidTo());
+    private NoGoWorker createWorker(int slices, DateTime startDate, DateTime endDate) {
+        NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, 0, slices);
+        nogoWorker.setValues(draught, northWestPoint, southEastPoint, startDate, endDate);
         return nogoWorker;
     }
 
@@ -224,7 +221,7 @@ public class NogoHandler extends MapHandlerChild {
 
         completedRequests = completedRequests + 1;
 
-//        System.out.println("NoGo worker " + i + " has completed its request");
+        System.out.println("NoGo worker " + i + " has completed its request");
 
         NoGoDataEntry dataEntry = nogoData.get(i);
 
@@ -234,8 +231,8 @@ public class NogoHandler extends MapHandlerChild {
 
         // Special handling of slices
         if (this.useSlices) {
-            nogoPanel.requestCompletedMultiple(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), dataEntry.getValidFrom(), dataEntry.getValidTo(),
-                    draught, i);
+            nogoPanel.requestCompletedMultiple(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), dataEntry.getValidFrom(),
+                    dataEntry.getValidTo(), draught, i);
             updateLayerMultipleResult(i);
 
             nogoPanel.setCompletedSlices(completedRequests, nogoData.size());
@@ -261,7 +258,7 @@ public class NogoHandler extends MapHandlerChild {
     }
 
     private void updateLayerMultipleResult(int i) {
-//        System.out.println("Value " + i + " is ready");
+        // System.out.println("Value " + i + " is ready");
         nogoLayer.addResultFromMultipleRequest(nogoData.get(i), i);
     }
 
