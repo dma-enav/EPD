@@ -51,6 +51,8 @@ import dk.dma.ais.sentence.SentenceException;
 import dk.dma.ais.sentence.SentenceLine;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.util.function.Consumer;
+import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorData;
+import dk.dma.epd.common.prototype.sensor.predictor.IDynamicPredictorListener;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
 import dk.dma.epd.common.util.Util;
 
@@ -93,6 +95,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     private final CopyOnWriteArrayList<IPntSensorListener> pntListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IResilientPntSensorListener> msPntListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IAisSensorListener> aisListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<IDynamicPredictorListener> dynamicPredictorListeners = new CopyOnWriteArrayList<>();
 
     public NmeaSensor() {
 
@@ -219,17 +222,21 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
 
     }
 
-    protected void handleProprietary(String msg) {
+    protected void handleProprietary(String msg) {        
         if (msg.indexOf("$PSTT,10A") >= 0) {
             handlePstt(msg);
         } else if (msg.indexOf("$PRPNT") >= 0) {
             handlePrpnt(msg);
+        } else if (msg.indexOf("$PDYPR") >= 0) {
+            handleDynamicPredictor(msg);
         }
     }
 
     /**
      * Handles the given sentence
-     * @param msg the sentence to handle
+     * 
+     * @param msg
+     *            the sentence to handle
      */
     protected void handleSentence(String msg) {
         if (pntListeners.size() > 0 && RmcSentence.getParser(msg) != null) {
@@ -286,19 +293,18 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
                 aisListener.receive(message);
             }
         }
-        
+
         // Distribute PNT from own mesasge
         if (ownMessage) {
             handlePntFromOwnMessage(message);
         }
 
-        
     }
 
     protected void handlePntFromOwnMessage(AisMessage aisMessage) {
         if (pntListeners.size() == 0) {
             return;
-        }        
+        }
         boolean foundPos = false;
 
         Position pos = null;
@@ -329,7 +335,9 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
 
     /**
      * Handle NMEA RMC sentences such as $GPRMC (GPS), $ELRMC (eLoran) and $RDRMC (radar)
-     * @param msg the message to handle
+     * 
+     * @param msg
+     *            the message to handle
      */
     protected void handleRmc(String msg) {
         RmcSentence sentence = RmcSentence.getParser(msg);
@@ -344,7 +352,9 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
 
     /**
      * Handle $PSTT sentences
-     * @param msg the message to handle
+     * 
+     * @param msg
+     *            the message to handle
      */
     private void handlePstt(String msg) {
         PsttSentence psttSentence = new PsttSentence();
@@ -358,38 +368,62 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     }
 
     /**
-     * The $PRPNT is a proprietary sentence introduced to 
-     * flag which PNT source to use
+     * The $PRPNT is a proprietary sentence introduced to flag which PNT source to use
      * 
-     * @param msg the message to parse
+     * @param msg
+     *            the message to parse
      */
     private void handlePrpnt(String msg) {
         try {
             // Parse the $PRPNT message
             PrpntSentence sentence = new PrpntSentence();
             sentence.parse(msg);
-            
+
             // Broadcast the parsed data to the listeners
             publishRpntData(sentence.getRpntData());
         } catch (SentenceException e) {
             LOG.error("Failed to handle $PRPNT '" + msg + "': " + e.getMessage());
         }
     }
-    
+
+    /**
+     * Handle proprietary $PDYPR sentence to get dynamic prediction
+     * 
+     * @param msg
+     */
+    private void handleDynamicPredictor(String msg) {
+        try {
+            PdyprSentence sentence = new PdyprSentence();
+            sentence.parse(msg);
+            publishDynamicPredictorMessage(sentence.getDynamicPredictorData());
+        } catch (SentenceException e) {
+            LOG.error("Failed to handle $PDYPR '" + msg + "': " + e.getMessage());
+        }
+    }
 
     /**
      * Publishes the given PNT message to all listeners
-     * @param pntMessage the message to publish
+     * 
+     * @param pntMessage
+     *            the message to publish
      */
     private void publishPntMessage(PntMessage pntMessage) {
         for (IPntSensorListener pntListener : pntListeners) {
             pntListener.receive(pntMessage);
         }
     }
-    
+
+    private void publishDynamicPredictorMessage(DynamicPredictorData dynamicPredictorData) {
+        for (IDynamicPredictorListener dypListener : dynamicPredictorListeners) {
+            dypListener.dynamicPredictorUpdate(dynamicPredictorData);
+        }
+    }
+
     /**
      * Publishes the given PNT message to all PNT Time listeners
-     * @param pntMessage the message to publish
+     * 
+     * @param pntMessage
+     *            the message to publish
      */
     private void publishRpntData(ResilientPntData rpntData) {
         for (IResilientPntSensorListener msPntListener : msPntListeners) {
@@ -400,7 +434,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     public void addPntListener(IPntSensorListener pntListener) {
         pntListeners.add(pntListener);
     }
-    
+
     public void removePntListener(IPntSensorListener pntListener) {
         pntListeners.remove(pntListener);
     }
@@ -419,6 +453,14 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
 
     public void removeAisListener(IAisSensorListener aisListener) {
         aisListeners.remove(aisListener);
+    }
+
+    public void addDynamicPredictorListener(IDynamicPredictorListener dynamicPredictorListener) {
+        dynamicPredictorListeners.add(dynamicPredictorListener);
+    }
+
+    public void removeDynamicPredictorListener(IDynamicPredictorListener dynamicPredictorListener) {
+        dynamicPredictorListeners.remove(dynamicPredictorListener);
     }
 
     public void start() {
@@ -498,7 +540,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     public synchronized boolean isStopped() {
         return stopped;
     }
-    
+
     /**
      * Call this method to stop the sensor.<br>
      * The sensor will not have completed until {@linkplain #hasTerminated()} returns true
@@ -515,7 +557,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     public synchronized boolean hasTerminated() {
         return terminated;
     }
-    
+
     /**
      * Used internally to flag that the sensor has terminated
      */

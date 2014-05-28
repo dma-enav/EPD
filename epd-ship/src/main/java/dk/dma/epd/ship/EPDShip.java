@@ -58,6 +58,7 @@ import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
+import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaUdpSensor;
@@ -80,6 +81,7 @@ import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
+import dk.dma.epd.ship.predictor.DynamicPredictorHandler;
 import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.IntendedRouteHandler;
@@ -105,9 +107,11 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private NmeaSensor aisSensor;
     private NmeaSensor gpsSensor;
     private NmeaSensor msPntSensor;
+    private NmeaSensor dynamicPredictorSensor;
     private PntHandler pntHandler;
     private MultiSourcePntHandler msPntHandler;
     private OwnShipHandler ownShipHandler;
+    private DynamicPredictorHandler dynamicPredictorHandler;
     private RiskHandler riskHandler;
     private ShoreServicesCommon shoreServices;
     private MonaLisaRouteOptimization monaLisaRouteExchange;
@@ -204,6 +208,10 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         ownShipHandler.loadView();
         ownShipHandler.addListener(this);
         mapHandler.add(ownShipHandler);
+        
+        // Start dynamic predictor handler
+        dynamicPredictorHandler = new DynamicPredictorHandler();
+        mapHandler.add(dynamicPredictorHandler);
 
         // Load routeManager and register as GPS data listener
         routeManager = RouteManager.loadRouteManager();
@@ -391,6 +399,20 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         default:
             LOG.error("Unknown sensor connection type: " + sensorSettings.getMsPntConnectionType());
         }
+        
+        switch (sensorSettings.getDynamicPredictorConnectionType()) {
+        case TCP:
+            dynamicPredictorSensor = new NmeaTcpSensor(sensorSettings.getDynamicPredictorHostOrSerialPort(), sensorSettings.getDynamicPredictorTcpOrUdpPort());
+            break;
+        case UDP:
+            dynamicPredictorSensor = new NmeaUdpSensor(sensorSettings.getDynamicPredictorTcpOrUdpPort());
+            break;
+        case SERIAL:
+            dynamicPredictorSensor = new NmeaSerialSensor(sensorSettings.getDynamicPredictorHostOrSerialPort(), sensorSettings.getDynamicPredictorSerialPortBaudRate());
+        default:
+            dynamicPredictorSensor = null;
+            break;
+        }
 
         if (aisSensor != null) {
             aisSensor.addAisListener(aisHandler);
@@ -405,6 +427,11 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         if (msPntSensor != null) {
             msPntSensor.start();
             mapHandler.add(msPntSensor);
+        }
+        if (dynamicPredictorSensor != null) {
+            dynamicPredictorSensor.addDynamicPredictorListener(dynamicPredictorHandler);
+            dynamicPredictorSensor.start();
+            mapHandler.add(dynamicPredictorSensor);
         }
 
         // Hook pnt handler to sensor
