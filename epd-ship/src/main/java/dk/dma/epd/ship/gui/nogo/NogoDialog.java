@@ -301,9 +301,9 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
 
             int shipDraught = (int) ownShipHandler.getStaticData().getDraught();
 
-            System.out.println("Pure value is " + ownShipHandler.getStaticData().getDraught());
+//            System.out.println("Pure value is " + ownShipHandler.getStaticData().getDraught());
             double draught = shipDraught / 10.0;
-            System.out.println("Draught is " + draught);
+//            System.out.println("Draught is " + draught);
             spinnerDraught.setValue(draught);
 
         }
@@ -390,6 +390,10 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
         }
         if (e.getSource() == cancelButton) {
             // Cancel the request
+            if (northWestPoint != null & southEastPoint != null) {
+                this.chartPanel.setMouseMode(this.chartPanel.getNoGoMouseMode().getPreviousMouseModeID());
+            }
+
             this.dispose();
         }
         if (e.getSource() == btnSelectArea) {

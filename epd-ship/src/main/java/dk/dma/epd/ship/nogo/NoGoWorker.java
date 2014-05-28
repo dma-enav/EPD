@@ -94,6 +94,7 @@ public class NoGoWorker extends Thread {
 
                 if (nogoResponse == null || nogoResponse.getResponses() == null) {
                     nogoHandler.nogoTimedOut();
+                    nogoHandler.setNoGoRequestCompleted();
                     return;
                 }
 
@@ -103,14 +104,17 @@ public class NoGoWorker extends Thread {
                     nogoHandler.nogoWorkerCompleted(i, nogoResponse.getResponses().get(i));
                 }
 
+                
+                
             }
         } catch (ShoreServiceException e) {
             // TODO Auto-generated catch block
             nogoHandler.noNetworkConnection();
             LOG.error("Failed to get NoGo from shore: " + e.getMessage());
+            
         }
         // Perform the thing
-
+        nogoHandler.setNoGoRequestCompleted();
     }
 
 }
