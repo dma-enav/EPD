@@ -144,7 +144,6 @@ public class NogoHandler extends MapHandlerChild {
             }
 
             nogoData = new ArrayList<NoGoDataEntry>();
-            System.out.println("Resetting nogodata");
             // New Request - determine how many time slices are needed to complete the request or if we even need to do slices
 
             // Calculate slices
@@ -186,7 +185,6 @@ public class NogoHandler extends MapHandlerChild {
 
             completedRequests = 0;
 
-            System.out.println("Nogo data size is " + nogoData.size());
             // createWorker(nogoData.size()).run();
 
             // // Create the workers
@@ -235,7 +233,7 @@ public class NogoHandler extends MapHandlerChild {
 
         completedRequests = completedRequests + 1;
 
-        System.out.println("NoGo worker " + i + " has completed its request");
+//        System.out.println("NoGo worker " + i + " has completed its request");
 
         NoGoDataEntry dataEntry = nogoData.get(i);
 

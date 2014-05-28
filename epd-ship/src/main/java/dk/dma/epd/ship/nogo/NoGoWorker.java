@@ -100,18 +100,15 @@ public class NoGoWorker extends Thread {
 
                 // Store results
                 for (int i = 0; i < nogoResponse.getResponses().size(); i++) {
-                    System.out.println("Completed " + i);
                     nogoHandler.nogoWorkerCompleted(i, nogoResponse.getResponses().get(i));
                 }
 
-                
-                
             }
         } catch (ShoreServiceException e) {
             // TODO Auto-generated catch block
             nogoHandler.noNetworkConnection();
             LOG.error("Failed to get NoGo from shore: " + e.getMessage());
-            
+
         }
         // Perform the thing
         nogoHandler.setNoGoRequestCompleted();

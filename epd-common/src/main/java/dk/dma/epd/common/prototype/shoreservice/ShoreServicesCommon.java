@@ -143,7 +143,7 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
     public NogoResponse nogoPoll(double draught, Position northWestPoint, Position southEastPoint, Date startDate, Date endDate)
             throws ShoreServiceException {
 
-//        nogoPoll(draught, northWestPoint, southEastPoint, startDate, endDate, 2);
+        // nogoPoll(draught, northWestPoint, southEastPoint, startDate, endDate, 2);
 
         // Create request
         NogoRequest nogoRequest = new NogoRequest();
@@ -169,11 +169,11 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
     public NogoResponseSlices nogoPoll(double draught, Position northWestPoint, Position southEastPoint, Date startDate,
             Date endDate, int slices) throws ShoreServiceException {
 
-        System.out.println("Nogo response slice test");
+        // System.out.println("Nogo response slice test");
 
         NogoRequestSlices nogoRequest = new NogoRequestSlices();
-        System.out.println("Request created");
-        
+        // System.out.println("Request created");
+
         // Set request parameters
         nogoRequest.setDraught(draught);
         nogoRequest.setNorthWestPointLat(northWestPoint.getLatitude());
@@ -187,12 +187,10 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
         // Add request parameters
         addRequestParameters(nogoRequest);
 
-        System.out.println("Adding parameters");
+        // System.out.println("Adding parameters");
 
         NogoResponseSlices nogoResponse = (NogoResponseSlices) makeRequest("/api/xml/slicesnogo",
                 "dk.frv.enav.common.xml.nogoslices.request", "dk.frv.enav.common.xml.nogoslices.response", nogoRequest);
-
-        System.out.println("Setting up response done " + nogoResponse.getNoGoErrorCode() + " with responses: " + nogoResponse.getResponses().size());
 
         return nogoResponse;
 
