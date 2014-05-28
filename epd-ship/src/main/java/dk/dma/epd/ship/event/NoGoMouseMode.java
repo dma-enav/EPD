@@ -24,7 +24,6 @@ import com.bbn.openmap.MapBean;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
-import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ChartPanel;
 
 public class NoGoMouseMode extends CommonNavigationMouseMode {
@@ -43,7 +42,7 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
      * Constructs a NoGoMouseListener: sets the ID of the mode, the consume mode to true, and the cursor to the crosshair.
      */
     public NoGoMouseMode(ChartPanel chartPanel) {
-        super(chartPanel, EPDShip.getInstance().getSettings().getMapSettings(), MODE_ID);
+        super(chartPanel, MODE_ID);
         this.chartPanel = chartPanel;
         this.setModeCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
     }

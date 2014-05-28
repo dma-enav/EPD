@@ -94,7 +94,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
 //        maxScale = EPD.getInstance().getSettings().getMapSettings().getMaxScale();
     }
     
-    protected MapCommonSettings<?> getMapSettings() {
+    public MapCommonSettings<?> getMapSettings() {
         return mapSettings;
     }
     
