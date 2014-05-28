@@ -301,19 +301,6 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         return false;
     }
 
-    /**
-     * Used to toggle filter
-     * 
-     * @param enabled
-     */
-    public void toggleFilter(boolean enabled) {
-        System.out.println("Toggling filter");
-        this.useFilter = enabled;
-
-        // Reload all routes
-        loadIntendedRoutes();
-    }
-
     public boolean isUseFilter() {
         return useFilter;
     }
@@ -340,8 +327,11 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
 
     @Override
     public void isIntendedRouteFilterInUseChanged(boolean useFilter) {
-        // TODO Auto-generated method stub
-        
+        // intended route filter toggled on observed settings
+        System.out.println("Toggling filter");
+        this.useFilter = useFilter;
+        // Reload all routes
+        loadIntendedRoutes();
     }
 
 }

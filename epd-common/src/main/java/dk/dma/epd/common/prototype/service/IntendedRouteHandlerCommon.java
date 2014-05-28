@@ -80,7 +80,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     /**
      * Constructor
      */
-    public IntendedRouteHandlerCommon(IntendedRouteHandlerCommonSettings<?> settings) {
+    public IntendedRouteHandlerCommon(IntendedRouteHandlerCommonSettings<? extends IntendedRouteHandlerCommonSettings.IObserver> settings) {
         super();
         this.settings = Objects.requireNonNull(settings);
         // Checks and remove stale intended routes every minute

@@ -55,7 +55,7 @@ import dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings;
  * <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
  * </ul>
  */
-public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable {
+public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable, IntendedRouteHandlerSettings.IObserver {
 
     private static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandler.class);
 
@@ -71,6 +71,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
      */
     public IntendedRouteHandler(IntendedRouteHandlerSettings settings) {
         super(settings);
+        settings.addObserver(this);
     }
 
     @Override
@@ -387,5 +388,55 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 
             }            
         }
+    }
+
+    @Override
+    public void onRouteTimeToLiveChanged(long routeTtl) {
+        updateFilter();
+    }
+
+    @Override
+    public void onFilterDistanceChanged(double filterDist) {
+        updateFilter();
+    }
+
+    @Override
+    public void onNotificationDistanceChanged(double notificationDist) {
+        updateFilter();
+    }
+
+    @Override
+    public void onAlertDistanceChanged(double alertDist) {
+        updateFilter();
+    }
+
+    @Override
+    public void broadcastIntendedRouteChanged(boolean broadcast) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void timeBetweenBroadcastChanged(long timeBetweenBroadcast) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void adaptionTimeChanged(int adaptionTime) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void intendedRouteFilterChanged(
+            PartialRouteFilter intendedRouteFilter) {
+        updateFilter();
+    }
+
+    @Override
+    public void broadcastRadiusChanged(int broadcastRadius) {
+        // TODO Auto-generated method stub
+        
     }
 }

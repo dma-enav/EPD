@@ -425,9 +425,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             mainFrame.getChartPanel().intendedRouteLayerVisible(toggleIntendedRoute.isSelected());    
         }        
         else if (e.getSource() == toggleIntendedRouteFilter) {
-            boolean visible = toggleIntendedRouteFilter.isSelected();
-            intendedRouteLayer.toggleFilter(visible);
-        
+            intendedRouteLayer.getSettings().setIntendedRouteFilterInUse(toggleIntendedRouteFilter.isSelected());
         }
     }
 
