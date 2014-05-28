@@ -1,0 +1,10 @@
+!!dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings
+adaptionTime: 60
+alertDistance: 0.3
+broadcastIntendedRoute: true
+broadcastRadius: 2147483647
+filterDistance: 0.5
+intendedRouteFilter: {backward: 20000, forward: 10000, type: METERS}
+notificationDistance: 0.5
+routeTimeToLive: 600000
+timeBetweenBroadCast: 60

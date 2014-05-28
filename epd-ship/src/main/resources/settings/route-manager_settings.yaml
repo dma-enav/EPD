@@ -1,0 +1,2 @@
+!!dk.dma.epd.ship.settings.handlers.RouteManagerSettings {defaultSpeed: 10.0, defaultTurnRad: 0.5,
+  defaultXtd: 0.1, minWpRadius: 0.2, relaxedWpChange: true}

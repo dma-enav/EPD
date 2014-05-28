@@ -61,6 +61,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
+import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.PntSourceSetting;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
@@ -142,8 +143,8 @@ public final class EPDShip extends EPD {
             homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-ship"));
         }
         
-        new Bootstrap().run(this, new String[] { "epd-ship.properties", "enc_navicon.properties", "settings.properties",
-                "transponder.xml" }, new String[] { "routes", "layout/static", "shape/GSHHS_shp" });
+        new Bootstrap().run(this, new String[] { "epd-ship.properties", "enc_navicon.properties",
+                "transponder.xml" }, new String[] { "routes", "layout/static", "shape/GSHHS_shp", Settings.SETTINGS_FOLDER_NAME });
 
         // Set up log4j logging
         LOG = LoggerFactory.getLogger(EPDShip.class);
@@ -163,7 +164,6 @@ public final class EPDShip extends EPD {
 
         // Load settings or get defaults and add to bean context
         settings = new EPDSettings();
-        LOG.info("Using settings file: " + getSettings().getSettingsFile());
         settings.loadFromFile();
         mapHandler.add(settings);
 

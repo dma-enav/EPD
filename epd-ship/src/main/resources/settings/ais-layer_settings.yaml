@@ -1,0 +1,4 @@
+!!dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings {layerRedrawInterval: 5,
+  movementVectorHideBelow: 0.1, movementVectorLengthMax: 8, movementVectorLengthMin: 1,
+  movementVectorLengthStepSize: 5000.0, showAllPastTracks: false, showVesselNameLabels: false,
+  visible: true}

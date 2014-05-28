@@ -1,0 +1,2 @@
+!!dk.dma.epd.common.prototype.settings.network.NetworkSettings {connectTimeout: 30000,
+  host: www.optiroute.se/RouteRequest, port: 80, readTimeout: 60000}

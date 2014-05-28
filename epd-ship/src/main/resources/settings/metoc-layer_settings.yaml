@@ -1,0 +1,3 @@
+!!dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings {defaultCurrentLow: 1.0,
+  defaultCurrentMedium: 2.0, defaultCurrentWarnLimit: 4.0, defaultWaveLow: 1.0, defaultWaveMedium: 2.0,
+  defaultWaveWarnLimit: 3.0, defaultWindWarnLimit: 10.0, visible: true}

@@ -42,6 +42,8 @@ import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings
  */
 public abstract class Settings {
     
+    public static final String SETTINGS_FOLDER_NAME = "settings";
+    
     /**
      * Filename for the file with AIS layer settings.
      */
@@ -314,12 +316,13 @@ public abstract class Settings {
     }
 
     /**
-     * Resolves the given file in the current home folder
+     * Resolves the given file in the current home settings folder
      * @param file the file to resolve
      * @return the resolved file
      */
     public Path resolve(String file) {
-        return EPD.getInstance().getHomePath().resolve(file);
+        file = file.startsWith("/") ? file.substring(1) : file;
+        return EPD.getInstance().getHomePath().resolve(SETTINGS_FOLDER_NAME + "/" + file);
     }
     
     /**

@@ -15,8 +15,6 @@
  */
 package dk.dma.epd.ship.settings;
 
-import java.io.Serializable;
-
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
@@ -32,11 +30,7 @@ import dk.dma.epd.ship.settings.layers.OwnShipLayerSettings;
 /**
  * Settings class
  */
-public class EPDSettings extends Settings implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    private final String settingsFile = "settings.properties";
+public class EPDSettings extends Settings {
     
     /**
      * Filename for the file with own ship layer settings.
@@ -175,9 +169,5 @@ public class EPDSettings extends Settings implements Serializable {
     
     public PastTrackSettings<PastTrackSettings.IObserver> getOwnShipPastTrackSettings() {
         return this.ownShipPastTrackSettings;
-    }
-    
-    public String getSettingsFile() {
-        return settingsFile;
     }
 }

@@ -1,0 +1,2 @@
+!!dk.dma.epd.ship.settings.gui.MapSettings {autoFollow: false, autoFollowPctOffTollerance: 10,
+  centerLat: 56.0, centerLon: 11.0, initialMapScale: 1.0E7, lookAhead: false, minMapScale: 5000}

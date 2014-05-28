@@ -1,0 +1,4 @@
+!!dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings {encColorScheme: DAY,
+  encInUse: true, s52DeepContour: 10, s52SafetyContour: 8, s52SafetyDepth: 8, s52ShallowContour: 6,
+  s52ShallowPattern: false, s52ShowText: false, s52TwoShades: false, usePlainAreas: false,
+  useSimplePointSymbols: true, visible: true}

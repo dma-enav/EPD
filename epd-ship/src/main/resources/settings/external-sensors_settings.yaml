@@ -1,0 +1,5 @@
+!!dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings {aisConnectionType: TCP,
+  aisFilename: '', aisHostOrSerialPort: localhost, aisSensorRange: 0.0, aisTcpOrUdpPort: 4001,
+  gpsConnectionType: NONE, gpsFilename: '', gpsHostOrSerialPort: COM3, gpsTcpOrUdpPort: 8888,
+  msPntConnectionType: NONE, msPntFilename: '', msPntHostOrSerialPort: COM4, msPntTcpOrUdpPort: 9999,
+  pntSource: AUTO, replaySpeedup: 1, replayStartDate: null, startTransponder: true}

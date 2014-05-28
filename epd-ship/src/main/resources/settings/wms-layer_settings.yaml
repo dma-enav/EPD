@@ -1,0 +1,2 @@
+!!dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings {useWms: false,
+  visible: true, wmsQuery: ''}

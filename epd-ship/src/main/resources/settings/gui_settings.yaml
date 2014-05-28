@@ -1,0 +1,8 @@
+!!dk.dma.epd.ship.settings.gui.GUISettings
+alwaysOpenDock: true
+appDimensions: {height: 800, width: 1280}
+appLocation: {x: 10, y: 10}
+fullscreen: false
+graphicInteractTolerance: 5.0
+maximized: false
+showDockMessage: true

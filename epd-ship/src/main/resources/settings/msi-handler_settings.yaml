@@ -1,0 +1,2 @@
+!!dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings {msiFilter: true,
+  msiPollInterval: 600, msiRelevanceFromOwnShipRange: 40.0, msiRelevanceGpsUpdateRange: 0.5}

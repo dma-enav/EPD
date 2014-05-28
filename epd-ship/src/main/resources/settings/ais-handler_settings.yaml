@@ -1,0 +1,4 @@
+!!dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings
+allowSending: true
+simulatedSartMmsi: []
+strict: true
