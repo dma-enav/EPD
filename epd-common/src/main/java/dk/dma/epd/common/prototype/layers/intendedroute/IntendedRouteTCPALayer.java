@@ -53,6 +53,8 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
 
     /**
      * Constructor
+     * TODO this class should register for changes to intended route handler settings
+     * and repaint TCPAs every time it observes a change to these settings.
      */
     public IntendedRouteTCPALayer() {
         super(null);
