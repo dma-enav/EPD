@@ -21,12 +21,12 @@ import org.slf4j.LoggerFactory;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreHttp;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceErrorCode;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
+import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.settings.EPDEnavSettings;
 import dk.frv.enav.common.xml.ShoreServiceResponse;
 import dk.frv.enav.common.xml.msi.request.MsiPollRequest;
 import dk.frv.enav.common.xml.msi.response.MsiResponse;
@@ -42,8 +42,8 @@ public class ShoreServices extends ShoreServicesCommon implements IStatusCompone
     // private GpsHandler gpsHandler;
     private ShoreServiceStatus status = new ShoreServiceStatus();
 
-    public ShoreServices(EPDEnavSettings enavSettings) {
-        super(enavSettings);
+    public ShoreServices(NetworkSettings<?> shoreServicesConnectionSettings, NetworkSettings<?> monaLisaConnectionSettings) {
+        super(shoreServicesConnectionSettings, monaLisaConnectionSettings);
     }
 
     public static double floatToDouble(float converThisNumberToFloat) {
@@ -71,7 +71,7 @@ public class ShoreServices extends ShoreServicesCommon implements IStatusCompone
     private ShoreServiceResponse makeRequest(String uri, String reqContextPath, String resContextPath, Object request)
             throws ShoreServiceException {
         // Create HTTP request
-        ShoreHttp shoreHttp = new ShoreHttp(uri, enavSettings);
+        ShoreHttp shoreHttp = new ShoreHttp(uri, this.shoreServicesConnSettings);
         // Init HTTP
         shoreHttp.init();
         // Set content

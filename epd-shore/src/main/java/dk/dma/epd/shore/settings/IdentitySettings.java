@@ -24,13 +24,10 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  * Maintains shore identity settings such as shore ID and position of the shore
  * station.
  * 
- * @param <OBSERVER>
- *            type of the observers observing the {@link IdentitySettings} for
- *            changes.
  * @author Janus Varmarken
  */
-public class IdentitySettings<OBSERVER extends IdentitySettings.IObserver>
-        extends ObservedSettings<OBSERVER> {
+public class IdentitySettings extends
+        ObservedSettings<IdentitySettings.IObserver> {
 
     /**
      * ID of the shore station.
@@ -72,7 +69,7 @@ public class IdentitySettings<OBSERVER extends IdentitySettings.IObserver>
             }
             // There was a change, update and notify observers.
             this.shoreId = shoreId;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 obs.shoreIdChanged(shoreId);
             }
         } finally {
@@ -112,7 +109,7 @@ public class IdentitySettings<OBSERVER extends IdentitySettings.IObserver>
             LatLonPoint copy = new LatLonPoint.Double(shorePos.getLatitude(),
                     shorePos.getLongitude());
             this.shorePos = copy;
-            for (OBSERVER obs : this.observers) {
+            for (IObserver obs : this.observers) {
                 /*
                  * Make a copy for each observer. This is to prevent one
                  * observer from affecting the other observers in case the

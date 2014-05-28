@@ -15,30 +15,34 @@
  */
 package dk.dma.epd.shore.gui.settingtabs;
 
-import dk.dma.epd.common.prototype.gui.settings.CommonAisSettingsPanel;
-import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
-import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.settings.EPDSensorSettings;
+import java.util.Objects;
 
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JLabel;
 import javax.swing.JComboBox;
-import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JSpinner.NumberEditor;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
+
+import dk.dma.epd.common.prototype.gui.settings.CommonAisSettingsPanel;
+import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.SensorConnectionType;
+import dk.dma.epd.shore.settings.sensor.ExternalSensorsSettings;
 
 public class ShoreAisSettingsPanel extends CommonAisSettingsPanel {
 
     private static final long serialVersionUID = 1L;
+    protected ExternalSensorsSettings externalSensorsSettings;
     private JTextField textFieldAisHostOrSerialPort;
-    private EPDSensorSettings settings;
     @SuppressWarnings("rawtypes")
     private JComboBox comboBoxAisConnectionType;
     private JSpinner spinnerTcpOrUpdPort;
 
-    public ShoreAisSettingsPanel() {
+    public ShoreAisSettingsPanel(AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings, ExternalSensorsSettings externalSensorsSettings) {
+        super(aisHandlerSettings);
+        this.externalSensorsSettings = Objects.requireNonNull(externalSensorsSettings);
         getTransponderPanel().setLocation(6, 136);
 
         
@@ -55,7 +59,7 @@ public class ShoreAisSettingsPanel extends CommonAisSettingsPanel {
         aisConnectionPanel.add(lblConnectionType);
         
         this.comboBoxAisConnectionType = new JComboBox<>(
-                new DefaultComboBoxModel<>(EPDSensorSettings.SensorConnectionType.values()));
+                new DefaultComboBoxModel<>(ExternalSensorsSettings.SensorConnectionType.values()));
         this.comboBoxAisConnectionType.setBounds(144, 19, 134, 20);
         aisConnectionPanel.add(this.comboBoxAisConnectionType);
         
@@ -85,20 +89,18 @@ public class ShoreAisSettingsPanel extends CommonAisSettingsPanel {
         // Load settings for common components.
         super.doLoadSettings();
         
-        settings = EPDShore.getInstance().getSettings().getSensorSettings();
-        
         // Load settings for AIS connection.
-        this.comboBoxAisConnectionType.setSelectedItem(this.settings.getAisConnectionType());
-        this.textFieldAisHostOrSerialPort.setText(this.settings.getAisHostOrSerialPort());
-        this.spinnerTcpOrUpdPort.setValue(this.settings.getAisTcpOrUdpPort());
+        this.comboBoxAisConnectionType.setSelectedItem(this.externalSensorsSettings.getAisConnectionType());
+        this.textFieldAisHostOrSerialPort.setText(this.externalSensorsSettings.getAisHostOrSerialPort());
+        this.spinnerTcpOrUpdPort.setValue(this.externalSensorsSettings.getAisTcpOrUdpPort());
     }
     
     public void doSaveSettings() {
        
         // Save changes in AIS connection settings.
-        this.settings.setAisConnectionType((SensorConnectionType) this.comboBoxAisConnectionType.getSelectedItem());
-        this.settings.setAisHostOrSerialPort(this.textFieldAisHostOrSerialPort.getText());
-        this.settings.setAisTcpOrUdpPort((Integer) this.spinnerTcpOrUpdPort.getValue());
+        this.externalSensorsSettings.setAisConnectionType((SensorConnectionType) this.comboBoxAisConnectionType.getSelectedItem());
+        this.externalSensorsSettings.setAisHostOrSerialPort(this.textFieldAisHostOrSerialPort.getText());
+        this.externalSensorsSettings.setAisTcpOrUdpPort((Integer) this.spinnerTcpOrUpdPort.getValue());
     }
     
     public boolean checkSettingsChanged() {
@@ -114,9 +116,9 @@ public class ShoreAisSettingsPanel extends CommonAisSettingsPanel {
         if (!changesWereMade) {
             changesWereMade =
                     // Check for changes in AIS connection settings.
-                    changed(this.settings.getAisConnectionType(), this.comboBoxAisConnectionType.getSelectedItem()) ||
-                    changed(this.settings.getAisHostOrSerialPort(), this.textFieldAisHostOrSerialPort.getText()) ||
-                    changed(this.settings.getAisTcpOrUdpPort(), this.spinnerTcpOrUpdPort.getValue());
+                    changed(this.externalSensorsSettings.getAisConnectionType(), this.comboBoxAisConnectionType.getSelectedItem()) ||
+                    changed(this.externalSensorsSettings.getAisHostOrSerialPort(), this.textFieldAisHostOrSerialPort.getText()) ||
+                    changed(this.externalSensorsSettings.getAisTcpOrUdpPort(), this.spinnerTcpOrUpdPort.getValue());
         }
         
         return changesWereMade;

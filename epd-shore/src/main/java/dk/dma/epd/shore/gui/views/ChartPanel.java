@@ -57,7 +57,6 @@ import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
-import dk.dma.epd.shore.settings.EPDMapSettings;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -89,7 +88,7 @@ public class ChartPanel extends ChartPanelCommon {
      * @param jmapFrame The jmapframe connected to this chartPanel
      */
     public ChartPanel(MainFrame mainFrame, JMapFrame jmapFrame) {
-        super();
+        super(jmapFrame.getMapSettings());
 
         this.mainFrame = mainFrame;
         // Create the charts own maphandler
@@ -164,15 +163,13 @@ public class ChartPanel extends ChartPanelCommon {
      */
     public void initChart(MapFrameType mapType) {
 
-        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
-
         initChartDefault(mapType);
 
         // Set last postion
-        map.setCenter(mapSettings.getCenter());
+        map.setCenter(getMapSettings().getCenter());
 
         // Get from settings
-        map.setScale(mapSettings.getScale());
+        map.setScale(getMapSettings().getInitialMapScale());
 
         add(map);
     }
@@ -204,9 +201,9 @@ public class ChartPanel extends ChartPanelCommon {
     public void initChartDefault(MapFrameType type) {
 
         Properties props = EPDShore.getInstance().getProperties();
-        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
+//        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
 
-        if (EPDShore.getInstance().getSettings().getMapSettings().isUseEnc()) {
+        if (EPDShore.getInstance().getSettings().getENCLayerSettings().isEncInUse()) {
             // Try to create ENC layer
             EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore.getInstance().getSettings().getMapSettings());
             encLayer = encLayerFactory.getEncLayer();

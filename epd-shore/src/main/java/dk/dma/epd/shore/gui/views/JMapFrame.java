@@ -31,6 +31,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 import java.util.Iterator;
+import java.util.Objects;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -50,6 +51,7 @@ import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 
@@ -86,16 +88,23 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
     LayerTogglingPanel layerTogglingPanel = new LayerTogglingPanel();
 
     /**
+     * Map settings for this frame.
+     */
+    private final MapCommonSettings<MapCommonSettings.IObserver> mapSettings;
+    
+    /**
      * Constructor for setting up the map frame
      * 
      * @param id
      *            id number for this map frame
      * @param mainFrame
      *            reference to the mainframe
+     * @param frameMapSettings
+     *            The map settings that this frame should use.
      */
-    public JMapFrame(int id, MainFrame mainFrame, final MapFrameType type) {
+    public JMapFrame(int id, MainFrame mainFrame, final MapFrameType type, MapCommonSettings<MapCommonSettings.IObserver> frameMapSettings) {
         super("New Window " + id, true, true, true, true);
-
+        this.mapSettings = Objects.requireNonNull(frameMapSettings);
         this.mainFrame = mainFrame;
         this.id = id;
         this.type = type;
@@ -126,6 +135,14 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
 
     }
 
+    /**
+     * Get a reference to the {@link MapCommonSettings} used by this frame.
+     * @return The {@link MapCommonSettings} used by this frame.
+     */
+    public MapCommonSettings<MapCommonSettings.IObserver> getMapSettings() {
+        return this.mapSettings;
+    }
+    
     /**
      * Overloaded constructor for setting up the map frame
      * 

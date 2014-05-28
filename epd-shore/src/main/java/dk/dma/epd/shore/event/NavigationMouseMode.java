@@ -48,7 +48,7 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
      * consume mode to true, and the cursor to the crosshair.
      */
     public NavigationMouseMode(ChartPanel chartPanel) {
-        super(chartPanel, EPDShore.getInstance().getSettings().getMapSettings().getMaxScale(), MODEID);
+        super(chartPanel, MODEID);
         clickTimer = ClickTimer.getClickTimer();
     }
 

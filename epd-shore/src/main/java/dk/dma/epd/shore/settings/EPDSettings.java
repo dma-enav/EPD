@@ -42,6 +42,8 @@ import dk.dma.epd.shore.settings.sensor.ExternalSensorsSettings;
  */
 public class EPDSettings extends Settings implements Serializable {
 
+    protected final String shoreIdentitySettingsFile = "shore-identity_settings.yaml";
+    
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory
             .getLogger(EPDSettings.class);
@@ -69,6 +71,8 @@ public class EPDSettings extends Settings implements Serializable {
     
     private IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettings.IObserver> intendedRouteHandlerSettings;
     
+    private IdentitySettings shoreIdentitySettings;
+
     public EPDSettings() {
         super();
     }
@@ -95,7 +99,9 @@ public class EPDSettings extends Settings implements Serializable {
         IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettings.IObserver> intendedRouteHandler = ObservedSettings.loadFromFile(IntendedRouteHandlerCommonSettings.class, resolve(intendedRouteHandlerSettingsFile).toFile());
         this.intendedRouteHandlerSettings = intendedRouteHandler != null ? intendedRouteHandler : new IntendedRouteHandlerCommonSettings<>();
         
-        
+        // Load shore identity settings
+        IdentitySettings idSettings = ObservedSettings.loadFromFile(IdentitySettings.class, resolve(shoreIdentitySettingsFile).toFile());
+        this.shoreIdentitySettings = idSettings != null ? idSettings : new IdentitySettings();
         
         // Open properties file
         Properties props = new Properties();
@@ -140,6 +146,10 @@ public class EPDSettings extends Settings implements Serializable {
     @Override
     public IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettings.IObserver> getIntendedRouteHandlerSettings() {
         return this.intendedRouteHandlerSettings;
+    }
+    
+    public IdentitySettings getShoreIdentitySettings() {
+        return shoreIdentitySettings;
     }
     
     /**

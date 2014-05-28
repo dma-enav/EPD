@@ -32,9 +32,9 @@ public class MaritimeCloudService extends MaritimeCloudServiceCommon {
     private String shoreID;
     private LatLonPoint shorePos = new LatLonPoint.Double(0.0, 0.0);
 
-    private IdentitySettings<?> shoreIdSettings;
+    private IdentitySettings shoreIdSettings;
     
-    public MaritimeCloudService(NetworkSettings<?> cloudConnectionSettings, IdentitySettings<?> shoreIdSettings) {
+    public MaritimeCloudService(NetworkSettings<?> cloudConnectionSettings, IdentitySettings shoreIdSettings) {
         super(cloudConnectionSettings);
         this.shoreIdSettings = shoreIdSettings;
     }

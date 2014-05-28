@@ -54,7 +54,6 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
-import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -71,8 +70,8 @@ import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.services.shore.ShoreServices;
-import dk.dma.epd.shore.settings.EPDSensorSettings;
 import dk.dma.epd.shore.settings.EPDSettings;
+import dk.dma.epd.shore.settings.sensor.ExternalSensorsSettings;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
 import dk.dma.epd.shore.voyage.VoyageManager;
@@ -174,7 +173,7 @@ public final class EPDShore extends EPD {
         beanHandler.add(PntTime.getInstance());
 
         // aisHandler = new AisHandlerCommon();
-        aisHandler = new AisHandler(settings.getAisSettings());
+        aisHandler = new AisHandler(settings.getAisHandlerSettings(), settings.getPastTrackSettings());
         aisHandler.loadView();
         EPD.startThread(aisHandler, "AisHandler");
         beanHandler.add(aisHandler);
@@ -199,7 +198,7 @@ public final class EPDShore extends EPD {
         beanHandler.add(sruManager);
 
         // Create shore services
-        shoreServicesCommon = new ShoreServices(getSettings().getEnavSettings());
+        shoreServicesCommon = new ShoreServices(getSettings().getEnavServicesHttpSettings(), getSettings().getMonaLisaHttpSettings());
         beanHandler.add(shoreServicesCommon);
 
         // Create mona lisa route exchange
@@ -207,7 +206,7 @@ public final class EPDShore extends EPD {
         beanHandler.add(monaLisaRouteExchange);
 
         // Create Maritime Cloud service
-        maritimeCloudService = new MaritimeCloudService();
+        maritimeCloudService = new MaritimeCloudService(settings.getMaritimeCloudHttpSettings(), getSettings().getShoreIdentitySettings());
         beanHandler.add(maritimeCloudService);
         maritimeCloudService.start();
 
@@ -216,7 +215,7 @@ public final class EPDShore extends EPD {
         beanHandler.add(strategicRouteHandler);
 
         // Create intended route handler
-        intendedRouteHandler = new IntendedRouteHandler();
+        intendedRouteHandler = new IntendedRouteHandler(getSettings().getIntendedRouteHandlerSettings());
         beanHandler.add(intendedRouteHandler);
 
         // Create the route suggestion handler
@@ -224,7 +223,7 @@ public final class EPDShore extends EPD {
         beanHandler.add(routeSuggestionHandler);
 
         // Create MSI handler
-        msiHandler = new MsiHandler(getSettings().getEnavSettings());
+        msiHandler = new MsiHandler(getSettings().getMsiHandlerSettings());
         beanHandler.add(msiHandler);
         
         // Create a chat service handler
@@ -259,7 +258,7 @@ public final class EPDShore extends EPD {
         mainFrame.getTopMenu().setTransponderFrame(transponderFrame);
         beanHandler.add(transponderFrame);
 
-        if (settings.getSensorSettings().isStartTransponder()) {
+        if (settings.getExternalSensorsSettings().isStartTransponder()) {
             transponderFrame.startTransponder();
         }
     }
@@ -482,13 +481,13 @@ public final class EPDShore extends EPD {
     }
 
     /**
-     * Returns the current position of the ship
+     * Returns the position of the shore station.
      * 
-     * @return the current position of the ship
+     * @return the position of the shore station.
      */
     @Override
     public Position getPosition() {
-        LatLonPoint pos = getSettings().getEnavSettings().getShorePos();
+        LatLonPoint pos = getSettings().getShoreIdentitySettings().getShorePos();
         return Position.create(pos.getLatitude(), pos.getLongitude());
     }
 
@@ -570,7 +569,7 @@ public final class EPDShore extends EPD {
      */
     @Override
     protected void startSensors() {
-        EPDSensorSettings sensorSettings = getSettings().getSensorSettings();
+        ExternalSensorsSettings sensorSettings = getSettings().getExternalSensorsSettings();
         switch (sensorSettings.getAisConnectionType()) {
         case NONE:
             aisSensor = new NmeaStdinSensor();
