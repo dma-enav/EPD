@@ -48,7 +48,7 @@ public class BottomPanel extends BottomPanelCommon {
      */
     @Override
     protected void addStatusComponents() {
-        if (EPD.getInstance().getSettings().getMapSettings().isUseWms()) {
+        if (EPD.getInstance().getSettings().getPrimaryWMSLayerSettings().isUseWms()) {
             lblWms = new StatusLabel("WMS");
             addToolbarComponent(lblWms);
             addSeparator();
@@ -101,7 +101,7 @@ public class BottomPanel extends BottomPanelCommon {
         try {
             // Create URL
             URL urlToWms = new URL(
-                    EPDShore.getInstance().getSettings().getMapSettings().getWmsQuery());
+                    EPDShore.getInstance().getSettings().getPrimaryWMSLayerSettings().getWmsQuery());
             
             // Open connection to the url.
             connection = (HttpURLConnection) urlToWms.openConnection();
