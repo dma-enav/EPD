@@ -40,6 +40,7 @@ import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
+import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
@@ -201,11 +202,11 @@ public class ChartPanel extends ChartPanelCommon {
     public void initChartDefault(MapFrameType type) {
 
         Properties props = EPDShore.getInstance().getProperties();
-//        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
 
         if (EPDShore.getInstance().getSettings().getENCLayerSettings().isEncInUse()) {
             // Try to create ENC layer
-            EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore.getInstance().getSettings().getMapSettings());
+            // TODO copy settings to local instance?
+            EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore.getInstance().getSettings().getENCLayerSettings());
             encLayer = encLayerFactory.getEncLayer();
         }
 
@@ -251,8 +252,10 @@ public class ChartPanel extends ChartPanelCommon {
         mapHandler.add(generalLayer);
 
         // Add WMS Layer
-        if (mapSettings.isUseWms()) {
-            wmsLayer = new WMSLayer(EPDShore.getInstance().getSettings().getMapSettings().getWmsQuery());
+        WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> globalWmsLayerSettings = EPDShore.getInstance().getSettings().getPrimaryWMSLayerSettings();
+        if (globalWmsLayerSettings.isUseWms()) {
+            WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> localWmsLayerSettings = globalWmsLayerSettings.copy();
+            wmsLayer = new WMSLayer(localWmsLayerSettings);
             mapHandler.add(wmsLayer);
         }
 
