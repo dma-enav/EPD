@@ -118,6 +118,25 @@ public abstract class ObservedSettings<OBSERVER> {
     }
 
     /**
+     * Creates a copy of this instance by serializing it to YAML and then
+     * instantiating the new (copied) instance using the serialized data. This
+     * means that only YAML properties are copied. List of observers of the copy
+     * will be empty.
+     * 
+     * @return The YAML copy of this instance.
+     */
+    @SuppressWarnings("unchecked")
+    public ObservedSettings<OBSERVER> copy() {
+        this.settingLock.readLock().lock();
+        String yamlCopy = this.yamlEmitter.dump(this);
+        ObservedSettings<OBSERVER> copy = new Yaml().loadAs(yamlCopy, this.getClass());
+        // There should NOT be reference equality.
+        assert this != copy;
+        this.settingLock.readLock().unlock();
+        return copy;
+    }
+
+    /**
      * Save this settings instance to a file. If an error occurs, this method
      * calls {@link #onSaveFailure(IOException)} with the error. Subclasses may
      * override {@link #onSaveFailure(IOException)} to perform recovery or
