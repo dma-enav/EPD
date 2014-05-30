@@ -15,92 +15,84 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import dk.dma.epd.common.prototype.settings.observers.MetocLayerCommonSettingsListener;
 
 /**
- * This class is used to maintain settings for a METOC layer.
+ * This class is used to maintain settings that defines how METOC data is to be
+ * displayed.
  * 
  * @author Janus Varmarken
  */
-public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettings.IObserver>
+public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettingsListener>
         extends LayerSettings<OBSERVER> {
 
     /**
-     * The default value for the wind warning limit property used in a METOC
-     * request. Unit: m/s.
+     * The wind warning limit. Unit: m/s.
      */
-    private double defaultWindWarnLimit = 10.0;
+    private double windWarnLimit = 10.0;
 
     /**
-     * The default value for the current warning limit property used in a METOC
-     * request. Unit: m/s. TODO: Should this be knots? See
-     * {@link #defaultCurrentLow} and {@link #defaultCurrentMedium}.
+     * The current warning limit. Unit: m/s. TODO: Should this be knots? See
+     * {@link #currentLow} and {@link #currentMedium}.
      */
-    private double defaultCurrentWarnLimit = 4.0;
+    private double currentWarnLimit = 4.0;
 
     /**
-     * The default value for the wave warning limit property used in a METOC
-     * request. Unit: meters.
+     * The wave warning limit. Unit: meters.
      */
-    private double defaultWaveWarnLimit = 3.0;
+    private double waveWarnLimit = 3.0;
 
     /**
-     * Default metoc-symbol level: The default value for the current low
-     * property used in a METOC request. Unit: knots.
+     * METOC-symbol level for low current. Unit: knots.
      */
-    private double defaultCurrentLow = 1.0;
+    private double currentLow = 1.0;
 
     /**
-     * Default metoc-symbol level: The default value for the current medium
-     * property used in a METOC request. Unit: knots.
+     * METOC-symbol level for medium current. Unit: knots.
      */
-    private double defaultCurrentMedium = 2.0;
+    private double currentMedium = 2.0;
 
     /**
-     * Default metoc-symbol level: The default value for the wave low property
-     * used in a METOC request. Unit: meters.
+     * METOC-symbol level for low waves. Unit: meters.
      */
-    private double defaultWaveLow = 1.0;
+    private double waveLow = 1.0;
 
     /**
-     * Default metoc-symbol level: The default value for the wave medium
-     * property used in a METOC request. Unit: meters.
+     * METOC-symbol level for medium waves. Unit: meters.
      */
-    private double defaultWaveMedium = 2.0;
+    private double waveMedium = 2.0;
 
     /**
-     * Gets the default value for the wind warning limit property used in a
-     * METOC request. Unit: m/s.
+     * Gets the wind warning limit. Unit: m/s.
      * 
-     * @return The default value for the wind warning limit property used in a
-     *         METOC request.
+     * @return The wind warning limit.
      */
     public double getDefaultWindWarnLimit() {
         try {
             this.settingLock.readLock().lock();
-            return this.defaultWindWarnLimit;
+            return this.windWarnLimit;
         } finally {
             this.settingLock.readLock().unlock();
         }
     }
 
     /**
-     * Changes the default value for the wind warning limit property used in a
-     * METOC request. Unit: m/s.
+     * Changes the wind warning limit. Unit: m/s.
      * 
-     * @param defaultWindWarnLimit
-     *            The new default value.
+     * @param windWarnLimit
+     *            The new wind warning limit.
      */
-    public void setDefaultWindWarnLimit(final double defaultWindWarnLimit) {
+    public void setDefaultWindWarnLimit(final double windWarnLimit) {
         try {
             this.settingLock.writeLock().lock();
-            if (this.defaultWindWarnLimit == defaultWindWarnLimit) {
+            if (this.windWarnLimit == windWarnLimit) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
-            this.defaultWindWarnLimit = defaultWindWarnLimit;
+            this.windWarnLimit = windWarnLimit;
             for (OBSERVER obs : this.observers) {
-                obs.defaultWindWarnLimitChanged(defaultWindWarnLimit);
+                obs.defaultWindWarnLimitChanged(windWarnLimit);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -108,41 +100,38 @@ public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettings.
     }
 
     /**
-     * Gets the default value for the current warning limit property used in a
-     * METOC request. TODO: Update with unit. See
-     * {@link #defaultCurrentWarnLimit}.
+     * Gets the current warning limit. TODO: Update with unit. See
+     * {@link #currentWarnLimit}.
      * 
-     * @return The default value for the current warning limit property used in
-     *         a METOC request.
+     * @return The current warning limit.
      */
     public double getDefaultCurrentWarnLimit() {
         try {
             this.settingLock.readLock().lock();
-            return this.defaultCurrentWarnLimit;
+            return this.currentWarnLimit;
         } finally {
             this.settingLock.readLock().unlock();
         }
     }
 
     /**
-     * Changes the default value for the current warning limit property used in
-     * a METOC request. TODO: Update with unit. See
-     * {@link #defaultCurrentWarnLimit}.
+     * Changes the current warning limit. TODO: Update with unit. See
+     * {@link #currentWarnLimit}.
      * 
-     * @param defaultCurrentWarnLimit
-     *            The new default value.
+     * @param currentWarnLimit
+     *            The new current warning limit.
      */
-    public void setDefaultCurrentWarnLimit(final double defaultCurrentWarnLimit) {
+    public void setDefaultCurrentWarnLimit(final double currentWarnLimit) {
         try {
             this.settingLock.writeLock().lock();
-            if (this.defaultCurrentWarnLimit == defaultCurrentWarnLimit) {
+            if (this.currentWarnLimit == currentWarnLimit) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
-            this.defaultCurrentWarnLimit = defaultCurrentWarnLimit;
+            this.currentWarnLimit = currentWarnLimit;
             for (OBSERVER obs : this.observers) {
-                obs.defaultCurrentWarnLimitChanged(defaultCurrentWarnLimit);
+                obs.defaultCurrentWarnLimitChanged(currentWarnLimit);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -150,39 +139,36 @@ public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettings.
     }
 
     /**
-     * Gets the default value for the wave warning limit property used in a
-     * METOC request. Unit: meters.
+     * Gets the wave warning limit. Unit: meters.
      * 
-     * @return The default value for the wave warning limit property used in a
-     *         METOC request.
+     * @return The wave warning limit.
      */
     public double getDefaultWaveWarnLimit() {
         try {
             this.settingLock.readLock().lock();
-            return this.defaultWaveWarnLimit;
+            return this.waveWarnLimit;
         } finally {
             this.settingLock.readLock().unlock();
         }
     }
 
     /**
-     * Changes the default value for the wave warning limit property used in a
-     * METOC request. Unit: meters.
+     * Changes the wave warning limit. Unit: meters.
      * 
-     * @param defaultWaveWarnLimit
-     *            The new default value.
+     * @param waveWarnLimit
+     *            The new wave warning limit.
      */
-    public void setDefaultWaveWarnLimit(final double defaultWaveWarnLimit) {
+    public void setDefaultWaveWarnLimit(final double waveWarnLimit) {
         try {
             this.settingLock.writeLock().lock();
-            if (this.defaultWaveWarnLimit == defaultWaveWarnLimit) {
+            if (this.waveWarnLimit == waveWarnLimit) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
-            this.defaultWaveWarnLimit = defaultWaveWarnLimit;
+            this.waveWarnLimit = waveWarnLimit;
             for (OBSERVER obs : this.observers) {
-                obs.defaultWaveWarnLimitChanged(defaultWaveWarnLimit);
+                obs.defaultWaveWarnLimitChanged(waveWarnLimit);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -190,39 +176,36 @@ public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettings.
     }
 
     /**
-     * Gets the default value for the current low property used in a METOC
-     * request. Unit: knots.
+     * Gets low current threshold. Unit: knots.
      * 
-     * @return The default value for the current low property used in a METOC
-     *         request.
+     * @return The low current threshold.
      */
     public double getDefaultCurrentLow() {
         try {
             this.settingLock.readLock().lock();
-            return this.defaultCurrentLow;
+            return this.currentLow;
         } finally {
             this.settingLock.readLock().unlock();
         }
     }
 
     /**
-     * Changes the default value for the current low property used in a METOC
-     * request. Unit: knots.
+     * Changes the low current threshold. Unit: knots.
      * 
-     * @param defaultCurrentLow
-     *            The new default value.
+     * @param currentLow
+     *            The new low current threshold.
      */
-    public void setDefaultCurrentLow(final double defaultCurrentLow) {
+    public void setDefaultCurrentLow(final double currentLow) {
         try {
             this.settingLock.writeLock().lock();
-            if (this.defaultCurrentLow == defaultCurrentLow) {
+            if (this.currentLow == currentLow) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
-            this.defaultCurrentLow = defaultCurrentLow;
+            this.currentLow = currentLow;
             for (OBSERVER obs : this.observers) {
-                obs.defaultCurrentLowChanged(defaultCurrentLow);
+                obs.defaultCurrentLowChanged(currentLow);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -230,39 +213,36 @@ public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettings.
     }
 
     /**
-     * Gets the default value for the current medium property used in a METOC
-     * request. Unit: knots.
+     * Gets the medium current threshold. Unit: knots.
      * 
-     * @return The default value for the current medium property used in a METOC
-     *         request.
+     * @return The medium current threshold.
      */
     public double getDefaultCurrentMedium() {
         try {
             this.settingLock.readLock().lock();
-            return this.defaultCurrentMedium;
+            return this.currentMedium;
         } finally {
             this.settingLock.readLock().unlock();
         }
     }
 
     /**
-     * Changes the default value for the current medium property used in a METOC
-     * request. Unit: knots.
+     * Changes the medium current threshold. Unit: knots.
      * 
-     * @param defaultCurrentMedium
-     *            The new default value.
+     * @param currentMedium
+     *            The new medium current threshold.
      */
-    public void setDefaultCurrentMedium(final double defaultCurrentMedium) {
+    public void setDefaultCurrentMedium(final double currentMedium) {
         try {
             this.settingLock.writeLock().lock();
-            if (this.defaultCurrentMedium == defaultCurrentMedium) {
+            if (this.currentMedium == currentMedium) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
-            this.defaultCurrentMedium = defaultCurrentMedium;
+            this.currentMedium = currentMedium;
             for (OBSERVER obs : this.observers) {
-                obs.defaultCurrentMediumChanged(defaultCurrentMedium);
+                obs.defaultCurrentMediumChanged(currentMedium);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -270,39 +250,36 @@ public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettings.
     }
 
     /**
-     * Gets the default value for the wave low property used in a METOC request.
-     * Unit: meters.
+     * Gets the low waves threshold. Unit: meters.
      * 
-     * @return the defaultWaveLow The default value for the wave low property
-     *         used in a METOC request.
+     * @return The low waves threshold.
      */
     public double getDefaultWaveLow() {
         try {
             this.settingLock.readLock().lock();
-            return this.defaultWaveLow;
+            return this.waveLow;
         } finally {
             this.settingLock.readLock().unlock();
         }
     }
 
     /**
-     * Changes the default value for the wave low property used in a METOC
-     * request. Unit: meters.
+     * Changes the low waves threshold. Unit: meters.
      * 
-     * @param defaultWaveLow
-     *            The new default value.
+     * @param waveLow
+     *            The new low waves threshold.
      */
-    public void setDefaultWaveLow(final double defaultWaveLow) {
+    public void setDefaultWaveLow(final double waveLow) {
         try {
             this.settingLock.writeLock().lock();
-            if (this.defaultWaveLow == defaultWaveLow) {
+            if (this.waveLow == waveLow) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
-            this.defaultWaveLow = defaultWaveLow;
+            this.waveLow = waveLow;
             for (OBSERVER obs : this.observers) {
-                obs.defaultWaveLowChanged(defaultWaveLow);
+                obs.defaultWaveLowChanged(waveLow);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -310,129 +287,39 @@ public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettings.
     }
 
     /**
-     * Gets the default value for the wave medium property used in a METOC
-     * request. Unit: meters.
+     * Gets the medium waves threshold. Unit: meters.
      * 
-     * @return The default value for the wave medium property used in a METOC
-     *         request. Unit: meters.
+     * @return The medium waves threshold Unit: meters.
      */
     public double getDefaultWaveMedium() {
         try {
             this.settingLock.readLock().lock();
-            return this.defaultWaveMedium;
+            return this.waveMedium;
         } finally {
             this.settingLock.readLock().unlock();
         }
     }
 
     /**
-     * Changes the default value for the wave medium property used in a METOC
-     * request. Unit: meters.
+     * Changes the medium waves threshold. Unit: meters.
      * 
-     * @param defaultWaveMedium
-     *            The new default value.
+     * @param waveMedium
+     *            The new medium waves threshold.
      */
-    public void setDefaultWaveMedium(final double defaultWaveMedium) {
+    public void setDefaultWaveMedium(final double waveMedium) {
         try {
             this.settingLock.writeLock().lock();
-            if (this.defaultWaveMedium == defaultWaveMedium) {
+            if (this.waveMedium == waveMedium) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
-            this.defaultWaveMedium = defaultWaveMedium;
+            this.waveMedium = waveMedium;
             for (OBSERVER obs : this.observers) {
-                obs.defaultWaveMediumChanged(defaultWaveMedium);
+                obs.defaultWaveMediumChanged(waveMedium);
             }
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing a {@link MetocLayerCommonSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     */
-    public interface IObserver extends
-            LayerSettings.IObserver {
-
-        /**
-         * Invoked when {@link MetocLayerCommonSettings#getDefaultWindWarnLimit()}
-         * has changed.
-         * 
-         * @param windWarnLimit
-         *            The updated value. Refer to
-         *            {@link MetocLayerCommonSettings#getDefaultWindWarnLimit()} for
-         *            its interpretation.
-         */
-        void defaultWindWarnLimitChanged(double windWarnLimit);
-
-        /**
-         * Invoked when
-         * {@link MetocLayerCommonSettings#getDefaultCurrentWarnLimit()} has
-         * changed.
-         * 
-         * @param currentWarnLimit
-         *            The updated value. Refer to
-         *            {@link MetocLayerCommonSettings#getDefaultCurrentWarnLimit()}
-         *            for its interpretation.
-         */
-        void defaultCurrentWarnLimitChanged(double currentWarnLimit);
-
-        /**
-         * Invoked when {@link MetocLayerCommonSettings#getDefaultWaveWarnLimit()}
-         * has changed.
-         * 
-         * @param defaultWaveWarnLimit
-         *            The updated value. Refer to
-         *            {@link MetocLayerCommonSettings#getDefaultWaveWarnLimit()} for
-         *            its interpretation.
-         */
-        void defaultWaveWarnLimitChanged(double defaultWaveWarnLimit);
-
-        /**
-         * Invoked when {@link MetocLayerCommonSettings#getDefaultCurrentLow()} has
-         * changed.
-         * 
-         * @param defaultCurrentLow
-         *            The updated value. Refer to
-         *            {@link MetocLayerCommonSettings#getDefaultCurrentLow()} for
-         *            its interpretation.
-         */
-        void defaultCurrentLowChanged(double defaultCurrentLow);
-
-        /**
-         * Invoked when {@link MetocLayerCommonSettings#getDefaultCurrentMedium()}
-         * has changed.
-         * 
-         * @param defaultCurrentMedium
-         *            The updated value. Refer to
-         *            {@link MetocLayerCommonSettings#getDefaultCurrentMedium()} for
-         *            its interpretation.
-         */
-        void defaultCurrentMediumChanged(double defaultCurrentMedium);
-
-        /**
-         * Invoked when {@link MetocLayerCommonSettings#getDefaultWaveLow()} has
-         * changed.
-         * 
-         * @param defaultWaveLow
-         *            The updated value. Refer to
-         *            {@link MetocLayerCommonSettings#getDefaultWaveLow()} for its
-         *            interpretation.
-         */
-        void defaultWaveLowChanged(double defaultWaveLow);
-
-        /**
-         * Invoked when {@link MetocLayerCommonSettings#getDefaultWaveMedium()} has
-         * changed.
-         * 
-         * @param defaultWaveMedium
-         *            The updated value. Refer to
-         *            {@link MetocLayerCommonSettings#getDefaultWaveMedium()} for
-         *            its interpretation.
-         */
-        void defaultWaveMediumChanged(double defaultWaveMedium);
     }
 }

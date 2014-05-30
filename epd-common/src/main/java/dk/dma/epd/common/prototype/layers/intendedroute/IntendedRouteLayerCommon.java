@@ -37,14 +37,14 @@ import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
-import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings.IObserver;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
 
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
  */
 public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTargetListener, IIntendedRouteListener,
-        ProjectionListener, IObserver {
+        ProjectionListener, IntendedRouteLayerCommonSettingsListener {
 
     private static final long serialVersionUID = 1L;
     
@@ -68,7 +68,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
     /**
      * Constructor
      */
-    public IntendedRouteLayerCommon(IntendedRouteLayerCommonSettings<IObserver> settings) {
+    public IntendedRouteLayerCommon(IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener> settings) {
         super(settings);
         settings.addObserver(this);
 
@@ -85,9 +85,9 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
 
     @SuppressWarnings("unchecked")
     @Override
-    public IntendedRouteLayerCommonSettings<IObserver> getSettings() {
+    public IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener> getSettings() {
         // TODO Auto-generated method stub
-        return (IntendedRouteLayerCommonSettings<IObserver>) super.getSettings();
+        return (IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener>) super.getSettings();
     }
     
     /**

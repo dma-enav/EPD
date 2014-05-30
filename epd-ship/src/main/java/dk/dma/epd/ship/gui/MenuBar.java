@@ -51,17 +51,18 @@ import com.bbn.openmap.gui.WindowSupport;
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings.IObserver;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 
 public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextChild, BeanContextMembershipListener,
-        LightMapHandlerChild, IObserver, IntendedRouteLayerCommonSettings.IObserver {
+        LightMapHandlerChild, AisLayerCommonSettingsListener, IntendedRouteLayerCommonSettingsListener {
 
     private static final long serialVersionUID = 1L;
 

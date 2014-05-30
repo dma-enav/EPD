@@ -15,13 +15,15 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
+
 
 /**
  * This class is used to maintain settings for a WMS layer.
  * 
  * @author Janus Varmarken
  */
-public class WMSLayerCommonSettings<OBSERVER extends WMSLayerCommonSettings.IObserver>
+public class WMSLayerCommonSettings<OBSERVER extends WMSLayerCommonSettingsListener>
         extends LayerSettings<OBSERVER> {
 
     /**
@@ -117,35 +119,6 @@ public class WMSLayerCommonSettings<OBSERVER extends WMSLayerCommonSettings.IObs
     public WMSLayerCommonSettings<OBSERVER> copy() {
         // TODO Auto-generated method stub
         return (WMSLayerCommonSettings<OBSERVER>) super.copy();
-    }
-    
-    /**
-     * Interface for observing a {@link WMSLayerCommonSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     */
-    public interface IObserver extends LayerSettings.IObserver {
-
-        /**
-         * Invoked when {@link WMSLayerCommonSettings#isUseWms()} has changed.
-         * 
-         * @param useWms
-         *            The update value. Refer to
-         *            {@link WMSLayerCommonSettings#isUseWms()} for its
-         *            interpretation.
-         */
-        void isUseWmsChanged(boolean useWms);
-
-        /**
-         * Invoked when {@link WMSLayerCommonSettings#getWmsQuery()} has changed.
-         * 
-         * @param wmsQuery
-         *            The updated value. Refer to
-         *            {@link WMSLayerCommonSettings#getWmsQuery()} for its
-         *            interpretation.
-         */
-        void wmsQueryChanged(String wmsQuery);
-
     }
     
 }

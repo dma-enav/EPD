@@ -36,13 +36,14 @@ import dk.dma.epd.common.prototype.layers.LazyLayerCommon;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
 
 /**
  * @author Janus Varmarken
  */
 @SuppressWarnings("serial")
 public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
-        extends LazyLayerCommon implements IAisTargetListener, AisLayerCommonSettings.IObserver {
+        extends LazyLayerCommon implements IAisTargetListener, AisLayerCommonSettingsListener {
 
     private static final Logger LOG = LoggerFactory
             .getLogger(AisLayerCommon.class);
@@ -68,7 +69,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * Creates a new {@link AisLayerCommon}.
      * @param settings An {@link AisLayerCommonSettings} instance that is to control the appearance of the new layer. It is up to the caller to register this layer as observer of the given settings.
      */
-    public AisLayerCommon(AisLayerCommonSettings<? extends AisLayerCommonSettings.IObserver> settings) {
+    public AisLayerCommon(AisLayerCommonSettings<? extends AisLayerCommonSettingsListener> settings) {
         super(settings.getLayerRedrawInterval() * 1000, settings);
         // receive left-click events for the following set of classes.
         this.registerMouseClickClasses(VesselGraphic.class);

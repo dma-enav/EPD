@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.settings.layers;
 
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
 
 /**
  * Maintains settings relevant to an {@link AisLayerCommon} or any of its
@@ -29,7 +30,7 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  *            {@code AisLayerCommonSettings} for changes.
  * @author Janus Varmarken
  */
-public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettings.IObserver>
+public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettingsListener>
         extends VesselLayerSettings<OBSERVER> {
 
     /**
@@ -70,7 +71,7 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettings.IObs
     public void setShowAllPastTracks(final boolean show) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.showAllPastTracks == show) {
+            if (this.showAllPastTracks == show) {
                 // No change, no need to notify observers.
                 return;
             }
@@ -116,7 +117,7 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettings.IObs
         }
         try {
             this.settingLock.writeLock().lock();
-            if(this.layerRedrawInterval == seconds) {
+            if (this.layerRedrawInterval == seconds) {
                 // No change, no need to notify observers.
                 return;
             }
@@ -128,31 +129,5 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettings.IObs
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for clients that want to listen for changes to an instance of
-     * {@link AisLayerCommonSettings}.
-     * 
-     * @author Janus Varmarken
-     */
-    public interface IObserver extends VesselLayerSettings.IObserver {
-
-        /**
-         * Invoked when the setting specifying whether to show all past tracks has
-         * been changed on the observed instance.
-         * 
-         * @param newValue
-         *            The updated value of the setting.
-         */
-        void showAllPastTracksChanged(boolean newValue);
-
-        /**
-         * Invoked when the setting specifying how often the layer should repaint
-         * itself has been changed on the observed instance.
-         * 
-         * @param newValue The updated value of the setting.
-         */
-        void layerRedrawIntervalChanged(int newValue);
     }
 }

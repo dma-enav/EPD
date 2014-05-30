@@ -34,7 +34,7 @@ import dk.dma.epd.common.prototype.event.WMSEventListener;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
-import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings.IObserver;
+import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 
 /**
  * Layer handling all WMS data and displaying of it
@@ -42,7 +42,7 @@ import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings.IObser
  * @author David A. Camre (davidcamre@gmail.com)
  * 
  */
-public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListener, IObserver {
+public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListener, WMSLayerCommonSettingsListener {
     
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(WMSLayer.class);
@@ -61,7 +61,7 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
      * Constructor that starts the WMS layer in a separate thread
      * @param query the WMS query
      */
-    public WMSLayer(WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> localSettings) {
+    public WMSLayer(WMSLayerCommonSettings<WMSLayerCommonSettingsListener> localSettings) {
         super(Objects.requireNonNull(localSettings));
         localSettings.addObserver(this);
         LOG.debug("WMS Layer inititated");
@@ -73,16 +73,16 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
     
     @SuppressWarnings("unchecked")
     @Override
-    public WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> getSettings() {
+    public WMSLayerCommonSettings<WMSLayerCommonSettingsListener> getSettings() {
         // TODO Auto-generated method stub
-        return (WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver>) super.getSettings();
+        return (WMSLayerCommonSettings<WMSLayerCommonSettingsListener>) super.getSettings();
     }
     /**
      * Constructor that starts the WMS layer in a separate thread
      * @param query the WMS query
      * @param sharedCache the shared cache to use
      */
-    public WMSLayer(WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> localSettings, ConcurrentHashMap<String, OMGraphicList> sharedCache) {
+    public WMSLayer(WMSLayerCommonSettings<WMSLayerCommonSettingsListener> localSettings, ConcurrentHashMap<String, OMGraphicList> sharedCache) {
         super(Objects.requireNonNull(localSettings));
         localSettings.addObserver(this);
         wmsService = new StreamingTiledWmsService(localSettings.getWmsQuery(), 4, sharedCache);

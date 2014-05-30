@@ -15,13 +15,15 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
+
 
 /**
  * This class is used to maintain settings for an ENC/S52 layer.
  * 
  * @author Janus Varmarken
  */
-public class ENCLayerCommonSettings<OBSERVER extends ENCLayerCommonSettings.IObserver>
+public class ENCLayerCommonSettings<OBSERVER extends ENCLayerCommonSettingsListener>
         extends LayerSettings<OBSERVER> {
 
     /**
@@ -512,133 +514,6 @@ public class ENCLayerCommonSettings<OBSERVER extends ENCLayerCommonSettings.IObs
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-    
-    /**
-     * Interface for observing an {@link ENCLayerCommonSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     */
-    public interface IObserver extends LayerSettings.IObserver {
-
-        /**
-         * Invoked when the setting, specifying if ENC should be loaded on
-         * application launch, has been changed.
-         * 
-         * @param useEnc
-         *            The updated value: {@code true} if ENC should be loaded on
-         *            application launch, {@code false} if ENC should not be loaded
-         *            on application launch.
-         */
-        void isEncInUseChanged(boolean useEnc);
-
-        /**
-         * Invoked when {@link ENCLayerCommonSettings#isS52ShowText()} has changed.
-         * 
-         * @param showText
-         *            The new value. Refer to
-         *            {@link ENCLayerCommonSettings#isS52ShowText()} for its
-         *            interpretation.
-         */
-        void isS52ShowTextChanged(boolean showText);
-
-        /**
-         * Invoked when {@link ENCLayerCommonSettings#isS52ShallowPattern()} has
-         * changed.
-         * 
-         * @param useShallowPattern
-         *            The new value. Refer to
-         *            {@link ENCLayerCommonSettings#isS52ShallowPattern()} for its
-         *            interpretation.
-         */
-        void isS52ShallowPatternChanged(boolean useShallowPattern);
-
-        /**
-         * Invoked when {@link ENCLayerCommonSettings#getS52ShallowContour()} has
-         * changed.
-         * 
-         * @param shallowContour
-         *            The new value. Refer to
-         *            {@link ENCLayerCommonSettings#getS52ShallowContour()} for its
-         *            interpretation.
-         */
-        void s52ShallowContourChanged(int shallowContour);
-
-        /**
-         * Invoked when {@link ENCLayerCommonSettings#getS52SafetyDepth()} has
-         * changed.
-         * 
-         * @param safetyDepth
-         *            The new value. Refer to
-         *            {@link ENCLayerCommonSettings#getS52SafetyDepth()} for its
-         *            interpretation.
-         */
-        void s52SafetyDepthChanged(int safetyDepth);
-
-        /**
-         * Invoked when {@link ENCLayerCommonSettings#getS52SafetyContour()} has
-         * changed.
-         * 
-         * @param safetyContour
-         *            The new value. Refer to
-         *            {@link ENCLayerCommonSettings#getS52SafetyContour()} for its
-         *            interpretation.
-         */
-        void s52SafetyContourChanged(int safetyContour);
-
-        /**
-         * Invoked when {@link ENCLayerCommonSettings#getS52DeepContour()} has
-         * changed.
-         * 
-         * @param deepContour
-         *            The new value. Refer to
-         *            {@link ENCLayerCommonSettings#getS52DeepContour()} for its
-         *            interpretation.
-         */
-        void s52DeepContourChanged(int deepContour);
-
-        /**
-         * Invoked when {@link ENCLayerCommonSettings#isUseSimplePointSymbols()} has
-         * changed.
-         * 
-         * @param useSimplePointSymbols
-         *            The new value. Refer to
-         *            {@link ENCLayerCommonSettings#isUseSimplePointSymbols()} for
-         *            its interpretation.
-         */
-        void isUseSimplePointSymbolsChanged(boolean useSimplePointSymbols);
-
-        /**
-         * Invoked when {@link ENCLayerCommonSettings#isUsePlainAreas()} has
-         * changed.
-         * 
-         * @param usePlainAreas
-         *            The new value. Refer to
-         *            {@link ENCLayerCommonSettings#isUsePlainAreas()} for its
-         *            interpretation.
-         */
-        void isUsePlainAreasChanged(boolean usePlainAreas);
-
-        /**
-         * Invoked when {@link ENCLayerCommonSettings#isS52TwoShades()} has changed.
-         * 
-         * @param s52TwoShades
-         *            The new value. Refer to
-         *            {@link ENCLayerCommonSettings#isS52TwoShades()} for its
-         *            interpretation.
-         */
-        void isS52TwoShadesChanged(boolean s52TwoShades);
-
-        /**
-         * Invoked when {@link ENCLayerCommonSettings#getEncColorScheme()} has
-         * changed.
-         * 
-         * @param newScheme
-         *            The new value. Refer to
-         *            {@link ENCLayerCommonSettings#getEncColorScheme()} and
-         *            {@link ENCColorScheme} for its interpretation.
-         */
-        void encColorSchemeChanged(ENCColorScheme newScheme);
     }
 
     /**

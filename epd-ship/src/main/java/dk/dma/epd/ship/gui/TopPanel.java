@@ -36,13 +36,14 @@ import dk.dma.epd.common.prototype.gui.GoBackButton;
 import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
-import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings.IObserver;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -56,7 +57,7 @@ import dk.dma.epd.ship.layers.route.RouteLayer;
  * The top buttons panel
  */
 public class TopPanel extends OMComponentPanel implements ActionListener,
-        MouseListener, HistoryNavigationPanelInterface, IObserver, IntendedRouteLayerCommonSettings.IObserver {
+        MouseListener, HistoryNavigationPanelInterface, AisLayerCommonSettingsListener, IntendedRouteLayerCommonSettingsListener {
 
     private static final long serialVersionUID = 1L;
 

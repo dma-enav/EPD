@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.settings.layers;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
+import dk.dma.epd.common.prototype.settings.observers.LayerSettingsListener;
 
 /**
  * <p>
@@ -38,7 +39,7 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  *            changes.
  * @author Janus Varmarken
  */
-public abstract class LayerSettings<OBSERVER extends LayerSettings.IObserver>
+public abstract class LayerSettings<OBSERVER extends LayerSettingsListener>
         extends ObservedSettings<OBSERVER> {
     /*
      * Add settings that are relevant to all layer types here.
@@ -85,32 +86,6 @@ public abstract class LayerSettings<OBSERVER extends LayerSettings.IObserver>
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Base interface for observing a {@link LayerSettings} for changes. I.e.
-     * <i>this interface should only contain callbacks for changes to settings
-     * that are relevant to all layer types.</i>
-     * 
-     * @author Janus Varmarken
-     */
-    public interface IObserver {
-        /*
-         * Specify setting-changed callbacks that are relevant to all layer
-         * types here.
-         */
-
-        /**
-         * Invoked when the visibility of a layer is toggled on/off.
-         * 
-         * @param source
-         *            The {@link LayerSettings} instance that fired this event.
-         * @param newValue
-         *            {@code true} if the layer should now be visible,
-         *            {@code false} if the layer should now be invisible.
-         */
-        void isVisibleChanged(LayerSettings<?> source, boolean newValue);
-
     }
 
 }

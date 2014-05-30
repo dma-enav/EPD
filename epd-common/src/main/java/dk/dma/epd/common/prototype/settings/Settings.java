@@ -34,6 +34,13 @@ import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
 import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.MetocLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 
 /**
@@ -148,13 +155,13 @@ public abstract class Settings {
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
-    protected AisLayerCommonSettings<AisLayerCommonSettings.IObserver> primaryAisLayerSettings;
+    protected AisLayerCommonSettings<AisLayerCommonSettingsListener> primaryAisLayerSettings;
     
     /**
      * The primary/global MSI layer settings.
      * If more MSI layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
-    protected MSILayerCommonSettings<MSILayerCommonSettings.IObserver> msiLayerSettings;
+    protected MSILayerCommonSettings<MSILayerCommonSettingsListener> msiLayerSettings;
     
     protected S57LayerSettings s57LayerSettings;
     
@@ -162,25 +169,25 @@ public abstract class Settings {
      * The primary/global WMS layer settings.
      * If more WMS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
-    protected WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> primaryWmsLayerSettings;
+    protected WMSLayerCommonSettings<WMSLayerCommonSettingsListener> primaryWmsLayerSettings;
     
     /**
      * The primary/global METOC layer settings.
      * If more METOC layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
-    protected MetocLayerCommonSettings<MetocLayerCommonSettings.IObserver> primaryMetocLayerSettings;
+    protected MetocLayerCommonSettings<MetocLayerCommonSettingsListener> primaryMetocLayerSettings;
     
     /**
      * The primary/global route layer settings.
      * If more route layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
-    protected RouteLayerCommonSettings<RouteLayerCommonSettings.IObserver> primaryRouteLayerSettings;
+    protected RouteLayerCommonSettings<RouteLayerCommonSettingsListener> primaryRouteLayerSettings;
 
     /**
      * The primary/global intended route layer settings.
      * If more intended route layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
-    protected IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettings.IObserver> primaryIntendedRouteLayerSettings;
+    protected IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener> primaryIntendedRouteLayerSettings;
     
     protected MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> msiHandlerSettings;
     
@@ -213,7 +220,7 @@ public abstract class Settings {
     
     public abstract ExternalSensorsCommonSettings<? extends ExternalSensorsCommonSettings.IObserver> getExternalSensorsSettings();
     
-    public abstract ENCLayerCommonSettings<? extends ENCLayerCommonSettings.IObserver> getENCLayerSettings();
+    public abstract ENCLayerCommonSettings<? extends ENCLayerCommonSettingsListener> getENCLayerSettings();
     
     public abstract IntendedRouteHandlerCommonSettings<? extends IntendedRouteHandlerCommonSettings.IObserver> getIntendedRouteHandlerSettings();
     
@@ -222,7 +229,7 @@ public abstract class Settings {
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
      * @return The primary (global) AIS layer settings.
      */
-    public AisLayerCommonSettings<AisLayerCommonSettings.IObserver> getPrimaryAisLayerSettings() {
+    public AisLayerCommonSettings<AisLayerCommonSettingsListener> getPrimaryAisLayerSettings() {
         return primaryAisLayerSettings;
     }
     
@@ -239,7 +246,7 @@ public abstract class Settings {
      * If more MSI layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
      * @return The primary (global) MSI layer settings.
      */
-    public MSILayerCommonSettings<MSILayerCommonSettings.IObserver> getPrimaryMsiLayerSettings() {
+    public MSILayerCommonSettings<MSILayerCommonSettingsListener> getPrimaryMsiLayerSettings() {
         return this.msiLayerSettings;
     }
     
@@ -248,7 +255,7 @@ public abstract class Settings {
      * If more WMS layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
      * @return The primary (global) WMS layer settings.
      */
-    public WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> getPrimaryWMSLayerSettings() {
+    public WMSLayerCommonSettings<WMSLayerCommonSettingsListener> getPrimaryWMSLayerSettings() {
         return this.primaryWmsLayerSettings;
     }
     
@@ -257,7 +264,7 @@ public abstract class Settings {
      * If more METOC layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
      * @return The primary (global) METOC layer settings.
      */
-    public MetocLayerCommonSettings<MetocLayerCommonSettings.IObserver> getPrimaryMetocLayerSettings() {
+    public MetocLayerCommonSettings<MetocLayerCommonSettingsListener> getPrimaryMetocLayerSettings() {
         return this.primaryMetocLayerSettings;
     }
     
@@ -266,7 +273,7 @@ public abstract class Settings {
      * If more route layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
      * @return The primary (global) route layer settings.
      */
-    public RouteLayerCommonSettings<RouteLayerCommonSettings.IObserver> getPrimaryRouteLayerSettings() {
+    public RouteLayerCommonSettings<RouteLayerCommonSettingsListener> getPrimaryRouteLayerSettings() {
         return this.primaryRouteLayerSettings;
     }
     
@@ -275,7 +282,7 @@ public abstract class Settings {
      * If more intended route layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
      * @return The primary (global) intended route layer settings.
      */
-    public IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettings.IObserver> getPrimaryIntendedRouteLayerSettings() {
+    public IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener> getPrimaryIntendedRouteLayerSettings() {
         return this.primaryIntendedRouteLayerSettings;
     }
     
@@ -334,7 +341,7 @@ public abstract class Settings {
          * Load primary/global AIS layer settings.
          * If ship/shore specific AIS layer settings are added later, move this to subclass.
          */
-        AisLayerCommonSettings<AisLayerCommonSettings.IObserver> ais = ObservedSettings.loadFromFile(AisLayerCommonSettings.class, resolve(aisLayerSettingsFile).toFile());
+        AisLayerCommonSettings<AisLayerCommonSettingsListener> ais = ObservedSettings.loadFromFile(AisLayerCommonSettings.class, resolve(aisLayerSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
         this.primaryAisLayerSettings = ais != null ? ais : new AisLayerCommonSettings<>();
         
@@ -356,7 +363,7 @@ public abstract class Settings {
          * Load primary/global MSI layer settings.
          * If ship/shore specific MSI layer settings are added later, move this to subclass.
          */
-        MSILayerCommonSettings<MSILayerCommonSettings.IObserver> msiLayerSett = ObservedSettings.loadFromFile(MSILayerCommonSettings.class, resolve(msiLayerSettingsFile).toFile());
+        MSILayerCommonSettings<MSILayerCommonSettingsListener> msiLayerSett = ObservedSettings.loadFromFile(MSILayerCommonSettings.class, resolve(msiLayerSettingsFile).toFile());
         this.msiLayerSettings = msiLayerSett != null ? msiLayerSett : new MSILayerCommonSettings<>();
         
         /*
@@ -388,21 +395,21 @@ public abstract class Settings {
          * Load primary/global WMS layer settings.
          * If ship/shore specific WMS layer settings are added later, move this to subclass.
          */
-        WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> wms = ObservedSettings.loadFromFile(WMSLayerCommonSettings.class, resolve(wmsLayerSettingsFile).toFile());
+        WMSLayerCommonSettings<WMSLayerCommonSettingsListener> wms = ObservedSettings.loadFromFile(WMSLayerCommonSettings.class, resolve(wmsLayerSettingsFile).toFile());
         this.primaryWmsLayerSettings = wms != null ? wms : new WMSLayerCommonSettings<>();
         
         /*
          * Load primary/global METOC layer settings.
          * If ship/shore specific METOC layer settings are added later, move this to subclass.
          */
-        MetocLayerCommonSettings<MetocLayerCommonSettings.IObserver> metocLayer = ObservedSettings.loadFromFile(MetocLayerCommonSettings.class, resolve(metocLayerSettingsFile).toFile());
+        MetocLayerCommonSettings<MetocLayerCommonSettingsListener> metocLayer = ObservedSettings.loadFromFile(MetocLayerCommonSettings.class, resolve(metocLayerSettingsFile).toFile());
         this.primaryMetocLayerSettings = metocLayer != null ? metocLayer : new MetocLayerCommonSettings<>();
         
         /*
          * Load primary/global route layer settings.
          * If ship/shore specific route layer settings are added later, move this to subclass.
          */
-        RouteLayerCommonSettings<RouteLayerCommonSettings.IObserver> routeLayer = ObservedSettings.loadFromFile(RouteLayerCommonSettings.class, resolve(routeLayerSettingsFile).toFile());
+        RouteLayerCommonSettings<RouteLayerCommonSettingsListener> routeLayer = ObservedSettings.loadFromFile(RouteLayerCommonSettings.class, resolve(routeLayerSettingsFile).toFile());
         this.primaryRouteLayerSettings = routeLayer != null ? routeLayer : new RouteLayerCommonSettings<>();
         
         /*
@@ -427,7 +434,7 @@ public abstract class Settings {
          * Load primary/global intended route layer settings.
          * If ship/shore specific intended route layer settings are added later, move this to subclass.
          */
-        IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettings.IObserver> intendedRouteLayer = ObservedSettings.loadFromFile(IntendedRouteLayerCommonSettings.class, resolve(intendedRouteLayerSettingsFile).toFile());
+        IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener> intendedRouteLayer = ObservedSettings.loadFromFile(IntendedRouteLayerCommonSettings.class, resolve(intendedRouteLayerSettingsFile).toFile());
         this.primaryIntendedRouteLayerSettings = intendedRouteLayer != null ? intendedRouteLayer : new IntendedRouteLayerCommonSettings<>();
         
         NetworkSettings<NetworkSettings.IObserver> maritimeCloud = ObservedSettings.loadFromFile(NetworkSettings.class, resolve(maritimeCloudHttpSettingsFile).toFile());

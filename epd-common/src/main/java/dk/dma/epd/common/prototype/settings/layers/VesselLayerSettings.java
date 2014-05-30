@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.settings.layers;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
+import dk.dma.epd.common.prototype.settings.observers.VesselLayerSettingsListener;
 import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
 
 /**
@@ -30,7 +31,7 @@ import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
  * 
  * @author Janus Varmarken
  */
-public class VesselLayerSettings<OBSERVER extends VesselLayerSettings.IObserver>
+public abstract class VesselLayerSettings<OBSERVER extends VesselLayerSettingsListener>
         extends LayerSettings<OBSERVER> {
 
     /**
@@ -313,68 +314,4 @@ public class VesselLayerSettings<OBSERVER extends VesselLayerSettings.IObserver>
             this.settingLock.writeLock().unlock();
         }
     }
-
-    /**
-     * Interface for observing a {@link VesselLayerSettings} for changes. This
-     * interface contains callbacks for changes to settings that are relevant to
-     * all layers that visualize one or more vessels.
-     * 
-     * @author Janus Varmarken
-     */
-    public interface IObserver extends LayerSettings.IObserver {
-
-        /**
-         * Invoked when display of vessel name labels has been toggled on/off.
-         * 
-         * @param source
-         *            The {@link VesselLayerSettings} instance that fired this
-         *            event.
-         * 
-         * @param show
-         *            {@code true} if vessel name labels display was toggled on,
-         *            {@code false} if vessel name label display was toggled
-         *            off.
-         */
-        void showVesselNameLabelsChanged(VesselLayerSettings<?> source,
-                boolean show);
-
-        /**
-         * Invoked when the setting specifying the minimum length (in minutes)
-         * of the movement vector has been changed.
-         * 
-         * @param newMinLengthMinutes
-         *            The new minimum length (in minutes).
-         */
-        void movementVectorLengthMinChanged(int newMinLengthMinutes);
-
-        /**
-         * Invoked when the setting specifying the maximum length (in minutes)
-         * of the movement vector has been changed.
-         * 
-         * @param newMaxLengthMinutes
-         *            The new maximum length (in minutes).
-         */
-        void movementVectorLengthMaxChanged(int newMaxLengthMinutes);
-
-        /**
-         * Invoked when the setting specifying the scale difference between two
-         * successive length values for the movement vector has been changed.
-         * 
-         * @param newStepSize
-         *            The new difference in scale between two successive values
-         *            for the length of the movement vector.
-         */
-        void movementVectorLengthStepSizeChanged(float newStepSize);
-
-        /**
-         * Invoked when the setting specifying the minimum speed a vessel must
-         * travel with for its movement vector to be displayed has changed.
-         * 
-         * @param newMinSpeed
-         *            The new minimum speed a vessel must travel with for its
-         *            speed vector to be displayed (in nautical miles per hour).
-         */
-        void movementVectorHideBelowChanged(float newMinSpeed);
-    }
-
 }

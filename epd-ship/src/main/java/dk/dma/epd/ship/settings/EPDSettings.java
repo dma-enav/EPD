@@ -19,6 +19,7 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
+import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.ship.settings.gui.GUISettings;
 import dk.dma.epd.ship.settings.gui.MapSettings;
@@ -50,7 +51,7 @@ public class EPDSettings extends Settings {
     
     private ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> externalSensorsSettings;
     
-    private ENCLayerCommonSettings<ENCLayerCommonSettings.IObserver> encLayerSettings;
+    private ENCLayerCommonSettings<ENCLayerCommonSettingsListener> encLayerSettings;
     
     private IntendedRouteHandlerSettings intendedRouteHandlerSettings;
     
@@ -101,7 +102,7 @@ public class EPDSettings extends Settings {
          *  Load ENC layer settings.
          *  Even though ship uses common version, we need to load it here instead of in super class as shore uses specific version.
          */
-        ENCLayerCommonSettings<ENCLayerCommonSettings.IObserver> enc = ObservedSettings.loadFromFile(ENCLayerCommonSettings.class, resolve(encLayerSettingsFile).toFile());
+        ENCLayerCommonSettings<ENCLayerCommonSettingsListener> enc = ObservedSettings.loadFromFile(ENCLayerCommonSettings.class, resolve(encLayerSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
         this.encLayerSettings = enc != null ? enc : new ENCLayerCommonSettings<>();
         
@@ -153,7 +154,7 @@ public class EPDSettings extends Settings {
     }
     
     @Override
-    public ENCLayerCommonSettings<ENCLayerCommonSettings.IObserver> getENCLayerSettings() {
+    public ENCLayerCommonSettings<ENCLayerCommonSettingsListener> getENCLayerSettings() {
         return this.encLayerSettings;
     }
     

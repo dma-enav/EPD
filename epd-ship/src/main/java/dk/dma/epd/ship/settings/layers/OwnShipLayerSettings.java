@@ -17,13 +17,14 @@ package dk.dma.epd.ship.settings.layers;
 
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
+import dk.dma.epd.ship.settings.observers.OwnShipLayerSettingsListener;
 
 /**
  * Maintains settings for an {@link OwnShipLayer}.
  * 
  * @author Janus Varmarken
  */
-public class OwnShipLayerSettings extends VesselLayerSettings<OwnShipLayerSettings.IObserver> {
+public class OwnShipLayerSettings extends VesselLayerSettings<OwnShipLayerSettingsListener> {
 
     /**
      * Display multi source PNT.
@@ -69,31 +70,11 @@ public class OwnShipLayerSettings extends VesselLayerSettings<OwnShipLayerSettin
             }
             // There was a change, update and notify observers.
             this.multiSourcePntVisible = multiSourcePntVisible;
-            for (IObserver obs : this.observers) {
+            for (OwnShipLayerSettingsListener obs : this.observers) {
                 obs.multiSourcePntVisibilityChanged(multiSourcePntVisible);
             }
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing an {@link OwnShipLayerSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    public interface IObserver extends VesselLayerSettings.IObserver {
-
-        /**
-         * Invoked when {@link OwnShipLayerSettings#isMultiSourcePntVisible()}
-         * has changed.
-         * 
-         * @param msPntVisible
-         *            {@code true} if multi source PNT should be displayed,
-         *            {@code false} if multi source PNT should <i>not</i> be
-         *            displayed.
-         */
-        void multiSourcePntVisibilityChanged(boolean msPntVisible);
     }
 }

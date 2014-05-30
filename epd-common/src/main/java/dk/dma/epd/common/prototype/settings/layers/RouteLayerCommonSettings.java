@@ -16,13 +16,14 @@
 package dk.dma.epd.common.prototype.settings.layers;
 
 import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
+import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
 
 /**
  * This class is used to maintain settings for a {@link RouteLayerCommon}.
  * 
  * @author Janus Varmarken
  */
-public class RouteLayerCommonSettings<OBSERVER extends RouteLayerCommonSettings.IObserver>
+public class RouteLayerCommonSettings<OBSERVER extends RouteLayerCommonSettingsListener>
         extends LayerSettings<OBSERVER> {
 
     /**
@@ -64,13 +65,13 @@ public class RouteLayerCommonSettings<OBSERVER extends RouteLayerCommonSettings.
     public void setShowArrowScale(final float maxScaleForArrowDisplay) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.showArrowScale == maxScaleForArrowDisplay) {
+            if (this.showArrowScale == maxScaleForArrowDisplay) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.showArrowScale = maxScaleForArrowDisplay;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.showArrowScaleChanged(maxScaleForArrowDisplay);
             }
         } finally {
@@ -101,47 +102,17 @@ public class RouteLayerCommonSettings<OBSERVER extends RouteLayerCommonSettings.
     public void setRouteWidth(final float routeWidth) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.routeWidth == routeWidth) {
+            if (this.routeWidth == routeWidth) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.routeWidth = routeWidth;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.routeWidthChanged(routeWidth);
             }
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing a {@link RouteLayerCommonSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     */
-    public interface IObserver extends LayerSettings.IObserver {
-
-        /**
-         * Invoked when {@link RouteLayerCommonSettings#getShowArrowScale()} has
-         * changed.
-         * 
-         * @param maxScaleForArrowDisplay
-         *            The updated value. Refer to
-         *            {@link RouteLayerCommonSettings#getShowArrowScale()} for its
-         *            interpretation.
-         */
-        void showArrowScaleChanged(float maxScaleForArrowDisplay);
-
-        /**
-         * Invoked when {@link RouteLayerCommonSettings#getRouteWidth()} has
-         * changed.
-         * 
-         * @param routeWidth
-         *            The updated value. Refer to
-         *            {@link RouteLayerCommonSettings#getRouteWidth()} for its
-         *            interpretation.
-         */
-        void routeWidthChanged(float routeWidth);
     }
 }
