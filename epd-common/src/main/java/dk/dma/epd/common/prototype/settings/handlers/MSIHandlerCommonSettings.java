@@ -16,13 +16,14 @@
 package dk.dma.epd.common.prototype.settings.handlers;
 
 import dk.dma.epd.common.prototype.msi.MsiHandler;
+import dk.dma.epd.common.prototype.settings.observers.MSIHandlerCommonSettingsListener;
 
 /**
  * Maintains settings for an {@link MsiHandler}.
  * 
  * @author Janus Varmarken
  */
-public class MSIHandlerCommonSettings<OBSERVER extends MSIHandlerCommonSettings.IObserver>
+public class MSIHandlerCommonSettings<OBSERVER extends MSIHandlerCommonSettingsListener>
         extends HandlerSettings<OBSERVER> {
 
     /**
@@ -196,58 +197,5 @@ public class MSIHandlerCommonSettings<OBSERVER extends MSIHandlerCommonSettings.
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing an {@link MSIHandlerCommonSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     */
-    public interface IObserver extends HandlerSettings.IObserver {
-
-        /**
-         * Invoked when {@link MSIHandlerCommonSettings#isMsiFilter()} has
-         * changed.
-         * 
-         * @param msiFilter
-         *            See {@link MSIHandlerCommonSettings#isMsiFilter()}.
-         */
-        void useMsiFilterChanged(boolean msiFilter);
-
-        /**
-         * Invoked when {@link MSIHandlerCommonSettings#getMsiPollInterval()}
-         * has changed.
-         * 
-         * @param pollInterval
-         *            The MSI poll interval. See
-         *            {@link MSIHandlerCommonSettings#getMsiPollInterval()} for
-         *            more details.
-         */
-        void msiPollIntervalChanged(int pollInterval);
-
-        /**
-         * Invoked when
-         * {@link MSIHandlerCommonSettings#getMsiRelevanceFromOwnShipRange()}
-         * has changed.
-         * 
-         * @param relevanceFromOwnShipRange
-         *            See
-         *            {@link MSIHandlerCommonSettings#getMsiRelevanceFromOwnShipRange()}
-         *            .
-         */
-        void msiRelevanceFromOwnShipRangeChanged(
-                double relevanceFromOwnShipRange);
-
-        /**
-         * Invoked when
-         * {@link MSIHandlerCommonSettings#getMsiRelevanceGpsUpdateRange()} has
-         * changed.
-         * 
-         * @param relevanceGpsUpdateRange
-         *            See
-         *            {@link MSIHandlerCommonSettings#getMsiRelevanceGpsUpdateRange()}
-         *            .
-         */
-        void msiRelevanceGpsUpdateRangeChanged(double relevanceGpsUpdateRange);
     }
 }

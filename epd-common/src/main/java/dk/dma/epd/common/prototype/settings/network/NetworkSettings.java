@@ -16,13 +16,14 @@
 package dk.dma.epd.common.prototype.settings.network;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
+import dk.dma.epd.common.prototype.settings.observers.NetworkSettingsListener;
 
 /**
  * Base class for maintaining network related settings.
  * 
  * @author Janus Varmarken
  */
-public class NetworkSettings<OBSERVER extends NetworkSettings.IObserver>
+public class NetworkSettings<OBSERVER extends NetworkSettingsListener>
         extends ObservedSettings<OBSERVER> {
 
     /**
@@ -191,50 +192,5 @@ public class NetworkSettings<OBSERVER extends NetworkSettings.IObserver>
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing a {@link NetworkSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    public interface IObserver {
-
-        /**
-         * Invoked when {@link NetworkSettings#getPort()} has changed.
-         * 
-         * @param newPort
-         *            The updated port number.
-         */
-        void onPortChanged(int newPort);
-
-        /**
-         * Invoked when {@link NetworkSettings#getHost()} has changed.
-         * 
-         * @param newHost
-         *            The updated host name.
-         */
-        void onHostChanged(String newHost);
-
-        /**
-         * Invoked when {@link NetworkSettings#getConnectTimeout()} has changed.
-         * 
-         * @param newConnectTimeout
-         *            The updated connect timeout. See
-         *            {@link NetworkSettings#getConnectTimeout()} for details
-         *            such as unit.
-         */
-        void onConnectTimeoutChanged(int newConnectTimeout);
-
-        /**
-         * Invoked when {@link NetworkSettings#getReadTimeout()} has changed.
-         * 
-         * @param newReadTimeout
-         *            The updated read timeout. See
-         *            {@link NetworkSettings#getReadTimeout()} for details such
-         *            as unit.
-         */
-        void onReadTimeoutChanged(int newReadTimeout);
     }
 }

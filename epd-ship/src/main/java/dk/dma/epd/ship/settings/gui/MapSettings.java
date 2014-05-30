@@ -16,6 +16,7 @@
 package dk.dma.epd.ship.settings.gui;
 
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.ship.settings.observers.MapSettingsListener;
 
 /**
  * This class extends {@link MapCommonSettings} with map settings that are
@@ -23,7 +24,7 @@ import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
  * 
  * @author Janus Varmarken
  */
-public class MapSettings extends MapCommonSettings<MapSettings.IObserver> {
+public class MapSettings extends MapCommonSettings<MapSettingsListener> {
 
     private int autoFollowPctOffTollerance = 10;
 
@@ -59,7 +60,7 @@ public class MapSettings extends MapCommonSettings<MapSettings.IObserver> {
             }
             // There was a change, update and notify observers.
             this.autoFollowPctOffTollerance = autoFollowPctOffTollerance;
-            for (IObserver obs : this.observers) {
+            for (MapSettingsListener obs : this.observers) {
                 obs.autoFollowPctOffToleranceChanged(autoFollowPctOffTollerance);
             }
         } finally {
@@ -91,7 +92,7 @@ public class MapSettings extends MapCommonSettings<MapSettings.IObserver> {
             }
             // There was a change, update and notify observers.
             this.lookAhead = lookAhead;
-            for (IObserver obs : this.observers) {
+            for (MapSettingsListener obs : this.observers) {
                 obs.lookAheadChanged(lookAhead);
             }
         } finally {
@@ -132,42 +133,11 @@ public class MapSettings extends MapCommonSettings<MapSettings.IObserver> {
             }
             // There was a change, update and notify observers.
             this.autoFollow = autoFollow;
-            for (IObserver obs : this.observers) {
+            for (MapSettingsListener obs : this.observers) {
                 obs.autoFollowChanged(autoFollow);
             }
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing a {@link MapSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    public interface IObserver extends MapCommonSettings.IObserver {
-
-        /**
-         * Invoked when {@link MapSettings#getAutoFollowPctOffTollerance()} has
-         * changed.
-         * 
-         * @param newAutoFollowPctOffTolerance
-         */
-        void autoFollowPctOffToleranceChanged(int newAutoFollowPctOffTolerance);
-
-        /**
-         * Invoked when {@link MapSettings#isLookAhead()} has changed.
-         * 
-         * @param newLookAhead
-         */
-        void lookAheadChanged(boolean newLookAhead);
-
-        /**
-         * Invoked when {@link MapSettings#isAutoFollow()} has changed.
-         * 
-         * @param newAutoFollow
-         */
-        void autoFollowChanged(boolean newAutoFollow);
     }
 }

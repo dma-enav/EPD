@@ -44,6 +44,7 @@ import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings;
+import dk.dma.epd.ship.settings.observers.IntendedRouteHandlerSettingsListener;
 
 /**
  * Ship specific intended route service implementation.
@@ -55,7 +56,7 @@ import dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings;
  * <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
  * </ul>
  */
-public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable, IntendedRouteHandlerSettings.IObserver {
+public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable, IntendedRouteHandlerSettingsListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandler.class);
 

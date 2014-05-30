@@ -17,6 +17,7 @@ package dk.dma.epd.ship.settings.gui;
 
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+import dk.dma.epd.ship.settings.observers.GUISettingsListener;
 
 /**
  * Extends common GUI settings (see {@link GUICommonSettings}) with GUI settings
@@ -27,7 +28,7 @@ import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
  * 
  * @author Janus Varmarken
  */
-public class GUISettings<OBSERVER extends GUISettings.IObserver> extends
+public class GUISettings<OBSERVER extends GUISettingsListener> extends
         GUICommonSettings<OBSERVER> {
 
     /**
@@ -129,38 +130,5 @@ public class GUISettings<OBSERVER extends GUISettings.IObserver> extends
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-    
-    /**
-     * Interface for observing a {@link GUISettings} for changes.
-     * 
-     * @author Janus Varmarken
-     */
-    public interface IObserver extends GUICommonSettings.IObserver {
-
-        /**
-         * Invoked when the setting, specifying if the AIS target details dock
-         * should always open when an AIS target has been selected (see
-         * {@link GUISettings#isAlwaysOpenDock()}), has changed.
-         * 
-         * @param alwaysOpenDock
-         *            The new value. Refer to {@link GUISettings#isAlwaysOpenDock()}
-         *            for its interpretation.
-         */
-        void isAlwaysOpenDockChanged(boolean alwaysOpenDock);
-
-        /**
-         * Invoked when the setting, specifying if an
-         * "Open AIS target details dock?" dialog should be shown, has changed.
-         * Refer to {@link GUISettings#isShowDockMessage()} for details of this
-         * setting.
-         * 
-         * @param showDockMessage
-         *            The new value. Refer to
-         *            {@link GUISettings#isShowDockMessage()} for its
-         *            interpretation.
-         */
-        void isShowDockMessageChanged(boolean showDockMessage);
-
     }
 }

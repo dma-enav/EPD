@@ -28,6 +28,7 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+import dk.dma.epd.common.prototype.settings.observers.GUICommonSettingsListener;
 
 /**
  * This class maintains the most abstract GUI settings such as window size and
@@ -38,7 +39,7 @@ import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
  * 
  * @author Janus Varmarken
  */
-public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
+public class GUICommonSettings<OBSERVER extends GUICommonSettingsListener>
         extends ObservedSettings<OBSERVER> {
 
     /**
@@ -332,65 +333,6 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettings.IObserver>
             return super.representJavaBeanProperty(javaBean, property,
                     propertyValue, customTag);
         }
-
-    }
-
-    /**
-     * Interface for observing a {@link GUICommonSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     */
-    public interface IObserver {
-
-        /**
-         * Invoked when the setting, specifying if the application should run in
-         * full screen mode, has been changed.
-         * 
-         * @param fullscreen
-         *            {@code true} if the application should run in full screen
-         *            mode, {@code false} if the application should not run in
-         *            full screen mode.
-         */
-        void isFullscreenChanged(boolean fullscreen);
-
-        /**
-         * Invoked when the setting, specifying if the main frame of the
-         * application should be maximized, has been changed.
-         * 
-         * @param maximized
-         *            {@code true} if the main frame of the application should
-         *            be maximized, {@code false} if the main frame of the
-         *            application should not be maximized.
-         */
-        void isMaximizedChanged(boolean maximized);
-
-        /**
-         * Invoked when the setting, specifying the dimensions of the main frame
-         * of the application, has been changed.
-         * 
-         * @param newDimension
-         *            The new dimension value.
-         */
-        void appDimensionsChanged(Dimension newDimension);
-
-        /**
-         * Invoked when the setting, specifying the location of the application
-         * on screen, has been changed.
-         * 
-         * @param newLocation
-         *            A {@link Point} representing where the location of the top
-         *            left corner of the main frame of the application should be
-         *            placed on the screen.
-         */
-        void appScreenLocationChanged(Point newLocation);
-
-        /**
-         * Invoked when the graphic interact tolerance setting has been changed.
-         * 
-         * @param newValue
-         *            The new tolerance level in pixels.
-         */
-        void graphicInteractToleranceChanged(float newValue);
 
     }
 }

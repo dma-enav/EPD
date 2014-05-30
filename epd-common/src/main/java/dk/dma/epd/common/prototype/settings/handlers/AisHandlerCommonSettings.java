@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisHandlerCommonSettingsListener;
 
 /**
  * Maintains settings for an {@link AisHandlerCommon}. NB: Past track settings
@@ -26,7 +27,7 @@ import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
  * 
  * @author Janus Varmarken
  */
-public class AisHandlerCommonSettings<OBSERVER extends AisHandlerCommonSettings.IObserver>
+public class AisHandlerCommonSettings<OBSERVER extends AisHandlerCommonSettingsListener>
         extends HandlerSettings<OBSERVER> {
 
     /**
@@ -218,56 +219,5 @@ public class AisHandlerCommonSettings<OBSERVER extends AisHandlerCommonSettings.
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing an {@link AisHandlerCommonSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    public interface IObserver extends HandlerSettings.IObserver {
-
-        /**
-         * Invoked when {@link AisHandlerCommonSettings#getSartPrefix()} has
-         * changed.
-         * 
-         * @param sartPrefix
-         *            The new SART prefix. See
-         *            {@link AisHandlerCommonSettings#getSartPrefix()} for more
-         *            details.
-         */
-        void sartPrefixChanged(int sartPrefix);
-
-        /**
-         * Invoked when {@link AisHandlerCommonSettings#getSimulatedSartMmsi()}
-         * has changed.
-         * 
-         * @param simulatedSartMmsi
-         *            The new set of simulated SARTs. See
-         *            {@link AisHandlerCommonSettings#getSimulatedSartMmsi()}
-         *            for more details.
-         */
-        void simulatedSartMmsiChanged(String[] simulatedSartMmsi);
-
-        /**
-         * Invoked when {@link AisHandlerCommonSettings#isStrict()} has changed.
-         * 
-         * @param strict
-         *            The new strict value. See
-         *            {@link AisHandlerCommonSettings#isStrict()} for more
-         *            details.
-         */
-        void strictChanged(boolean strict);
-
-        /**
-         * Invoked when {@link AisHandlerCommonSettings#isAllowSending()} has
-         * changed.
-         * 
-         * @param allowSending
-         *            The updated value. See
-         *            {@link AisHandlerCommonSettings#isAllowSending()}.
-         */
-        void allowSendingChanged(boolean allowSending);
     }
 }

@@ -17,6 +17,7 @@ package dk.dma.epd.ship.settings.handlers;
 
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.ship.settings.observers.RouteManagerSettingsListener;
 
 /**
  * Extends {@link RouteManagerCommonSettings} with settings specific to the EPD
@@ -24,7 +25,7 @@ import dk.dma.epd.ship.route.RouteManager;
  * 
  * @author Janus Varmarken
  */
-public class RouteManagerSettings<OBSERVER extends RouteManagerSettings.IObserver>
+public class RouteManagerSettings<OBSERVER extends RouteManagerSettingsListener>
         extends RouteManagerCommonSettings<OBSERVER> {
 
     private double minWpRadius = 0.2;
@@ -93,30 +94,5 @@ public class RouteManagerSettings<OBSERVER extends RouteManagerSettings.IObserve
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing a {@link RouteManagerSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    public interface IObserver extends RouteManagerCommonSettings.IObserver {
-
-        /**
-         * Invoked when {@link RouteManagerSettings#getMinWpRadius()} has
-         * changed.
-         * 
-         * @param newMinWpRadius
-         */
-        void minWpRadiusChanged(double newMinWpRadius);
-
-        /**
-         * Invoked when {@link RouteManagerSettings#isRelaxedWpChange()} has
-         * changed.
-         * 
-         * @param newRelaxedWpChange
-         */
-        void relaxedWpChangeChanged(boolean newRelaxedWpChange);
     }
 }

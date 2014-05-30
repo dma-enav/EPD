@@ -19,6 +19,7 @@ import dk.dma.ais.data.AisTarget;
 import dk.dma.epd.common.prototype.ais.MobileTarget;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.PastTrackSettingsListener;
 
 /**
  * <p>
@@ -36,7 +37,7 @@ import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
  * 
  * @author Janus Varmarken
  */
-public class PastTrackSettings<OBSERVER extends PastTrackSettings.IObserver>
+public class PastTrackSettings<OBSERVER extends PastTrackSettingsListener>
         extends ObservedSettings<OBSERVER> {
 
     /**
@@ -189,47 +190,5 @@ public class PastTrackSettings<OBSERVER extends PastTrackSettings.IObserver>
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing a {@link PastTrackSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    public interface IObserver {
-
-        /**
-         * Invoked when {@link PastTrackSettings#getPastTrackMaxTime()} has
-         * changed.
-         * 
-         * @param maxTime
-         *            The new past track max time. See
-         *            {@link PastTrackSettings#getPastTrackMaxTime()} for more
-         *            details.
-         */
-        void pastTrackMaxTimeChanged(int maxTime);
-
-        /**
-         * Invoked when {@link PastTrackSettings#getPastTrackDisplayTime()} has
-         * changed.
-         * 
-         * @param displayTime
-         *            The new past track display time. See
-         *            {@link PastTrackSettings#getPastTrackDisplayTime()} for
-         *            more details.
-         */
-        void pastTrackDisplayTimeChanged(int displayTime);
-
-        /**
-         * Invoked when {@link PastTrackSettings#getPastTrackMinDist()} has
-         * changed.
-         * 
-         * @param minDist
-         *            The new past track minimum distance. See
-         *            {@link PastTrackSettings#getPastTrackMinDist()} for more
-         *            details.
-         */
-        void pastTrackMinDistChanged(int minDist);
     }
 }

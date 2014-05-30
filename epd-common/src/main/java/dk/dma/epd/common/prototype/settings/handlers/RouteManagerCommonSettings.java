@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.settings.handlers;
 
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+import dk.dma.epd.common.prototype.settings.observers.RouteManagerCommonSettingsListener;
 
 /**
  * Maintains settings for a {@link RouteManagerCommon}. Clients may register for
@@ -23,7 +24,7 @@ import dk.dma.epd.common.prototype.route.RouteManagerCommon;
  * 
  * @author Janus Varmarken
  */
-public class RouteManagerCommonSettings<OBSERVER extends RouteManagerCommonSettings.IObserver>
+public class RouteManagerCommonSettings<OBSERVER extends RouteManagerCommonSettingsListener>
         extends HandlerSettings<OBSERVER> {
 
     /**
@@ -156,47 +157,5 @@ public class RouteManagerCommonSettings<OBSERVER extends RouteManagerCommonSetti
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing a {@link RouteManagerCommonSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    public interface IObserver extends HandlerSettings.IObserver {
-
-        /**
-         * Invoked when {@link RouteManagerCommonSettings#getDefaultSpeed()} has
-         * changed.
-         * 
-         * @param defaultSpeed
-         *            The new default speed. See
-         *            {@link RouteManagerCommonSettings#getDefaultSpeed()} for
-         *            more details, e.g. unit.
-         */
-        void onDefaultSpeedChanged(double defaultSpeed);
-
-        /**
-         * Invoked when {@link RouteManagerCommonSettings#getDefaultTurnRad()}
-         * has changed.
-         * 
-         * @param defaultTurnRad
-         *            The new default turn rad. See
-         *            {@link RouteManagerCommonSettings#getDefaultTurnRad()} for
-         *            more details, e.g. unit.
-         */
-        void onDefaultTurnRadChanged(double defaultTurnRad);
-
-        /**
-         * Invoked when {@link RouteManagerCommonSettings#getDefaultXtd()} has
-         * changed.
-         * 
-         * @param defaultXtd
-         *            The new default XTD. See
-         *            {@link RouteManagerCommonSettings#getDefaultXtd()} for
-         *            more details, e.g. unit.
-         */
-        void onDefaultXtdChanged(double defaultXtd);
     }
 }

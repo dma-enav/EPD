@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.settings.handlers;
 
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteHandlerCommonSettingsListener;
 
 /**
  * Maintains settings relevant to an {@link IntendedRouteHandlerCommon} or any
@@ -24,7 +25,7 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  * clients to register for notifications of changes to any setting maintained by
  * this class.
  */
-public class IntendedRouteHandlerCommonSettings<OBSERVER extends IntendedRouteHandlerCommonSettings.IObserver>
+public class IntendedRouteHandlerCommonSettings<OBSERVER extends IntendedRouteHandlerCommonSettingsListener>
         extends HandlerSettings<OBSERVER> {
 
     /**
@@ -215,63 +216,5 @@ public class IntendedRouteHandlerCommonSettings<OBSERVER extends IntendedRouteHa
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing an {@link IntendedRouteHandlerCommonSettings} for
-     * changes.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    public interface IObserver extends HandlerSettings.IObserver {
-
-        /**
-         * Invoked when
-         * {@link IntendedRouteHandlerCommonSettings#getRouteTimeToLive()} has
-         * changed.
-         * 
-         * @param routeTtl
-         *            The new route time to live. See
-         *            {@link IntendedRouteHandlerCommonSettings#getRouteTimeToLive()}
-         *            for details, e.g. unit.
-         */
-        void onRouteTimeToLiveChanged(long routeTtl);
-
-        /**
-         * Invoked when
-         * {@link IntendedRouteHandlerCommonSettings#getFilterDistance()} has
-         * changed.
-         * 
-         * @param filterDist
-         *            The new filter distance. See
-         *            {@link IntendedRouteHandlerCommonSettings#getFilterDistance()}
-         *            for more details, e.g. unit.
-         */
-        void onFilterDistanceChanged(double filterDist);
-
-        /**
-         * Invoked when
-         * {@link IntendedRouteHandlerCommonSettings#getNotificationDistance()}
-         * has changed.
-         * 
-         * @param notificationDist
-         *            The new notification distance. See
-         *            {@link IntendedRouteHandlerCommonSettings#getNotificationDistance()}
-         *            for more details, e.g. unit.
-         */
-        void onNotificationDistanceChanged(double notificationDist);
-
-        /**
-         * Invoked when
-         * {@link IntendedRouteHandlerCommonSettings#getAlertDistance()} has
-         * changed.
-         * 
-         * @param alertDist
-         *            The new alert distance. See
-         *            {@link IntendedRouteHandlerCommonSettings#getAlertDistance()}
-         *            for more details, e.g. unit.
-         */
-        void onAlertDistanceChanged(double alertDist);
     }
 }

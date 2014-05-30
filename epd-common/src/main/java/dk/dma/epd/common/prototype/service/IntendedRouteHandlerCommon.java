@@ -52,6 +52,7 @@ import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteHandlerCommonSettingsListener;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.TypedValue.Dist;
@@ -80,7 +81,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     /**
      * Constructor
      */
-    public IntendedRouteHandlerCommon(IntendedRouteHandlerCommonSettings<? extends IntendedRouteHandlerCommonSettings.IObserver> settings) {
+    public IntendedRouteHandlerCommon(IntendedRouteHandlerCommonSettings<? extends IntendedRouteHandlerCommonSettingsListener> settings) {
         super();
         this.settings = Objects.requireNonNull(settings);
         // Checks and remove stale intended routes every minute

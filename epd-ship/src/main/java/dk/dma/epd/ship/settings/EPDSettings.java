@@ -20,12 +20,16 @@ import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
 import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.ExternalSensorsCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.PastTrackSettingsListener;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.ship.settings.gui.GUISettings;
 import dk.dma.epd.ship.settings.gui.MapSettings;
 import dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings;
 import dk.dma.epd.ship.settings.handlers.RouteManagerSettings;
 import dk.dma.epd.ship.settings.layers.OwnShipLayerSettings;
+import dk.dma.epd.ship.settings.observers.GUISettingsListener;
+import dk.dma.epd.ship.settings.observers.RouteManagerSettingsListener;
 
 
 /**
@@ -43,13 +47,13 @@ public class EPDSettings extends Settings {
      */
     protected final String ownShipPastTrackSettingsFile = "own-ship-past-track_settings.yaml";
     
-    private GUISettings<GUISettings.IObserver> guiSettings;
+    private GUISettings<GUISettingsListener> guiSettings;
     
     private MapSettings mapSettings;
     
-    private RouteManagerSettings<RouteManagerSettings.IObserver> routeManagerSettings;
+    private RouteManagerSettings<RouteManagerSettingsListener> routeManagerSettings;
     
-    private ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> externalSensorsSettings;
+    private ExternalSensorsCommonSettings<ExternalSensorsCommonSettingsListener> externalSensorsSettings;
     
     private ENCLayerCommonSettings<ENCLayerCommonSettingsListener> encLayerSettings;
     
@@ -60,7 +64,7 @@ public class EPDSettings extends Settings {
     /**
      * Past track settings for own ship.
      */
-    private PastTrackSettings<PastTrackSettings.IObserver> ownShipPastTrackSettings;
+    private PastTrackSettings<PastTrackSettingsListener> ownShipPastTrackSettings;
     
     public EPDSettings() {
         super();
@@ -76,7 +80,7 @@ public class EPDSettings extends Settings {
         super.loadFromFile();
         
         // Load general gui settings.
-        GUISettings<GUISettings.IObserver> gui = ObservedSettings.loadFromFile(GUISettings.class, resolve(guiSettingsFile).toFile());
+        GUISettings<GUISettingsListener> gui = ObservedSettings.loadFromFile(GUISettings.class, resolve(guiSettingsFile).toFile());
         // Create new instance if no saved instance found.
         guiSettings = gui != null ? gui : new GUISettings<>();
         
@@ -86,7 +90,7 @@ public class EPDSettings extends Settings {
         mapSettings = map != null ? map : new MapSettings();
         
         // Load route manager settings.
-        RouteManagerSettings<RouteManagerSettings.IObserver> rms = ObservedSettings.loadFromFile(RouteManagerSettings.class, resolve(routeManagerSettingsFile).toFile());
+        RouteManagerSettings<RouteManagerSettingsListener> rms = ObservedSettings.loadFromFile(RouteManagerSettings.class, resolve(routeManagerSettingsFile).toFile());
         // Create new instance if no saved instance found.
         routeManagerSettings = rms != null ? rms : new RouteManagerSettings<>();
         
@@ -94,9 +98,9 @@ public class EPDSettings extends Settings {
          *  Load external sensors settings.
          *  Even though ship uses common version, we need to load it here instead of in super class as shore uses specific version.
          */
-        ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> ext = ObservedSettings.loadFromFile(ExternalSensorsCommonSettings.class, resolve(externalSensorsSettingsFile).toFile());
+        ExternalSensorsCommonSettings<ExternalSensorsCommonSettingsListener> ext = ObservedSettings.loadFromFile(ExternalSensorsCommonSettings.class, resolve(externalSensorsSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
-        this.externalSensorsSettings = ext != null ? ext : new ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver>();
+        this.externalSensorsSettings = ext != null ? ext : new ExternalSensorsCommonSettings<ExternalSensorsCommonSettingsListener>();
         
         /*
          *  Load ENC layer settings.
@@ -117,7 +121,7 @@ public class EPDSettings extends Settings {
         this.ownShipLayerSettings = ownShipLayer != null ? ownShipLayer : new OwnShipLayerSettings();
         
         // Load own ship past track settings.
-        PastTrackSettings<PastTrackSettings.IObserver> ownShipPastTrack = ObservedSettings.loadFromFile(PastTrackSettings.class, resolve(ownShipPastTrackSettingsFile).toFile());
+        PastTrackSettings<PastTrackSettingsListener> ownShipPastTrack = ObservedSettings.loadFromFile(PastTrackSettings.class, resolve(ownShipPastTrackSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
         this.ownShipPastTrackSettings = ownShipPastTrack != null ? ownShipPastTrack : new PastTrackSettings<>();
 
@@ -134,7 +138,7 @@ public class EPDSettings extends Settings {
     }
 
     @Override
-    public GUISettings<GUISettings.IObserver> getGuiSettings() {
+    public GUISettings<GUISettingsListener> getGuiSettings() {
         return this.guiSettings;
     }
 
@@ -144,12 +148,12 @@ public class EPDSettings extends Settings {
     }
     
     @Override
-    public RouteManagerSettings<RouteManagerSettings.IObserver> getRouteManagerSettings() {
+    public RouteManagerSettings<RouteManagerSettingsListener> getRouteManagerSettings() {
         return this.routeManagerSettings;
     }
     
     @Override
-    public ExternalSensorsCommonSettings<ExternalSensorsCommonSettings.IObserver> getExternalSensorsSettings() {
+    public ExternalSensorsCommonSettings<ExternalSensorsCommonSettingsListener> getExternalSensorsSettings() {
         return this.externalSensorsSettings;
     }
     
@@ -168,7 +172,7 @@ public class EPDSettings extends Settings {
     }
     
     
-    public PastTrackSettings<PastTrackSettings.IObserver> getOwnShipPastTrackSettings() {
+    public PastTrackSettings<PastTrackSettingsListener> getOwnShipPastTrackSettings() {
         return this.ownShipPastTrackSettings;
     }
 }

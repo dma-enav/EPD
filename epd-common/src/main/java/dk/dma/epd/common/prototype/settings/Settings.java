@@ -34,12 +34,22 @@ import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
 import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisHandlerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.ExternalSensorsCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.GUICommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteHandlerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.MSIHandlerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.MapCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.MetocHandlerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.MetocLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.NetworkSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.PastTrackSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.RouteManagerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 
@@ -189,40 +199,40 @@ public abstract class Settings {
      */
     protected IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener> primaryIntendedRouteLayerSettings;
     
-    protected MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> msiHandlerSettings;
+    protected MSIHandlerCommonSettings<MSIHandlerCommonSettingsListener> msiHandlerSettings;
     
     /**
      * Connection parameters used when connecting to e-Nav services.
      */
-    protected NetworkSettings<NetworkSettings.IObserver> enavServicesHttpSettings;
+    protected NetworkSettings<NetworkSettingsListener> enavServicesHttpSettings;
     
     /**
      * Connection parameters used when connecting to MonaLisa services.
      */
-    protected NetworkSettings<NetworkSettings.IObserver> monaLisaHttpSettings;
+    protected NetworkSettings<NetworkSettingsListener> monaLisaHttpSettings;
     
     /**
      * Connection parameters used when connecting to Maritime Cloud services.
      */
-    protected NetworkSettings<NetworkSettings.IObserver> maritimeCloudHttpSettings;
+    protected NetworkSettings<NetworkSettingsListener> maritimeCloudHttpSettings;
     
-    protected MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> metocHandlerSettings;
+    protected MetocHandlerCommonSettings<MetocHandlerCommonSettingsListener> metocHandlerSettings;
     
-    protected AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings;
+    protected AisHandlerCommonSettings<AisHandlerCommonSettingsListener> aisHandlerSettings;
     
-    protected PastTrackSettings<PastTrackSettings.IObserver> pastTrackSettings;
+    protected PastTrackSettings<PastTrackSettingsListener> pastTrackSettings;
        
-    public abstract GUICommonSettings<? extends GUICommonSettings.IObserver> getGuiSettings();
+    public abstract GUICommonSettings<? extends GUICommonSettingsListener> getGuiSettings();
     
-    public abstract MapCommonSettings<? extends MapCommonSettings.IObserver> getMapSettings();
+    public abstract MapCommonSettings<? extends MapCommonSettingsListener> getMapSettings();
     
-    public abstract RouteManagerCommonSettings<? extends RouteManagerCommonSettings.IObserver> getRouteManagerSettings();
+    public abstract RouteManagerCommonSettings<? extends RouteManagerCommonSettingsListener> getRouteManagerSettings();
     
-    public abstract ExternalSensorsCommonSettings<? extends ExternalSensorsCommonSettings.IObserver> getExternalSensorsSettings();
+    public abstract ExternalSensorsCommonSettings<? extends ExternalSensorsCommonSettingsListener> getExternalSensorsSettings();
     
     public abstract ENCLayerCommonSettings<? extends ENCLayerCommonSettingsListener> getENCLayerSettings();
     
-    public abstract IntendedRouteHandlerCommonSettings<? extends IntendedRouteHandlerCommonSettings.IObserver> getIntendedRouteHandlerSettings();
+    public abstract IntendedRouteHandlerCommonSettings<? extends IntendedRouteHandlerCommonSettingsListener> getIntendedRouteHandlerSettings();
     
     /**
      * Gets the primary (global) AIS layer settings.
@@ -237,7 +247,7 @@ public abstract class Settings {
         return this.s57LayerSettings;
     }
     
-    public MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> getMsiHandlerSettings() {
+    public MSIHandlerCommonSettings<MSIHandlerCommonSettingsListener> getMsiHandlerSettings() {
         return this.msiHandlerSettings;
     }
     
@@ -290,7 +300,7 @@ public abstract class Settings {
      * Get settings specifying connection parameters for the e-Nav services connection.
      * @return Settings specifying connection parameters for the e-Nav services connection
      */
-    public NetworkSettings<NetworkSettings.IObserver> getEnavServicesHttpSettings() {
+    public NetworkSettings<NetworkSettingsListener> getEnavServicesHttpSettings() {
         return this.enavServicesHttpSettings;
     }
     
@@ -298,7 +308,7 @@ public abstract class Settings {
      * Get settings specifying connection parameters for the MonaLisa services connection.
      * @return Settings specifying connection parameters for the MonaLisa services connection
      */
-    public NetworkSettings<NetworkSettings.IObserver> getMonaLisaHttpSettings() {
+    public NetworkSettings<NetworkSettingsListener> getMonaLisaHttpSettings() {
         return this.monaLisaHttpSettings;
     }
     
@@ -306,19 +316,19 @@ public abstract class Settings {
      * Get settings specifying connection parameters for the Maritime Cloud services connection.
      * @return Settings specifying connection parameters for the Maritime Cloud services connection
      */
-    public NetworkSettings<NetworkSettings.IObserver> getMaritimeCloudHttpSettings() {
+    public NetworkSettings<NetworkSettingsListener> getMaritimeCloudHttpSettings() {
         return this.maritimeCloudHttpSettings;
     }
     
-    public MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> getMetocHandlerSettings() {
+    public MetocHandlerCommonSettings<MetocHandlerCommonSettingsListener> getMetocHandlerSettings() {
         return this.metocHandlerSettings;
     }
     
-    public AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> getAisHandlerSettings() {
+    public AisHandlerCommonSettings<AisHandlerCommonSettingsListener> getAisHandlerSettings() {
         return this.aisHandlerSettings;
     }
     
-    public PastTrackSettings<PastTrackSettings.IObserver> getPastTrackSettings() {
+    public PastTrackSettings<PastTrackSettingsListener> getPastTrackSettings() {
         return this.pastTrackSettings;
     }
 
@@ -356,7 +366,7 @@ public abstract class Settings {
          * Load MSI handler settings.
          * If ship/shore specific MSI handler settings are added later, move this to subclass.
          */
-        MSIHandlerCommonSettings<MSIHandlerCommonSettings.IObserver> msiHandlerSett = ObservedSettings.loadFromFile(MSIHandlerCommonSettings.class, resolve(msiHandlerSettingsFile).toFile());
+        MSIHandlerCommonSettings<MSIHandlerCommonSettingsListener> msiHandlerSett = ObservedSettings.loadFromFile(MSIHandlerCommonSettings.class, resolve(msiHandlerSettingsFile).toFile());
         this.msiHandlerSettings = msiHandlerSett != null ? msiHandlerSett : new MSIHandlerCommonSettings<>();
         
         /*
@@ -370,7 +380,7 @@ public abstract class Settings {
          * Load e-Nav services connection settings.
          * If ship/shore specific e-Nav services connection settings are added later, move this to subclass.
          */
-        NetworkSettings<NetworkSettings.IObserver> enavServices = ObservedSettings.loadFromFile(NetworkSettings.class, resolve(enavServicesHttpSettingsFile).toFile());
+        NetworkSettings<NetworkSettingsListener> enavServices = ObservedSettings.loadFromFile(NetworkSettings.class, resolve(enavServicesHttpSettingsFile).toFile());
         if(enavServices == null) {
             // Create new instance if no saved instance present.
             enavServices = new NetworkSettings<>();
@@ -388,7 +398,7 @@ public abstract class Settings {
          * Load METOC handler settings.
          * If ship/shore specific METOC handler settings are added later, move this to subclass.
          */
-        MetocHandlerCommonSettings<MetocHandlerCommonSettings.IObserver> metoc = ObservedSettings.loadFromFile(MetocHandlerCommonSettings.class, resolve(metocHandlerSettingsFile).toFile());
+        MetocHandlerCommonSettings<MetocHandlerCommonSettingsListener> metoc = ObservedSettings.loadFromFile(MetocHandlerCommonSettings.class, resolve(metocHandlerSettingsFile).toFile());
         this.metocHandlerSettings = metoc != null ? metoc : new MetocHandlerCommonSettings<>();
         
         /*
@@ -416,7 +426,7 @@ public abstract class Settings {
          * Load MonaLisa services connection settings.
          * If ship/shore specific MonaLisa services connection settings are added later, move this to subclass.
          */
-        NetworkSettings<NetworkSettings.IObserver> monaLisaHttp = ObservedSettings.loadFromFile(NetworkSettings.class, resolve(monaLisaHttpSettingsFile).toFile());
+        NetworkSettings<NetworkSettingsListener> monaLisaHttp = ObservedSettings.loadFromFile(NetworkSettings.class, resolve(monaLisaHttpSettingsFile).toFile());
         if(monaLisaHttp == null) {
             // Create new instance if no saved instance present.
             monaLisaHttp = new NetworkSettings<>();
@@ -437,7 +447,7 @@ public abstract class Settings {
         IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener> intendedRouteLayer = ObservedSettings.loadFromFile(IntendedRouteLayerCommonSettings.class, resolve(intendedRouteLayerSettingsFile).toFile());
         this.primaryIntendedRouteLayerSettings = intendedRouteLayer != null ? intendedRouteLayer : new IntendedRouteLayerCommonSettings<>();
         
-        NetworkSettings<NetworkSettings.IObserver> maritimeCloud = ObservedSettings.loadFromFile(NetworkSettings.class, resolve(maritimeCloudHttpSettingsFile).toFile());
+        NetworkSettings<NetworkSettingsListener> maritimeCloud = ObservedSettings.loadFromFile(NetworkSettings.class, resolve(maritimeCloudHttpSettingsFile).toFile());
         if(maritimeCloud == null) {
             // Create new instance if no saved instance present.
             maritimeCloud = new NetworkSettings<>();
@@ -455,14 +465,14 @@ public abstract class Settings {
          * Load AIS handler settings.
          * If ship/shore specific AIS handler settings are added later, move this to subclass.
          */
-        AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandler = ObservedSettings.loadFromFile(AisHandlerCommonSettings.class, resolve(aisHandlerSettingsFile).toFile());
+        AisHandlerCommonSettings<AisHandlerCommonSettingsListener> aisHandler = ObservedSettings.loadFromFile(AisHandlerCommonSettings.class, resolve(aisHandlerSettingsFile).toFile());
         this.aisHandlerSettings = ais != null ? aisHandler : new AisHandlerCommonSettings<>();
         
         /*
          * Load past track settings.
          * If ship/shore specific past track settings are added later, move this to subclass.
          */
-        PastTrackSettings<PastTrackSettings.IObserver> pastTrack = ObservedSettings.loadFromFile(PastTrackSettings.class, resolve(pastTrackSettingsFile).toFile());
+        PastTrackSettings<PastTrackSettingsListener> pastTrack = ObservedSettings.loadFromFile(PastTrackSettings.class, resolve(pastTrackSettingsFile).toFile());
         this.pastTrackSettings = pastTrack != null ? pastTrack : new PastTrackSettings<>();
     }
 

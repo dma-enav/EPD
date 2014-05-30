@@ -18,11 +18,12 @@ package dk.dma.epd.ship.settings.handlers;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
 import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.ship.service.IntendedRouteHandler;
+import dk.dma.epd.ship.settings.observers.IntendedRouteHandlerSettingsListener;
 
 /**
  * Maintains settings for an {@link IntendedRouteHandler}.
  */
-public class IntendedRouteHandlerSettings extends IntendedRouteHandlerCommonSettings<IntendedRouteHandlerSettings.IObserver> {
+public class IntendedRouteHandlerSettings extends IntendedRouteHandlerCommonSettings<IntendedRouteHandlerSettingsListener> {
 
     /**
      * Specifies if the ship should broadcast its intended route.
@@ -83,7 +84,7 @@ public class IntendedRouteHandlerSettings extends IntendedRouteHandlerCommonSett
             }
             // There was a change, update and notify observers.
             this.broadcastIntendedRoute = broadcastIntendedRoute;
-            for (IObserver obs : this.observers) {
+            for (IntendedRouteHandlerSettingsListener obs : this.observers) {
                 obs.broadcastIntendedRouteChanged(broadcastIntendedRoute);
             }
         } finally {
@@ -122,7 +123,7 @@ public class IntendedRouteHandlerSettings extends IntendedRouteHandlerCommonSett
             }
             // There was a change, update and notify observers.
             this.timeBetweenBroadcast = timeBetweenBroadcast;
-            for (IObserver obs : this.observers) {
+            for (IntendedRouteHandlerSettingsListener obs : this.observers) {
                 obs.timeBetweenBroadcastChanged(timeBetweenBroadcast);
             }
         } finally {
@@ -161,7 +162,7 @@ public class IntendedRouteHandlerSettings extends IntendedRouteHandlerCommonSett
             }
             // There was a change, update and notify observers.
             this.adaptionTime = adaptionTime;
-            for (IObserver obs : this.observers) {
+            for (IntendedRouteHandlerSettingsListener obs : this.observers) {
                 obs.adaptionTimeChanged(adaptionTime);
             }
         } finally {
@@ -200,7 +201,7 @@ public class IntendedRouteHandlerSettings extends IntendedRouteHandlerCommonSett
             // There was a change, update and notify observers.
             // TODO create copy to avoid reference leak.
             this.intendedRouteFilter = intendedRouteFilter;
-            for (IObserver obs : this.observers) {
+            for (IntendedRouteHandlerSettingsListener obs : this.observers) {
                 // TODO create copy to avoid reference leak.
                 obs.intendedRouteFilterChanged(intendedRouteFilter);
             }
@@ -238,76 +239,11 @@ public class IntendedRouteHandlerSettings extends IntendedRouteHandlerCommonSett
             }
             // There was a change, update and notify observers.
             this.broadcastRadius = broadcastRadius;
-            for (IObserver obs : this.observers) {
+            for (IntendedRouteHandlerSettingsListener obs : this.observers) {
                 obs.broadcastRadiusChanged(broadcastRadius);
             }
         } finally {
             this.settingLock.writeLock().unlock();
         }
     }
-
-    /**
-     * Interface for observing an {@link IntendedRouteHandlerSettings} for
-     * changes.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    public interface IObserver extends
-            IntendedRouteHandlerCommonSettings.IObserver {
-
-        /**
-         * Invoked when
-         * {@link IntendedRouteHandlerSettings#isBroadcastIntendedRoute()} has
-         * changed.
-         * 
-         * @param broadcast
-         *            Specifies if intended route should be broadcasted.
-         */
-        void broadcastIntendedRouteChanged(boolean broadcast);
-
-        /**
-         * Invoked when
-         * {@link IntendedRouteHandlerSettings#getTimeBetweenBroadCast()} has
-         * changed.
-         * 
-         * @param timeBetweenBroadcast
-         *            The new value for the time between each broadcast of
-         *            intended route. See
-         *            {@link IntendedRouteHandlerSettings#getTimeBetweenBroadCast()}
-         *            .
-         */
-        void timeBetweenBroadcastChanged(long timeBetweenBroadcast);
-
-        /**
-         * Invoked when {@link IntendedRouteHandlerSettings#getAdaptionTime()}
-         * has changed.
-         * 
-         * @param adaptionTime
-         *            How much ETA must change for a route broadcast to be
-         *            forced.
-         */
-        void adaptionTimeChanged(int adaptionTime);
-
-        /**
-         * Invoked when
-         * {@link IntendedRouteHandlerSettings#getIntendedRouteFilter()} has
-         * changed.
-         * 
-         * @param intendedRouteFilter
-         *            The new intended route filter.
-         */
-        void intendedRouteFilterChanged(PartialRouteFilter intendedRouteFilter);
-
-        /**
-         * Invoked when
-         * {@link IntendedRouteHandlerSettings#getBroadcastRadius()} has
-         * changed.
-         * 
-         * @param broadcastRadius
-         *            The new broadcast radius.
-         */
-        void broadcastRadiusChanged(int broadcastRadius);
-    }
-
 }
