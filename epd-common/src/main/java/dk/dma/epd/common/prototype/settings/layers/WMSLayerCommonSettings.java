@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+
 /**
  * This class is used to maintain settings for a WMS layer.
  * 
@@ -112,6 +113,12 @@ public class WMSLayerCommonSettings<OBSERVER extends WMSLayerCommonSettings.IObs
         }
     }
 
+    @Override
+    public WMSLayerCommonSettings<OBSERVER> copy() {
+        // TODO Auto-generated method stub
+        return (WMSLayerCommonSettings<OBSERVER>) super.copy();
+    }
+    
     /**
      * Interface for observing a {@link WMSLayerCommonSettings} for changes.
      * 
