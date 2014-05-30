@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.settings.EPDMapSettings;
+import dk.dma.epd.shore.settings.gui.ENCLayerSettings;
 
 /**
  * Factory class for creating ENC layer. If ENC is enabled is uses the file enc.properties to define class and settings.
@@ -40,9 +41,9 @@ public class EncLayerFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(EncLayerFactory.class);
     private Properties encProps = new Properties();
-    private EPDMapSettings mapSettings;
     private OMGraphicHandlerLayer encLayer;
-
+    private ENCLayerSettings encSettings;
+    
     private static void addSoftwareLibrary(File file) throws Exception {
         Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
         method.setAccessible(true);
@@ -56,18 +57,15 @@ public class EncLayerFactory {
         fieldSysPath.set(null, null);
     }
 
-    public EncLayerFactory(EPDMapSettings mapSettings) {
-        this.mapSettings = mapSettings;
+    public EncLayerFactory(ENCLayerSettings encLayerSettings) {
+        this.encSettings = Objects.requireNonNull(encLayerSettings);
         // Use ENC?
-        if (!mapSettings.isUseEnc()) {
+        if (!this.encSettings.isEncInUse()) {
             return;
         }
 
-        // // Try to load ENC props
-        // if (!PropUtils.loadProperties(encProps, "..\\..\\.epd-ship",
-        // "enc.properties")) {
+        // Try to load ENC props
         if (!PropUtils.loadProperties(encProps, EPDShore.getInstance().getHomePath().toString(), "enc.properties")) {
-
             LOG.error("No enc.properties file found");
             return;
         }
@@ -97,7 +95,7 @@ public class EncLayerFactory {
 
         encProps.put("enc.certLocation", EPDShore.getInstance().getHomePath().toString() + "\\" + encProps.get("enc.certLocation"));
 
-        if (mapSettings.isEncSuccess()) {
+        if (this.encSettings.isEncSuccess()) {
 
             // Make layer instance
             String classProperty = "enc.class";
@@ -116,7 +114,7 @@ public class EncLayerFactory {
 
             } catch (NullPointerException e) {
                 LOG.error("Could not set up layer instance of class: \"" + className + "\"");
-                mapSettings.setEncSuccess(false);
+                this.encSettings.setEncSuccess(false);
             } catch (ClassNotFoundException e) {
                 LOG.error("Layer class not found: \"" + className + "\"");
             } catch (IOException e) {
@@ -168,19 +166,19 @@ public class EncLayerFactory {
             marinerSettings = (Properties) obj;
 
             // Set settings from configuration
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHOW_TEXT", Boolean.toString(mapSettings.isS52ShowText()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHOW_TEXT", Boolean.toString(this.encSettings.isS52ShowText()));
             marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHALLOW_PATTERN",
-                    Boolean.toString(mapSettings.isS52ShallowPattern()));
+                    Boolean.toString(this.encSettings.isS52ShallowPattern()));
             marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHALLOW_CONTOUR",
-                    Integer.toString(mapSettings.getS52ShallowContour()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SAFETY_DEPTH", Integer.toString(mapSettings.getS52SafetyDepth()));
+                    Integer.toString(this.encSettings.getS52ShallowContour()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SAFETY_DEPTH", Integer.toString(this.encSettings.getS52SafetyDepth()));
             marinerSettings
-                    .setProperty("MARINER_PARAM.S52_MAR_SAFETY_CONTOUR", Integer.toString(mapSettings.getS52SafetyContour()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_DEEP_CONTOUR", Integer.toString(mapSettings.getS52DeepContour()));
+                    .setProperty("MARINER_PARAM.S52_MAR_SAFETY_CONTOUR", Integer.toString(this.encSettings.getS52SafetyContour()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_DEEP_CONTOUR", Integer.toString(this.encSettings.getS52DeepContour()));
             marinerSettings.setProperty("MARINER_PARAM.useSimplePointSymbols",
-                    Boolean.toString(mapSettings.isUseSimplePointSymbols()));
-            marinerSettings.setProperty("MARINER_PARAM.usePlainAreas", Boolean.toString(mapSettings.isUsePlainAreas()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_TWO_SHADES", Boolean.toString(mapSettings.isS52TwoShades()));
+                    Boolean.toString(this.encSettings.isUseSimplePointSymbols()));
+            marinerSettings.setProperty("MARINER_PARAM.usePlainAreas", Boolean.toString(this.encSettings.isUsePlainAreas()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_TWO_SHADES", Boolean.toString(this.encSettings.isS52TwoShades()));
 
             // Set settings on layer
             argTypes = new Class<?>[1];
