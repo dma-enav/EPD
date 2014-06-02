@@ -43,8 +43,7 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
     private String previousMouseModeID;
 
     /**
-     * Constructs a NoGoMouseListener: sets the ID of the mode, the consume mode
-     * to true, and the cursor to the crosshair.
+     * Constructs a NoGoMouseListener: sets the ID of the mode, the consume mode to true, and the cursor to the crosshair.
      */
     public NoGoMouseMode(ChartPanel chartPanel) {
         super(chartPanel, 0, MODE_ID);
@@ -53,17 +52,15 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
     }
 
     /**
-     * This method handles a mouse released event. It will store the second
-     * point and create a final rectangle from the first point to the second. If
-     * the rectangle is too small, it will not draw the ractangle, but let the
-     * user select a new.
+     * This method handles a mouse released event. It will store the second point and create a final rectangle from the first point
+     * to the second. If the rectangle is too small, it will not draw the ractangle, but let the user select a new.
      */
     @Override
     public void mouseReleased(MouseEvent e) {
 
         if (super.mouseDragged) {
 
-            if (e!= null) {
+            if (e != null) {
 
                 // Get the map from the source.
                 MapBean map = (MapBean) e.getSource();
@@ -71,32 +68,34 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
 
                 // Get the second point and the length of the width and height.
                 super.point2 = e.getPoint();
-                int rectangleWidth = Math.abs(super.point2.x - super.point1.x);
-                int rectangleHeight = Math.abs(super.point2.y - super.point1.y);
 
-                synchronized (this) {
+                if (point2 != null) {
 
-                    // Reset points if the rectangle is too small.
-                    if (rectangleWidth < 10 || rectangleHeight < 10) {
+                    int rectangleWidth = Math.abs(super.point2.x - super.point1.x);
+                    int rectangleHeight = Math.abs(super.point2.y - super.point1.y);
 
-                        super.paintRectangle(map.getGraphics(), super.point1,
-                                super.point2);
-                        super.point1 = null;
-                        super.point2 = null;
+                    synchronized (this) {
 
-                        // Draw the rectangle if it is large enough.
-                    } else {
+                        // Reset points if the rectangle is too small.
+                        if (rectangleWidth < 10 || rectangleHeight < 10) {
 
-                        Point2D[] points = new Point2D[2];
-                        points[0] = projection.inverse(super.point1);
-                        points[1] = projection.inverse(super.point2);
+                            super.paintRectangle(map.getGraphics(), super.point1, super.point2);
+                            super.point1 = null;
+                            super.point2 = null;
 
-                        this.chartPanel.getNogoDialog().setSelectedArea(points);
-                        this.chartPanel.getNogoDialog().setVisible(true);
+                            // Draw the rectangle if it is large enough.
+                        } else {
 
-                        super.paintRectangle(map.getGraphics(), super.point1,
-                                super.point2);
-                        super.point2 = null;
+                            Point2D[] points = new Point2D[2];
+                            points[0] = projection.inverse(super.point1);
+                            points[1] = projection.inverse(super.point2);
+
+                            this.chartPanel.getNogoDialog().setSelectedArea(points);
+                            this.chartPanel.getNogoDialog().setVisible(true);
+
+                            super.paintRectangle(map.getGraphics(), super.point1, super.point2);
+                            super.point2 = null;
+                        }
                     }
                 }
             }
@@ -104,20 +103,16 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
     }
 
     /**
-     * If the mouse is pressed twice right after each other, this mouse event
-     * handler method will update the location on the map by the position of the
-     * mouse. If the control button is pushed down when this method is called, a
-     * new scale value will be calculated so that a zoom to the new position
-     * will be done too. If the control and shift button are both down at when
-     * called a zoom out from the point will be done.
+     * If the mouse is pressed twice right after each other, this mouse event handler method will update the location on the map by
+     * the position of the mouse. If the control button is pushed down when this method is called, a new scale value will be
+     * calculated so that a zoom to the new position will be done too. If the control and shift button are both down at when called
+     * a zoom out from the point will be done.
      */
     @Override
     public void mouseClicked(MouseEvent e) {
 
         super.mouseClicked(e);
-        if (e.getSource() instanceof MapBean
-                && SwingUtilities.isLeftMouseButton(e)
-                && e.getClickCount() == 2 && !e.isConsumed()) {
+        if (e.getSource() instanceof MapBean && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
 
             // Fire the mouse support.
             super.mouseSupport.fireMapMouseClicked(e);
@@ -142,17 +137,14 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
     }
 
     /**
-     * If the mouse is dragged, a test will be done if it is a layer related
-     * element. If it isn't, a rectangle will be drawn from the first point, to
-     * the point of the mouse. If control is down when mouse is dragged the
-     * rectangle will follow the mouse. Else the mouse will draw a rectangle
-     * fitted in ratio to the map frame.
+     * If the mouse is dragged, a test will be done if it is a layer related element. If it isn't, a rectangle will be drawn from
+     * the first point, to the point of the mouse. If control is down when mouse is dragged the rectangle will follow the mouse.
+     * Else the mouse will draw a rectangle fitted in ratio to the map frame.
      */
     @Override
     public void mouseDragged(MouseEvent e) {
 
-        if (e.getSource() instanceof MapBean
-                && SwingUtilities.isLeftMouseButton(e) && this.doZoom) {
+        if (e.getSource() instanceof MapBean && SwingUtilities.isLeftMouseButton(e) && this.doZoom) {
 
             super.mouseDragged(e);
 
@@ -170,14 +162,12 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
                 this.mouseDragged = true;
 
                 // Clear up the old point.
-                this.paintRectangle(((MapBean) e.getSource()).getGraphics(),
-                        this.point1, this.point2);
+                this.paintRectangle(((MapBean) e.getSource()).getGraphics(), this.point1, this.point2);
 
                 this.point2 = e.getPoint();
 
                 // Clear up the old point.
-                this.paintRectangle(((MapBean) e.getSource()).getGraphics(),
-                        this.point1, this.point2);
+                this.paintRectangle(((MapBean) e.getSource()).getGraphics(), this.point1, this.point2);
 
                 // Repaint new rectangle.
                 ((MapBean) e.getSource()).repaint();

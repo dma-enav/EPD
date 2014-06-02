@@ -48,7 +48,7 @@ public class NoGoComponentPanel extends OMComponentPanel implements DockableComp
     private JLabel validToLabel;
     private JLabel draughtLabel;
     private JLabel additionalTxttLabel;
-//    private JLabel additionalTxt2Label;
+    // private JLabel additionalTxt2Label;
 
     private JSlider slider;
 
@@ -166,7 +166,8 @@ public class NoGoComponentPanel extends OMComponentPanel implements DockableComp
      */
     public void requestCompletedMultiple(int errorCodeOwn, List<NogoPolygon> polygonsOwn, DateTime dateTime, DateTime dateTime2,
             Double draught, int id) {
-        nogoPanel.requestCompletedMultiple(errorCodeOwn, polygonsOwn, new Date(dateTime.getMillis()), new Date(dateTime2.getMillis()), draught, id);
+        nogoPanel.requestCompletedMultiple(errorCodeOwn, polygonsOwn, new Date(dateTime.getMillis()),
+                new Date(dateTime2.getMillis()), draught, id);
     }
 
     public void inactive() {
@@ -225,15 +226,17 @@ public class NoGoComponentPanel extends OMComponentPanel implements DockableComp
     @Override
     public void stateChanged(ChangeEvent e) {
         JSlider source = (JSlider) e.getSource();
-        if (!source.getValueIsAdjusting()) {
-            int index = (int) source.getValue();
+        // if (!source.getValueIsAdjusting()) {
+        int index = (int) source.getValue();
 
-            NoGoDataEntry entry = nogoHandler.getNogoData().get(index - 1);
+        NoGoDataEntry entry = nogoHandler.getNogoData().get(index - 1);
 
-            nogoPanel.setToAndFromSliderOptions(new Date(entry.getValidFrom().getMillis()),
-                    new Date(entry.getValidTo().getMillis()));
-            nogoHandler.showNoGoIndex(index);
+        nogoPanel.setToAndFromSliderOptions(new Date(entry.getValidFrom().getMillis()), new Date(entry.getValidTo().getMillis()));
+        nogoHandler.showNoGoIndex(index);
 
-        }
+        // }else{
+
+        // System.out.println("Value is adjusting " + (int) source.getValue());
+        // }
     }
 }

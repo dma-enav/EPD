@@ -211,8 +211,8 @@ public class NoGoPanel extends JPanel {
 
         slider = new JSlider(JSlider.HORIZONTAL, 1, 10, 1);
         slider.setSnapToTicks(true);
-        slider.setPaintTicks(true);
-        slider.setPaintLabels(true);
+        slider.setPaintTicks(false);
+        slider.setPaintLabels(false);
         slider.setMajorTickSpacing(1);
         slider.setMinorTickSpacing(1);
         // slider.addChangeListener(this);
