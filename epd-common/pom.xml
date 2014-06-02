@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>dk.frv.dk</groupId>
 			<artifactId>enavshore-xml</artifactId>
-			<version>1.0</version>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>dk.dma.ais.lib</groupId>
