@@ -218,6 +218,7 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
             // Update location on map.
             proj.setCenter(llp);
             map.setProjection(proj);
+            this.doZoom = false;
         }
     }
 
