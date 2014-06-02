@@ -90,7 +90,6 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
     private JLabel slicesCount;
     private Double totalDepth = 0.0;
 
-    @SuppressWarnings("deprecation")
     public NogoDialog(JFrame parent, NogoHandler nogoHandler, OwnShipHandler ownShipHandler) {
         super(parent, "Request Nogo", true);
 
@@ -155,10 +154,12 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
         lblNogoBetween.setBounds(10, 24, 137, 14);
         panel_1.add(lblNogoBetween);
 
-        Date date = new Date();
-        date.setMinutes(0);
-        date.setSeconds(0);
+        DateTime dateTime = new DateTime();
+        dateTime = dateTime.withMillisOfSecond(0);
+        dateTime = dateTime.withSecondOfMinute(0);
+        dateTime = dateTime.withMinuteOfHour(0);
 
+        Date date = new Date(dateTime.getMillis());
         Date date48hour = date;
 
         Calendar c = Calendar.getInstance();
@@ -300,9 +301,9 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
 
             int shipDraught = (int) ownShipHandler.getStaticData().getDraught();
 
-            System.out.println("Pure value is " + ownShipHandler.getStaticData().getDraught());
+//            System.out.println("Pure value is " + ownShipHandler.getStaticData().getDraught());
             double draught = shipDraught / 10.0;
-            System.out.println("Draught is " + draught);
+//            System.out.println("Draught is " + draught);
             spinnerDraught.setValue(draught);
 
         }
@@ -389,6 +390,10 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
         }
         if (e.getSource() == cancelButton) {
             // Cancel the request
+            if (northWestPoint != null & southEastPoint != null) {
+                this.chartPanel.setMouseMode(this.chartPanel.getNoGoMouseMode().getPreviousMouseModeID());
+            }
+
             this.dispose();
         }
         if (e.getSource() == btnSelectArea) {
@@ -435,20 +440,23 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
     }
 
     private void calculateSlices() {
-        int sliceCount = 1;
 
-        DateTime startDate = new DateTime(spinnerTimeStart.getValue());
-        DateTime endDate = new DateTime(spinnerTimeEnd.getValue());
+        if (useSlices) {
 
-        DateTime currentVal = startDate.plusMinutes(sliceInMinutes);
+            int sliceCount = 1;
 
-        while (currentVal.isBefore(endDate)) {
-            startDate = currentVal;
-            currentVal = startDate.plusMinutes(sliceInMinutes);
-            sliceCount = sliceCount + 1;
+            DateTime startDate = new DateTime(spinnerTimeStart.getValue());
+            DateTime endDate = new DateTime(spinnerTimeEnd.getValue());
+
+            DateTime currentVal = startDate.plusMinutes(sliceInMinutes);
+
+            while (currentVal.isBefore(endDate)) {
+                startDate = currentVal;
+                currentVal = startDate.plusMinutes(sliceInMinutes);
+                sliceCount = sliceCount + 1;
+            }
+
+            slicesCount.setText("Time Slices: " + sliceCount);
         }
-
-        slicesCount.setText("Time Slices: " + sliceCount);
-
     }
 }

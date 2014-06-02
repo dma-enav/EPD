@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import net.jcip.annotations.ThreadSafe;
 
 import org.joda.time.DateTime;
@@ -46,7 +48,7 @@ public class NogoHandler extends MapHandlerChild {
 
     private static final Logger LOG = LoggerFactory.getLogger(NogoHandler.class);
 
-    private List<NoGoDataEntry> nogoData;
+    private List<NoGoDataEntry> nogoData = new ArrayList<NoGoDataEntry>();
 
     Position northWestPoint;
     Position southEastPoint;
@@ -64,12 +66,14 @@ public class NogoHandler extends MapHandlerChild {
     private Date validFrom;
     private Date validTo;
 
-//    private int minutesBetween;
+    // private int minutesBetween;
     private boolean useSlices;
 
     private NoGoComponentPanel nogoPanel;
 
     int completedRequests;
+
+    private boolean requestInProgress;
 
     public NogoLayer getNogoLayer() {
         return nogoLayer;
@@ -97,107 +101,112 @@ public class NogoHandler extends MapHandlerChild {
     }
 
     public synchronized void updateNogo(boolean useSlices, int minutesBetween) {
-      
-        LOG.info("New NoGo Requested Initiated");
-        // If the dock isn't visible should it show it?
-        if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("NoGo")) {
 
-            // Show it display the message?
-            if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
-                new ShowDockableDialog(EPDShip.getInstance().getMainFrame(), dock_type.NOGO);
-            } else {
+        if (requestInProgress) {
+            JOptionPane.showMessageDialog(EPDShip.getInstance().getMainFrame(),
+                    "Please wait for the previous NoGo request to be completed before initiating a new",
+                    "Unable to comply with NoGo request", JOptionPane.WARNING_MESSAGE);
+        } else {
 
-                if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                    EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("NoGo");
-                    EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
+            LOG.info("New NoGo Requested Initiated");
+            requestInProgress = true;
+            // If the dock isn't visible should it show it?
+            if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("NoGo")) {
+
+                // Show it display the message?
+                if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
+                    new ShowDockableDialog(EPDShip.getInstance().getMainFrame(), dock_type.NOGO);
+                } else {
+
+                    if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
+                        EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("NoGo");
+                        EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
+                    }
+
+                    // It shouldn't display message but take a default action
+
                 }
 
-                // It shouldn't display message but take a default action
+            }
+            this.useSlices = useSlices;
+            // this.minutesBetween = minutesBetween;
+
+            this.resetLayer();
+
+            // Setup the panel
+            if (this.useSlices) {
+                nogoPanel.activateMultiple();
+                nogoPanel.newRequestMultiple();
+            } else {
+                nogoPanel.activateSingle();
+                nogoPanel.newRequestSingle();
 
             }
 
-        }
-        this.useSlices = useSlices;
-//        this.minutesBetween = minutesBetween;
+            nogoData = new ArrayList<NoGoDataEntry>();
+            // New Request - determine how many time slices are needed to complete the request or if we even need to do slices
 
-        
-        
-        this.resetLayer();
+            // Calculate slices
+            if (this.useSlices) {
 
-        // Setup the panel
-        if (this.useSlices) {
-            nogoPanel.activateMultiple();
-            nogoPanel.newRequestMultiple();
-        } else {
-            nogoPanel.activateSingle();
-            nogoPanel.newRequestSingle();
+                DateTime startDate = new DateTime(validFrom.getTime());
+                DateTime endDate = new DateTime(validTo.getTime());
 
-        }
+                DateTime currentVal;
 
-        nogoData = new ArrayList<NoGoDataEntry>();
-        // New Request - determine how many time slices are needed to complete the request or if we even need to do slices
-
-        // Calculate slices
-        if (this.useSlices) {
-
-           
-
-            DateTime startDate = new DateTime(validFrom.getTime());
-            DateTime endDate = new DateTime(validTo.getTime());
-
-            DateTime currentVal;
-
-            
-            currentVal = startDate.plusMinutes(minutesBetween);
-
-            NoGoDataEntry nogoDataEntry = new NoGoDataEntry(startDate, currentVal);
-            nogoData.add(nogoDataEntry);
-
-            while (currentVal.isBefore(endDate)) {
-                startDate = currentVal;
                 currentVal = startDate.plusMinutes(minutesBetween);
-                nogoDataEntry = new NoGoDataEntry(startDate, currentVal);
+
+                NoGoDataEntry nogoDataEntry = new NoGoDataEntry(startDate, currentVal);
+                nogoData.add(nogoDataEntry);
+
+                while (currentVal.isBefore(endDate)) {
+                    startDate = currentVal;
+                    currentVal = startDate.plusMinutes(minutesBetween);
+                    nogoDataEntry = new NoGoDataEntry(startDate, currentVal);
+                    nogoData.add(nogoDataEntry);
+                }
+
+                nogoPanel.initializeSlider(nogoData.size());
+                nogoLayer.initializeNoGoStorage(nogoData.size());
+            } else {
+                // Do a single request
+
+                DateTime startDate = new DateTime(validFrom.getTime());
+                DateTime endDate = new DateTime(validTo.getTime());
+
+                NoGoDataEntry nogoDataEntry = new NoGoDataEntry(startDate, endDate);
                 nogoData.add(nogoDataEntry);
             }
 
-            nogoPanel.initializeSlider(nogoData.size());
-            nogoLayer.initializeNoGoStorage(nogoData.size());
+            NoGoWorker nogoWorker = createWorker(nogoData.size(), new DateTime(validFrom.getTime()),
+                    new DateTime(validTo.getTime()));
+
+            nogoWorker.start();
 
             completedRequests = 0;
 
-            createWorker(0).run();
+            // createWorker(nogoData.size()).run();
 
-            // Create the workers
-            for (int i = 1; i < nogoData.size(); i++) {
-//                System.out.println("Next worker " + i);
-                NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, i);
-                nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i)
-                        .getValidTo());
+            // // Create the workers
+            // for (int i = 1; i < nogoData.size(); i++) {
+            // // System.out.println("Next worker " + i);
+            // NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, i);
+            // nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i)
+            // .getValidTo());
+            //
+            // nogoWorker.run();
+            // // System.out.println("Run created for " + i);
+            // }
 
-                nogoWorker.run();
-//                System.out.println("Run created for " + i);
-            }
+            // } else {
 
-        } else {
-            // Do a single request
-
-            DateTime startDate = new DateTime(validFrom.getTime());
-            DateTime endDate = new DateTime(validTo.getTime());
-
-            NoGoDataEntry nogoDataEntry = new NoGoDataEntry(startDate, endDate);
-            nogoData.add(nogoDataEntry);
-
-            NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, 0);
-
-            nogoWorker.setValues(draught, northWestPoint, southEastPoint, startDate, endDate);
-
-            nogoWorker.start();
+            //
         }
     }
 
-    private NoGoWorker createWorker(int i) {
-        NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, i);
-        nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i).getValidTo());
+    private NoGoWorker createWorker(int slices, DateTime startDate, DateTime endDate) {
+        NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, 0, slices);
+        nogoWorker.setValues(draught, northWestPoint, southEastPoint, startDate, endDate);
         return nogoWorker;
     }
 
@@ -234,8 +243,8 @@ public class NogoHandler extends MapHandlerChild {
 
         // Special handling of slices
         if (this.useSlices) {
-            nogoPanel.requestCompletedMultiple(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), dataEntry.getValidFrom(), dataEntry.getValidTo(),
-                    draught, i);
+            nogoPanel.requestCompletedMultiple(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), dataEntry.getValidFrom(),
+                    dataEntry.getValidTo(), draught, i);
             updateLayerMultipleResult(i);
 
             nogoPanel.setCompletedSlices(completedRequests, nogoData.size());
@@ -246,6 +255,10 @@ public class NogoHandler extends MapHandlerChild {
             updateLayerSingleResult();
         }
 
+    }
+
+    public synchronized void setNoGoRequestCompleted() {
+        requestInProgress = false;
     }
 
     public Position getNorthWestPoint() {
@@ -261,7 +274,7 @@ public class NogoHandler extends MapHandlerChild {
     }
 
     private void updateLayerMultipleResult(int i) {
-//        System.out.println("Value " + i + " is ready");
+        // System.out.println("Value " + i + " is ready");
         nogoLayer.addResultFromMultipleRequest(nogoData.get(i), i);
     }
 

@@ -25,6 +25,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.frv.enav.common.xml.nogo.response.NogoResponse;
+import dk.frv.enav.common.xml.nogoslices.response.NogoResponseSlices;
 
 public class NoGoWorker extends Thread {
 
@@ -38,11 +39,13 @@ public class NoGoWorker extends Thread {
     Position southEastPoint;
     Date validFrom;
     Date validTo;
+    int slices;
 
-    public NoGoWorker(NogoHandler nogoHandler, ShoreServicesCommon shoreCommon, int id) {
+    public NoGoWorker(NogoHandler nogoHandler, ShoreServicesCommon shoreCommon, int id, int slices) {
         this.nogoHandler = nogoHandler;
         shoreServices = shoreCommon;
         this.id = id;
+        this.slices = slices;
     }
 
     public void setValues(double draught, Position northWestPoint, Position southEastPoint, DateTime startDate, DateTime endDate) {
@@ -52,6 +55,7 @@ public class NoGoWorker extends Thread {
         this.southEastPoint = southEastPoint;
         this.validFrom = new Date(startDate.getMillis());
         this.validTo = new Date(endDate.getMillis());
+
     }
 
     @Override
@@ -67,25 +71,47 @@ public class NoGoWorker extends Thread {
         }
 
         try {
-            NogoResponse nogoResponse = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
-            
-            // Check the nogoresponse stuff
 
-            if (nogoResponse == null || nogoResponse.getPolygons() == null) {
-                nogoHandler.nogoTimedOut();
-                return;
+            if (slices == 1) {
+
+                NogoResponse nogoResponse = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
+
+                // Check the nogoresponse stuff
+
+                if (nogoResponse == null || nogoResponse.getPolygons() == null) {
+                    nogoHandler.nogoTimedOut();
+                    return;
+                }
+
+                // Store results
+
+                nogoHandler.nogoWorkerCompleted(id, nogoResponse);
+            } else {
+                NogoResponseSlices nogoResponse = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom,
+                        validTo, slices);
+
+                // Check the nogoresponse stuff
+
+                if (nogoResponse == null || nogoResponse.getResponses() == null) {
+                    nogoHandler.nogoTimedOut();
+                    nogoHandler.setNoGoRequestCompleted();
+                    return;
+                }
+
+                // Store results
+                for (int i = 0; i < nogoResponse.getResponses().size(); i++) {
+                    nogoHandler.nogoWorkerCompleted(i, nogoResponse.getResponses().get(i));
+                }
+
             }
-
-            // Store results
-
-            nogoHandler.nogoWorkerCompleted(id, nogoResponse);
         } catch (ShoreServiceException e) {
             // TODO Auto-generated catch block
             nogoHandler.noNetworkConnection();
             LOG.error("Failed to get NoGo from shore: " + e.getMessage());
+
         }
         // Perform the thing
-
+        nogoHandler.setNoGoRequestCompleted();
     }
 
 }

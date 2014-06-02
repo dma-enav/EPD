@@ -60,6 +60,8 @@ import dk.frv.enav.common.xml.msi.request.MsiPollRequest;
 import dk.frv.enav.common.xml.msi.response.MsiResponse;
 import dk.frv.enav.common.xml.nogo.request.NogoRequest;
 import dk.frv.enav.common.xml.nogo.response.NogoResponse;
+import dk.frv.enav.common.xml.nogoslices.request.NogoRequestSlices;
+import dk.frv.enav.common.xml.nogoslices.response.NogoResponseSlices;
 import dk.frv.enav.common.xml.risk.request.RiskRequest;
 import dk.frv.enav.common.xml.risk.response.RiskList;
 import dk.frv.enav.common.xml.risk.response.RiskResponse;
@@ -140,6 +142,9 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
     public NogoResponse nogoPoll(double draught, Position northWestPoint, Position southEastPoint, Date startDate, Date endDate)
             throws ShoreServiceException {
+
+        // nogoPoll(draught, northWestPoint, southEastPoint, startDate, endDate, 2);
+
         // Create request
         NogoRequest nogoRequest = new NogoRequest();
 
@@ -157,8 +162,38 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
         NogoResponse nogoResponse = (NogoResponse) makeRequest("/api/xml/nogo", "dk.frv.enav.common.xml.nogo.request",
                 "dk.frv.enav.common.xml.nogo.response", nogoRequest);
-        
+
         return nogoResponse;
+    }
+
+    public NogoResponseSlices nogoPoll(double draught, Position northWestPoint, Position southEastPoint, Date startDate,
+            Date endDate, int slices) throws ShoreServiceException {
+
+        // System.out.println("Nogo response slice test");
+
+        NogoRequestSlices nogoRequest = new NogoRequestSlices();
+        // System.out.println("Request created");
+
+        // Set request parameters
+        nogoRequest.setDraught(draught);
+        nogoRequest.setNorthWestPointLat(northWestPoint.getLatitude());
+        nogoRequest.setNorthWestPointLon(northWestPoint.getLongitude());
+        nogoRequest.setSouthEastPointLat(southEastPoint.getLatitude());
+        nogoRequest.setSouthEastPointLon(southEastPoint.getLongitude());
+        nogoRequest.setStartDate(startDate);
+        nogoRequest.setEndDate(endDate);
+        nogoRequest.setSlices(slices);
+
+        // Add request parameters
+        addRequestParameters(nogoRequest);
+
+        // System.out.println("Adding parameters");
+
+        NogoResponseSlices nogoResponse = (NogoResponseSlices) makeRequest("/api/xml/slicesnogo",
+                "dk.frv.enav.common.xml.nogoslices.request", "dk.frv.enav.common.xml.nogoslices.response", nogoRequest);
+
+        return nogoResponse;
+
     }
 
     public MsiResponse msiPoll(int lastMessage) throws ShoreServiceException {

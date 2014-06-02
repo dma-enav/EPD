@@ -16,7 +16,6 @@
 package dk.dma.epd.ship.gui.component_panels;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.util.Date;
 import java.util.List;
 
@@ -49,7 +48,7 @@ public class NoGoComponentPanel extends OMComponentPanel implements DockableComp
     private JLabel validToLabel;
     private JLabel draughtLabel;
     private JLabel additionalTxttLabel;
-    private JLabel additionalTxt2Label;
+//    private JLabel additionalTxt2Label;
 
     private JSlider slider;
 

@@ -47,7 +47,7 @@ public class NogoLayer extends EPDLayerCommon {
     }
 
     public void initializeNoGoStorage(int count) {
-//        System.out.println("Initialize storage");
+        // System.out.println("Initialize storage");
         cleanUp();
         for (int i = 0; i < count; i++) {
             multipleNoGo.add(null);
@@ -62,7 +62,7 @@ public class NogoLayer extends EPDLayerCommon {
      */
     public void addResultFromMultipleRequest(NoGoDataEntry dataEntry, int id) {
 
-//        System.out.println("Adding result from multiple at id " + id);
+        // System.out.println("Adding result from multiple at id " + id);
 
         multipleNoGo.add(id, createNoGoGraphics(dataEntry));
 
@@ -72,9 +72,8 @@ public class NogoLayer extends EPDLayerCommon {
     }
 
     public void drawSpecificResult(int id) {
-//        System.out.println("Drawing " + id);
-        if (multipleNoGo.size() >= id+1) {
-
+        // System.out.println("Drawing " + id);
+        if (multipleNoGo.size() >= id + 1) {
             graphics.remove(multipleNoGo.get(currentSelected));
 
             if (multipleNoGo.get(id) != null) {
@@ -86,7 +85,7 @@ public class NogoLayer extends EPDLayerCommon {
         }
 
         doPrepare();
-        
+
     }
 
     private OMGraphicList createNoGoGraphics(NoGoDataEntry dataEntry) {
@@ -101,7 +100,7 @@ public class NogoLayer extends EPDLayerCommon {
     }
 
     private void cleanUp() {
-//        System.out.println("Cleanup");
+        // System.out.println("Cleanup");
         for (int i = 0; i < multipleNoGo.size(); i++) {
             graphics.remove(multipleNoGo.get(i));
         }
@@ -116,7 +115,7 @@ public class NogoLayer extends EPDLayerCommon {
      */
     public void singleResultCompleted(NoGoDataEntry dataEntry) {
         cleanUp();
-
+        currentSelected = 0;
         multipleNoGo.add(0, createNoGoGraphics(dataEntry));
 
         graphics.add(multipleNoGo.get(0));
