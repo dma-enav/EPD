@@ -34,7 +34,7 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
     /**
      * Public fields.
      */
-    public final Cursor DRAG_CURSOR; // Default cursor when mouse is over map in drag mode. 
+    public final Cursor DRAG_CURSOR; // Default cursor when mouse is over map in drag mode.
     public final Cursor DRAG_DOWN_CURSOR; // Default cursor for when mouse is down.
 
     /**
@@ -53,60 +53,67 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
 
     /**
      * Creates a new CommonDragMouseMode. <br>
-     * The object is common behaviour for dragging in ship side and
-     * shore side.
+     * The object is common behaviour for dragging in ship side and shore side.
      * 
      * @param chartPanel
-     *          The ChartPanel of the map which should be dragged
-     *          on.
+     *            The ChartPanel of the map which should be dragged on.
      * 
      * @param modeid
-     *          The modeid of the route edit mouse mode.
+     *            The modeid of the route edit mouse mode.
      */
     public CommonDragMouseMode(ChartPanelCommon chartPanel, String modeid) {
         super(modeid, true);
         this.chartPanel = chartPanel;
-        
+
         // Create the drag cursor.
         Toolkit tk = Toolkit.getDefaultToolkit();
         Image cursorIcon = EPD.res().getCachedImageIcon("images/toolbar/drag_mouse.png").getImage();
         this.DRAG_CURSOR = tk.createCustomCursor(cursorIcon, new Point(7, 7), "drag");
-        
+
         // Create the drag-when-button-is-down cursor.
         cursorIcon = EPD.res().getCachedImageIcon("images/toolbar/drag_on_mouse.png").getImage();
         this.DRAG_DOWN_CURSOR = tk.createCustomCursor(cursorIcon, new Point(7, 7), "dragDown");
-        
+
         // Set the drag cursor.
         this.setModeCursor(this.DRAG_CURSOR);
     }
-    
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        super.mouseClicked(e);
+        if (e.getSource() instanceof MapBean && SwingUtilities.isRightMouseButton(e)) {
+            mouseExited = false;
+            layerMouseDrag = false;
+            mouseDragged = false;
+            
+            DraggableLayerMapBean map = this.chartPanel.getMap();
+            map.stopDragging(e);
+        }
+    }
+
     /**
-     * This method is called when the mouse is pressed and dragged across
-     * the map. The method will take a screen shot of the map, and let the
-     * user drag the map around, and update the cursor to a dragging hand.
+     * This method is called when the mouse is pressed and dragged across the map. The method will take a screen shot of the map,
+     * and let the user drag the map around, and update the cursor to a dragging hand.
      */
     @Override
     public void mouseDragged(MouseEvent e) {
-                
+
         super.mouseDragged(e);
-        if (e.getSource() instanceof MapBean &&
-                SwingUtilities.isLeftMouseButton(e)) {
-                        
+        if (e.getSource() instanceof MapBean && SwingUtilities.isLeftMouseButton(e)) {
+
             // Ensure that other layer elements can be dragged (fx waypoints)
             if (!this.mouseDragged) {
                 this.layerMouseDrag = super.mouseSupport.fireMapMouseDragged(e);
             }
-            
-            /* This if statement is used to ensure that the navigation
-             * mouse mode can be used after a NoGo area has been selected.
-             * This is to make sure that the variables layerMouseDrag and
-             * mouseDragged are initialized back to their default values.
-             */ 
-            if (this.layerMouseDrag && 
-                    this.mouseExited) {
+
+            /*
+             * This if statement is used to ensure that the navigation mouse mode can be used after a NoGo area has been selected.
+             * This is to make sure that the variables layerMouseDrag and mouseDragged are initialized back to their default values.
+             */
+            if (this.layerMouseDrag && this.mouseExited) {
                 this.mouseReleased(e);
                 this.mouseExited = false;
-                
+
                 // If other layer elements was not pressed, do the dragging of map.
             } else if (!this.layerMouseDrag) {
                 this.drag(e);
@@ -115,65 +122,74 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
     }
 
     /**
-     * Completes the dragging method. This is in a seperate method,
-     * because the same method is used when dragging in route edit
+     * Completes the dragging method. This is in a seperate method, because the same method is used when dragging in route edit
      * mouse mode.
+     * 
      * @param e
-     *          The mouse event.
+     *            The mouse event.
      */
     protected void drag(MouseEvent e) {
-        
+
         this.mouseDragged = true;
-        
+
         DraggableLayerMapBean map = this.chartPanel.getMap();
-                                                
+
         if (!this.isPanning) {
             this.isPanning = true;
             map.startDragging(e);
-                
-        } else {                                        
+
+        } else {
             map.drag(e);
         }
 
         // Change cursor to a dragging hand.
         this.chartPanel.setCursor(this.DRAG_DOWN_CURSOR);
     }
-    
+
     /**
-     * This method is called when the mouse is released. It will get
-     * the coordinates for the current view (which is dragged to) and
+     * This method is called when the mouse is released. It will get the coordinates for the current view (which is dragged to) and
      * set center of the map to that location.
      */
     @Override
     public void mouseReleased(MouseEvent e) {
-        
+
         super.mouseReleased(e);
-        
-        if (this.isPanning && 
-                e.getSource() instanceof MapBean) {
-            
+
+        if (this.isPanning && e.getSource() instanceof MapBean) {
+
             DraggableLayerMapBean map = (DraggableLayerMapBean) e.getSource();
-            
+
             this.isPanning = false;
             this.mouseDragged = false;
             map.stopDragging(e);
         }
-        
-        this.layerMouseDrag = false;
+
     }
-    
+
     /**
-     * Handles a mouse exited event. The boolean is mouseExited is set
-     * to true, so that dragging can be activated after NoGo area has 
-     * been selected.
+     * Handles a mouse exited event. The boolean is mouseExited is set to true, so that dragging can be activated after NoGo area
+     * has been selected.
      */
     @Override
     public void mouseExited(MouseEvent e) {
-        
+
         if (e.getSource() instanceof MapBean) {
-            
+
             super.mouseExited(e);
-            this.mouseExited = true;
+            // this.mouseExited = true;
+            mouseDragged = false;
+            mouseExited = false;
+            layerMouseDrag = false;
         }
     }
+
+    @Override
+    public void setActive(boolean active) {
+        mouseDragged = false;
+        mouseExited = false;
+        layerMouseDrag = false;
+        super.setActive(active);
+
+    }
+
 }
