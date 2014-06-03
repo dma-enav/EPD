@@ -384,7 +384,9 @@ public class MainFrame extends MainFrameCommon {
     public synchronized void setSelectedMMSI(long selectedMMSI) {
         this.selectedMMSI = selectedMMSI;
         for (int i = 0; i < mapWindows.size(); i++) {
-            mapWindows.get(i).getChartPanel().getAisLayer().setSelectedTarget(selectedMMSI, true);
+            if (mapWindows.get(i).getChartPanel().getAisLayer() != null){
+                mapWindows.get(i).getChartPanel().getAisLayer().setSelectedTarget(selectedMMSI, true);    
+            }
         }
     }
 

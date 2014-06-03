@@ -48,7 +48,6 @@ public class VoctHandlerCommon extends EnavServiceHandlerCommon {
     public VoctHandlerCommon() {
         super();
 
-        // Checks and remove stale intended routes every minute
         getScheduler().scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {

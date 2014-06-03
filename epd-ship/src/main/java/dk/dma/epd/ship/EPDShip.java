@@ -87,6 +87,7 @@ import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.IntendedRouteHandler;
 import dk.dma.epd.ship.service.RouteSuggestionHandler;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
+import dk.dma.epd.ship.service.VoctHandler;
 import dk.dma.epd.ship.service.shore.ShoreServices;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
@@ -122,6 +123,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
     // Maritime Cloud services
     private IntendedRouteHandler intendedRouteHandler;
+    private VoctHandler voctHandler;
 
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
@@ -208,7 +210,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         ownShipHandler.loadView();
         ownShipHandler.addListener(this);
         mapHandler.add(ownShipHandler);
-        
+
         // Start dynamic predictor handler
         dynamicPredictorHandler = new DynamicPredictorHandler();
         mapHandler.add(dynamicPredictorHandler);
@@ -263,6 +265,10 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // Create identity handler
         identityHandler = new IdentityHandler();
         mapHandler.add(identityHandler);
+
+        // Create VOCT handler
+        voctHandler = new VoctHandler();
+        mapHandler.add(voctHandler);
 
         // Start sensors
         startSensors();
@@ -399,16 +405,18 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         default:
             LOG.error("Unknown sensor connection type: " + sensorSettings.getMsPntConnectionType());
         }
-        
+
         switch (sensorSettings.getDynamicPredictorConnectionType()) {
         case TCP:
-            dynamicPredictorSensor = new NmeaTcpSensor(sensorSettings.getDynamicPredictorHostOrSerialPort(), sensorSettings.getDynamicPredictorTcpOrUdpPort());
+            dynamicPredictorSensor = new NmeaTcpSensor(sensorSettings.getDynamicPredictorHostOrSerialPort(),
+                    sensorSettings.getDynamicPredictorTcpOrUdpPort());
             break;
         case UDP:
             dynamicPredictorSensor = new NmeaUdpSensor(sensorSettings.getDynamicPredictorTcpOrUdpPort());
             break;
         case SERIAL:
-            dynamicPredictorSensor = new NmeaSerialSensor(sensorSettings.getDynamicPredictorHostOrSerialPort(), sensorSettings.getDynamicPredictorSerialPortBaudRate());
+            dynamicPredictorSensor = new NmeaSerialSensor(sensorSettings.getDynamicPredictorHostOrSerialPort(),
+                    sensorSettings.getDynamicPredictorSerialPortBaudRate());
         default:
             dynamicPredictorSensor = null;
             break;

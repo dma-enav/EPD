@@ -75,6 +75,7 @@ import dk.dma.epd.shore.service.IntendedRouteHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
+import dk.dma.epd.shore.service.VoctHandler;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.EPDSensorSettings;
 import dk.dma.epd.shore.settings.EPDSettings;
@@ -107,7 +108,7 @@ public final class EPDShore extends EPD {
 
     // Maritime Cloud services
     private IntendedRouteHandlerCommon intendedRouteHandler;
-
+    private VoctHandler voctHandler;
 
     /**
      * Event dispatcher used to notify listeners of voyage changes.
@@ -238,6 +239,10 @@ public final class EPDShore extends EPD {
         identityHandler = new IdentityHandler();
         beanHandler.add(identityHandler);
 
+        // Create identity handler
+        voctHandler = new VoctHandler();
+        beanHandler.add(voctHandler);
+
         // Start sensors
         startSensors();
 
@@ -320,7 +325,7 @@ public final class EPDShore extends EPD {
      * {@inheritDoc}
      */
     public RouteSuggestionHandler getRouteSuggestionHandler() {
-        return (RouteSuggestionHandler)routeSuggestionHandler;
+        return (RouteSuggestionHandler) routeSuggestionHandler;
     }
 
     /**
@@ -498,20 +503,21 @@ public final class EPDShore extends EPD {
 
     /**
      * Returns the MMSI of the shore center, or null if not defined
+     * 
      * @return the MMSI of the shore center
      */
     @Override
     public Long getMmsi() {
         String shoreID = getSettings().getEnavSettings().getShoreId();
-        if (shoreID == null || !StringUtils.isNumeric(shoreID) || 
-                !shoreID.startsWith(MaritimeCloudUtils.STCC_MMSI_PREFIX)) {
-            return null;        
+        if (shoreID == null || !StringUtils.isNumeric(shoreID) || !shoreID.startsWith(MaritimeCloudUtils.STCC_MMSI_PREFIX)) {
+            return null;
         }
-        return Long.parseLong((String)shoreID.subSequence(0, 9));
+        return Long.parseLong((String) shoreID.subSequence(0, 9));
     }
 
     /**
      * Returns the maritime id of the shore center, or null if not defined
+     * 
      * @return the maritime id of the shore center
      */
     @Override
@@ -522,6 +528,7 @@ public final class EPDShore extends EPD {
 
     /**
      * Returns the current position of the shore center
+     * 
      * @return the current position of the shore center
      */
     @Override
@@ -532,7 +539,7 @@ public final class EPDShore extends EPD {
 
     @Override
     public RouteManager getRouteManager() {
-        return (RouteManager)routeManager;
+        return (RouteManager) routeManager;
     }
 
     public SRUManager getSRUManager() {
@@ -618,7 +625,8 @@ public final class EPDShore extends EPD {
             aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpOrUdpPort());
             break;
         case SERIAL:
-            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisSerialPortBaudRate());
+            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort(),
+                    sensorSettings.getAisSerialPortBaudRate());
             break;
         case FILE:
             aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(), sensorSettings);
@@ -668,7 +676,7 @@ public final class EPDShore extends EPD {
             // Update the intended route handler such that it can re apply its filter.
             this.intendedRouteHandler.updateSettings(this.settings.getEnavSettings());
         }
-        
+
     }
 
     public StaticImages getStaticImages() {
@@ -704,7 +712,6 @@ public final class EPDShore extends EPD {
         return monaLisaRouteExchange;
     }
 
-    
     /**
      * Get the application-wide voyage event dispatcher.
      * 
@@ -712,6 +719,15 @@ public final class EPDShore extends EPD {
      */
     public VoyageEventDispatcher getVoyageEventDispatcher() {
         return voyageEventDispatcher;
+    }
+    
+    
+
+    /**
+     * @return the voctHandler
+     */
+    public VoctHandler getVoctHandler() {
+        return voctHandler;
     }
 
     /**

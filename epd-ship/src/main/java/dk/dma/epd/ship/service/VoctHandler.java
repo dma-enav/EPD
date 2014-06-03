@@ -19,6 +19,10 @@ import java.util.concurrent.TimeUnit;
 
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.invocation.InvocationCallback;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse;
@@ -27,6 +31,7 @@ import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidRespon
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
 import dk.dma.epd.common.util.Util;
+import dk.dma.epd.ship.service.voct.VOCTManager;
 
 /**
  * Ship specific intended route service implementation.
@@ -59,8 +64,11 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
     // private DateTime lastSend = new DateTime(1);
     // private RouteManager routeManager;
     private boolean running;
+    private VOCTManager voctManager;
 
     // private IntendedRouteLayerCommon intendedRouteLayerCommon;
+
+    private static final Logger LOG = LoggerFactory.getLogger(VoctHandlerCommon.class);
 
     /**
      * Constructor
@@ -85,13 +93,18 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
                                 public void process(
                                         VOCTCommunicationMessageRapidResponse message,
                                         InvocationCallback.Context<VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse> context) {
-                                    //
-                                    // System.out.println("Received SAR Payload!");
+
+                                    // LOG.info("Shore received a VOCT reply");
+                                    System.out.println("Received SAR Payload!");
+
                                     // cloudStatus.markCloudReception();
                                     //
                                     // voctContextRapidResponse = context;
                                     //
-                                    // voctManager.handleSARDataPackage(message);
+                                    voctManager.handleSARDataPackage(message);
+
+                                    // context.complete(new VOCTCommunicationReplyRapidResponse(message, id, mmsi, sendDate,
+                                    // status));
 
                                 }
                             }).awaitRegistered(4, TimeUnit.SECONDS);
@@ -105,12 +118,12 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
                                         VOCTCommunicationMessageDatumPoint message,
                                         InvocationCallback.Context<VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint> context) {
 
-//                                    System.out.println("Received SAR Payload!");
-//                                    cloudStatus.markCloudReception();
-//
-//                                    voctContextDatumPoint = context;
-//
-//                                    voctManager.handleSARDataPackage(message);
+                                    System.out.println("Received SAR Payload!");
+                                    // cloudStatus.markCloudReception();
+                                    //
+                                    // voctContextDatumPoint = context;
+                                    //
+                                    // voctManager.handleSARDataPackage(message);
 
                                 }
                             }).awaitRegistered(4, TimeUnit.SECONDS);
@@ -150,27 +163,27 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
     public void sendVOCTReply(CLOUD_STATUS recievedAccepted, long id, String message, SAR_TYPE type) {
 
-//        if (type == SAR_TYPE.RAPID_RESPONSE) {
-//            try {
-//                voctContextRapidResponse.complete(new VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse(
-//                        message, id, ownShipHandler.getMmsi(), System.currentTimeMillis(), recievedAccepted));
-//                cloudStatus.markSuccesfullSend();
-//            } catch (Exception e) {
-//                cloudStatus.markFailedSend();
-//                System.out.println("Failed to reply");
-//            }
-//        }
-//
-//        if (type == SAR_TYPE.DATUM_POINT) {
-//            try {
-//                voctContextDatumPoint.complete(new VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint(message, id,
-//                        ownShipHandler.getMmsi(), System.currentTimeMillis(), recievedAccepted));
-//                cloudStatus.markSuccesfullSend();
-//            } catch (Exception e) {
-//                cloudStatus.markFailedSend();
-//                System.out.println("Failed to reply");
-//            }
-//        }
+        // if (type == SAR_TYPE.RAPID_RESPONSE) {
+        // try {
+        // voctContextRapidResponse.complete(new VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse(
+        // message, id, ownShipHandler.getMmsi(), System.currentTimeMillis(), recievedAccepted));
+        // cloudStatus.markSuccesfullSend();
+        // } catch (Exception e) {
+        // cloudStatus.markFailedSend();
+        // System.out.println("Failed to reply");
+        // }
+        // }
+        //
+        // if (type == SAR_TYPE.DATUM_POINT) {
+        // try {
+        // voctContextDatumPoint.complete(new VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint(message, id,
+        // ownShipHandler.getMmsi(), System.currentTimeMillis(), recievedAccepted));
+        // cloudStatus.markSuccesfullSend();
+        // } catch (Exception e) {
+        // cloudStatus.markFailedSend();
+        // System.out.println("Failed to reply");
+        // }
+        // }
 
     }
 
@@ -181,6 +194,9 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
 
+        if (obj instanceof VOCTManager) {
+            voctManager = (VOCTManager) obj;
+        }
 
     }
 
@@ -189,10 +205,10 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
      */
     @Override
     public void findAndUndo(Object obj) {
-//        if (obj instanceof RouteManager) {
-//            routeManager.removeListener(this);
-//            routeManager = null;
-//        }
+        // if (obj instanceof RouteManager) {
+        // routeManager.removeListener(this);
+        // routeManager = null;
+        // }
         super.findAndUndo(obj);
     }
 
