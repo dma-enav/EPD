@@ -15,17 +15,34 @@
  */
 package dk.dma.epd.common.prototype.sensor.predictor;
 
-/**
- * Interface to implement for classes wanting to receive dynamic 
- * predictor updates.
- */
-public interface IDynamicPredictorListener {
+import dk.dma.enav.model.geometry.Position;
+import net.jcip.annotations.Immutable;
+
+@Immutable
+public class DynamicPredictorStateData extends DynamicPredictorData {
+
+    private final int count;
+    private final Double length;
+    private final Double width;
+
+    public DynamicPredictorStateData(int count, Position position, double heading, Double cog, Double sog, Double length,
+            Double width, long time) {
+        super(position, heading, cog, sog, time);
+        this.count = count;
+        this.length = length;
+        this.width = width;
+    }
     
-    /**
-     * Method called when the dynamic prediction data changes or
-     * timeouts
-     * @param dynamicPredictorData
-     */
-    void dynamicPredictorUpdate(DynamicPredictorData dynamicPredictorData);
+    public int getCount() {
+        return count;
+    }
+
+    public Double getLength() {
+        return length;
+    }
+    
+    public Double getWidth() {
+        return width;
+    }
 
 }

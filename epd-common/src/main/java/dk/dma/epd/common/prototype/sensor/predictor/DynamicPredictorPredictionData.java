@@ -18,45 +18,19 @@ package dk.dma.epd.common.prototype.sensor.predictor;
 import net.jcip.annotations.Immutable;
 import dk.dma.enav.model.geometry.Position;
 
-/**
- * Class representing dynamic predictor data
- */
 @Immutable
-public abstract class DynamicPredictorData {
+public class DynamicPredictorPredictionData extends DynamicPredictorData {
 
-    private final Position position;
-    private final Double sog;
-    private final double heading;
-    private final Double cog;
-    private final long time;
+    private final int number;
 
-    public DynamicPredictorData(Position position, double heading, Double cog, Double sog, long time) {
-        super();
-        this.position = position;
-        this.heading = heading;
-        this.cog = cog;
-        this.sog = sog;
-        this.time = time;
+    public DynamicPredictorPredictionData(int number, Position position, double heading, Double cog, Double sog, Double length,
+            Double width, long time) {
+        super(position, heading, cog, sog, time);
+        this.number = number;
     }
 
-    public Position getPosition() {
-        return position;
-    }
-
-    public Double getSog() {
-        return sog;
-    }
-
-    public double getHeading() {
-        return heading;
-    }
-
-    public Double getCog() {
-        return cog;
-    }
-
-    public long getTime() {
-        return time;
+    public int getNumber() {
+        return number;
     }
 
 }
