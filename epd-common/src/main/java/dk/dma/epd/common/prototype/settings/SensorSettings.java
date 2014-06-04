@@ -155,10 +155,12 @@ public class SensorSettings implements Serializable {
 
     private PntSourceSetting pntSource = PntSourceSetting.AUTO;
 
-    private SensorConnectionType dynamicPredictorConnectionType = SensorConnectionType.UDP;
+    private SensorConnectionType dynamicPredictorConnectionType = SensorConnectionType.NONE;
     private String dynamicPredictorHostOrSerialPort = "localhost";
     private int dynamicPredictorTcpOrUdpPort = 8008;
     private int dynamicPredictorSerialPortBaudRate = 38400;
+    
+    private boolean startPredictionGenerator;
 
     private boolean startTransponder = true;
     /**
@@ -206,6 +208,8 @@ public class SensorSettings implements Serializable {
         dynamicPredictorSerialPortBaudRate = PropUtils.intFromProperties(props, PREFIX + "dynamicPredictorSerialPortBaudRate",
                 dynamicPredictorSerialPortBaudRate);
 
+        startPredictionGenerator = PropUtils.booleanFromProperties(props, PREFIX + "startPredictionGenerator", startPredictionGenerator);
+        
         startTransponder = PropUtils.booleanFromProperties(props, PREFIX + "startTransponder", startTransponder);
         aisSensorRange = PropUtils.doubleFromProperties(props, PREFIX + "aisSensorRange", aisSensorRange);
         aisFilename = props.getProperty(PREFIX + "aisFilename", aisFilename);
@@ -248,6 +252,8 @@ public class SensorSettings implements Serializable {
         props.put(PREFIX + "dynamicPredictorcpOrUdpPort", Integer.toString(dynamicPredictorTcpOrUdpPort));
         props.put(PREFIX + "dynamicPredictorSerialPortBaudRate", Integer.toString(dynamicPredictorSerialPortBaudRate));
 
+        props.put(PREFIX + "startPredictionGenerator", Boolean.toString(startPredictionGenerator));
+        
         props.put(PREFIX + "startTransponder", Boolean.toString(startTransponder));
         props.put(PREFIX + "aisSensorRange", Double.toString(aisSensorRange));
         props.put(PREFIX + "aisFilename", aisFilename);
@@ -467,6 +473,14 @@ public class SensorSettings implements Serializable {
 
     public void setDynamicPredictorSerialPortBaudRate(int dynamicPredictorSerialPortBaudRate) {
         this.dynamicPredictorSerialPortBaudRate = dynamicPredictorSerialPortBaudRate;
+    }
+    
+    public boolean isStartPredictionGenerator() {
+        return startPredictionGenerator;
+    }
+    
+    public void setStartPredictionGenerator(boolean startPredictionGenerator) {
+        this.startPredictionGenerator = startPredictionGenerator;
     }
 
 }

@@ -52,7 +52,7 @@ import dk.dma.ais.sentence.SentenceLine;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.util.function.Consumer;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorData;
-import dk.dma.epd.common.prototype.sensor.predictor.IDynamicPredictorListener;
+import dk.dma.epd.common.prototype.sensor.predictor.IDynamicPredictorDataListener;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
 import dk.dma.epd.common.util.Util;
 
@@ -95,7 +95,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     private final CopyOnWriteArrayList<IPntSensorListener> pntListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IResilientPntSensorListener> msPntListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IAisSensorListener> aisListeners = new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<IDynamicPredictorListener> dynamicPredictorListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<IDynamicPredictorDataListener> dynamicPredictorDataListeners = new CopyOnWriteArrayList<>();
 
     public NmeaSensor() {
 
@@ -227,7 +227,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
             handlePstt(msg);
         } else if (msg.indexOf("$PRPNT") >= 0) {
             handlePrpnt(msg);
-        } else if (msg.indexOf("$PDYPR") >= 0) {
+        } else if (msg.indexOf("$PDYPN") >= 0 || msg.indexOf("$PDYPP") >= 0) {
             handleDynamicPredictor(msg);
         }
     }
@@ -387,17 +387,17 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     }
 
     /**
-     * Handle proprietary $PDYPR sentence to get dynamic prediction
+     * Handle proprietary PDYPN and PDYPP sentence to get dynamic prediction
      * 
      * @param msg
      */
     private void handleDynamicPredictor(String msg) {
         try {
-            PdyprSentence sentence = new PdyprSentence();
+            PdypSentence sentence = new PdypSentence();
             sentence.parse(msg);
             publishDynamicPredictorMessage(sentence.getDynamicPredictorData());
         } catch (SentenceException e) {
-            LOG.error("Failed to handle $PDYPR '" + msg + "': " + e.getMessage());
+            LOG.error("Failed to handle $PDYPx '" + msg + "': " + e.getMessage());
         }
     }
 
@@ -414,7 +414,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     }
 
     private void publishDynamicPredictorMessage(DynamicPredictorData dynamicPredictorData) {
-        for (IDynamicPredictorListener dypListener : dynamicPredictorListeners) {
+        for (IDynamicPredictorDataListener dypListener : dynamicPredictorDataListeners) {
             dypListener.dynamicPredictorUpdate(dynamicPredictorData);
         }
     }
@@ -455,12 +455,12 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         aisListeners.remove(aisListener);
     }
 
-    public void addDynamicPredictorListener(IDynamicPredictorListener dynamicPredictorListener) {
-        dynamicPredictorListeners.add(dynamicPredictorListener);
+    public void addDynamicPredictorListener(IDynamicPredictorDataListener dynamicPredictorDataListener) {
+        dynamicPredictorDataListeners.add(dynamicPredictorDataListener);
     }
 
-    public void removeDynamicPredictorListener(IDynamicPredictorListener dynamicPredictorListener) {
-        dynamicPredictorListeners.remove(dynamicPredictorListener);
+    public void removeDynamicPredictorListener(IDynamicPredictorDataListener dynamicPredictorDataListener) {
+        dynamicPredictorDataListeners.remove(dynamicPredictorDataListener);
     }
 
     public void start() {
