@@ -398,4 +398,16 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         super.findAndUndo(obj);
     }
 
+    @Override
+    public void messageReceivedByCloud(VOCTCommunicationMessageRapidResponse message) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void messageHandled(VOCTCommunicationMessageRapidResponse message, VOCTCommunicationReplyRapidResponse reply) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }
