@@ -40,6 +40,7 @@ public class NavSettings implements Serializable {
     private double minWpRadius = 0.2;
     private boolean relaxedWpChange = true;
     private float routeWidth = 2.0f;
+    private boolean dynamicPrediction;
     
     public NavSettings() {
     }
@@ -57,6 +58,7 @@ public class NavSettings implements Serializable {
         minWpRadius = PropUtils.doubleFromProperties(props, PREFIX + "minWpRadius", minWpRadius);
         relaxedWpChange = PropUtils.booleanFromProperties(props, PREFIX + "relaxedWpChange", relaxedWpChange);
         routeWidth = (float)PropUtils.doubleFromProperties(props, PREFIX + "routeWidth", routeWidth);
+        dynamicPrediction = PropUtils.booleanFromProperties(props, PREFIX + "dynamicPrediction", dynamicPrediction);
     }
     
     public void setProperties(Properties props) {
@@ -72,6 +74,7 @@ public class NavSettings implements Serializable {
         props.put(PREFIX + "minWpRadius", Double.toString(minWpRadius));
         props.put(PREFIX + "relaxedWpChange", Boolean.toString(relaxedWpChange));
         props.put(PREFIX + "routeWidth", Float.toString(routeWidth));
+        props.put(PREFIX + "dynamicPrediction", Boolean.toString(dynamicPrediction));
     }
     
     public boolean isAutoFollow() {
@@ -164,6 +167,14 @@ public class NavSettings implements Serializable {
     
     public void setRouteWidth(float routeWidth) {
         this.routeWidth = routeWidth;
+    }
+
+    public boolean isDynamicPrediction() {
+        return dynamicPrediction;
+    }
+
+    public void setDynamicPrediction(boolean dynamicPrediction) {
+        this.dynamicPrediction = dynamicPrediction;
     }
     
 }

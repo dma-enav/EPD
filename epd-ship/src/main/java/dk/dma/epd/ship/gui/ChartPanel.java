@@ -41,6 +41,7 @@ import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
+import dk.dma.epd.common.prototype.layers.predictor.DynamicPredictorLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -95,6 +96,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     private NogoLayer nogoLayer;
     private VoctLayer voctLayer;
     private CommonRulerLayer rulerLayer;
+    private DynamicPredictorLayer dynamicPredictorLayer;
 
     private TopPanel topPanel;
     private VOCTManager voctManager;
@@ -260,7 +262,12 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         intendedRouteTCPALayer.setVisible(true);
         mapHandler.add(intendedRouteTCPALayer);
 
-
+        // Create dynamic prediction layer
+        if (EPDShip.getInstance().getSettings().getNavSettings().isDynamicPrediction()) {
+            dynamicPredictorLayer = new DynamicPredictorLayer();
+            dynamicPredictorLayer.setVisible(true);
+            mapHandler.add(dynamicPredictorLayer);
+        }
         
         // Create background layer
         String layerName = "background";
