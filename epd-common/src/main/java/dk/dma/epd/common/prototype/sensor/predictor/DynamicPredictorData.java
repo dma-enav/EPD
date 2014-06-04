@@ -59,4 +59,12 @@ public abstract class DynamicPredictorData {
         return time;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(", position=").append(position).append(", sog=").append(sog).append(", heading=")
+                .append(heading).append(", cog=").append(cog).append(", time=").append(time).append("]");
+        return builder.toString();
+    }
+
 }

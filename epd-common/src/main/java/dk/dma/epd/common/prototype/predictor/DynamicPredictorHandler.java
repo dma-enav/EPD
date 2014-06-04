@@ -53,7 +53,7 @@ public class DynamicPredictorHandler extends MapHandlerChild implements Runnable
     }
 
     @Override
-    public void dynamicPredictorUpdate(DynamicPredictorData dynamicPredictorData) {
+    public void dynamicPredictorUpdate(DynamicPredictorData dynamicPredictorData) {        
         List<DynamicPredictorPredictionData> toDistribute = null;        
         DynamicPredictorStateData s = null;
         
@@ -68,7 +68,7 @@ public class DynamicPredictorHandler extends MapHandlerChild implements Runnable
             DynamicPredictorPredictionData prediction = (DynamicPredictorPredictionData) dynamicPredictorData;
             DynamicPredictorPredictionData prev = (predictions.size() > 0) ? predictions.get(predictions.size() - 1) : null;
 
-            if (state == null || (prev != null && (prev.getNumber() != prediction.getNumber() + 1))
+            if (state == null || (prev != null && (prev.getNumber() != prediction.getNumber() - 1))
                     || (prev == null && prediction.getNumber() != 1)) {
                 LOG.error("Out of sequence prediction");
                 return;

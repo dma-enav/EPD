@@ -22,11 +22,11 @@ import net.jcip.annotations.Immutable;
 public class DynamicPredictorStateData extends DynamicPredictorData {
 
     private final int count;
-    private final Double length;
-    private final Double width;
+    private final int length;
+    private final int width;
 
-    public DynamicPredictorStateData(int count, Position position, double heading, Double cog, Double sog, Double length,
-            Double width, long time) {
+    public DynamicPredictorStateData(int count, Position position, double heading, Double cog, Double sog, int length,
+            int width, long time) {
         super(position, heading, cog, sog, time);
         this.count = count;
         this.length = length;
@@ -37,12 +37,22 @@ public class DynamicPredictorStateData extends DynamicPredictorData {
         return count;
     }
 
-    public Double getLength() {
+    public int getLength() {
         return length;
     }
     
-    public Double getWidth() {
+    public int getWidth() {
         return width;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("DynamicPredictorStateData [count=").append(count).append(", length=").append(length).append(", width=")
+                .append(width).append(super.toString());
+        return builder.toString();
+    }
+    
+    
 
 }

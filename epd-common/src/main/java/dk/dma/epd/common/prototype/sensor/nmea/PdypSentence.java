@@ -106,8 +106,8 @@ public class PdypSentence extends Sentence {
         double heading;
         Double sog = null;
         Double cog = null;
-        Double length = null;
-        Double width = null;
+        int length = 0;
+        int width = 0;
         long time;
 
         // num
@@ -130,8 +130,8 @@ public class PdypSentence extends Sentence {
                 if (fields.size() < 10) {
                     throw new SentenceException("PDYPN sentence '" + sl.getLine() + "' must have at least 10 fields");
                 }
-                length = ParseUtils.parseDouble(fields.get(7));
-                width = ParseUtils.parseDouble(fields.get(8));
+                length = ParseUtils.parseInt(fields.get(7));
+                width = ParseUtils.parseInt(fields.get(8));
                 dateTimeStr = fields.get(9);
 
             } else {
@@ -153,7 +153,7 @@ public class PdypSentence extends Sentence {
         if (state) {
             dynamicPredictorData = new DynamicPredictorStateData(num, Position.create(lat, lon), heading, cog, sog, length, width, time);
         } else {
-            dynamicPredictorData = new DynamicPredictorPredictionData(num, Position.create(lat, lon), heading, cog, sog, length, width, time);
+            dynamicPredictorData = new DynamicPredictorPredictionData(num, Position.create(lat, lon), heading, cog, sog, time);
         }
 
         return 0;

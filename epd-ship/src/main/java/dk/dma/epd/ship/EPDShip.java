@@ -82,6 +82,7 @@ import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
+import dk.dma.epd.ship.predictor.DynamicPredictor;
 import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.IntendedRouteHandler;
@@ -119,6 +120,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private TransponderFrame transponderFrame;
     private VoyageEventDispatcher voyageEventDispatcher;
     private VOCTManager voctManager;
+    private DynamicPredictor dynamicPredictor;
 
     // Maritime Cloud services
     private IntendedRouteHandler intendedRouteHandler;
@@ -212,6 +214,12 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // Start dynamic predictor handler
         dynamicPredictorHandler = new DynamicPredictorHandler();
         mapHandler.add(dynamicPredictorHandler);
+        
+        // Maybe start dynamic prediction generator
+        if (settings.getSensorSettings().isStartPredictionGenerator()) {
+            dynamicPredictor = new DynamicPredictor();
+            mapHandler.add(dynamicPredictor);
+        }
 
         // Load routeManager and register as GPS data listener
         routeManager = RouteManager.loadRouteManager();

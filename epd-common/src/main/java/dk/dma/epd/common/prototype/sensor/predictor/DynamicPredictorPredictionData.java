@@ -23,8 +23,7 @@ public class DynamicPredictorPredictionData extends DynamicPredictorData {
 
     private final int number;
 
-    public DynamicPredictorPredictionData(int number, Position position, double heading, Double cog, Double sog, Double length,
-            Double width, long time) {
+    public DynamicPredictorPredictionData(int number, Position position, double heading, Double cog, Double sog, long time) {
         super(position, heading, cog, sog, time);
         this.number = number;
     }
@@ -32,5 +31,14 @@ public class DynamicPredictorPredictionData extends DynamicPredictorData {
     public int getNumber() {
         return number;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("DynamicPredictorPredictionData [number=").append(number).append(super.toString());
+        return builder.toString();
+    }
+    
+    
 
 }
