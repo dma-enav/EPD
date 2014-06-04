@@ -39,7 +39,6 @@ import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.CLOUD_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
@@ -48,6 +47,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.SRU_NETWORK_STATUS;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
@@ -197,7 +197,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
                 }
                 voctMessage = new VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse(
-                        rapidResponseModelData, effortAllocationData, searchPattern, sender, message);
+                        rapidResponseModelData, effortAllocationData, searchPattern, sender, message, System.currentTimeMillis());
             }
 
             System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
@@ -222,7 +222,12 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
                     @Override
                     public void accept(VOCTCommunicationReplyRapidResponse l, Throwable r) {
                         // TODO Auto-generated method stub
-                        System.out.println("Reply recieved SAR with status: " + l.getStatus());
+                        
+//                        System.out.println("Reply recieved SAR with status: " + l.getStatus());
+                        System.out.println("Recieved reply");
+                        
+                        
+                        sruManager.sruSRUStatus(l.getMmsi(), SRU_NETWORK_STATUS.RECIEVED_APP_ACK);
                         // sruManager.handleSRUReply(l.getMmsi(), l.getStatus());
                     }
                 });
@@ -279,7 +284,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
                 }
                 voctMessage = new VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint(datumPointModelData,
-                        effortAllocationData, searchPattern, sender, message);
+                        effortAllocationData, searchPattern, sender, message, System.currentTimeMillis());
             }
 
             System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
@@ -341,7 +346,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
     }
 
-    public void sendVOCTReply(CLOUD_STATUS recievedAccepted, long id, String message, SAR_TYPE type) {
+    public void sendVOCTReply(long id, String message, SAR_TYPE type) {
 
         // if (type == SAR_TYPE.RAPID_RESPONSE) {
         // try {

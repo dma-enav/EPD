@@ -85,7 +85,7 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
         this.setResizable(false);
 
         // setBounds(100, 100, 559, 733);
-        setBounds(100, 100, 621, 408);
+        setBounds(100, 100, 700, 408);
         getContentPane().setLayout(new BorderLayout());
 
         buttomBar();
@@ -156,14 +156,14 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
             JPanel panel = new JPanel();
             panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SRU Tracking", TitledBorder.LEADING,
                     TitledBorder.TOP, null, null));
-            panel.setBounds(10, 11, 595, 325);
+            panel.setBounds(10, 11, 670, 325);
             initPanel.add(panel);
             panel.setLayout(null);
 
             JPanel panel_2 = new JPanel();
             panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "All SRUs", TitledBorder.LEADING,
                     TitledBorder.TOP, null, null));
-            panel_2.setBounds(10, 32, 575, 282);
+            panel_2.setBounds(10, 32, 650, 282);
             panel.add(panel_2);
             panel_2.setLayout(null);
 
@@ -215,7 +215,7 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
             sruScrollPane = new JScrollPane(sruTable);
             sruScrollPane.setEnabled(false);
 
-            sruScrollPane.setBounds(10, 23, 555, 248);
+            sruScrollPane.setBounds(10, 23, 655, 248);
 
             sruScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
             sruScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -238,12 +238,16 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
                 }
 
                 if (i == 3) {
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(50);
+                }
+
+                if (i == 4) {
                     sruTable.getColumnModel().getColumn(i).setPreferredWidth(15);
                 }
-                if (i == 4) {
+                if (i == 5) {
                     sruTable.getColumnModel().getColumn(i).setPreferredWidth(5);
                 }
-                if (i == 5) {
+                if (i == 6) {
                     sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
                 }
             }

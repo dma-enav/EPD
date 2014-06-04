@@ -25,9 +25,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.CLOUD_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.SRU_NETWORK_STATUS;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
 import dk.dma.epd.shore.service.VoctHandler;
@@ -39,6 +39,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
     private VOCTManager voctManager;
     private VoctHandler voctHandler;
+
     // private EnavServiceHandler enavServiceHandler;
 
     private LinkedHashMap<Long, SRUCommunicationObject> sRUCommunication = new LinkedHashMap<Long, SRUCommunicationObject>();
@@ -132,6 +133,19 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         notifyListeners(SRUUpdateEvent.SRU_STATUS_CHANGED, i);
     }
 
+    public void sruSRUStatus(long mmsi, SRU_NETWORK_STATUS status) {
+
+        for (int i = 0; i < srus.size(); i++) {
+            if (srus.get(i).getMmsi() == mmsi) {
+                srus.get(i).setNetworkStatus(status);
+                updateSRUsStatus();
+                notifyListeners(SRUUpdateEvent.SRU_STATUS_CHANGED, i);
+            }
+
+        }
+
+    }
+
     // private synchronized void maintainAvailableSRUs() {
     // availableSRUs.clear();
     // for (int i = 0; i < srus.size(); i++) {
@@ -149,7 +163,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         return sRUCommunication.size();
     }
 
-    public void handleSRUReply(long mmsi, CLOUD_STATUS msgStatus) {
+    public void handleSRUReply(long mmsi, SRU_NETWORK_STATUS msgStatus) {
 
         System.out.println("Handling SRU Reply!");
 
@@ -171,7 +185,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         // Make sure we got the message from a SRU on our list.
         if (sru != null) {
-            CLOUD_STATUS status = msgStatus;
+            SRU_NETWORK_STATUS status = msgStatus;
 
             switch (status) {
             // If its been accepted we create an entry in the hashmap, should we
@@ -246,7 +260,8 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         // Make sure we got the message from a SRU on our list.
         if (sru != null) {
-            CLOUD_STATUS status = reply.getStatus();
+            // SRU_STATUS status = reply.getStatus();
+            SRU_NETWORK_STATUS status = SRU_NETWORK_STATUS.RECIEVED_ACCEPTED;
 
             switch (status) {
             // If its been accepted we create an entry in the hashmap, should we

@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.enavcloud;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
@@ -24,38 +25,126 @@ import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.SRU_NETWORK_STATUS;
 
 public class VOCTCommunicationServiceRapidResponse {
-    
+
     /** An initiation point */
     public static final ServiceInitiationPoint<VOCTCommunicationMessageRapidResponse> INIT = new ServiceInitiationPoint<>(
             VOCTCommunicationMessageRapidResponse.class);
-    
-    public enum CLOUD_STATUS {
-        NOT_SENT, FAILED, SENT_NOT_ACK, RECIEVED_APP_ACK, RECIEVED_ACCEPTED, RECIEVED_REJECTED, RECIEVED_NOTED
-    }
-    
-    public static class VOCTCommunicationReplyRapidResponse extends ServiceMessage<Void> {
 
+    public static class VOCTCommunicationMessageRapidResponse extends ServiceMessage<VOCTCommunicationReplyRapidResponse> implements
+            Serializable {
+
+        private static final long serialVersionUID = -3556815314608410502L;
+        private RapidResponseDTO sarData;
+        private EffortAllocationDTO effortAllocationData;
+        private Route searchPattern;
+
+        private Date sent;
+        private String sender;
         private String message;
         private long id;
-        private long mmsi;
-        private long sendDate;
-        private CLOUD_STATUS status;
-  
+        private SRU_NETWORK_STATUS status;
 
-        public VOCTCommunicationReplyRapidResponse() {
+        public VOCTCommunicationMessageRapidResponse() {
+        }
+
+        public VOCTCommunicationMessageRapidResponse(RapidResponseDTO sarData, EffortAllocationDTO effortAllocationData,
+                Route searchPattern, String sender, String message, long id) {
+            super();
+            this.sarData = requireNonNull(sarData);
+            this.effortAllocationData = effortAllocationData;
+            this.searchPattern = searchPattern;
+            this.sent = requireNonNull(new Date());
+            this.message = requireNonNull(message);
+            this.sender = requireNonNull(sender);
+            this.id = requireNonNull(id);
+
         }
 
         /**
-         * @param message
+         * Constructor - used for replys
          */
-        public VOCTCommunicationReplyRapidResponse(String message, long id, long mmsi, long sendDate, CLOUD_STATUS status) {
-            this.message = message;
+        public VOCTCommunicationMessageRapidResponse(long id, String message, SRU_NETWORK_STATUS status) {
             this.id = id;
-            this.mmsi = mmsi;
-            this.sendDate = sendDate;
-            this.status = status;
+            this.message = message;
+            this.status = requireNonNull(status);
+        }
+
+        /**
+         * @return the sarData
+         */
+        public RapidResponseDTO getSarData() {
+            return sarData;
+        }
+
+        /**
+         * @param sarData
+         *            the sarData to set
+         */
+        public void setSarData(RapidResponseDTO sarData) {
+            this.sarData = sarData;
+        }
+
+        /**
+         * @return the effortAllocationData
+         */
+        public EffortAllocationDTO getEffortAllocationData() {
+            return effortAllocationData;
+        }
+
+        /**
+         * @param effortAllocationData
+         *            the effortAllocationData to set
+         */
+        public void setEffortAllocationData(EffortAllocationDTO effortAllocationData) {
+            this.effortAllocationData = effortAllocationData;
+        }
+
+        /**
+         * @return the searchPattern
+         */
+        public Route getSearchPattern() {
+            return searchPattern;
+        }
+
+        /**
+         * @param searchPattern
+         *            the searchPattern to set
+         */
+        public void setSearchPattern(Route searchPattern) {
+            this.searchPattern = searchPattern;
+        }
+
+        /**
+         * @return the sent
+         */
+        public Date getSent() {
+            return sent;
+        }
+
+        /**
+         * @param sent
+         *            the sent to set
+         */
+        public void setSent(Date sent) {
+            this.sent = sent;
+        }
+
+        /**
+         * @return the sender
+         */
+        public String getSender() {
+            return sender;
+        }
+
+        /**
+         * @param sender
+         *            the sender to set
+         */
+        public void setSender(String sender) {
+            this.sender = sender;
         }
 
         /**
@@ -71,6 +160,58 @@ public class VOCTCommunicationServiceRapidResponse {
          */
         public void setMessage(String message) {
             this.message = message;
+        }
+
+        /**
+         * @return the id
+         */
+        public long getId() {
+            return id;
+        }
+
+        /**
+         * @param id
+         *            the id to set
+         */
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        /**
+         * @return the status
+         */
+        public SRU_NETWORK_STATUS getStatus() {
+            return status;
+        }
+
+        /**
+         * @param status
+         *            the status to set
+         */
+        public void setStatus(SRU_NETWORK_STATUS status) {
+            this.status = status;
+        }
+
+    }
+
+    public static class VOCTCommunicationReplyRapidResponse extends ServiceMessage<Void> {
+
+        // private String message;
+        private long id;
+        private long mmsi;
+        private long sendDate;
+
+        public VOCTCommunicationReplyRapidResponse() {
+        }
+
+        /**
+         * @param message
+         */
+        public VOCTCommunicationReplyRapidResponse(long id, long mmsi, long sendDate) {
+            // this.message = message;
+            this.id = requireNonNull(id);
+            this.mmsi = requireNonNull(mmsi);
+            this.sendDate = requireNonNull(sendDate);
         }
 
         public long getId() {
@@ -97,153 +238,5 @@ public class VOCTCommunicationServiceRapidResponse {
             this.sendDate = sendDate;
         }
 
-        public CLOUD_STATUS getStatus() {
-            return status;
-        }
-
-        public void setStatus(CLOUD_STATUS status) {
-            this.status = status;
-        }
-        
-        
-        
-        
     }
-    
-    
-
-    public static class VOCTCommunicationMessageRapidResponse extends
-            ServiceMessage<VOCTCommunicationReplyRapidResponse> {
-        
-        private RapidResponseDTO sarData;
-        private EffortAllocationDTO effortAllocationData;
-        private Route searchPattern;
-        
-        private Date sent;
-        private String sender;
-        private String message;
-        
-
-        public VOCTCommunicationMessageRapidResponse() {
-        }
-        
-        
-        public VOCTCommunicationMessageRapidResponse(RapidResponseDTO sarData,
-                EffortAllocationDTO effortAllocationData, Route searchPattern,
-                String sender, String message) {
-            super();
-            this.sarData = requireNonNull(sarData);
-            this.effortAllocationData = effortAllocationData;
-            this.searchPattern = searchPattern;
-            this.sent = requireNonNull(new Date());
-            this.message = requireNonNull(message);
-            this.sender = requireNonNull(sender);
-            
-        }
-
-
-        /**
-         * @return the sarData
-         */
-        public RapidResponseDTO getSarData() {
-            return sarData;
-        }
-
-
-        /**
-         * @param sarData the sarData to set
-         */
-        public void setSarData(RapidResponseDTO sarData) {
-            this.sarData = sarData;
-        }
-
-
-        /**
-         * @return the effortAllocationData
-         */
-        public EffortAllocationDTO getEffortAllocationData() {
-            return effortAllocationData;
-        }
-
-
-        /**
-         * @param effortAllocationData the effortAllocationData to set
-         */
-        public void setEffortAllocationData(
-                EffortAllocationDTO effortAllocationData) {
-            this.effortAllocationData = effortAllocationData;
-        }
-
-
-        /**
-         * @return the searchPattern
-         */
-        public Route getSearchPattern() {
-            return searchPattern;
-        }
-
-
-        /**
-         * @param searchPattern the searchPattern to set
-         */
-        public void setSearchPattern(Route searchPattern) {
-            this.searchPattern = searchPattern;
-        }
-
-
-        /**
-         * @return the sent
-         */
-        public Date getSent() {
-            return sent;
-        }
-
-
-        /**
-         * @param sent the sent to set
-         */
-        public void setSent(Date sent) {
-            this.sent = sent;
-        }
-
-
-        /**
-         * @return the sender
-         */
-        public String getSender() {
-            return sender;
-        }
-
-
-        /**
-         * @param sender the sender to set
-         */
-        public void setSender(String sender) {
-            this.sender = sender;
-        }
-
-
-        /**
-         * @return the message
-         */
-        public String getMessage() {
-            return message;
-        }
-
-
-        /**
-         * @param message the message to set
-         */
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        
-        
-        
-        
-    }
-
-
-
 }

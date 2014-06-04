@@ -21,16 +21,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import net.maritimecloud.net.MaritimeCloudClient;
-
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
 
 /**
  * Intended route service implementation.
  * <p>
  * Listens for intended route broadcasts, and updates the vessel target when one is received.
  */
-public class VoctHandlerCommon extends EnavServiceHandlerCommon {
+public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon implements
+        ICloudMessageListener<VOCTCommunicationMessageRapidResponse, VOCTCommunicationReplyRapidResponse> {
 
     /**
      * Time an intended route is considered valid without update

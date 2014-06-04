@@ -24,22 +24,20 @@ import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voct.DatumPointDTO;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.CLOUD_STATUS;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.SRU_NETWORK_STATUS;
 
 public class VOCTCommunicationServiceDatumPoint {
-    
+
     /** An initiation point */
     public static final ServiceInitiationPoint<VOCTCommunicationMessageDatumPoint> INIT = new ServiceInitiationPoint<>(
             VOCTCommunicationMessageDatumPoint.class);
 
     public static class VOCTCommunicationReplyDatumPoint extends ServiceMessage<Void> {
 
-        private String message;
+        // private String message;
         private long id;
         private long mmsi;
         private long sendDate;
-        private CLOUD_STATUS status;
-  
 
         public VOCTCommunicationReplyDatumPoint() {
         }
@@ -47,27 +45,10 @@ public class VOCTCommunicationServiceDatumPoint {
         /**
          * @param message
          */
-        public VOCTCommunicationReplyDatumPoint(String message, long id, long mmsi, long sendDate, CLOUD_STATUS status) {
-            this.message = message;
-            this.id = id;
-            this.mmsi = mmsi;
-            this.sendDate = sendDate;
-            this.status = status;
-        }
-
-        /**
-         * @return the message
-         */
-        public String getMessage() {
-            return message;
-        }
-
-        /**
-         * @param message
-         *            the message to set
-         */
-        public void setMessage(String message) {
-            this.message = message;
+        public VOCTCommunicationReplyDatumPoint(long id, long mmsi, long sendDate) {
+            this.id = requireNonNull(id);
+            this.mmsi = requireNonNull(mmsi);
+            this.sendDate = requireNonNull(sendDate);
         }
 
         public long getId() {
@@ -94,40 +75,25 @@ public class VOCTCommunicationServiceDatumPoint {
             this.sendDate = sendDate;
         }
 
-        public CLOUD_STATUS getStatus() {
-            return status;
-        }
-
-        public void setStatus(CLOUD_STATUS status) {
-            this.status = status;
-        }
-        
-        
-        
-        
     }
-    
-    
 
-    public static class VOCTCommunicationMessageDatumPoint extends
-            ServiceMessage<VOCTCommunicationReplyDatumPoint> {
-        
+    public static class VOCTCommunicationMessageDatumPoint extends ServiceMessage<VOCTCommunicationReplyDatumPoint> {
+
         private DatumPointDTO sarData;
         private EffortAllocationDTO effortAllocationData;
         private Route searchPattern;
-        
+
         private Date sent;
         private String sender;
         private String message;
-        
+        private long id;
+        private SRU_NETWORK_STATUS status;
 
         public VOCTCommunicationMessageDatumPoint() {
         }
-        
-        
-        public VOCTCommunicationMessageDatumPoint(DatumPointDTO sarData,
-                EffortAllocationDTO effortAllocationData, Route searchPattern,
-                String sender, String message) {
+
+        public VOCTCommunicationMessageDatumPoint(DatumPointDTO sarData, EffortAllocationDTO effortAllocationData,
+                Route searchPattern, String sender, String message, long id) {
             super();
             this.sarData = requireNonNull(sarData);
             this.effortAllocationData = effortAllocationData;
@@ -135,9 +101,17 @@ public class VOCTCommunicationServiceDatumPoint {
             this.sent = requireNonNull(new Date());
             this.message = requireNonNull(message);
             this.sender = requireNonNull(sender);
-            
+            this.id = requireNonNull(id);
         }
 
+        /**
+         * Constructor - used for replys
+         */
+        public VOCTCommunicationMessageDatumPoint(long id, String message, SRU_NETWORK_STATUS status) {
+            this.id = id;
+            this.message = message;
+            this.status = requireNonNull(status);
+        }
 
         /**
          * @return the sarData
@@ -146,14 +120,13 @@ public class VOCTCommunicationServiceDatumPoint {
             return sarData;
         }
 
-
         /**
-         * @param sarData the sarData to set
+         * @param sarData
+         *            the sarData to set
          */
         public void setSarData(DatumPointDTO sarData) {
             this.sarData = sarData;
         }
-
 
         /**
          * @return the effortAllocationData
@@ -162,15 +135,13 @@ public class VOCTCommunicationServiceDatumPoint {
             return effortAllocationData;
         }
 
-
         /**
-         * @param effortAllocationData the effortAllocationData to set
+         * @param effortAllocationData
+         *            the effortAllocationData to set
          */
-        public void setEffortAllocationData(
-                EffortAllocationDTO effortAllocationData) {
+        public void setEffortAllocationData(EffortAllocationDTO effortAllocationData) {
             this.effortAllocationData = effortAllocationData;
         }
-
 
         /**
          * @return the searchPattern
@@ -179,14 +150,13 @@ public class VOCTCommunicationServiceDatumPoint {
             return searchPattern;
         }
 
-
         /**
-         * @param searchPattern the searchPattern to set
+         * @param searchPattern
+         *            the searchPattern to set
          */
         public void setSearchPattern(Route searchPattern) {
             this.searchPattern = searchPattern;
         }
-
 
         /**
          * @return the sent
@@ -195,14 +165,13 @@ public class VOCTCommunicationServiceDatumPoint {
             return sent;
         }
 
-
         /**
-         * @param sent the sent to set
+         * @param sent
+         *            the sent to set
          */
         public void setSent(Date sent) {
             this.sent = sent;
         }
-
 
         /**
          * @return the sender
@@ -211,14 +180,13 @@ public class VOCTCommunicationServiceDatumPoint {
             return sender;
         }
 
-
         /**
-         * @param sender the sender to set
+         * @param sender
+         *            the sender to set
          */
         public void setSender(String sender) {
             this.sender = sender;
         }
-
 
         /**
          * @return the message
@@ -227,20 +195,44 @@ public class VOCTCommunicationServiceDatumPoint {
             return message;
         }
 
-
         /**
-         * @param message the message to set
+         * @param message
+         *            the message to set
          */
         public void setMessage(String message) {
             this.message = message;
         }
 
-        
-        
-        
-        
+        /**
+         * @return the id
+         */
+        public long getId() {
+            return id;
+        }
+
+        /**
+         * @param id
+         *            the id to set
+         */
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        /**
+         * @return the status
+         */
+        public SRU_NETWORK_STATUS getStatus() {
+            return status;
+        }
+
+        /**
+         * @param status
+         *            the status to set
+         */
+        public void setStatus(SRU_NETWORK_STATUS status) {
+            this.status = status;
+        }
+
     }
-
-
 
 }
