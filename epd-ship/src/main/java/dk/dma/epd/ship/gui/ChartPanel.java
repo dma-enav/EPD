@@ -693,6 +693,12 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     public NogoDialog getNogoDialog() {
         return nogoDialog;
     }
+    
+    public void setDynamicPredictorLayerVisibility(boolean visible) {
+        if(this.dynamicPredictorLayer != null) {
+            this.dynamicPredictorLayer.setVisible(visible);
+        }
+    }
 
     /****************************************/
     /** DockableComponentPanel methods     **/

@@ -48,6 +48,17 @@ public class ParseUtils {
         return Converter.metersToNm(meters);
     }
     
+    public static Float parseFloat(String str) throws FormatException {
+        if (str == null || str.length() == 0) {
+            return null;
+        }
+        try {
+            return Float.parseFloat(str);
+        } catch (NumberFormatException e) {
+            throw new FormatException("Could not parse " + str + " as a decimal number");
+        }
+    }
+    
     public static Double parseDouble(String str) throws FormatException {
         if (str == null || str.length() == 0) {
             return null;

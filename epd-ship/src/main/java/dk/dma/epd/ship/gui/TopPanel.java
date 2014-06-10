@@ -88,7 +88,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             toolbarIcon("direction.png"));
     private final ToggleButtonLabel toggleIntendedRouteFilter = new ToggleButtonLabel(
             toolbarIcon("road-sign.png"));
-
+    private final ToggleButtonLabel toggleDynamicPredictorLayer = new ToggleButtonLabel(
+            toolbarIcon("dynamic-predictor.png"));
 
     /**
      * Toggle button to enable distance circle mode.
@@ -159,6 +160,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
         this.toggleDistanceCircleMode
                 .setToolTipText("Enable range circles mode.");
+        
+        this.toggleDynamicPredictorLayer.setToolTipText("Toggle dynamic predictor layer");
 
         add(goBackBtn);
         add(goForwardBtn);
@@ -182,7 +185,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(toggleSafeHaven);
         add(toggleIntendedRoute);
         add(toggleIntendedRouteFilter);
-
+        add(this.toggleDynamicPredictorLayer);
+        
         Component horizontalStrut = Box.createHorizontalStrut(5);
         horizontalStrut = Box.createHorizontalStrut(5);
 
@@ -213,7 +217,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         toggleDistanceCircleMode.addMouseListener(this);
         toggleIntendedRoute.addMouseListener(this);
         toggleIntendedRouteFilter.addMouseListener(this);
-
+        toggleDynamicPredictorLayer.addMouseListener(this);
+        
         updateButtons();
     }
 
@@ -233,6 +238,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         toggleDistanceCircleMode.setSelected(false);
         
         toggleIntendedRoute.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+        
+        // toggle button according to value stored in settings
+        toggleDynamicPredictorLayer.setSelected(EPDShip.getInstance().getSettings().getNavSettings().isDynamicPrediction());
     }
 
     public void disableAutoFollow() {
@@ -421,6 +429,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             boolean visible = toggleIntendedRouteFilter.isSelected();
             intendedRouteLayer.toggleFilter(visible);
         
+        } else if(e.getSource() == this.toggleDynamicPredictorLayer) {
+            boolean visible = toggleDynamicPredictorLayer.isSelected();
+            mainFrame.getChartPanel().setDynamicPredictorLayerVisibility(visible);
         }
     }
 

@@ -103,11 +103,11 @@ public class PdypSentence extends Sentence {
         int num;
         double lat;
         double lon;
-        double heading;
-        Double sog = null;
-        Double cog = null;
-        double length = 0;
-        double width = 0;
+        float heading;
+        Float sog = null;
+        Float cog = null;
+        float length = 0;
+        float width = 0;
         long time;
 
         // num
@@ -116,12 +116,12 @@ public class PdypSentence extends Sentence {
         try {
             lat = ParseUtils.parseDouble(fields.get(2));
             lon = ParseUtils.parseDouble(fields.get(3));
-            heading = ParseUtils.parseDouble(fields.get(4));
+            heading = ParseUtils.parseFloat(fields.get(4));
             if (fields.get(5).length() > 0) {
-                cog = ParseUtils.parseDouble(fields.get(5));
+                cog = ParseUtils.parseFloat(fields.get(5));
             }
             if (fields.get(6).length() > 0) {
-                sog = ParseUtils.parseDouble(fields.get(6));
+                sog = ParseUtils.parseFloat(fields.get(6));
             }
 
             String dateTimeStr;
@@ -130,8 +130,8 @@ public class PdypSentence extends Sentence {
                 if (fields.size() < 10) {
                     throw new SentenceException("PDYPN sentence '" + sl.getLine() + "' must have at least 10 fields");
                 }
-                length = ParseUtils.parseDouble(fields.get(7));
-                width = ParseUtils.parseDouble(fields.get(8));
+                length = ParseUtils.parseFloat(fields.get(7));
+                width = ParseUtils.parseFloat(fields.get(8));
                 dateTimeStr = fields.get(9);
 
             } else {
