@@ -13,16 +13,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.layers.ais;
+package dk.dma.epd.common.prototype.layers.predictor;
 
 import dk.dma.enav.model.geometry.Position;
 
 /**
- * Wraps the data used when drawing a {@link VesselOutline}.
+ * Wraps the basic data needed for vessel portrayal.
  * 
  * @author Janus Varmarken
  */
-public class VesselOutlineData {
+public class VesselPortrayalData {
 
     /**
      * Vessel's true heading (i.e. the angle the bow points to).
@@ -56,7 +56,7 @@ public class VesselOutlineData {
     private final float distStarboard;
 
     /**
-     * Creates a new {@link VesselOutlineData}.
+     * Creates a new {@link VesselPortrayalData}.
      * 
      * @param pos
      *            Fixed reference point on vessel that denotes the vessel's
@@ -74,7 +74,7 @@ public class VesselOutlineData {
      *            Distance from {@code pos} to vessel's startboard edge in
      *            meters.
      */
-    public VesselOutlineData(Position pos, float heading, float distBow,
+    public VesselPortrayalData(Position pos, float heading, float distBow,
             float distStern, float distPort, float distStarboard) {
         this.pos = pos;
         this.heading = heading;

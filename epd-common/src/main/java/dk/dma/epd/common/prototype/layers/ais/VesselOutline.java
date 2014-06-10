@@ -26,6 +26,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.layers.predictor.VesselPortrayalData;
 
 /**
  * Graphic for displaying a {@link VesselTarget} on the map. This graphic class displays the vessel outline based on vessel size data and map scale.
@@ -81,22 +82,18 @@ public class VesselOutline extends VesselGraphic {
         // Let super store reference to the updated VesselTarget.
         super.updateGraphic(vesselTarget, mapScale);
         
-        VesselOutlineData outlineData = new VesselOutlineData(positionData.getPos(), positionData.getTrueHeading(),
+        VesselPortrayalData outlineData = new VesselPortrayalData(positionData.getPos(), positionData.getTrueHeading(),
                 staticData.getDimBow(), staticData.getDimStern(), staticData.getDimPort(), staticData.getDimStarboard());
         
         this.updateGraphic(outlineData);
     }
     
+
     /**
-     * Updates the display of this {@link VesselOutline} with new data.
-     * Only use this method if you do not intend to query the graphic for its associated
-     * {@link VesselGraphic} using {@link #getMostRecentVesselTarget()}. This method was
-     * introduced to allow clients, that do not rely on AIS data, the ability to display a vessel's
-     * outline. If your client code is AIS based, make use of
-     * {@link #updateGraphic(VesselTarget, float)} instead.
-     * @param data The updated data.
+     * {@inheritDoc}
      */
-    public void updateGraphic(VesselOutlineData data) {
+    @Override
+    public void updateGraphic(VesselPortrayalData data) {
         this.producePolygon(data);
     }
     
@@ -127,7 +124,7 @@ public class VesselOutline extends VesselGraphic {
      * @param staticData
      *            the vessel static data
      */
-    private void producePolygon(VesselOutlineData data) {
+    private void producePolygon(VesselPortrayalData data) {
         // Get angle from PNT to lower left corner of ship
         double anglLowerLeft = this.calcAngleFromCenter(data.getDistStern(), data.getDistPort());
         // calculate distance to lower left corner of vessel (Pythagoras)

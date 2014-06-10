@@ -19,9 +19,11 @@ import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.layers.CircleSelectionGraphic;
+import dk.dma.epd.common.prototype.layers.predictor.VesselPortrayalData;
 
 /**
  * @author Janus Varmarken
@@ -48,7 +50,22 @@ public class VesselDot extends VesselGraphic {
     @Override
     public void updateGraphic(VesselTarget vesselTarget, float mapScale) {
         super.updateGraphic(vesselTarget, mapScale);
-        Position pos = vesselTarget.getPositionData().getPos();
+        VesselPositionData posData = vesselTarget.getPositionData();
+        Position pos = posData != null ? posData.getPos() : null;
+        if (pos == null) {
+            return;
+        }
+        
+        /*
+         *  Dot display does not make use of vessel's width and/or length, so simply use 0 for distance values.
+         */
+        VesselPortrayalData vpd = new VesselPortrayalData(pos, posData.getTrueHeading(), 0f, 0f, 0f, 0f);
+        this.updateGraphic(vpd);
+    }
+    
+    @Override
+    public void updateGraphic(VesselPortrayalData data) {
+        Position pos = data.getPos();
         if (this.vesselMarker == null) {
             // lazy initialization
             this.vesselMarker = new OMCircle(pos.getLatitude(),

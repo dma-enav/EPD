@@ -27,7 +27,6 @@ import com.bbn.openmap.event.ProjectionListener;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.VesselOutline;
-import dk.dma.epd.common.prototype.layers.ais.VesselOutlineData;
 import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandler;
 import dk.dma.epd.common.prototype.predictor.IDynamicPredictionsListener;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
@@ -69,11 +68,11 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionL
             float distPort = vesselWidth / 2.0f;
             float distStarboard = distPort;
             
-            // Draw outlines with headings on position
-            VesselOutlineData outlineData = new VesselOutlineData(pos, heading, distBow, distStern, distPort, distStarboard);
-            VesselOutline outline = new VesselOutline(Color.GRAY, 1.0f);
-            this.graphics.add(outline);
-            outline.updateGraphic(outlineData);
+            VesselPortrayalData portrayalData = new VesselPortrayalData(pos, heading, distBow, distStern, distPort, distStarboard);
+            DynamicPredictionGraphic dpg = new DynamicPredictionGraphic(Color.GRAY);
+            
+            this.graphics.add(dpg);
+            dpg.update(portrayalData);
         }
         
         doPrepare();
