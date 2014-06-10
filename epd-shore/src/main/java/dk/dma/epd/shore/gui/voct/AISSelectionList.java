@@ -16,72 +16,76 @@
 package dk.dma.epd.shore.gui.voct;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.awt.event.KeyEvent;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
+import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.WindowConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+import dk.dma.ais.virtualnet.common.table.TargetTableEntry;
+import dk.dma.ais.virtualnet.transponder.gui.SelectTargetList;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.shore.ais.AisHandler;
 
-public class AISSelectionList extends JDialog implements ActionListener {
+public class AISSelectionList extends JDialog implements ActionListener, ListSelectionListener {
 
     private static final long serialVersionUID = 1L;
-    List<String> targetList;
-    JList<String> list;
-    DefaultListModel<String> listModel;
-    private SRUAddEditDialog sruAddEditDialog;
-    private JButton btnUseSelected;
 
-    public AISSelectionList(AisHandler aisHandler, Point point,
-            SRUAddEditDialog sruAddEditDialog) {
+    private Integer selectedTarget;
+    private final SelectTargetList list = new SelectTargetList();
+    private final JButton selectButton = new JButton("Select");
+    private final JButton cancelButton = new JButton("Cancel");
+    SRUAddEditDialog sruAddEditDialog;
+
+    public AISSelectionList(AisHandler aisHandler, Point point, SRUAddEditDialog sruAddEditDialog) {
         setTitle("AIS Targets");
         this.setModal(true);
-        this.setResizable(false);
-        this.sruAddEditDialog = sruAddEditDialog;
-
+        setResizable(false);
         double x = point.getX() + 471;
 
         setBounds((int) x, 100, 200, 364);
 
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        getContentPane().setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel();
-        getContentPane().add(panel, BorderLayout.SOUTH);
+        this.sruAddEditDialog = sruAddEditDialog;
 
-        btnUseSelected = new JButton("Use Selected");
-        btnUseSelected.addActionListener(this);
-        panel.add(btnUseSelected);
+        JPanel btnPanel = new JPanel();
+        selectButton.setPreferredSize(new Dimension(75, 28));
+        selectButton.setEnabled(false);
+        selectButton.addActionListener(this);
+        btnPanel.add(selectButton);
+        cancelButton.setPreferredSize(new Dimension(75, 28));
+        cancelButton.addActionListener(this);
+        btnPanel.add(cancelButton);
+        getContentPane().add(btnPanel, BorderLayout.SOUTH);
 
-        listModel = new DefaultListModel<String>();
+        list.addListSelectionListener(this);
+        JScrollPane listScroller = new JScrollPane(list);
+        listScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        listScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        getContentPane().add(listScroller, BorderLayout.CENTER);
 
-        list = new JList<String>(listModel);
+        getContentPane().add(list.getFilterField(), BorderLayout.NORTH);
+        list.getFilterField().setPreferredSize(new Dimension(294, 24));
 
-        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        JScrollPane scrollPane = new JScrollPane(list);
-
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
-
-        
         Map<Long, VesselTarget> vesselMap = aisHandler.getVesselTargets();
 
-        targetList = new ArrayList<String>();
-
         for (Entry<Long, VesselTarget> entry : vesselMap.entrySet()) {
-            String mmsi = " (" + String.valueOf(entry.getKey()) + ")";
+            // String mmsi = " (" + String.valueOf(entry.getKey()) + ")";
 
             String name;
 
@@ -96,51 +100,104 @@ public class AISSelectionList extends JDialog implements ActionListener {
             } else {
                 name = "N/A";
             }
-
-            targetList.add(name + mmsi);
-
+            TargetTableEntry tableEntry = new TargetTableEntry();
+            tableEntry.setMmsi(entry.getKey().intValue());
+            tableEntry.setName(name);
+            // targetList.add(name + mmsi);
+            list.addTarget(tableEntry);
         }
 
-        Collections.sort(targetList);
+        // Hitting the escape key should simulate clicking "Cancel"
+        ActionListener escAction = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cancelButton.doClick();
+            }
+        };
+        getRootPane().registerKeyboardAction(escAction, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        for (int i = 0; i < targetList.size(); i++) {
-            listModel.addElement(targetList.get(i));
-        }
+        // Hitting the enter key should simulate clicking "Select"
+        ActionListener enterAction = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectButton.doClick();
+            }
+        };
+        getRootPane().registerKeyboardAction(enterAction, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         this.setVisible(true);
     }
 
-
-//    @Override
-//    public void dispose() {
-//        super.dispose();
-//
-//        
-//        if (list.getSelectedIndex() < 0){
-//            //No target selected
-//            sruAddEditDialog.setMmsi(-1);            
-//        }
-//        
-//
-//    }
-
+    public Integer getSelectedTarget() {
+        return selectedTarget;
+    }
 
     @Override
-    public void actionPerformed(ActionEvent arg0) {
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == cancelButton) {
+            selectedTarget = null;
+            this.setVisible(false);
+        } else if (e.getSource() == selectButton) {
 
-        if (list.getSelectedIndex() > -1){
-            String selectedTarget = list.getSelectedValue();
-//            for (int i = 0; i < selectedTarget.split("\\(").length; i++) {
-//                System.out.println(selectedTarget.split("\\(")[i]);
-//            }
-            String mmsi = selectedTarget.split("\\(")[1];
-            mmsi = mmsi.substring(0, mmsi.length()-1);
-            
-            sruAddEditDialog.setMmsi(Long.valueOf(mmsi));
-            dispose();
-            
+            if (list.getSelectedIndex() > -1) {
+                TargetTableEntry selectedTarget = list.getSelectedValue();
+                // for (int i = 0; i < selectedTarget.split("\\(").length; i++) {
+                // System.out.println(selectedTarget.split("\\(")[i]);
+                // }
+                // String mmsi = selectedTarget.getMmsi()+"";
+                // mmsi = mmsi.substring(0, mmsi.length()-1);
+
+                sruAddEditDialog.setMmsi(selectedTarget.getMmsi());
+                dispose();
+
+            }
+
+            // if (list.getSelectedIndex() >= 0) {
+            // this.selectedTarget = list.getSelectedValue().getMmsi();
+            // this.setVisible(false);
         }
-        
+
     }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        if (e.getSource() == list) {
+            selectButton.setEnabled(list.getSelectedIndex() >= 0);
+        }
+
+    }
+
+    // @Override
+    // public void dispose() {
+    // super.dispose();
+    //
+    //
+    // if (list.getSelectedIndex() < 0){
+    // //No target selected
+    // sruAddEditDialog.setMmsi(-1);
+    // }
+    //
+    //
+    // }
+
+    // @Override
+    // public void actionPerformed(ActionEvent arg0) {
+    //
+    // if (list.getSelectedIndex() > -1){
+    // String selectedTarget = list.getSelectedValue();
+    // // for (int i = 0; i < selectedTarget.split("\\(").length; i++) {
+    // // System.out.println(selectedTarget.split("\\(")[i]);
+    // // }
+    // String mmsi = selectedTarget.split("\\(")[1];
+    // mmsi = mmsi.substring(0, mmsi.length()-1);
+    //
+    // sruAddEditDialog.setMmsi(Long.valueOf(mmsi));
+    // dispose();
+    //
+    // }
+    //
+    // }
 
 }
