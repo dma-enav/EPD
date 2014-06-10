@@ -39,7 +39,7 @@ import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VOCT_MSG_STATUS;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.voct.VOCTManager;
@@ -172,7 +172,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
     }
 
-    public void sendVOCTReply(VOCT_MSG_STATUS recievedAccepted, long id, String message, SAR_TYPE type) {
+    public void sendVOCTReply(VoctMsgStatus recievedAccepted, long id, String message, SAR_TYPE type) {
 
         if (type == SAR_TYPE.RAPID_RESPONSE) {
             // try {

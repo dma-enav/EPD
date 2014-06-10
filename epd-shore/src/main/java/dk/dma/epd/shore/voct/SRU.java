@@ -16,7 +16,7 @@
 package dk.dma.epd.shore.voct;
 
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VOCT_MSG_STATUS;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 
 /**
  * Definition of a SRU
@@ -45,7 +45,7 @@ public class SRU {
     private double fatigue;
     private int searchTime;
 
-    private VOCT_MSG_STATUS voctMsgStatus;
+    private VoctMsgStatus voctMsgStatus;
     private CloudMessageStatus cloudStatus;
 
     public SRU(String name, long mmsi, SRU_TYPE type, sru_status status, double searchSpeed, int visibility, double fatigue,
@@ -60,7 +60,7 @@ public class SRU {
         this.visibility = visibility;
         this.fatigue = fatigue;
         this.searchTime = searchTime;
-        voctMsgStatus = VOCT_MSG_STATUS.UNKNOWN;
+        voctMsgStatus = VoctMsgStatus.UNKNOWN;
         cloudStatus = CloudMessageStatus.NOT_SENT;
     }
 
@@ -204,14 +204,14 @@ public class SRU {
     /**
      * @return the voctMsgStatus
      */
-    public VOCT_MSG_STATUS getVoctMsgStatus() {
+    public VoctMsgStatus getVoctMsgStatus() {
         return voctMsgStatus;
     }
 
     /**
      * @param voctMsgStatus the voctMsgStatus to set
      */
-    public void setVoctMsgStatus(VOCT_MSG_STATUS voctMsgStatus) {
+    public void setVoctMsgStatus(VoctMsgStatus voctMsgStatus) {
         this.voctMsgStatus = voctMsgStatus;
     }
 

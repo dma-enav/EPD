@@ -127,9 +127,8 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
                                     MaritimeId caller = context.getCaller();
                                     long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
 
-                                    
-//                                    sruManager.sruSRUStatus(mmsi, message.getStatus());
-                                    
+                                    // sruManager.sruSRUStatus(mmsi, message.getStatus());
+
                                     sruManager.handleSRUReply(mmsi, message.getStatus());
                                     //
                                     // voctInvitations.put(message.getId(), mmsi);
@@ -415,32 +414,6 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         while (running) {
             Util.sleep(1000L);
         }
-
-    }
-
-    public void sendVOCTReply(long id, String message, SAR_TYPE type) {
-
-        // if (type == SAR_TYPE.RAPID_RESPONSE) {
-        // try {
-        // voctContextRapidResponse.complete(new VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse(
-        // message, id, ownShipHandler.getMmsi(), System.currentTimeMillis(), recievedAccepted));
-        // cloudStatus.markSuccesfullSend();
-        // } catch (Exception e) {
-        // cloudStatus.markFailedSend();
-        // System.out.println("Failed to reply");
-        // }
-        // }
-        //
-        // if (type == SAR_TYPE.DATUM_POINT) {
-        // try {
-        // voctContextDatumPoint.complete(new VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint(message, id,
-        // ownShipHandler.getMmsi(), System.currentTimeMillis(), recievedAccepted));
-        // cloudStatus.markSuccesfullSend();
-        // } catch (Exception e) {
-        // cloudStatus.markFailedSend();
-        // System.out.println("Failed to reply");
-        // }
-        // }
 
     }
 

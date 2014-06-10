@@ -28,7 +28,7 @@ import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VOCT_MSG_STATUS;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
 import dk.dma.epd.shore.service.VoctHandler;
@@ -134,7 +134,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         notifyListeners(SRUUpdateEvent.SRU_STATUS_CHANGED, i);
     }
 
-    public void sruSRUStatus(long mmsi, VOCT_MSG_STATUS status) {
+    public void sruSRUStatus(long mmsi, VoctMsgStatus status) {
 
         for (int i = 0; i < srus.size(); i++) {
             if (srus.get(i).getMmsi() == mmsi) {
@@ -150,7 +150,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         for (int i = 0; i < srus.size(); i++) {
             if (srus.get(i).getMmsi() == mmsi) {
                 srus.get(i).setCloudStatus(status);
-                srus.get(i).setVoctMsgStatus(VOCT_MSG_STATUS.UNKNOWN);
+                srus.get(i).setVoctMsgStatus(VoctMsgStatus.UNKNOWN);
                 updateSRUsStatus();
                 notifyListeners(SRUUpdateEvent.SRU_STATUS_CHANGED, i);
             }
@@ -174,7 +174,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         return sRUCommunication.size();
     }
 
-    public void handleSRUReply(long mmsi, VOCT_MSG_STATUS msgStatus) {
+    public void handleSRUReply(long mmsi, VoctMsgStatus msgStatus) {
 
         System.out.println("Handling SRU Reply!");
 
@@ -196,7 +196,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         // Make sure we got the message from a SRU on our list.
         if (sru != null) {
-            VOCT_MSG_STATUS status = msgStatus;
+            VoctMsgStatus status = msgStatus;
 
             switch (status) {
             // If its been accepted we create an entry in the hashmap, should we
@@ -272,7 +272,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         // Make sure we got the message from a SRU on our list.
         if (sru != null) {
             // SRU_STATUS status = reply.getStatus();
-            VOCT_MSG_STATUS status = VOCT_MSG_STATUS.ACCEPTED;
+            VoctMsgStatus status = VoctMsgStatus.ACCEPTED;
 
             switch (status) {
             // If its been accepted we create an entry in the hashmap, should we

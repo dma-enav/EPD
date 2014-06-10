@@ -164,7 +164,7 @@ public class VOCTManager extends VOCTManagerCommon {
     public void handleDialogAction(boolean accepted, VOCTCommunicationMessageDatumPoint message, SAR_TYPE type) {
 
         if (accepted) {
-            voctHandler.sendVOCTReply(VOCT_MSG_STATUS.ACCEPTED,  message.getId(), "Accepted", type);
+            voctHandler.sendVOCTReply(VoctMsgStatus.ACCEPTED,  message.getId(), "Accepted", type);
 
             removeOldSARData();
 
@@ -203,7 +203,7 @@ public class VOCTManager extends VOCTManagerCommon {
             // Force start
             startVOCTBroadcast();
         } else {
-            voctHandler.sendVOCTReply(VOCT_MSG_STATUS.REJECTED,  message.getId(), "Rejected", type);
+            voctHandler.sendVOCTReply(VoctMsgStatus.REJECTED,  message.getId(), "Rejected", type);
 
         }
 
@@ -214,7 +214,7 @@ public class VOCTManager extends VOCTManagerCommon {
         if (accepted) {
             
             System.out.println("ITS ACCEPTED SEND REPLY");
-            voctHandler.sendVOCTReply(VOCT_MSG_STATUS.ACCEPTED, message.getId(), "Accepted", type);
+            voctHandler.sendVOCTReply(VoctMsgStatus.ACCEPTED, message.getId(), "Accepted", type);
 
             removeOldSARData();
 
@@ -255,7 +255,7 @@ public class VOCTManager extends VOCTManagerCommon {
             // Force start
             startVOCTBroadcast();
         } else {
-            voctHandler.sendVOCTReply(VOCT_MSG_STATUS.REJECTED,  message.getId(), "Rejected", type);
+            voctHandler.sendVOCTReply(VoctMsgStatus.REJECTED,  message.getId(), "Rejected", type);
         }
 
     }

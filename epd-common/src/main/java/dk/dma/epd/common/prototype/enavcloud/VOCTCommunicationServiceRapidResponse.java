@@ -25,7 +25,7 @@ import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VOCT_MSG_STATUS;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 
 public class VOCTCommunicationServiceRapidResponse {
 
@@ -45,7 +45,7 @@ public class VOCTCommunicationServiceRapidResponse {
         private String sender;
         private String message;
         private long id;
-        private VOCT_MSG_STATUS status;
+        private VoctMsgStatus status;
         private long receiversMMSI;
 
         public VOCTCommunicationMessageRapidResponse() {
@@ -68,7 +68,7 @@ public class VOCTCommunicationServiceRapidResponse {
         /**
          * Constructor - used for replys
          */
-        public VOCTCommunicationMessageRapidResponse(long id, String message, VOCT_MSG_STATUS status) {
+        public VOCTCommunicationMessageRapidResponse(long id, String message, VoctMsgStatus status) {
             this.id = id;
             this.message = message;
             this.status = requireNonNull(status);
@@ -182,7 +182,7 @@ public class VOCTCommunicationServiceRapidResponse {
         /**
          * @return the status
          */
-        public VOCT_MSG_STATUS getStatus() {
+        public VoctMsgStatus getStatus() {
             return status;
         }
 
@@ -190,7 +190,7 @@ public class VOCTCommunicationServiceRapidResponse {
          * @param status
          *            the status to set
          */
-        public void setStatus(VOCT_MSG_STATUS status) {
+        public void setStatus(VoctMsgStatus status) {
             this.status = status;
         }
 
