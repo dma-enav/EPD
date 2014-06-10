@@ -106,8 +106,8 @@ public class PdypSentence extends Sentence {
         double heading;
         Double sog = null;
         Double cog = null;
-        int length = 0;
-        int width = 0;
+        double length = 0;
+        double width = 0;
         long time;
 
         // num
@@ -130,8 +130,8 @@ public class PdypSentence extends Sentence {
                 if (fields.size() < 10) {
                     throw new SentenceException("PDYPN sentence '" + sl.getLine() + "' must have at least 10 fields");
                 }
-                length = ParseUtils.parseInt(fields.get(7));
-                width = ParseUtils.parseInt(fields.get(8));
+                length = ParseUtils.parseDouble(fields.get(7));
+                width = ParseUtils.parseDouble(fields.get(8));
                 dateTimeStr = fields.get(9);
 
             } else {
