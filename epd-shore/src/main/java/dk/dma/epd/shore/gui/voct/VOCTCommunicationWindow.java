@@ -327,7 +327,7 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
                         EPDShore.getInstance()
                                 .getVoctHandler()
                                 .sendVOCTMessage(sruList.get(i).getMmsi(), voctManager.getSarData(), "OSC", "Please Join", i,
-                                        (boolean) sruTable.getValueAt(i, 4), (boolean) sruTable.getValueAt(i, 5));
+                                        (boolean) sruTable.getValueAt(i, 5), (boolean) sruTable.getValueAt(i, 6));
 
                     } catch (InterruptedException e) {
                         // TODO Auto-generated catch block
@@ -339,13 +339,9 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-
                 }
-
             }
-
             this.setVisible(false);
-
         }
 
     }

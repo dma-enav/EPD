@@ -99,6 +99,9 @@ public class SARInputCommon extends JDialog implements ActionListener,
     private VOCTManagerCommon voctManager;
     
     private boolean sarReady;
+    private JLabel lblOrImportSar;
+    
+    private JButton btnImport;
     
     /**
      * 
@@ -133,6 +136,16 @@ public class SARInputCommon extends JDialog implements ActionListener,
         initPanel();
         inputPanel();
         calculationsPanel();
+        
+//        CardLayout cl = (CardLayout) (masterPanel.getLayout());
+//        backButton.setEnabled(true);
+//
+//        inititateSarType();
+//
+//        System.out.println("Setting panel to " + currentCard);
+//
+//        // The type select determines which panel we show
+//        cl.show(masterPanel, currentCard);
     }
 
     private void calculationsPanel() {
@@ -207,6 +220,14 @@ public class SARInputCommon extends JDialog implements ActionListener,
         descriptiveImage.setBounds(20, 131, 493, 200);
         panel.add(descriptiveImage);
         descriptiveImage.setIcon(rapidResponseIcon);
+        
+        lblOrImportSar = new JLabel("Or import SAR from external file:");
+        lblOrImportSar.setBounds(238, 24, 176, 14);
+        panel.add(lblOrImportSar);
+        
+        btnImport = new JButton("Import");
+        btnImport.setBounds(408, 20, 89, 23);
+        panel.add(btnImport);
 
     }
 
@@ -816,5 +837,4 @@ public class SARInputCommon extends JDialog implements ActionListener,
         }
         
     }
-
 }
