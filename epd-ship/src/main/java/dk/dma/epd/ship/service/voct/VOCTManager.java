@@ -39,6 +39,7 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.voct.SARInput;
 import dk.dma.epd.ship.gui.voct.SARInvitationRequest;
 import dk.dma.epd.ship.layers.voct.VoctLayer;
+import dk.dma.epd.ship.service.VoctHandler;
 
 /**
  * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
@@ -52,6 +53,7 @@ public class VOCTManager extends VOCTManagerCommon {
 
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
+    private VoctHandler voctHandler;
     
 //    private VOCTBroadcastService voctBroadcastService;
 
@@ -162,7 +164,7 @@ public class VOCTManager extends VOCTManagerCommon {
     public void handleDialogAction(boolean accepted, VOCTCommunicationMessageDatumPoint message, SAR_TYPE type) {
 
         if (accepted) {
-//            EPDShip.getInstance().getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_ACCEPTED, 0, "Accepted", type);
+            voctHandler.sendVOCTReply(VOCT_MSG_STATUS.ACCEPTED,  message.getId(), "Accepted", type);
 
             removeOldSARData();
 
@@ -201,7 +203,8 @@ public class VOCTManager extends VOCTManagerCommon {
             // Force start
             startVOCTBroadcast();
         } else {
-//            EPDShip.getInstance().getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_REJECTED, 0, "Rejected", type);
+            voctHandler.sendVOCTReply(VOCT_MSG_STATUS.REJECTED,  message.getId(), "Rejected", type);
+
         }
 
     }
@@ -210,7 +213,8 @@ public class VOCTManager extends VOCTManagerCommon {
 
         if (accepted) {
             
-//            EPDShip.getInstance().getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_ACCEPTED, 0, "Accepted", type);
+            System.out.println("ITS ACCEPTED SEND REPLY");
+            voctHandler.sendVOCTReply(VOCT_MSG_STATUS.ACCEPTED, message.getId(), "Accepted", type);
 
             removeOldSARData();
 
@@ -251,7 +255,7 @@ public class VOCTManager extends VOCTManagerCommon {
             // Force start
             startVOCTBroadcast();
         } else {
-//            EPDShip.getInstance().getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_REJECTED, 0, "Rejected", type);
+            voctHandler.sendVOCTReply(VOCT_MSG_STATUS.REJECTED,  message.getId(), "Rejected", type);
         }
 
     }
@@ -282,6 +286,20 @@ public class VOCTManager extends VOCTManagerCommon {
             voctLayer.showFutureData(sarData);
         } else {
             voctLayer.showFutureData(sarFutureData.get((i / 30) - 1));
+        }
+
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+
+        if (obj instanceof VoctHandler) {
+            voctHandler = (VoctHandler) obj;
         }
 
     }

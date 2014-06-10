@@ -21,7 +21,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import net.maritimecloud.net.MaritimeCloudClient;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;

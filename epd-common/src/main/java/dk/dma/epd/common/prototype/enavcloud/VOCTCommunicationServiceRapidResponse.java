@@ -25,7 +25,7 @@ import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.SRU_NETWORK_STATUS;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VOCT_MSG_STATUS;
 
 public class VOCTCommunicationServiceRapidResponse {
 
@@ -45,13 +45,14 @@ public class VOCTCommunicationServiceRapidResponse {
         private String sender;
         private String message;
         private long id;
-        private SRU_NETWORK_STATUS status;
+        private VOCT_MSG_STATUS status;
+        private long receiversMMSI;
 
         public VOCTCommunicationMessageRapidResponse() {
         }
 
         public VOCTCommunicationMessageRapidResponse(RapidResponseDTO sarData, EffortAllocationDTO effortAllocationData,
-                Route searchPattern, String sender, String message, long id) {
+                Route searchPattern, String sender, String message, long id, long receiversMMSI) {
             super();
             this.sarData = requireNonNull(sarData);
             this.effortAllocationData = effortAllocationData;
@@ -60,13 +61,14 @@ public class VOCTCommunicationServiceRapidResponse {
             this.message = requireNonNull(message);
             this.sender = requireNonNull(sender);
             this.id = requireNonNull(id);
+            this.receiversMMSI = receiversMMSI;
 
         }
 
         /**
          * Constructor - used for replys
          */
-        public VOCTCommunicationMessageRapidResponse(long id, String message, SRU_NETWORK_STATUS status) {
+        public VOCTCommunicationMessageRapidResponse(long id, String message, VOCT_MSG_STATUS status) {
             this.id = id;
             this.message = message;
             this.status = requireNonNull(status);
@@ -180,7 +182,7 @@ public class VOCTCommunicationServiceRapidResponse {
         /**
          * @return the status
          */
-        public SRU_NETWORK_STATUS getStatus() {
+        public VOCT_MSG_STATUS getStatus() {
             return status;
         }
 
@@ -188,10 +190,26 @@ public class VOCTCommunicationServiceRapidResponse {
          * @param status
          *            the status to set
          */
-        public void setStatus(SRU_NETWORK_STATUS status) {
+        public void setStatus(VOCT_MSG_STATUS status) {
             this.status = status;
         }
 
+        /**
+         * @return the receiversMMSI
+         */
+        public long getReceiversMMSI() {
+            return receiversMMSI;
+        }
+
+        /**
+         * @param receiversMMSI the receiversMMSI to set
+         */
+        public void setReceiversMMSI(long receiversMMSI) {
+            this.receiversMMSI = receiversMMSI;
+        }
+
+        
+        
     }
 
     public static class VOCTCommunicationReplyRapidResponse extends ServiceMessage<Void> {

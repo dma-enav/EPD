@@ -23,6 +23,7 @@ import javax.swing.table.AbstractTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRU.sru_status;
@@ -114,7 +115,8 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         SRU sru = sruManager.getSRUs().get(rowIndex);
 
-        System.out.println("updating table! " + sru.getStatus());
+        // System.out.println("updating table! " + sru.getStatus());
+
         // EffortAllocationData effortAllocationData =
         // voctManager.getSarData().getEffortAllocationData().get(rowIndex);
         switch (columnIndex) {
@@ -125,7 +127,11 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
         case 2:
             return sru.getStatus();
         case 3:
-            return sru.getNetworkStatus();
+            if (sru.getCloudStatus() != CloudMessageStatus.NOT_SENT) {
+                return sru.getCloudStatus().getTitle();
+            }
+            
+            return "Not sent";
         case 4:
             return tableContent.get(rowIndex).isSarData();
         case 5:

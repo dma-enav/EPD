@@ -15,7 +15,8 @@
  */
 package dk.dma.epd.shore.voct;
 
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.SRU_NETWORK_STATUS;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VOCT_MSG_STATUS;
 
 /**
  * Definition of a SRU
@@ -31,7 +32,7 @@ public class SRU {
     }
 
     public enum sru_status {
-        AVAILABLE, UNAVAILABLE, INVITED, ACCEPTED, DECLINED, UNKNOWN, LOCALONLY, RECIEVED_BY_CLIENT
+        AVAILABLE, UNAVAILABLE, INVITED, ACCEPTED, DECLINED, UNKNOWN, LOCALONLY
     }
 
     private String name;
@@ -44,7 +45,8 @@ public class SRU {
     private double fatigue;
     private int searchTime;
 
-    private SRU_NETWORK_STATUS networkStatus;
+    private VOCT_MSG_STATUS voctMsgStatus;
+    private CloudMessageStatus cloudStatus;
 
     public SRU(String name, long mmsi, SRU_TYPE type, sru_status status, double searchSpeed, int visibility, double fatigue,
             int searchTime) {
@@ -58,7 +60,8 @@ public class SRU {
         this.visibility = visibility;
         this.fatigue = fatigue;
         this.searchTime = searchTime;
-        networkStatus = SRU_NETWORK_STATUS.NOT_SENT;
+        voctMsgStatus = VOCT_MSG_STATUS.UNKNOWN;
+        cloudStatus = CloudMessageStatus.NOT_SENT;
     }
 
     /**
@@ -196,19 +199,34 @@ public class SRU {
         this.searchTime = searchTime;
     }
 
+
+
     /**
-     * @return the networkStatus
+     * @return the voctMsgStatus
      */
-    public SRU_NETWORK_STATUS getNetworkStatus() {
-        return networkStatus;
+    public VOCT_MSG_STATUS getVoctMsgStatus() {
+        return voctMsgStatus;
     }
 
     /**
-     * @param networkStatus
-     *            the networkStatus to set
+     * @param voctMsgStatus the voctMsgStatus to set
      */
-    public void setNetworkStatus(SRU_NETWORK_STATUS networkStatus) {
-        this.networkStatus = networkStatus;
+    public void setVoctMsgStatus(VOCT_MSG_STATUS voctMsgStatus) {
+        this.voctMsgStatus = voctMsgStatus;
+    }
+
+    /**
+     * @return the cloudStatus
+     */
+    public CloudMessageStatus getCloudStatus() {
+        return cloudStatus;
+    }
+
+    /**
+     * @param cloudStatus the cloudStatus to set
+     */
+    public void setCloudStatus(CloudMessageStatus cloudStatus) {
+        this.cloudStatus = cloudStatus;
     }
 
     @Override

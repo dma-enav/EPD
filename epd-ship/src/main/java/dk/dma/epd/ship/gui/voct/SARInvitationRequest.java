@@ -266,6 +266,7 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
         if (arg0.getSource() == acceptBtn) {
 
             if (type == SAR_TYPE.RAPID_RESPONSE) {
+                System.out.println("Rapid Response ACCEPT BTN");
                 voctManager.handleDialogAction(true, rapidResponseMessage, type);
             }
 

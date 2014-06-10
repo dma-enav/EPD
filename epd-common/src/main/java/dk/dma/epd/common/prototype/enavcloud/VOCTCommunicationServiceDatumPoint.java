@@ -24,7 +24,7 @@ import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voct.DatumPointDTO;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.SRU_NETWORK_STATUS;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VOCT_MSG_STATUS;
 
 public class VOCTCommunicationServiceDatumPoint {
 
@@ -87,7 +87,7 @@ public class VOCTCommunicationServiceDatumPoint {
         private String sender;
         private String message;
         private long id;
-        private SRU_NETWORK_STATUS status;
+        private VOCT_MSG_STATUS status;
 
         public VOCTCommunicationMessageDatumPoint() {
         }
@@ -107,7 +107,7 @@ public class VOCTCommunicationServiceDatumPoint {
         /**
          * Constructor - used for replys
          */
-        public VOCTCommunicationMessageDatumPoint(long id, String message, SRU_NETWORK_STATUS status) {
+        public VOCTCommunicationMessageDatumPoint(long id, String message, VOCT_MSG_STATUS status) {
             this.id = id;
             this.message = message;
             this.status = requireNonNull(status);
@@ -221,7 +221,7 @@ public class VOCTCommunicationServiceDatumPoint {
         /**
          * @return the status
          */
-        public SRU_NETWORK_STATUS getStatus() {
+        public VOCT_MSG_STATUS getStatus() {
             return status;
         }
 
@@ -229,7 +229,7 @@ public class VOCTCommunicationServiceDatumPoint {
          * @param status
          *            the status to set
          */
-        public void setStatus(SRU_NETWORK_STATUS status) {
+        public void setStatus(VOCT_MSG_STATUS status) {
             this.status = status;
         }
 

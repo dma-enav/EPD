@@ -54,9 +54,10 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     protected SARData sarData;
     protected List<SARData> sarFutureData;
 
-    public enum SRU_NETWORK_STATUS {
-        NOT_SENT, FAILED, SENT_NOT_ACK, RECIEVED_APP_ACK, RECIEVED_ACCEPTED, RECIEVED_REJECTED, RECIEVED_NOTED
-    }
+     public enum VOCT_MSG_STATUS {
+     ACCEPTED, REJECTED, NOTED, IGNORED, UNKNOWN
+     }
+
 
     /**
      * @return the hasSar

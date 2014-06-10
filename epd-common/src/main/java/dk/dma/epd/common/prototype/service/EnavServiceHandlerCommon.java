@@ -326,12 +326,12 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * order to the statuses and a method for combining them.
      */
     public enum CloudMessageStatus {
-        NOT_SENT(0, "not sent - check network status"),
-        SENT(1, "sent"),
-        SENT_FAILED(2, "failed to send message"),
-        RECEIVED_BY_CLOUD(3, "sent and received by cloud"),
-        RECEIVED_BY_CLIENT(4, "sent and received by client"),
-        HANDLED_BY_CLIENT(5, "sent and acknowledged by client");
+        NOT_SENT(0, "Not sent - check network status"),
+        SENT(1, "Sent"),
+        SENT_FAILED(2, "Failed to send message"),
+        RECEIVED_BY_CLOUD(3, "Sent and received by cloud"),
+        RECEIVED_BY_CLIENT(4, "Sent and received by client"),
+        HANDLED_BY_CLIENT(5, "Sent and acknowledged by client");
         
         String title;
         int order;

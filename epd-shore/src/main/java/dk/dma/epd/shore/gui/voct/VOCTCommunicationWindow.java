@@ -225,7 +225,7 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
 
             // TODO: Comment this line when using WindowBuilder
             sruTable.setModel(sruTableModel);
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 7; i++) {
 
                 if (i == 0) {
                     sruTable.getColumnModel().getColumn(i).setPreferredWidth(5);
@@ -234,11 +234,11 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
                     sruTable.getColumnModel().getColumn(i).setPreferredWidth(75);
                 }
                 if (i == 2) {
-                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(50);
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(40);
                 }
 
                 if (i == 3) {
-                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(50);
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(80);
                 }
 
                 if (i == 4) {
@@ -248,7 +248,7 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
                     sruTable.getColumnModel().getColumn(i).setPreferredWidth(5);
                 }
                 if (i == 6) {
-                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(5);
                 }
             }
             sruSelectionModel = sruTable.getSelectionModel();
