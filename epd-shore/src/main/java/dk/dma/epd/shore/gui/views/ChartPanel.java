@@ -385,6 +385,18 @@ public class ChartPanel extends ChartPanelCommon {
             mapHandler.add(voctLayer);
             mapHandler.add(EPDShore.getInstance().getVoctManager());
             mapHandler.add(EPDShore.getInstance().getSRUManager());
+            
+            // Add AIS Layer
+            aisLayer = new AisLayer(EPD.getInstance().getSettings()
+                    .getAisSettings().getMinRedrawInterval() * 1000);
+            aisLayer.setVisible(true);
+            mapHandler.add(aisLayer);
+
+            // Create Intended Route Layer
+            intendedRouteLayer = new IntendedRouteLayerCommon();
+            intendedRouteLayer.setVisible(EPD.getInstance().getSettings()
+                    .getCloudSettings().isShowIntendedRoute());
+            mapHandler.add(intendedRouteLayer);
         }
 
         // Create MSI handler

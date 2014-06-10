@@ -232,6 +232,7 @@ public class ThreadedMapCreator implements Runnable {
             window.setLocation((int) mainFrameSize.getWidth() / 2 - 10, 0);
             window.setSize((int) mainFrameSize.getWidth() / 2 - 10,
                     (int) mainFrameSize.getHeight() - 10);
+            
             for (int i = 0; i < EPDShore.getInstance().getMainFrame()
                     .getMapWindows().size(); i++) {
                 if (EPDShore.getInstance().getMainFrame().getMapWindows()
