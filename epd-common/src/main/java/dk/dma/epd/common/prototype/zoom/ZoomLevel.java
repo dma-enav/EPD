@@ -21,11 +21,11 @@ package dk.dma.epd.common.prototype.zoom;
  */
 public enum ZoomLevel {
     
-    VESSEL_OUTLINE(0.0f, 10000.0f) {
+    VESSEL_OUTLINE(0.0f, 30000.0f) {
         
     },
     
-    VESSEL_TRIANGLE(10000.0f, 250000.0f) {
+    VESSEL_TRIANGLE(30000.0f, 250000.0f) {
         
     },
     
