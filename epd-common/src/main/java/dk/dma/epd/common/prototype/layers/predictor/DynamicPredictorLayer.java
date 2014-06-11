@@ -26,14 +26,13 @@ import com.bbn.openmap.event.ProjectionListener;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
-import dk.dma.epd.common.prototype.layers.ais.VesselOutline;
 import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandler;
 import dk.dma.epd.common.prototype.predictor.IDynamicPredictionsListener;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
 
 public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionListener, IDynamicPredictionsListener {
-    
+
     private static final long serialVersionUID = 1L;
     
     private static final Logger LOG = LoggerFactory.getLogger(DynamicPredictorLayer.class);
@@ -45,7 +44,6 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionL
     @Override
     public void receivePredictions(DynamicPredictorStateData state, List<DynamicPredictorPredictionData> predictions) {
         LOG.info("Layer received dynamic prediction: " + state);
-        
         if (state == null) {
             // No predictions, if we are currently not showing anything just return
             // return
@@ -84,11 +82,5 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionL
         if (obj instanceof DynamicPredictorHandler) {
             ((DynamicPredictorHandler) obj).addListener(this);
         }
-    }
-    
-    @Override
-    public void projectionChanged(ProjectionEvent pe) {
-        super.projectionChanged(pe);
-        
     }
 }
