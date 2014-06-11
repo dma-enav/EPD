@@ -82,7 +82,7 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
         int width = 40;
         int length = 180;
         if (staticData != null) {
-            width = staticData.getDimPort() + staticData.getDimPort();
+            width = staticData.getDimPort() + staticData.getDimStarboard();
             length = staticData.getDimBow() + staticData.getDimStern();
         }
         
