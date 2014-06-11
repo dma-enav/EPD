@@ -19,6 +19,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.layers.predictor.VesselPortrayalData;
 
 /**
  * <p>
@@ -105,9 +106,25 @@ public abstract class VesselGraphic extends OMGraphicList implements
     }
 
     /**
+     * Updates the display of this {@link VesselGraphic} with new data. Only use
+     * this method directly in client code if you do not intend to query this
+     * graphic for its associated {@link VesselTarget} using
+     * {@link #getMostRecentVesselTarget()}. This method is a minor hack that
+     * was introduced to allow clients, that do not rely on AIS data, the
+     * ability to display a vessel using any of the concrete subclasses of
+     * {@link VesselGraphic}. If your client code is AIS based, make use of
+     * {@link #updateGraphic(VesselTarget, float)} instead.
+     * 
+     * @param data
+     *            The updated data.
+     */
+    public abstract void updateGraphic(VesselPortrayalData data);
+
+    /**
      * {@inheritDoc}<br/>
-     * <b>Sub classes overriding this should always call the super implementation</b>
-     * which sets the selection flag used by {@link #getSelectionStatus()}.
+     * <b>Sub classes overriding this should always call the super
+     * implementation</b> which sets the selection flag used by
+     * {@link #getSelectionStatus()}.
      */
     @Override
     public void setSelectionStatus(boolean selected) {

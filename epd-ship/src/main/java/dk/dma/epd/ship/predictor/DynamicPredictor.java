@@ -42,7 +42,7 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamicPredictor.class);
     
-    private static double INTERVAL = 60; // 60 secs
+    private static float INTERVAL = 60.0f; // 60 secs
     private static int PREDICTIONS = 6;
     
     private volatile DynamicPredictorHandler dynamicPredictorHandler;
@@ -72,13 +72,13 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
 
         long t = System.currentTimeMillis();
         Position pos = posData.getPos();
-        double cog = posData.getCog();
-        double sog = posData.getSog();
-        double heading = posData.getTrueHeading();
+        float cog = posData.getCog();
+        float sog = posData.getSog();
+        float heading = posData.getTrueHeading();
         if (heading == 511) {
             heading = cog;            
         }
-        double rot = posData.getRot();
+        float rot = posData.getRot();
         int width = 40;
         int length = 180;
         if (staticData != null) {
@@ -93,11 +93,11 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
         List<DynamicPredictorPredictionData> predictions = new ArrayList<>();        
         for (int i=0; i < PREDICTIONS; i++) {
             double sogMpS = (sog * 1852.0) / 3600.0;
-            double rotDpS = rot / 60;
+            float rotDpS = rot / 60.0f;
             double dist = sogMpS * INTERVAL;            
             pos = CoordinateSystem.CARTESIAN.pointOnBearing(pos, dist, cog);
-            cog = (INTERVAL * rotDpS + cog) % 360.0;
-            heading = (INTERVAL * rotDpS + heading) % 360.0;
+            cog = (INTERVAL * rotDpS + cog) % 360.0f;
+            heading = (INTERVAL * rotDpS + heading) % 360.0f;
             t += INTERVAL;
             
             DynamicPredictorPredictionData prediction = new DynamicPredictorPredictionData(i + 1, pos, heading, cog, sog, t);

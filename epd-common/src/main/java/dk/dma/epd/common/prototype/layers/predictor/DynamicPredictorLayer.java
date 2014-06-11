@@ -15,16 +15,14 @@
  */
 package dk.dma.epd.common.prototype.layers.predictor;
 
+import java.awt.Color;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
-import com.bbn.openmap.omGraphics.OMCircle;
-import com.bbn.openmap.omGraphics.OMLine;
-import com.bbn.openmap.proj.Length;
-import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
@@ -34,7 +32,7 @@ import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionDa
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
 
 public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionListener, IDynamicPredictionsListener {
-    
+
     private static final long serialVersionUID = 1L;
     
     private static final Logger LOG = LoggerFactory.getLogger(DynamicPredictorLayer.class);
@@ -46,39 +44,33 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionL
     @Override
     public void receivePredictions(DynamicPredictorStateData state, List<DynamicPredictorPredictionData> predictions) {
         LOG.info("Layer received dynamic prediction: " + state);
-
         if (state == null) {
             // No predictions, if we are currently not showing anything just return
             // return
             return;
         }
-
-        state.getLength();
-        state.getWidth();
         
         graphics.clear();
 
+        float vesselWidth = state.getWidth();
+        float vesselLength = state.getLength();
+        
         for (DynamicPredictorPredictionData prediction : predictions) {
             LOG.info("Dynamic predictor data: " + prediction);
-            Position pos = prediction.getPosition();
-            double heading = prediction.getHeading();
-            long time = prediction.getTime();
-
             // Position is the middle of the ship
-
-            // Draw outlines with headings on position
-            // Maybe different gray shading to differentiate
+            Position pos = prediction.getPosition();
+            float heading = prediction.getHeading();
+            // Base distances on the assumption that pos marks the middle of ship
+            float distBow = vesselLength / 2.0f;
+            float distStern = distBow;
+            float distPort = vesselWidth / 2.0f;
+            float distStarboard = distPort;
             
+            VesselPortrayalData portrayalData = new VesselPortrayalData(pos, heading, distBow, distStern, distPort, distStarboard);
+            DynamicPredictionGraphic dpg = new DynamicPredictionGraphic(Color.GRAY);
             
-            LatLonPoint center = new LatLonPoint.Double(pos.getLatitude(), pos.getLongitude());
-            double lengthRadians = Length.METER.toRadians(state.getLength());
-            double headingR = Math.toRadians(prediction.getHeading());
-            LatLonPoint end = center.getPoint(lengthRadians / 2, headingR);
-            LatLonPoint start = center.getPoint(lengthRadians / 2, headingR + Math.PI);
-            
-            graphics.add(new OMLine(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude(), OMLine.LINETYPE_STRAIGHT));            
-            graphics.add(new OMCircle(pos.getLatitude(), pos.getLongitude(), 10, 10));
-
+            this.graphics.add(dpg);
+            dpg.update(portrayalData);
         }
         
         doPrepare();
@@ -91,5 +83,4 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionL
             ((DynamicPredictorHandler) obj).addListener(this);
         }
     }
-
 }

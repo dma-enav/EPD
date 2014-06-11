@@ -25,12 +25,12 @@ import dk.dma.enav.model.geometry.Position;
 public abstract class DynamicPredictorData {
 
     private final Position position;
-    private final Double sog;
-    private final double heading;
-    private final Double cog;
+    private final Float sog;
+    private final float heading;
+    private final Float cog;
     private final long time;
 
-    public DynamicPredictorData(Position position, double heading, Double cog, Double sog, long time) {
+    public DynamicPredictorData(Position position, float heading, Float cog, Float sog, long time) {
         super();
         this.position = position;
         this.heading = heading;
@@ -43,15 +43,15 @@ public abstract class DynamicPredictorData {
         return position;
     }
 
-    public Double getSog() {
+    public Float getSog() {
         return sog;
     }
 
-    public double getHeading() {
+    public float getHeading() {
         return heading;
     }
 
-    public Double getCog() {
+    public Float getCog() {
         return cog;
     }
 

@@ -23,7 +23,7 @@ public class DynamicPredictorPredictionData extends DynamicPredictorData {
 
     private final int number;
 
-    public DynamicPredictorPredictionData(int number, Position position, double heading, Double cog, Double sog, long time) {
+    public DynamicPredictorPredictionData(int number, Position position, float heading, Float cog, Float sog, long time) {
         super(position, heading, cog, sog, time);
         this.number = number;
     }

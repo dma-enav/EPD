@@ -26,6 +26,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.layers.predictor.VesselPortrayalData;
 
 /**
  * Graphic for displaying a {@link VesselTarget} on the map. This graphic class displays the vessel outline based on vessel size data and map scale.
@@ -80,7 +81,20 @@ public class VesselOutline extends VesselGraphic {
         }
         // Let super store reference to the updated VesselTarget.
         super.updateGraphic(vesselTarget, mapScale);
-        this.producePolygon(positionData, staticData);
+        
+        VesselPortrayalData outlineData = new VesselPortrayalData(positionData.getPos(), positionData.getTrueHeading(),
+                staticData.getDimBow(), staticData.getDimStern(), staticData.getDimPort(), staticData.getDimStarboard());
+        
+        this.updateGraphic(outlineData);
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateGraphic(VesselPortrayalData data) {
+        this.producePolygon(data);
     }
     
     /**
@@ -110,27 +124,27 @@ public class VesselOutline extends VesselGraphic {
      * @param staticData
      *            the vessel static data
      */
-    private void producePolygon(VesselPositionData positionData, VesselStaticData staticData) {
+    private void producePolygon(VesselPortrayalData data) {
         // Get angle from PNT to lower left corner of ship
-        double anglLowerLeft = this.calcAngleFromCenter(staticData.getDimStern(), staticData.getDimPort());
+        double anglLowerLeft = this.calcAngleFromCenter(data.getDistStern(), data.getDistPort());
         // calculate distance to lower left corner of vessel (Pythagoras)
-        double distLowerLeftCorner = Math.sqrt(Math.pow(staticData.getDimStern(), 2.0) + Math.pow(staticData.getDimPort(), 2.0));
+        double distLowerLeftCorner = Math.sqrt(Math.pow(data.getDistStern(), 2.0) + Math.pow(data.getDistPort(), 2.0));
 
-        float heading = positionData.getTrueHeading();
+        float heading = data.getHeading();
 
         anglLowerLeft += heading + 180;
 
         if (360 <= anglLowerLeft) {
             anglLowerLeft -= 360.0;
         }
-        Position vessPos = positionData.getPos();
+        Position vessPos = data.getPos();
 
         // find latlon of lower left corner of ship
         Position leftSideBottomLL = CoordinateSystem.CARTESIAN.pointOnBearing(vessPos, distLowerLeftCorner, anglLowerLeft);
 
-        double shipFullLength = staticData.getDimBow() + staticData.getDimStern();
+        double shipFullLength = data.getDistBow() + data.getDistStern();
         double shipSideLength = shipFullLength * 0.85;
-        double shipSternWidth = staticData.getDimPort() + staticData.getDimStarboard();
+        double shipSternWidth = data.getDistPort() + data.getDistStarboard();
 
         // Not a point in the final polygon, simply used for finding polygon points in the bow.
         Position outerRectTopLeftLL = CoordinateSystem.CARTESIAN.pointOnBearing(leftSideBottomLL, shipFullLength, 0.0 + heading);
