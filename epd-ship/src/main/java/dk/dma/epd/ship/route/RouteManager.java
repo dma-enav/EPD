@@ -82,6 +82,8 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
             return;
         }
 
+        
+        
         ActiveWpSelectionResult endRes;
         ActiveWpSelectionResult res;
         synchronized (this) {

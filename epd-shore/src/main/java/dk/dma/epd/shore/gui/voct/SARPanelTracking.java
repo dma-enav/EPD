@@ -295,10 +295,10 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener, Acti
             // We have a SAR in progress
             if (voctManager != null && voctManager.isHasSar()) {
 
-                if (voctHandler != null && voctHandler.isConnected()) {
-                    
-                    voctHandler.fetchVOCTMessageList();
-                }
+//                if (voctHandler != null && voctHandler.isConnected()) {
+//                    
+//                    voctHandler.fetchVOCTMessageList();
+//                }
 
                 // Determine what type of SAR then retrieve the input data
                 if (voctCommsWindow != null) {

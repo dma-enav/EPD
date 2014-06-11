@@ -27,6 +27,7 @@ import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteMessage;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter.FilterType;
+import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Calculator;
@@ -101,6 +102,8 @@ public class ActiveRoute extends Route {
 
     private Route originalRoute;
 
+    private boolean searchPattern;
+
     public ActiveRoute(Route route, PntData pntData) {
         super();
         this.waypoints = route.getWaypoints();
@@ -125,6 +128,10 @@ public class ActiveRoute extends Route {
         calcValues(true);
 
         changeActiveWaypoint(getBestWaypoint(route, pntData));
+
+        if (route instanceof SearchPatternRoute) {
+            searchPattern = true;
+        }
 
     }
 
@@ -341,6 +348,11 @@ public class ActiveRoute extends Route {
     }
 
     public synchronized ActiveWpSelectionResult chooseActiveWp() {
+
+        if (searchPattern) {
+            return ActiveWpSelectionResult.NO_CHANGE;
+        }
+
         // Calculate if in Wp circle
         boolean inWpCircle = false;
         double xtd = currentLeg.getMaxXtd() == null ? 0.0 : currentLeg.getMaxXtd();
@@ -375,7 +387,7 @@ public class ActiveRoute extends Route {
                 return ActiveWpSelectionResult.CHANGED;
             }
         } else {
-            // Some temporary fallback when we are really of course
+            // Some temporary fallback when we are really off course
             if (relaxedWpChange) {
                 if (2 * nextWpRng < getWpRng(activeWaypointIndex)) {
                     changeActiveWaypoint(activeWaypointIndex + 1);

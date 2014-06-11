@@ -98,7 +98,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
             public void run() {
                 fetchVOCTMessageList();
             }
-        }, 5, 62, TimeUnit.SECONDS);
+        }, 5, 30, TimeUnit.SECONDS);
     }
 
     private void listenToVOCTBroadcasts() throws InterruptedException {
@@ -193,7 +193,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         new Thread(this).start();
     }
 
-    public void fetchVOCTMessageList() {
+    private void fetchVOCTMessageList() {
         System.out.println("Checking for VOCT message list");
         try {
 
