@@ -83,6 +83,7 @@ import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.predictor.DynamicPredictor;
+import dk.dma.epd.ship.predictor.DynamicPredictorSentenceParser;
 import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.IntendedRouteHandler;
@@ -122,7 +123,8 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private VoyageEventDispatcher voyageEventDispatcher;
     private VOCTManager voctManager;
     private DynamicPredictor dynamicPredictor;
-
+    private DynamicPredictorSentenceParser dynamicPredictorParser;
+    
     // Maritime Cloud services
     private IntendedRouteHandler intendedRouteHandler;
     private VoctHandler voctHandler;
@@ -216,6 +218,10 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // Start dynamic predictor handler
         dynamicPredictorHandler = new DynamicPredictorHandler();
         mapHandler.add(dynamicPredictorHandler);
+        
+        // Start dynamic predictor sensor sentence parser
+        dynamicPredictorParser = new DynamicPredictorSentenceParser();
+        mapHandler.add(dynamicPredictorParser);
         
         // Maybe start dynamic prediction generator
         if (settings.getSensorSettings().isStartPredictionGenerator()) {
@@ -445,7 +451,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             mapHandler.add(msPntSensor);
         }
         if (dynamicPredictorSensor != null) {
-            dynamicPredictorSensor.addDynamicPredictorListener(dynamicPredictorHandler);
+            dynamicPredictorSensor.addDynamicPredictorListener(dynamicPredictorParser);
             dynamicPredictorSensor.start();
             mapHandler.add(dynamicPredictorSensor);
         }

@@ -16,16 +16,15 @@
 package dk.dma.epd.common.prototype.layers.predictor;
 
 import java.awt.Color;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
 import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandler;
 import dk.dma.epd.common.prototype.predictor.IDynamicPredictionsListener;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
@@ -42,20 +41,27 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionL
     }
 
     @Override
-    public void receivePredictions(DynamicPredictorStateData state, List<DynamicPredictorPredictionData> predictions) {
-        LOG.info("Layer received dynamic prediction: " + state);
-        if (state == null) {
-            // No predictions, if we are currently not showing anything just return
-            // return
+    public void receivePredictions(DynamicPrediction dynamicPrediction) {
+        if (dynamicPrediction == null) {
+            /*
+             *  TODO as for now null means timeout. Later on in development, handler
+             *  must send something else but null to indicate timeout such that layer
+             *  may know exactly what dynamic prediction has timed out (e.g. if it
+             *  displays dynamic predictions for other vessels than just own ship)
+             */
+            graphics.clear();
             return;
         }
+        
+        DynamicPredictorStateData state = dynamicPrediction.getHeaderData();
+        LOG.info("Layer received dynamic prediction: " + state);
         
         graphics.clear();
 
         float vesselWidth = state.getWidth();
         float vesselLength = state.getLength();
         
-        for (DynamicPredictorPredictionData prediction : predictions) {
+        for (DynamicPredictorPredictionData prediction : dynamicPrediction.getPredictionDataPoints()) {
             LOG.info("Dynamic predictor data: " + prediction);
             // Position is the middle of the ship
             Position pos = prediction.getPosition();

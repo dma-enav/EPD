@@ -15,16 +15,12 @@
  */
 package dk.dma.epd.common.prototype.predictor;
 
-import java.util.List;
-
-import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
-import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
 
 /**
  * Interface to implement for listeners of dynamic predictions
  */
 public interface IDynamicPredictionsListener {
     
-    void receivePredictions(DynamicPredictorStateData state, List<DynamicPredictorPredictionData> predictions);
+    void receivePredictions(DynamicPrediction prediction);
 
 }
