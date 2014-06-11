@@ -26,15 +26,17 @@ import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
-import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
+import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
+import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
+import dk.dma.epd.shore.service.IntendedRouteHandler;
 import dk.dma.epd.shore.service.VoctHandler;
 import dk.dma.epd.shore.voct.SRU.sru_status;
 
-public class SRUManager extends MapHandlerChild implements Runnable {
+public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRouteListener {
 
     private List<SRU> srus = new LinkedList<SRU>();
 
@@ -107,7 +109,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                     // Change the status
                     if (srus.get(j).getStatus() != sru_status.ACCEPTED && srus.get(j).getStatus() != sru_status.AVAILABLE
                             && srus.get(j).getStatus() != sru_status.INVITED) {
-                        System.out.println("Updating status WHY");
+                        // System.out.println("Updating status WHY");
                         srus.get(j).setStatus(sru_status.AVAILABLE);
                     }
 
@@ -334,6 +336,9 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         if (obj instanceof VoctHandler) {
             voctHandler = (VoctHandler) obj;
         }
+        if (obj instanceof IntendedRouteHandler) {
+            ((IntendedRouteHandler) obj).addListener(this);
+        }
     }
 
     public void toggleSRUVisiblity(int i, boolean visible) {
@@ -385,7 +390,6 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     }
 
     public ArrayList<SRUCommunicationObject> getSRUCommunicationList() {
-        // sRUCommunication.
         return new ArrayList<SRUCommunicationObject>(sRUCommunication.values());
     }
 
@@ -415,18 +419,18 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         return manager;
     }
 
-    public void handleSRUBroadcast(long mmsi, VOCTSARBroadCast r) {
-
-        System.out.println("Recieved Broadcast");
-
-        // Only react to mmsi that we invited
-        if (sRUCommunication.containsKey(mmsi)) {
-
-            sRUCommunication.get(mmsi).addBroadcastMessage(r);
-
-            notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
-        }
-    }
+    // public void handleSRUBroadcast(long mmsi, VOCTSARBroadCast r) {
+    //
+    // System.out.println("Recieved Broadcast");
+    //
+    // // Only react to mmsi that we invited
+    // if (sRUCommunication.containsKey(mmsi)) {
+    //
+    // sRUCommunication.get(mmsi).addBroadcastMessage(r);
+    //
+    // notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
+    // }
+    // }
 
     public void forceTrackingLayerRepaint() {
         voctLayerTracking.doPrepare();
@@ -437,4 +441,13 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
     }
 
+    @Override
+    public void intendedRouteEvent(IntendedRoute intendedRoute) {
+        long mmsi = intendedRoute.getMmsi();
+
+        if (sRUCommunication.containsKey(mmsi)) {
+            sRUCommunication.get(mmsi).setLastMessageRecieved(intendedRoute.getReceived());
+        }
+        notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
+    }
 }

@@ -212,20 +212,23 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener, Acti
 
         // TODO: Comment this line when using WindowBuilder
         sruTable.setModel(sruTableModel);
-        // for (int i = 0; i < 2; i++) {
-        //
-        // if (i == 0){
-        // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-        // }
-        // if (i == 1){
-        // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-        // }
-        // if (i == 2){
-        // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-        // }
-        //
-        //
-        // }
+
+        for (int i = 0; i < 4; i++) {
+
+            if (i == 0) {
+                sruTable.getColumnModel().getColumn(i).setPreferredWidth(30);
+            }
+            if (i == 1) {
+                sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+            }
+            if (i == 2) {
+                sruTable.getColumnModel().getColumn(i).setPreferredWidth(35);
+            }
+            if (i == 3) {
+                sruTable.getColumnModel().getColumn(i).setPreferredWidth(10);
+            }
+
+        }
         sruSelectionModel = sruTable.getSelectionModel();
         sruSelectionModel.addListSelectionListener(this);
         sruTable.setSelectionModel(sruSelectionModel);
@@ -295,10 +298,10 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener, Acti
             // We have a SAR in progress
             if (voctManager != null && voctManager.isHasSar()) {
 
-//                if (voctHandler != null && voctHandler.isConnected()) {
-//                    
-//                    voctHandler.fetchVOCTMessageList();
-//                }
+                // if (voctHandler != null && voctHandler.isConnected()) {
+                //
+                // voctHandler.fetchVOCTMessageList();
+                // }
 
                 // Determine what type of SAR then retrieve the input data
                 if (voctCommsWindow != null) {

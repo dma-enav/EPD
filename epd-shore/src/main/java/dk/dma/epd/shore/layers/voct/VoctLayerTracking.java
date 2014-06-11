@@ -41,7 +41,7 @@ public class VoctLayerTracking extends VoctLayerCommon implements
     private OMGraphicList graphics = new OMGraphicList();
 
     private HashMap<Long, EffectiveSRUAreaGraphics> effectiveAreas = new HashMap<>();
-    private HashMap<Long, SRUObject> sruVessels = new HashMap<>();
+//    private HashMap<Long, SRUObject> sruVessels = new HashMap<>();
     private SRUManager sruManager;
 
     @Override
@@ -213,61 +213,61 @@ public class VoctLayerTracking extends VoctLayerCommon implements
     @Override
     public void sruUpdated(SRUUpdateEvent e, long mmsi) {
 
-        if (e == SRUUpdateEvent.SRU_ACCEPT) {
-            // A SRU has accepted - create the object - possibly overwrite
-            // existing
+//        if (e == SRUUpdateEvent.SRU_ACCEPT) {
+//            // A SRU has accepted - create the object - possibly overwrite
+//            // existing
+//
+//            // Retrieve and remove the old
+//            if (sruVessels.containsKey(mmsi)) {
+//                graphics.remove(sruVessels.get(mmsi));
+//                sruVessels.remove(mmsi);
+//            }
+//
+//            SRUObject sruObject = new SRUObject(sruManager
+//                    .getsRUCommunication().get(mmsi));
+//            sruVessels.put(mmsi, sruObject);
+//            graphics.add(sruObject);
+//
+//            doPrepare();
+//
+//        }
 
-            // Retrieve and remove the old
-            if (sruVessels.containsKey(mmsi)) {
-                graphics.remove(sruVessels.get(mmsi));
-                sruVessels.remove(mmsi);
-            }
-
-            SRUObject sruObject = new SRUObject(sruManager
-                    .getsRUCommunication().get(mmsi));
-            sruVessels.put(mmsi, sruObject);
-            graphics.add(sruObject);
-
-            doPrepare();
-
-        }
-
-        if (e == SRUUpdateEvent.SRU_REJECT) {
-            // A SRU has rejected - remove the object if it exist
-            // Retrieve and remove the old
-            if (sruVessels.containsKey(mmsi)) {
-                graphics.remove(sruVessels.get(mmsi));
-                sruVessels.remove(mmsi);
-
-                doPrepare();
-            }
-
-        }
-
-        if (e == SRUUpdateEvent.BROADCAST_MESSAGE) {
-            // SRU Broadcast - a new SRU broadcast message has been recieved,
-            // update stuff
-
-            if (sruVessels.containsKey(mmsi)) {
-
-                sruVessels.get(mmsi).updateSRU();
-
-                doPrepare();
-            }
-
-        }
-
-        if (e == SRUUpdateEvent.SRU_REMOVED) {
-            // SRU Broadcast - a new SRU broadcast message has been recieved,
-            // update stuff
-
-            if (sruVessels.containsKey(mmsi)) {
-                graphics.remove(sruVessels.get(mmsi));
-                sruVessels.remove(mmsi);
-                doPrepare();
-            }
-
-        }
+        // if (e == SRUUpdateEvent.SRU_REJECT) {
+        // // A SRU has rejected - remove the object if it exist
+        // // Retrieve and remove the old
+        // if (sruVessels.containsKey(mmsi)) {
+        // graphics.remove(sruVessels.get(mmsi));
+        // sruVessels.remove(mmsi);
+        //
+        // doPrepare();
+        // }
+        //
+        // }
+        //
+        // if (e == SRUUpdateEvent.BROADCAST_MESSAGE) {
+        // // SRU Broadcast - a new SRU broadcast message has been recieved,
+        // // update stuff
+        //
+        // if (sruVessels.containsKey(mmsi)) {
+        //
+        // sruVessels.get(mmsi).updateSRU();
+        //
+        // doPrepare();
+        // }
+        //
+        // }
+        //
+        // if (e == SRUUpdateEvent.SRU_REMOVED) {
+        // // SRU Broadcast - a new SRU broadcast message has been recieved,
+        // // update stuff
+        //
+        // if (sruVessels.containsKey(mmsi)) {
+        // graphics.remove(sruVessels.get(mmsi));
+        // sruVessels.remove(mmsi);
+        // doPrepare();
+        // }
+        //
+        // }
     }
 
 }
