@@ -249,7 +249,7 @@ public class SensorSettings implements Serializable {
         props.put(PREFIX + "msPntSerialPortBaudRate", Integer.toString(msPntSerialPortBaudRate));
         props.put(PREFIX + "dynamicPredictorConnectionType", dynamicPredictorConnectionType.name());
         props.put(PREFIX + "dynamicPredictorHostOrSerialPort", dynamicPredictorHostOrSerialPort);
-        props.put(PREFIX + "dynamicPredictorcpOrUdpPort", Integer.toString(dynamicPredictorTcpOrUdpPort));
+        props.put(PREFIX + "dynamicPredictorTcpOrUdpPort", Integer.toString(dynamicPredictorTcpOrUdpPort));
         props.put(PREFIX + "dynamicPredictorSerialPortBaudRate", Integer.toString(dynamicPredictorSerialPortBaudRate));
 
         props.put(PREFIX + "startPredictionGenerator", Boolean.toString(startPredictionGenerator));
