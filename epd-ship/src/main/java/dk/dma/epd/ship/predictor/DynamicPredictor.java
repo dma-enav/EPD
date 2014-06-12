@@ -30,7 +30,6 @@ import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget.AisClass;
 import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
-import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandlerCommon;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
@@ -46,7 +45,7 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
     private static float INTERVAL = 60.0f; // 60 secs
     private static int PREDICTIONS = 6;
     
-    private volatile DynamicPredictorHandlerCommon dynamicPredictorHandler;
+    private volatile DynamicPredictorHandler dynamicPredictorHandler;
     
     public DynamicPredictor() {
         
@@ -107,7 +106,7 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
         
         // Distribute to dynamic predictor handler
         DynamicPrediction dynamicPrediction = new DynamicPrediction(ownShip.getMmsi(), state, predictions);
-        dynamicPredictorHandler.receivePredictions(dynamicPrediction);
+        dynamicPredictorHandler.ownShipDynamicPredictionChanged(dynamicPrediction);
     }
 
     @Override
@@ -121,8 +120,8 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
         if (obj instanceof OwnShipHandler) {
             ((OwnShipHandler) obj).addListener(this);
         }
-        if (obj instanceof DynamicPredictorHandlerCommon) {
-            dynamicPredictorHandler = (DynamicPredictorHandlerCommon)obj;
+        if (obj instanceof DynamicPredictorHandler) {
+            dynamicPredictorHandler = (DynamicPredictorHandler)obj;
         }
     }
 

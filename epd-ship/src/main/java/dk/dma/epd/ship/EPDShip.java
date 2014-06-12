@@ -56,7 +56,6 @@ import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandlerCommon;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
@@ -83,6 +82,7 @@ import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.predictor.DynamicPredictor;
+import dk.dma.epd.ship.predictor.DynamicPredictorHandler;
 import dk.dma.epd.ship.predictor.DynamicPredictorSentenceParser;
 import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
@@ -114,7 +114,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private PntHandler pntHandler;
     private MultiSourcePntHandler msPntHandler;
     private OwnShipHandler ownShipHandler;
-    private DynamicPredictorHandlerCommon dynamicPredictorHandler;
+    private DynamicPredictorHandler dynamicPredictorHandler;
     private RiskHandler riskHandler;
     private ShoreServicesCommon shoreServices;
     private MonaLisaRouteOptimization monaLisaRouteExchange;
@@ -216,7 +216,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         mapHandler.add(ownShipHandler);
 
         // Start dynamic predictor handler
-        dynamicPredictorHandler = new DynamicPredictorHandlerCommon();
+        dynamicPredictorHandler = new DynamicPredictorHandler();
         mapHandler.add(dynamicPredictorHandler);
         
         // Start dynamic predictor sensor sentence parser

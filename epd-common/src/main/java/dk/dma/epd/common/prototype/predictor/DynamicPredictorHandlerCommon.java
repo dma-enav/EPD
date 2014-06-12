@@ -32,30 +32,27 @@ import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
  * or the Maritime Cloud. As such, the main purpose of this class is to centralize distribution of dynamic predictions and abstract the data source as part of this.
  */
 @ThreadSafe
-public class DynamicPredictorHandlerCommon extends EnavServiceHandlerCommon implements Runnable, IDynamicPredictionsListener {
-
-    private static final long TIMEOUT = 30 * 1000; // 30 sec
+public class DynamicPredictorHandlerCommon extends EnavServiceHandlerCommon implements Runnable /*, IDynamicPredictionsListener*/ {
+    
+//    private static final long TIMEOUT = 30 * 1000; // 30 sec
 
     private final CopyOnWriteArrayList<IDynamicPredictionsListener> listeners = new CopyOnWriteArrayList<>();
 
-    private volatile long lastPrediction;
+//    private volatile long lastPrediction;
 
     public DynamicPredictorHandlerCommon() {
         super();
         EPD.startThread(this, "DynamicPredictorHandler");
     }
     
-    @Override
-    public void receivePredictions(DynamicPrediction prediction) {
-        /*
-         * TODO this assumes that there is only one prediction source, namely the on-ship sensor
-         */
-        lastPrediction = System.currentTimeMillis();
-        // Delegate to registered listeners.
-        for(IDynamicPredictionsListener listener : this.listeners) {
-            listener.receivePredictions(prediction);
-        }
-    }
+//    @Override
+//    public void receivePredictions(DynamicPrediction prediction) {
+//        /*
+//         * TODO this assumes that there is only one prediction source, namely the on-ship sensor
+//         */
+//        lastPrediction = System.currentTimeMillis();
+//
+//    }
 
     @Override
     public void run() {
@@ -66,12 +63,13 @@ public class DynamicPredictorHandlerCommon extends EnavServiceHandlerCommon impl
                 e.printStackTrace();
                 return;
             }
-            // Distribute timeout
-            if (System.currentTimeMillis() - lastPrediction > TIMEOUT) {
-                for (IDynamicPredictionsListener listener : listeners) {
-                    listener.receivePredictions(null);
-                }
-            }
+            // TODO how to check time out for predictions from vessels other than own ship?
+//            // Distribute timeout
+//            if (System.currentTimeMillis() - lastPrediction > TIMEOUT) {
+//                for (IDynamicPredictionsListener listener : listeners) {
+//                    listener.receivePredictions(null);
+//                }
+//            }
         }
 
     }
@@ -97,9 +95,20 @@ public class DynamicPredictorHandlerCommon extends EnavServiceHandlerCommon impl
                     DynamicPrediction prediction) {
                 assert MaritimeCloudUtils.toMmsi(header.getId()) == prediction.getMmsi();
                 // Notify listeners of dynamic prediction received from cloud.
-                DynamicPredictorHandlerCommon.this.receivePredictions(prediction);
+                System.out.println("RECEIVED DYNAMIC PREDICTION BROADCAST FROM CLOUD");
+                DynamicPredictorHandlerCommon.this.publishDynamicPrediction(prediction);
             }
         });
+    }
+    
+    /**
+     * Publishes a {@link DynamicPrediction} to all registered listeners.
+     * @param prediction The dynamic prediction to publish.
+     */
+    protected void publishDynamicPrediction(DynamicPrediction prediction) {
+        for(IDynamicPredictionsListener listener : this.listeners) {
+            listener.receivePredictions(prediction);
+        }
     }
     
     @Override
