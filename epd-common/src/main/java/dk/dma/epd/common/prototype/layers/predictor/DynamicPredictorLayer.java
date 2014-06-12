@@ -25,7 +25,7 @@ import com.bbn.openmap.event.ProjectionListener;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
-import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandler;
+import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandlerCommon;
 import dk.dma.epd.common.prototype.predictor.IDynamicPredictionsListener;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
@@ -85,8 +85,8 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionL
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        if (obj instanceof DynamicPredictorHandler) {
-            ((DynamicPredictorHandler) obj).addListener(this);
+        if (obj instanceof DynamicPredictorHandlerCommon) {
+            ((DynamicPredictorHandlerCommon) obj).addListener(this);
         }
     }
 }

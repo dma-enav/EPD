@@ -56,7 +56,7 @@ import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandler;
+import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandlerCommon;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
@@ -114,7 +114,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private PntHandler pntHandler;
     private MultiSourcePntHandler msPntHandler;
     private OwnShipHandler ownShipHandler;
-    private DynamicPredictorHandler dynamicPredictorHandler;
+    private DynamicPredictorHandlerCommon dynamicPredictorHandler;
     private RiskHandler riskHandler;
     private ShoreServicesCommon shoreServices;
     private MonaLisaRouteOptimization monaLisaRouteExchange;
@@ -216,7 +216,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         mapHandler.add(ownShipHandler);
 
         // Start dynamic predictor handler
-        dynamicPredictorHandler = new DynamicPredictorHandler();
+        dynamicPredictorHandler = new DynamicPredictorHandlerCommon();
         mapHandler.add(dynamicPredictorHandler);
         
         // Start dynamic predictor sensor sentence parser

@@ -18,19 +18,21 @@ package dk.dma.epd.common.prototype.predictor;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.jcip.annotations.ThreadSafe;
-
-import com.bbn.openmap.MapHandlerChild;
-
+import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.broadcast.BroadcastListener;
+import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 
 /**
  * Class for handling and distributing dynamic prediction information.
- * Clients can receive notifications by implementing {@link IDynamicPredictionsListener} and registering as an observer of a {@link DynamicPredictorHandler}.
+ * Clients can receive notifications by implementing {@link IDynamicPredictionsListener} and registering as an observer of a {@link DynamicPredictorHandlerCommon}.
  * This class also implements {@link IDynamicPredictionsListener} itself. This is to allow dynamic prediction data to arrive from any source, e.g. an on-ship sensor
  * or the Maritime Cloud. As such, the main purpose of this class is to centralize distribution of dynamic predictions and abstract the data source as part of this.
  */
 @ThreadSafe
-public class DynamicPredictorHandler extends MapHandlerChild implements Runnable, IDynamicPredictionsListener {
+public class DynamicPredictorHandlerCommon extends EnavServiceHandlerCommon implements Runnable, IDynamicPredictionsListener {
 
     private static final long TIMEOUT = 30 * 1000; // 30 sec
 
@@ -38,7 +40,8 @@ public class DynamicPredictorHandler extends MapHandlerChild implements Runnable
 
     private volatile long lastPrediction;
 
-    public DynamicPredictorHandler() {
+    public DynamicPredictorHandlerCommon() {
+        super();
         EPD.startThread(this, "DynamicPredictorHandler");
     }
     
@@ -82,6 +85,21 @@ public class DynamicPredictorHandler extends MapHandlerChild implements Runnable
 
     public void removeListener(IDynamicPredictionsListener listener) {
         listeners.remove(listener);
+    }
+    
+    @Override
+    public void cloudConnected(MaritimeCloudClient connection) {
+        super.cloudConnected(connection);
+        // Listen for dynamic prediction broadcasts from cloud
+        connection.broadcastListen(DynamicPrediction.class, new BroadcastListener<DynamicPrediction>() {
+            @Override
+            public void onMessage(BroadcastMessageHeader header,
+                    DynamicPrediction prediction) {
+                assert MaritimeCloudUtils.toMmsi(header.getId()) == prediction.getMmsi();
+                // Notify listeners of dynamic prediction received from cloud.
+                DynamicPredictorHandlerCommon.this.receivePredictions(prediction);
+            }
+        });
     }
     
     @Override

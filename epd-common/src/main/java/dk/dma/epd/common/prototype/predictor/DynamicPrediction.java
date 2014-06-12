@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.predictor;
 
 import java.util.List;
 
+import net.maritimecloud.net.broadcast.BroadcastMessage;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
 
@@ -26,7 +27,7 @@ import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
  * 
  * @author Janus Varmarken
  */
-public class DynamicPrediction {
+public class DynamicPrediction extends BroadcastMessage {
 
     /**
      * MMSI of vessel.

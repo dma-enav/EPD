@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
-import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandler;
+import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandlerCommon;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
@@ -33,7 +33,7 @@ import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
  * The purpose of this class is to receive the individual parts (sentences) of a dynamic prediction and combine these parts into a complete
- * dynamic prediction. The complete dynamic prediction is forwarded to a {@link DynamicPredictorHandler} which is in charge of distributing
+ * dynamic prediction. The complete dynamic prediction is forwarded to a {@link DynamicPredictorHandlerCommon} which is in charge of distributing
  * the dynamic prediction to interested clients.
  */
 public class DynamicPredictorSentenceParser extends MapHandlerChild implements IDynamicPredictorDataListener {
@@ -44,7 +44,7 @@ public class DynamicPredictorSentenceParser extends MapHandlerChild implements I
     
     private volatile DynamicPredictorStateData state;
     
-    private volatile DynamicPredictorHandler dynamicPredictorHandler;
+    private volatile DynamicPredictorHandlerCommon dynamicPredictorHandler;
     
     private volatile OwnShipHandler ownShipHandler;
     
@@ -89,9 +89,9 @@ public class DynamicPredictorSentenceParser extends MapHandlerChild implements I
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        if (obj instanceof DynamicPredictorHandler) {
+        if (obj instanceof DynamicPredictorHandlerCommon) {
             synchronized(this) {
-                this.dynamicPredictorHandler = (DynamicPredictorHandler) obj;
+                this.dynamicPredictorHandler = (DynamicPredictorHandlerCommon) obj;
             }
         } else if (obj instanceof OwnShipHandler) {
             synchronized(this) {
