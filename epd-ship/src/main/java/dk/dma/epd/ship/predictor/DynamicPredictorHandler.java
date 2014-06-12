@@ -35,7 +35,7 @@ public class DynamicPredictorHandler extends DynamicPredictorHandlerCommon {
     /**
      * The most recent dynamic prediction for own ship.
      */
-    private volatile DynamicPrediction latestOwnShipPrediction = null;
+    private volatile DynamicPrediction latestOwnShipPrediction;
     
     public DynamicPredictorHandler() {
         super();
