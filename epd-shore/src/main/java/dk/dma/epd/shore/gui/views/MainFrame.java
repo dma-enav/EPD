@@ -143,7 +143,7 @@ public class MainFrame extends MainFrameCommon {
         beanHandler.add(sendRouteDialog);
 
         bottomStatusDialog = new BottomPanelStatusDialog();
-        
+
         // Add self to bean handler
         beanHandler.add(this);
 
@@ -166,27 +166,25 @@ public class MainFrame extends MainFrameCommon {
     protected void initGlassPane() {
         // Do nothing. EPDShore uses MapFrames for the various maps
     }
-    
+
     public BottomPanelStatusDialog getBottomPanelStatusDialog() {
         return this.bottomStatusDialog;
     }
 
     /**
      * Returns the chart panel of the active map window
+     * 
      * @return the chart panel of the active map window
      */
     public ChartPanel getActiveChartPanel() {
         if (getActiveMapWindow() != null) {
-            return getActiveMapWindow()
-                .getChartPanel();
+            return getActiveMapWindow().getChartPanel();
         } else if (getMapWindows().size() > 0) {
-            return getMapWindows()
-                .get(0)
-                .getChartPanel();
+            return getMapWindows().get(0).getChartPanel();
         }
         return null;
     }
-    
+
     public synchronized void increaseWindowCount() {
         windowCount++;
     }
@@ -384,8 +382,8 @@ public class MainFrame extends MainFrameCommon {
     public synchronized void setSelectedMMSI(long selectedMMSI) {
         this.selectedMMSI = selectedMMSI;
         for (int i = 0; i < mapWindows.size(); i++) {
-            if (mapWindows.get(i).getChartPanel().getAisLayer() != null){
-                mapWindows.get(i).getChartPanel().getAisLayer().setSelectedTarget(selectedMMSI, true);    
+            if (mapWindows.get(i).getChartPanel().getAisLayer() != null) {
+                mapWindows.get(i).getChartPanel().getAisLayer().setSelectedTarget(selectedMMSI, true);
             }
         }
     }
@@ -407,35 +405,33 @@ public class MainFrame extends MainFrameCommon {
     @Override
     public Action getAboutAction() {
         Action aboutEpdShore = new AbstractAction("About EPD-shore", new ImageIcon(EPD.getInstance().getAppIcon(16))) {
-            
+
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 final ImageIcon icon = new ImageIcon(EPD.getInstance().getAppIcon(45));
-                
+
                 final StringBuilder aboutText = new StringBuilder();
-                aboutText.append("The E-navigation Prototype Display Shore (EPD-shore) is developed by the Danish Maritime Authority (www.dma.dk).\n");
+                aboutText
+                        .append("The E-navigation Prototype Display Shore (EPD-shore) is developed by the Danish Maritime Authority (www.dma.dk).\n");
                 aboutText.append("The user manual is available from e-navigation.net\n\n");
                 aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
                 aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
                 aboutText.append("Build date: " + VersionInfo.getBuildDate() + "\n");
                 aboutText.append("Home path: " + EPD.getInstance().getHomePath());
-                
-                JOptionPane
-                .showMessageDialog(
-                        MainFrame.this,
-                        aboutText.toString(),
-                        "About the EPD-shore", JOptionPane.OK_OPTION, icon);
+
+                JOptionPane.showMessageDialog(MainFrame.this, aboutText.toString(), "About the EPD-shore", JOptionPane.OK_OPTION,
+                        icon);
             }
         };
         return aboutEpdShore;
     }
 
     /*******************************/
-    /** Getters and setters       **/
+    /** Getters and setters **/
     /*******************************/
-    
+
     public int getWindowCount() {
         return windowCount;
     }
@@ -487,7 +483,7 @@ public class MainFrame extends MainFrameCommon {
     public JMenuWorkspaceBar getJMenuBar() {
         return topMenu;
     }
-    
+
     public boolean isMsiLayerEnabled() {
         return msiLayerEnabled;
     }
@@ -506,5 +502,21 @@ public class MainFrame extends MainFrameCommon {
 
     public SRUManagerDialog getSruManagerDialog() {
         return sruManagerDialog;
+    }
+
+    public void removeSARWindows() {
+
+        for (int i = 0; i < this.getMapWindows().size(); i++) {
+            if (this.getMapWindows().get(i).getType() == MapFrameType.SAR_Planning) {
+                this.getMapWindows().remove(i);
+            }
+        }
+        
+        
+        for (int i = 0; i < this.getMapWindows().size(); i++) {
+            if (this.getMapWindows().get(i).getType() == MapFrameType.SAR_Tracking) {
+                this.getMapWindows().remove(i);
+            }
+        }
     }
 }

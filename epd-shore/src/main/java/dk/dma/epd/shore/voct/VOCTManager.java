@@ -40,16 +40,14 @@ import dk.dma.epd.shore.layers.voct.VoctLayerCommon;
 import dk.dma.epd.shore.route.RouteManager;
 
 /**
- * The VOCTManager is responsible for maintaining current VOCT Status and all
- * information relevant to the VOCT
+ * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
  * 
  * The VOCT Manager can be initiated through the cloud or manually by the user
  * 
  * 
  */
 
-public class VOCTManager extends VOCTManagerCommon implements
-        IRoutesUpdateListener {
+public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListener {
 
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
@@ -62,8 +60,7 @@ public class VOCTManager extends VOCTManagerCommon implements
 
     List<VoctLayerCommon> voctLayers = new ArrayList<VoctLayerCommon>();
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(VOCTManagerCommon.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VOCTManagerCommon.class);
 
     public VOCTManager() {
         EPDShore.startThread(this, "VOCTManager");
@@ -146,34 +143,29 @@ public class VOCTManager extends VOCTManagerCommon implements
     }
 
     @Override
-    public void generateSearchPattern(
-            SearchPatternGenerator.searchPattern type, Position CSP, int id) {
+    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, int id) {
 
         updateEffectiveAreaLocation();
 
         sarData.setCSP(CSP);
 
-        SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
-                sarOperation);
+        SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
 
-        SearchPatternRoute searchRoute = searchPatternGenerator
-                .generateSearchPattern(type, sarData, EPDShore.getInstance().getSettings()
-                        .getNavSettings(), id);
+        SearchPatternRoute searchRoute = searchPatternGenerator.generateSearchPattern(type, sarData, EPDShore.getInstance()
+                .getSettings().getNavSettings(), id);
 
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
             System.out.println("Previous route found");
-            int routeIndex = EPDShore.getInstance().getRouteManager().getRouteIndex(
-                    sarData.getEffortAllocationData().get(id)
-                            .getSearchPatternRoute());
+            int routeIndex = EPDShore.getInstance().getRouteManager()
+                    .getRouteIndex(sarData.getEffortAllocationData().get(id).getSearchPatternRoute());
 
             System.out.println("Route index of old is " + routeIndex);
 
             EPDShore.getInstance().getRouteManager().removeRoute(routeIndex);
         }
 
-        sarData.getEffortAllocationData().get(id)
-                .setSearchPatternRoute(searchRoute);
+        sarData.getEffortAllocationData().get(id).setSearchPatternRoute(searchRoute);
 
         EPDShore.getInstance().getRouteManager().addRoute(searchRoute);
 
@@ -227,14 +219,10 @@ public class VOCTManager extends VOCTManagerCommon implements
 
             if (sarData.getEffortAllocationData().size() > i) {
 
-                if (sarData.getEffortAllocationData().get(i)
-                        .getSearchPatternRoute() != null) {
+                if (sarData.getEffortAllocationData().get(i).getSearchPatternRoute() != null) {
 
-                    routeManager.getRoutes().remove(
-                            sarData.getEffortAllocationData().get(i)
-                                    .getSearchPatternRoute());
-                    routeManager
-                            .notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
+                    routeManager.getRoutes().remove(sarData.getEffortAllocationData().get(i).getSearchPatternRoute());
+                    routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
                 }
 
                 sarData.getEffortAllocationData().remove(i);
@@ -261,15 +249,41 @@ public class VOCTManager extends VOCTManagerCommon implements
         if (sarData != null) {
 
             for (int i = 0; i < sarData.getEffortAllocationData().size(); i++) {
-                if (!routeManager.getRoutes().contains(
-                        sarData.getEffortAllocationData().get(i)
-                                .getSearchPatternRoute())) {
+                if (!routeManager.getRoutes().contains(sarData.getEffortAllocationData().get(i).getSearchPatternRoute())) {
                     System.out.println("Route removed");
-                    sarData.getEffortAllocationData().get(i)
-                            .setSearchPatternRoute(null);
+                    sarData.getEffortAllocationData().get(i).setSearchPatternRoute(null);
                 }
             }
         }
+    }
+
+    @Override
+    public void cancelSarOperation() {
+        super.cancelSarOperation();
+
+        // What do we need to cancel for the VOCT
+
+        // Send cancel SAR message to all participants currently involved
+
+        // Close down SAR TRACKINg and SAR Planning
+
+        for (int i = 0; i < EPDShore.getInstance().getMainFrame().getMapWindows().size(); i++) {
+
+            if (EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Tracking
+                    || EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Planning) {
+                // Resize windows
+                EPDShore.getInstance().getMainFrame().getMapWindows().get(i).dispose();
+
+            }
+        }
+        EPDShore.getInstance().getMainFrame().removeSARWindows();
+
+        // Clear up voctLayers
+        for (int i = 0; i < voctLayers.size(); i++) {
+            voctLayers.get(i).dispose();
+        }
+
+        voctLayers.clear();
     }
 
     @Override
@@ -279,7 +293,7 @@ public class VOCTManager extends VOCTManagerCommon implements
 
         checkRoutes();
     }
-    
+
     @Override
     public void showSARFuture(int i) {
 

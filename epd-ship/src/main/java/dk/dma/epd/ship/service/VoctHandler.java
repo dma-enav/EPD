@@ -253,15 +253,16 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
 
         if (e == VOCTUpdateEvent.SAR_CANCEL) {
 
-            //IS IT RAPID RESPONSE / DOES IT MATTER
-            
-            VOCTCommunicationMessageRapidResponse voctMessage = new VOCTCommunicationMessageRapidResponse(
-                    voctManager.getCurrentID(), VoctMsgStatus.WITHDRAWN);
+            // IS IT RAPID RESPONSE / DOES IT MATTER
+            if (voctManager.getCurrentID() != -1) {
 
-            // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(null, null, null);
-            boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(voctManager.getCurrentID())),
-                    voctMessage, this);
+                VOCTCommunicationMessageRapidResponse voctMessage = new VOCTCommunicationMessageRapidResponse(
+                        voctManager.getCurrentID(), VoctMsgStatus.WITHDRAWN);
 
+                // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(null, null, null);
+                boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(voctManager.getCurrentID())),
+                        voctMessage, this);
+            }
         }
 
     }

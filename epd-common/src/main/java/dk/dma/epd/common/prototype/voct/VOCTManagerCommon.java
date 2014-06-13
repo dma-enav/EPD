@@ -54,10 +54,9 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     protected SARData sarData;
     protected List<SARData> sarFutureData;
 
-     public enum VoctMsgStatus {
-     ACCEPTED, REJECTED, NOTED, IGNORED, UNKNOWN, WITHDRAWN
-     }
-
+    public enum VoctMsgStatus {
+        ACCEPTED, REJECTED, NOTED, IGNORED, UNKNOWN, WITHDRAWN
+    }
 
     /**
      * @return the hasSar
