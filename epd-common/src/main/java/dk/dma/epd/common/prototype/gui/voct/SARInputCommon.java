@@ -420,7 +420,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
         if (arg0.getSource() == cancelButton) {
             this.setVisible(false);
-            voctManager.cancelSarOperation();
+//            voctManager.cancelSarOperation();
             return;
         }
 

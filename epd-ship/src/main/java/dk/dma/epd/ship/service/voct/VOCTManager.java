@@ -54,6 +54,7 @@ public class VOCTManager extends VOCTManagerCommon {
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
     private VoctHandler voctHandler;
+    private long currentID;
     
 //    private VOCTBroadcastService voctBroadcastService;
 
@@ -261,7 +262,7 @@ public class VOCTManager extends VOCTManagerCommon {
     }
 
     public void handleSARDataPackage(VOCTCommunicationMessageRapidResponse message) {
-
+        currentID = message.getId();
         SARInvitationRequest sarInviteDialog = new SARInvitationRequest(this, message);
         sarInviteDialog.setVisible(true);
 
@@ -303,5 +304,14 @@ public class VOCTManager extends VOCTManagerCommon {
         }
 
     }
+
+    /**
+     * @return the currentID
+     */
+    public long getCurrentID() {
+        return currentID;
+    }
+    
+    
 
 }

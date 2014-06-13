@@ -65,6 +65,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
     private JPanel searchAreaPanel;
 
     protected ButtonsPanelCommon buttonsPanel;
+    protected EndSarPanelCommon endSARPanel;
 
     private JLabel lblTimeOfLast;
     private JLabel lkpDate;
@@ -120,12 +121,16 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
     private JLabel lblSearchAreaProgression;
     private JSlider slider;
 
+    protected JButton btnCancelSar;
+
     public SARPanelCommon() {
 
         setLayout(new CardLayout());
 
         initGui();
         initSarOperation();
+
+        this.setSize(500, 1000);
     }
 
     private void initGui() {
@@ -167,6 +172,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         noSar.add(btnStartSar, gbc_btnStartSar);
 
         btnStartSar.addActionListener(this);
+
     }
 
     private void initSarOperation() {
@@ -179,7 +185,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         gridBagLayout.columnWidths = new int[] { 100, 0 };
         gridBagLayout.rowHeights = new int[] { 20, 16, 16, 16, 16, 16, 0, 16, 0, 0, 10 };
         gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-        gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
+        gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
         sarStartedPanel.setLayout(gridBagLayout);
         lblSAR = new JLabel("Search And Rescue");
         lblSAR.setHorizontalAlignment(SwingConstants.CENTER);
@@ -539,6 +545,15 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         gbc_searchPatternsPanel.gridy = 9;
         sarStartedPanel.add(createSearchPatternsPanel(), gbc_searchPatternsPanel);
 
+        GridBagConstraints gbc_cancelSarPanel = new GridBagConstraints();
+        gbc_cancelSarPanel.gridy = 10;
+        gbc_cancelSarPanel.gridx = 0;
+        gbc_cancelSarPanel.fill = GridBagConstraints.BOTH;
+        gbc_searchPatternsPanel.fill = GridBagConstraints.BOTH;
+        gbc_searchPatternsPanel.gridx = 0;
+        gbc_searchPatternsPanel.gridy = 10;
+        sarStartedPanel.add(createCancelSarPanel(), gbc_cancelSarPanel);
+
     }
 
     /**
@@ -811,6 +826,12 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         return buttonsPanel;
     }
 
+    protected JPanel createCancelSarPanel() {
+        endSARPanel = new EndSarPanelCommon();
+        btnCancelSar = endSARPanel.getBtnEndSAR();
+        return endSARPanel;
+    }
+
     protected void setTitle(String title) {
         lblSAR.setText(title);
     }
@@ -826,7 +847,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
             int timeSlot = (int) source.getValue();
 
             voctManager.showSARFuture(timeSlot);
-            
+
         }
     }
 }

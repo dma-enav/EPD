@@ -51,7 +51,6 @@ import dk.dma.epd.common.prototype.gui.voct.ButtonsPanelCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.service.VoctHandler;
 import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
 import dk.dma.epd.shore.voct.VOCTManager;
@@ -62,7 +61,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener, Acti
     private static final long serialVersionUID = 1L;
 
     private VOCTManager voctManager;
-    private VoctHandler voctHandler;
+    // private VoctHandler voctHandler;
 
     protected JButton btnStartSar;
 
@@ -85,7 +84,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener, Acti
         super();
 
         setVoctManager(EPDShore.getInstance().getVoctManager());
-        voctHandler = EPDShore.getInstance().getVoctHandler();
+        // voctHandler = EPDShore.getInstance().getVoctHandler();
         voctManager.addListener(this);
 
         initGUI();

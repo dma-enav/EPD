@@ -75,6 +75,14 @@ public class VOCTCommunicationServiceRapidResponse {
         }
 
         /**
+         * Constructor - used to withdraw from an operation
+         */
+        public VOCTCommunicationMessageRapidResponse(long id, VoctMsgStatus status) {
+            this.id = id;
+            this.status = requireNonNull(status);
+        }
+
+        /**
          * @return the sarData
          */
         public RapidResponseDTO getSarData() {
@@ -202,14 +210,13 @@ public class VOCTCommunicationServiceRapidResponse {
         }
 
         /**
-         * @param receiversMMSI the receiversMMSI to set
+         * @param receiversMMSI
+         *            the receiversMMSI to set
          */
         public void setReceiversMMSI(long receiversMMSI) {
             this.receiversMMSI = receiversMMSI;
         }
 
-        
-        
     }
 
     public static class VOCTCommunicationReplyRapidResponse extends ServiceMessage<Void> {

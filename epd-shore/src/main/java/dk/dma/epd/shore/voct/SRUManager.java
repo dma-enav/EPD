@@ -236,6 +236,16 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
                 notifyListeners(SRUUpdateEvent.SRU_REJECT, mmsi);
 
                 break;
+            case WITHDRAWN:
+                sru.setStatus(sru_status.DECLINED);
+                if (sRUCommunication.containsKey(mmsi)) {
+                    sRUCommunication.remove(mmsi);
+                }
+
+                // Remove if we previously had one
+                voctLayerTracking.removeEffectiveArea(sru.getMmsi(), sruID);
+
+                notifyListeners(SRUUpdateEvent.SRU_REJECT, mmsi);
             default:
                 sru.setStatus(sru_status.UNKNOWN);
 

@@ -40,6 +40,8 @@ import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.voct.VOCTManager;
@@ -55,7 +57,7 @@ import dk.dma.epd.ship.service.voct.VOCTManager;
  * </ul>
  */
 @SuppressWarnings("unused")
-public class VoctHandler extends VoctHandlerCommon implements Runnable {
+public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpdateListener {
 
     /**
      * Protocols needed for VOCT Communication - may be further split or combined in future
@@ -216,6 +218,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
         if (obj instanceof VOCTManager) {
             voctManager = (VOCTManager) obj;
+            voctManager.addListener(this);
         }
 
     }
@@ -236,7 +239,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
     public void messageReceivedByCloud(VOCTCommunicationMessageRapidResponse message) {
         // TODO Auto-generated method stub
 
-        System.out.println("Message recieved by Cloud");
+        System.out.println("Message recieved by Cloud, do we care?");
     }
 
     @Override
@@ -245,4 +248,21 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         System.out.println("Message Handled / whats this?");
     }
 
+    @Override
+    public void voctUpdated(VOCTUpdateEvent e) {
+
+        if (e == VOCTUpdateEvent.SAR_CANCEL) {
+
+            //IS IT RAPID RESPONSE / DOES IT MATTER
+            
+            VOCTCommunicationMessageRapidResponse voctMessage = new VOCTCommunicationMessageRapidResponse(
+                    voctManager.getCurrentID(), VoctMsgStatus.WITHDRAWN);
+
+            // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(null, null, null);
+            boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(voctManager.getCurrentID())),
+                    voctMessage, this);
+
+        }
+
+    }
 }
