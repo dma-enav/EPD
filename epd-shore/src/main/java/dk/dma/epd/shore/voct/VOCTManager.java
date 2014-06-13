@@ -38,6 +38,7 @@ import dk.dma.epd.shore.gui.voct.SARInput;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.layers.voct.VoctLayerCommon;
 import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.shore.service.VoctHandler;
 
 /**
  * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
@@ -54,6 +55,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     private SRUManagerDialog sruManagerDialog;
     private RouteManager routeManager;
 
+    private VoctHandler voctHandler;
     // private SARData sarData;
 
     private SRUManager sruManager;
@@ -62,9 +64,18 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
 
     private static final Logger LOG = LoggerFactory.getLogger(VOCTManagerCommon.class);
 
+    private long voctID = -1;
+
     public VOCTManager() {
         EPDShore.startThread(this, "VOCTManager");
         LOG.info("Started VOCT Manager");
+    }
+
+    /**
+     * @return the voctID
+     */
+    public long getVoctID() {
+        return voctID;
     }
 
     @Override
@@ -73,6 +84,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
         if (!hasSar) {
             hasSar = true;
 
+            voctID = System.currentTimeMillis();
             // Create the GUI input boxes
 
             // Voct specific test
@@ -196,6 +208,10 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
             routeManager.addListener(this);
         }
 
+        if (obj instanceof VoctHandler) {
+            voctHandler = (VoctHandler) obj;
+        }
+
     }
 
     /**
@@ -284,6 +300,8 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
         }
 
         voctLayers.clear();
+
+        voctHandler.sendCancelMessage(sruManager.cancelAllSRU());
     }
 
     @Override

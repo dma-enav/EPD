@@ -16,6 +16,7 @@
 package dk.dma.epd.ship.service.voct;
 
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,6 @@ import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
-import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.voct.SARInput;
@@ -271,9 +271,22 @@ public class VOCTManager extends VOCTManagerCommon {
     }
 
     public void handleSARDataPackage(VOCTCommunicationMessageRapidResponse message) {
-        currentID = message.getId();
-        SARInvitationRequest sarInviteDialog = new SARInvitationRequest(this, message);
-        sarInviteDialog.setVisible(true);
+
+        if (message.getStatus() == VoctMsgStatus.WITHDRAWN) {
+
+            int n = JOptionPane.showConfirmDialog(EPDShip.getInstance().getMainFrame(), "The OSC has cancelled the operation\n"
+                    + "Do you wish to end your SAR participation?", "End SAR?", JOptionPane.YES_NO_OPTION);
+
+            if (n == JOptionPane.YES_OPTION) {
+                cancelSarOperation();
+            }
+
+        } else {
+
+            currentID = message.getId();
+            SARInvitationRequest sarInviteDialog = new SARInvitationRequest(this, message);
+            sarInviteDialog.setVisible(true);
+        }
 
     }
 

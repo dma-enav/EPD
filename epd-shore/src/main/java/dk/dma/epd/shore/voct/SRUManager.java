@@ -17,9 +17,11 @@ package dk.dma.epd.shore.voct;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.bbn.openmap.MapHandlerChild;
@@ -258,6 +260,26 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
         // System.out.println("Starting voct listening");
         // EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
         // }
+
+    }
+
+    public List<Long> cancelAllSRU() {
+        Set<Long> availableSRUMMSI = sRUCommunication.keySet();
+
+        List<Long> srusList = new ArrayList<Long>();
+        for (Iterator<Long> it = sRUCommunication.keySet().iterator(); it.hasNext();) {
+            srusList.add(it.next());
+        }
+
+        for (int i = 0; i < srus.size(); i++) {
+
+            if (availableSRUMMSI.contains(srus.get(i).getMmsi())) {
+                srus.get(i).setStatus(sru_status.UNKNOWN);
+            }
+
+        }
+        sRUCommunication.clear();
+        return srusList;
 
     }
 
