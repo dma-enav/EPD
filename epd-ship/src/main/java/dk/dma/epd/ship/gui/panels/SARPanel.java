@@ -26,6 +26,7 @@ import dk.dma.epd.common.prototype.gui.voct.ButtonsPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.SARPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.SearchPatternsPanelCommon;
+import dk.dma.epd.common.prototype.gui.voct.VOCTAdditionalInfoDialog;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.ship.EPDShip;
@@ -51,9 +52,11 @@ public class SARPanel extends SARPanelCommon {
     private JCheckBox chckbxShowDynamicPattern;
     private JButton btnReopenCalculations;
     private JButton btnEffortAllocation;
+    private JButton btnAdditionalInfo;
 
     protected EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
     protected SearchPatternDialog searchPatternDialog = new SearchPatternDialog();
+    protected VOCTAdditionalInfoDialog additionalInfoDialog = new VOCTAdditionalInfoDialog(EPDShip.getInstance().getMainFrame());
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
@@ -124,6 +127,12 @@ public class SARPanel extends SARPanelCommon {
 
             return;
         }
+
+        if (arg0.getSource() == btnAdditionalInfo) {
+
+            additionalInfoDialog.setVisible(true);
+            return;
+        }
     }
 
     /**
@@ -165,6 +174,8 @@ public class SARPanel extends SARPanelCommon {
         btnReopenCalculations.addActionListener(this);
         btnEffortAllocation = buttonsPanel.getBtnEffortAllocation();
         btnEffortAllocation.addActionListener(this);
+        btnAdditionalInfo = buttonsPanel.getAdditionalInfoButton();
+        btnAdditionalInfo.addActionListener(this);
 
         return buttonsPanel;
     }

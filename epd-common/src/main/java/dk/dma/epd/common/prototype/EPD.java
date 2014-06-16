@@ -45,6 +45,7 @@ import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.MaritimeCloudService;
 import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
+import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 
@@ -71,6 +72,7 @@ public abstract class EPD implements ISettingsListener {
     protected StrategicRouteHandlerCommon strategicRouteHandler;
     protected RouteSuggestionHandlerCommon routeSuggestionHandler;
     protected IdentityHandler identityHandler;
+    protected VoctHandlerCommon voctHandler;
 
     /**
      * Constructor
@@ -372,4 +374,13 @@ public abstract class EPD implements ISettingsListener {
         // Caps-lock not on, return default home path
         return defaultHomePath;  
     }
+
+    /**
+     * @return the voctHandler
+     */
+    public VoctHandlerCommon getVoctHandler() {
+        return voctHandler;
+    }
+    
+    
 }

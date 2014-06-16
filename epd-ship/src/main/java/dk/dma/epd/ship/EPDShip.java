@@ -125,7 +125,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
     // Maritime Cloud services
     private IntendedRouteHandler intendedRouteHandler;
-    private VoctHandler voctHandler;
+//    private VoctHandler voctHandler;
 
     /**
      * Starts the program by initializing the various threads and spawning the main GUI

@@ -25,6 +25,7 @@ import dk.dma.epd.common.prototype.gui.voct.ButtonsPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.SARPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.SearchPatternsPanelCommon;
+import dk.dma.epd.common.prototype.gui.voct.VOCTAdditionalInfoDialog;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
@@ -42,8 +43,10 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
     private JButton btnReopenCalculations;
     private JButton btnEffortAllocation;
     private JButton btnSruDialog;
+    private JButton additionalInfoDialogBtn;
 
     protected EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
+    protected VOCTAdditionalInfoDialog additionalInfoDialog = new VOCTAdditionalInfoDialog(EPDShore.getInstance().getMainFrame());
 
     private JButton btnTrackingWindow;
 
@@ -168,6 +171,10 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
             return;
         }
 
+        if (arg0.getSource() == additionalInfoDialogBtn) {
+            additionalInfoDialog.setVisible(true);
+        }
+
         // if (arg0.getSource() == btnGenerateSearchPattern) {
         //
         // if (searchPatternDialog != null) {
@@ -227,6 +234,9 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
 
         btnSruDialog = buttonsPanel.getBtnSruDialog();
         btnSruDialog.addActionListener(this);
+
+        additionalInfoDialogBtn = buttonsPanel.getAdditionalInfoButton();
+        additionalInfoDialogBtn.addActionListener(this);
 
         return buttonsPanel;
     }

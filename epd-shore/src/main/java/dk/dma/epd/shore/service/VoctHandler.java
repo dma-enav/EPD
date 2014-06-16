@@ -46,7 +46,7 @@ import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
-import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
+import dk.dma.epd.common.prototype.enavcloud.VOCTSARInfoMessage;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
@@ -175,17 +175,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
             e.printStackTrace();
         }
 
-        getMaritimeCloudConnection().broadcastListen(VOCTSARBroadCast.class, new BroadcastListener<VOCTSARBroadCast>() {
-            public void onMessage(BroadcastMessageHeader l, VOCTSARBroadCast r) {
 
-                System.out.println("Broadcast recieved!");
-
-                long id = Long.parseLong(l.getId().toString().split("mmsi://")[1]);
-
-                // sruManager.handleSRUBroadcast(id, r);
-
-            }
-        });
 
         // Start broadcasting our own active route
         running = true;
