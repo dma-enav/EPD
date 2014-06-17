@@ -17,6 +17,10 @@ package dk.dma.epd.common.prototype.predictor;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.maritimecloud.net.broadcast.BroadcastMessage;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
 
@@ -26,7 +30,7 @@ import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
  * 
  * @author Janus Varmarken
  */
-public class DynamicPrediction {
+public class DynamicPrediction extends BroadcastMessage {
 
     /**
      * MMSI of vessel.
@@ -43,8 +47,11 @@ public class DynamicPrediction {
      */
     private final List<DynamicPredictorPredictionData> predictionDataPoints;
 
-    public DynamicPrediction(long mmsi, DynamicPredictorStateData headerData,
-            List<DynamicPredictorPredictionData> predictionDataPoints) {
+    @JsonCreator
+    public DynamicPrediction(
+            @JsonProperty("mmsi") long mmsi,
+            @JsonProperty("headerData") DynamicPredictorStateData headerData,
+            @JsonProperty("predictionDataPoints") List<DynamicPredictorPredictionData> predictionDataPoints) {
         this.mmsi = mmsi;
         this.headerData = headerData;
         this.predictionDataPoints = predictionDataPoints;

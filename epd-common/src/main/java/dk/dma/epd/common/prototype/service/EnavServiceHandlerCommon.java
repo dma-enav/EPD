@@ -379,7 +379,7 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * that only executes the wrapped runnable if there
      * is a live connection to the maritime cloud.
      */
-    class ConnectedRunnableWrapper implements Runnable {
+    public class ConnectedRunnableWrapper implements Runnable {
         
         Runnable runnable;
         

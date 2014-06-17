@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
-import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandler;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
@@ -82,7 +81,7 @@ public class DynamicPredictorSentenceParser extends MapHandlerChild implements I
         }
 
         if (toDistribute != null) {
-            this.dynamicPredictorHandler.receivePredictions(toDistribute);
+            this.dynamicPredictorHandler.ownShipDynamicPredictionChanged(toDistribute);
         }
     }
     
