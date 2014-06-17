@@ -100,7 +100,7 @@
 										<maxHeapSize>2048</maxHeapSize>
 									</jre>
 									<splash>
-										<file>${basedir}/shore_splash.bmp</file>
+										<file>${basedir}/splash.bmp</file>
 										<waitForWindow>true</waitForWindow>
 										<timeout>60</timeout>
 										<timeoutErr>true</timeoutErr>
