@@ -24,7 +24,6 @@ public class VOCTSARInfoMessage extends BroadcastMessage {
     private String message;
     private long date;
     private long sender;
-    private boolean isOwnMessage;
     
     public VOCTSARInfoMessage() {
         super();
@@ -76,21 +75,6 @@ public class VOCTSARInfoMessage extends BroadcastMessage {
     public void setSender(long sender) {
         this.sender = sender;
     }
-
-    /**
-     * @return the isOwnMessage
-     */
-    public boolean isOwnMessage() {
-        return isOwnMessage;
-    }
-
-    /**
-     * @param isOwnMessage the isOwnMessage to set
-     */
-    public void setOwnMessage(boolean isOwnMessage) {
-        this.isOwnMessage = isOwnMessage;
-    }
-
     
     
 }

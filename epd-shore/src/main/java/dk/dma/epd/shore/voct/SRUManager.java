@@ -222,6 +222,8 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
                 // System.out.println(srus.get(i).getStatus());
                 // }
 
+//                voctManager.
+                
                 notifyListeners(SRUUpdateEvent.SRU_ACCEPT, mmsi);
                 break;
 

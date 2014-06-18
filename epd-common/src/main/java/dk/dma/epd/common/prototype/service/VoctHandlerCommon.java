@@ -71,7 +71,6 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon impleme
             public void onMessage(BroadcastMessageHeader l, VOCTSARInfoMessage r) {
 
                 System.out.println("SAR Info message recieved");
-                r.setOwnMessage(false);
                 additionalInformationMsgs.add(r);
                 notifyVoctInfoMsgListeners();
             }

@@ -52,11 +52,14 @@ import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.JTextComponent;
 
+import net.maritimecloud.core.id.MaritimeId;
+
 import org.apache.commons.lang.StringUtils;
 
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARInfoMessage;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon.IVoctInfoListener;
 import dk.dma.epd.common.text.Formatter;
 
@@ -188,11 +191,22 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
         // Add the messages
         long lastMessageTime = 0;
 
+        long ownMMSI = MaritimeCloudUtils.toMmsi(EPD.getInstance().getMaritimeId());
+
         for (VOCTSARInfoMessage message : EPD.getInstance().getVoctHandler().getAdditionalInformationMsgs()) {
+
+            boolean ownMessage = false;
+
+            if (message.getSender() == ownMMSI) {
+                ownMessage = true;
+            }
+
+            // EPD.getInstance().getIdentityHandler().getActor(mmsi)
 
             // Check if we need to add a time label
             if (message.getDate() - lastMessageTime > PRINT_DATE_INTERVAL) {
-                JLabel dateLabel = new JLabel(String.format(message.isOwnMessage() ? "Sent to %s" : "Received %s",
+
+                JLabel dateLabel = new JLabel(String.format(ownMessage ? "Sent to %s" : "Received %s",
                         Formatter.formatShortDateTimeNoTz(new Date(message.getDate()))));
                 dateLabel.setFont(dateLabel.getFont().deriveFont(9.0f).deriveFont(Font.PLAIN));
                 dateLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -202,8 +216,8 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
 
             // Add a chat message field
             JPanel msg = new JPanel();
-            msg.setBorder(new ChatMessageBorder(message));
-            JLabel msgLabel = new ChatMessageLabel(message.getMessage(), message.isOwnMessage());
+            msg.setBorder(new ChatMessageBorder(message, ownMessage));
+            JLabel msgLabel = new ChatMessageLabel(message.getMessage(), ownMessage);
             msg.add(msgLabel);
             messagesPanel.add(msg, new GridBagConstraints(0, y++, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, insets, 0, 0));
 
@@ -234,8 +248,7 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
 
         VOCTSARInfoMessage infoMsg = new VOCTSARInfoMessage();
         infoMsg.setMessage(msg);
-        infoMsg.setOwnMessage(true);
-        infoMsg.setSender(0);
+        infoMsg.setSender(MaritimeCloudUtils.toMmsi(EPD.getInstance().getMaritimeId()));
         EPD.getInstance().getVoctHandler().sendVoctMessage(infoMsg);
         // EPD.getInstance().getChatServiceHandler().sendChatMessage(chatData.getId(), msg, severity);
     }
@@ -343,10 +356,10 @@ class ChatMessageBorder extends AbstractBorder {
      * 
      * @param color
      */
-    public ChatMessageBorder(VOCTSARInfoMessage message) {
+    public ChatMessageBorder(VOCTSARInfoMessage message, boolean ownMsg) {
         super();
         this.message = message;
-        this.pointerLeft = !message.isOwnMessage();
+        this.pointerLeft = !ownMsg;
 
         int i = 2;
         insets = pointerLeft ? new Insets(i, pointerWidth + i, i, i) : new Insets(i, i, i, pointerWidth + i);
