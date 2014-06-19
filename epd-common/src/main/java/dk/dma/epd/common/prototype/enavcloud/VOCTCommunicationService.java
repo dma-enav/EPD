@@ -22,22 +22,25 @@ import java.util.Date;
 
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
+import dk.dma.enav.model.voct.DatumPointDTO;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
+import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 
-public class VOCTCommunicationServiceRapidResponse {
+public class VOCTCommunicationService {
 
     /** An initiation point */
-    public static final ServiceInitiationPoint<VOCTCommunicationMessageRapidResponse> INIT = new ServiceInitiationPoint<>(
-            VOCTCommunicationMessageRapidResponse.class);
+    public static final ServiceInitiationPoint<VOCTCommunicationMessage> INIT = new ServiceInitiationPoint<>(
+            VOCTCommunicationMessage.class);
 
-    public static class VOCTCommunicationMessageRapidResponse extends ServiceMessage<VOCTCommunicationReplyRapidResponse> implements
-            Serializable {
+    public static class VOCTCommunicationMessage extends ServiceMessage<VOCTCommunicationReply> implements Serializable {
 
         private static final long serialVersionUID = -3556815314608410502L;
-        private RapidResponseDTO sarData;
+        private RapidResponseDTO sarDataRapidResponse;
+        private DatumPointDTO sarDataDatumPoint;
+
         private EffortAllocationDTO effortAllocationData;
         private Route searchPattern;
 
@@ -47,14 +50,15 @@ public class VOCTCommunicationServiceRapidResponse {
         private long id;
         private VoctMsgStatus status;
         private long receiversMMSI;
+        private SAR_TYPE type;
 
-        public VOCTCommunicationMessageRapidResponse() {
+        public VOCTCommunicationMessage() {
         }
 
-        public VOCTCommunicationMessageRapidResponse(RapidResponseDTO sarData, EffortAllocationDTO effortAllocationData,
-                Route searchPattern, String sender, String message, long id, long receiversMMSI) {
+        public VOCTCommunicationMessage(RapidResponseDTO sarData, EffortAllocationDTO effortAllocationData, Route searchPattern,
+                String sender, String message, long id, long receiversMMSI) {
             super();
-            this.sarData = requireNonNull(sarData);
+            this.sarDataRapidResponse = requireNonNull(sarData);
             this.effortAllocationData = effortAllocationData;
             this.searchPattern = searchPattern;
             this.sent = requireNonNull(new Date());
@@ -62,13 +66,28 @@ public class VOCTCommunicationServiceRapidResponse {
             this.sender = requireNonNull(sender);
             this.id = requireNonNull(id);
             this.receiversMMSI = receiversMMSI;
+            type = SAR_TYPE.RAPID_RESPONSE;
 
+        }
+
+        public VOCTCommunicationMessage(DatumPointDTO sarData, EffortAllocationDTO effortAllocationData, Route searchPattern,
+                String sender, String message, long id, long receiversMMSI) {
+            super();
+            this.sarDataDatumPoint = requireNonNull(sarData);
+            this.effortAllocationData = effortAllocationData;
+            this.searchPattern = searchPattern;
+            this.sent = requireNonNull(new Date());
+            this.message = requireNonNull(message);
+            this.sender = requireNonNull(sender);
+            this.id = requireNonNull(id);
+            this.receiversMMSI = receiversMMSI;
+            type = SAR_TYPE.DATUM_POINT;
         }
 
         /**
          * Constructor - used for replys
          */
-        public VOCTCommunicationMessageRapidResponse(long id, String message, VoctMsgStatus status) {
+        public VOCTCommunicationMessage(long id, String message, VoctMsgStatus status) {
             this.id = id;
             this.message = message;
             this.status = requireNonNull(status);
@@ -77,24 +96,39 @@ public class VOCTCommunicationServiceRapidResponse {
         /**
          * Constructor - used to withdraw from an operation
          */
-        public VOCTCommunicationMessageRapidResponse(long id, VoctMsgStatus status) {
+        public VOCTCommunicationMessage(long id, VoctMsgStatus status) {
             this.id = id;
             this.status = requireNonNull(status);
         }
 
         /**
-         * @return the sarData
+         * @return the sarDataRapidResponse
          */
-        public RapidResponseDTO getSarData() {
-            return sarData;
+        public RapidResponseDTO getSarDataRapidResponse() {
+            return sarDataRapidResponse;
         }
 
         /**
-         * @param sarData
-         *            the sarData to set
+         * @param sarDataRapidResponse
+         *            the sarDataRapidResponse to set
          */
-        public void setSarData(RapidResponseDTO sarData) {
-            this.sarData = sarData;
+        public void setSarDataRapidResponse(RapidResponseDTO sarDataRapidResponse) {
+            this.sarDataRapidResponse = sarDataRapidResponse;
+        }
+
+        /**
+         * @return the sarDataDatumPoint
+         */
+        public DatumPointDTO getSarDataDatumPoint() {
+            return sarDataDatumPoint;
+        }
+
+        /**
+         * @param sarDataDatumPoint
+         *            the sarDataDatumPoint to set
+         */
+        public void setSarDataDatumPoint(DatumPointDTO sarDataDatumPoint) {
+            this.sarDataDatumPoint = sarDataDatumPoint;
         }
 
         /**
@@ -217,22 +251,39 @@ public class VOCTCommunicationServiceRapidResponse {
             this.receiversMMSI = receiversMMSI;
         }
 
+        /**
+         * @return the type
+         */
+        public SAR_TYPE getType() {
+            return type;
+        }
+
+        /**
+         * @param type the type to set
+         */
+        public void setType(SAR_TYPE type) {
+            this.type = type;
+        }
+
+        
+        
+        
     }
 
-    public static class VOCTCommunicationReplyRapidResponse extends ServiceMessage<Void> {
+    public static class VOCTCommunicationReply extends ServiceMessage<Void> {
 
         // private String message;
         private long id;
         private long mmsi;
         private long sendDate;
 
-        public VOCTCommunicationReplyRapidResponse() {
+        public VOCTCommunicationReply() {
         }
 
         /**
          * @param message
          */
-        public VOCTCommunicationReplyRapidResponse(long id, long mmsi, long sendDate) {
+        public VOCTCommunicationReply(long id, long mmsi, long sendDate) {
             // this.message = message;
             this.id = requireNonNull(id);
             this.mmsi = requireNonNull(mmsi);

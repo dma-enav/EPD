@@ -26,10 +26,57 @@ public class DatumPointDataSARIS extends SARData {
     private static final long serialVersionUID = 1L;
 
     private List<SARISTarget> sarisTarget;
+    private List<SARWeatherData> sarWeatherData;
+    private List<SARAreaData> sarAreaData;
 
     public DatumPointDataSARIS(String sarID, DateTime TLKP, DateTime CSS, Position LKP, double x, double y, double safetyFactor,
             int searchObject) {
         super(sarID, TLKP, CSS, LKP, x, y, safetyFactor, searchObject);
+    }
+
+    /**
+     * @return the sarisTarget
+     */
+    public List<SARISTarget> getSarisTarget() {
+        return sarisTarget;
+    }
+
+    /**
+     * @param sarisTarget
+     *            the sarisTarget to set
+     */
+    public void setSarisTarget(List<SARISTarget> sarisTarget) {
+        this.sarisTarget = sarisTarget;
+    }
+
+    /**
+     * @return the sarWeatherData
+     */
+    public List<SARWeatherData> getSarWeatherData() {
+        return sarWeatherData;
+    }
+
+    /**
+     * @param sarWeatherData
+     *            the sarWeatherData to set
+     */
+    public void setSarWeatherData(List<SARWeatherData> sarWeatherData) {
+        this.sarWeatherData = sarWeatherData;
+    }
+
+    /**
+     * @return the sarAreaData
+     */
+    public List<SARAreaData> getSarAreaData() {
+        return sarAreaData;
+    }
+
+    /**
+     * @param sarAreaData
+     *            the sarAreaData to set
+     */
+    public void setSarAreaData(List<SARAreaData> sarAreaData) {
+        this.sarAreaData = sarAreaData;
     }
 
 }

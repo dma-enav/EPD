@@ -20,6 +20,9 @@ import java.awt.event.MouseEvent;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
 
+import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARAreaData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
@@ -30,19 +33,17 @@ import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.layers.GeneralLayer;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class VoctLayerCommon extends GeneralLayer implements
-        MapMouseListener, VOCTUpdateListener {
+public class VoctLayerCommon extends GeneralLayer implements MapMouseListener, VOCTUpdateListener {
 
     private static final long serialVersionUID = 1L;
     protected MapBean mapBean;
     protected VOCTManager voctManager;
     protected JMapFrame jMapFrame;
 
-
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -53,7 +54,6 @@ public class VoctLayerCommon extends GeneralLayer implements
         ret[2] = SelectMouseMode.MODEID; // "SelectMouseMode"
         return ret;
     }
-
 
     @Override
     public boolean mouseClicked(MouseEvent arg0) {
@@ -70,19 +70,19 @@ public class VoctLayerCommon extends GeneralLayer implements
     @Override
     public void mouseEntered(MouseEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseMoved() {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -105,20 +105,38 @@ public class VoctLayerCommon extends GeneralLayer implements
 
     public void updateEffectiveAreaLocation(SARData sarData) {
         // TODO Auto-generated method stub
-        
+
     }
 
-    
     public void toggleEffectiveAreaVisibility(int id, boolean visible) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public void removeEffortAllocationArea(int i) {
         // TODO Auto-generated method stub
-        
+
     }
-  
+
+    protected void drawSarisDatumPoint() {
+
+        graphics.clear();
+
+        DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
+
+        for (int i = 0; i < data.getSarisTarget().size(); i++) {
+
+            SARAreaData sarArea = data.getSarAreaData().get(i);
+
+            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(), sarArea.getB(), sarArea.getC(), sarArea.getD(),
+                    sarArea.getCentre(), data.getSarisTarget().get(i).getName());
+
+            graphics.add(sarAreaGraphic);
+        }
+
+        doPrepare();
+        // this.setVisible(true);
+    }
 
     @Override
     public void findAndInit(Object obj) {
@@ -138,7 +156,7 @@ public class VoctLayerCommon extends GeneralLayer implements
 
     public void showFutureData(SARData sarData) {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
 }

@@ -26,8 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
@@ -222,8 +221,8 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
                 // System.out.println(srus.get(i).getStatus());
                 // }
 
-//                voctManager.
-                
+                // voctManager.
+
                 notifyListeners(SRUUpdateEvent.SRU_ACCEPT, mmsi);
                 break;
 
@@ -285,7 +284,7 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
 
     }
 
-    public void handleSRUReply(VOCTCommunicationReplyRapidResponse reply) {
+    public void handleSRUReply(VOCTCommunicationReply reply) {
 
         System.out.println("Handling SRU Reply!");
 
@@ -468,11 +467,6 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
 
     public void forceTrackingLayerRepaint() {
         voctLayerTracking.doPrepare();
-    }
-
-    public void handleSRUReply(VOCTCommunicationReplyDatumPoint l) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override

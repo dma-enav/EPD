@@ -36,8 +36,10 @@ import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARAreaData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
@@ -382,10 +384,10 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         }
 
-        EPDShip.getInstance().getMainFrame().getGlassPane().setCursor(
-                EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getCursor());
-//        System.out.println(EPDShip.getInstance().getMainFrame().getGlassPane().isVisible());
-//        EPDShip.getInstance().getMainFrame().getGlassPane().setVisible(false);
+        EPDShip.getInstance().getMainFrame().getGlassPane()
+                .setCursor(EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getCursor());
+        // System.out.println(EPDShip.getInstance().getMainFrame().getGlassPane().isVisible());
+        // EPDShip.getInstance().getMainFrame().getGlassPane().setVisible(false);
 
         return false;
     }
@@ -415,6 +417,9 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             }
             if (voctManager.getSarType() == SAR_TYPE.DATUM_LINE) {
                 drawDatumLine();
+            }
+            if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
+                drawSarisDatumPoint();
             }
 
             this.setVisible(true);
@@ -456,13 +461,59 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
     }
 
+    private void drawSarisDatumPoint() {
+
+        DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
+
+        for (int i = 0; i < data.getSarisTarget().size(); i++) {
+
+            SARAreaData sarArea = data.getSarAreaData().get(i);
+
+            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(), sarArea.getB(), sarArea.getC(), sarArea.getD(),
+                    sarArea.getCentre(), data.getSarisTarget().get(i).getName());
+
+            graphics.add(sarAreaGraphic);
+        }
+
+        //
+
+        // Position A = data.getA();
+        // Position B = data.getB();
+        // Position C = data.getC();
+        // Position D = data.getD();
+        //
+        // Position datumDownWind = data.getDatumDownWind();
+        // Position datumMin = data.getDatumMin();
+        // Position datumMax = data.getDatumMax();
+        //
+        // double radiusDownWind = data.getRadiusDownWind();
+        // double radiusMin = data.getRadiusMin();
+        // double radiusMax = data.getRadiusMax();
+        //
+        // Position LKP = data.getLKP();
+        // Position WTCPoint = data.getWtc();
+        //
+        // graphics.clear();
+        //
+        // // public SarGraphics(Position datumDownWind, Position datumMin,
+        // // Position datumMax, double radiusDownWind, double radiusMin, double
+        // // radiusMax, Position LKP, Position current) {
+        // sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint, A,
+        // B,
+        // C, D);
+        //
+        // graphics.add(sarGraphics);
+
+        doPrepare();
+        this.setVisible(true);
+    }
+
     public void showFutureData(SARData sarData) {
 
         if (sarData instanceof DatumPointData) {
 
             DatumPointData data = (DatumPointData) sarData;
-            
-            
+
             Position A = data.getA();
             Position B = data.getB();
             Position C = data.getC();
@@ -480,23 +531,21 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             Position WTCPoint = data.getWtc();
 
             graphics.remove(sarGraphics);
-            
 
             // public SarGraphics(Position datumDownWind, Position datumMin,
             // Position datumMax, double radiusDownWind, double radiusMin, double
             // radiusMax, Position LKP, Position current) {
             sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
                     A, B, C, D);
-            
+
             graphics.add(sarGraphics);
 
         }
-        
-        
+
         if (sarData instanceof RapidResponseData) {
-            
+
             RapidResponseData data = (RapidResponseData) sarData;
-            
+
             Position A = data.getA();
             Position B = data.getB();
             Position C = data.getC();
@@ -512,7 +561,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             sarGraphics = new SarGraphics(datum, radius, A, B, C, D, LKP, data.getCurrentList(), data.getWindList());
             graphics.add(sarGraphics);
         }
-        
+
         doPrepare();
     }
 

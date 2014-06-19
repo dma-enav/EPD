@@ -34,18 +34,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.w3c.dom.*;
-
-import javax.xml.parsers.*;
-import javax.xml.xpath.*;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARAreaData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARISTarget;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
 
 public class SARISXMLParser {
     private Document document;
     private XPath xPath;
+    private DatumPointDataSARIS sarData;
 
     public SARISXMLParser(String path) throws XPathExpressionException {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -98,7 +97,15 @@ public class SARISXMLParser {
 
         // Get search areas
         String searchAreaCoordinates = "/saris-report/search-area-coordinates";
-        getSearchAreas(searchAreaCoordinates);
+        List<SARAreaData> sarAreas = getSearchAreas(searchAreaCoordinates);
+
+        sarData = new DatumPointDataSARIS("N/A", LKPDate, CSP, DSP, 0.0, 0.0, 0.0, -1);
+
+        sarData.setWeatherPoints(weatherData);
+
+        sarData.setSarisTarget(sarisTargets);
+
+        sarData.setSarAreaData(sarAreas);
 
         // String test = "/saris-report/search-plan-information/wind-input/wind-entry[@index='9']/time/*";
         // getDateFromNodeList(test);
@@ -132,35 +139,66 @@ public class SARISXMLParser {
         // }
     }
 
-    private void getSearchAreas(String expression) throws XPathExpressionException {
+    private List<SARAreaData> getSearchAreas(String expression) throws XPathExpressionException {
         // System.out.println("Expression is " + expression);
-
+        List<SARAreaData> sarAreas = new ArrayList<SARAreaData>();
         String targetDataExpression = expression;
 
         int i = 1;
         while (true) {
 
-            getSearchArea(targetDataExpression + "/search-area-target[@name='Target " + i + "']");
+            SARAreaData entry = getSearchArea(targetDataExpression + "/search-area-target[@name='Target " + i + "']");
 
             i = i + 1;
-            // if (entry == null) {
-            // break;
-            // } else {
-            // // sarisTargets.add(entry);
-            // }
-            break;
+            if (entry == null) {
+                break;
+            } else {
+
+                sarAreas.add(entry);
+            }
+
         }
+
+        return sarAreas;
 
     }
 
-    private void getSearchArea(String expression) throws XPathExpressionException {
+    private SARAreaData getSearchArea(String expression) throws XPathExpressionException {
         // System.out.println("Expression is " + expression);
         expression = expression + "/search-area[@name='Area']";
 
-        NodeList nodeList = createNodeListFromExpression(expression);
-        System.out.println(nodeList.item(0).getChildNodes().getLength());
+        // We need A, B C, D and center.
 
-        printExpressionResult(expression);
+        String areaExpressionA = expression + "/position[@name='A']/angle/*";
+        String areaExpressionB = expression + "/position[@name='B']/angle/*";
+        String areaExpressionC = expression + "/position[@name='C']/angle/*";
+        String areaExpressionD = expression + "/position[@name='D']/angle/*";
+        String areaExpressionCentre = expression + "/position[@name='centre']/angle/*";
+
+        Position A = getPositionFromNodeList(areaExpressionA);
+        Position B = getPositionFromNodeList(areaExpressionB);
+        Position C = getPositionFromNodeList(areaExpressionC);
+        Position D = getPositionFromNodeList(areaExpressionD);
+        Position centre = getPositionFromNodeList(areaExpressionCentre);
+
+        if (A == null || B == null || C == null || D == null) {
+            return null;
+        }
+
+        // Breadth or width
+        String breadthExpression = expression + "/distance[@name='Breadth']";
+        Node node = (Node) xPath.compile(breadthExpression).evaluate(document, XPathConstants.NODE);
+        Double breadth = Double.parseDouble(node.getFirstChild().getNodeValue());
+
+        // Length
+        String lengthExpression = expression + "/distance[@name='Length']";
+        node = (Node) xPath.compile(lengthExpression).evaluate(document, XPathConstants.NODE);
+        Double length = Double.parseDouble(node.getFirstChild().getNodeValue());
+
+        SARAreaData sarArea = new SARAreaData(A, B, C, D, centre, breadth, length);
+
+        return sarArea;
+
     }
 
     private List<SARISTarget> getSARISTargets(String expression) throws XPathExpressionException {
@@ -382,6 +420,10 @@ public class SARISXMLParser {
     private Position getPositionFromNodeList(String expression) throws XPathExpressionException {
         NodeList nodeList = createNodeListFromExpression(expression);
 
+        if (nodeList.getLength() == 0) {
+            return null;
+        }
+
         // Latitude
         double latitude = Double.parseDouble(nodeList.item(0).getFirstChild().getNodeValue());
         double longitude = Double.parseDouble(nodeList.item(4).getFirstChild().getNodeValue());
@@ -450,6 +492,13 @@ public class SARISXMLParser {
 
         return returnDate;
 
+    }
+
+    /**
+     * @return the sarData
+     */
+    public DatumPointDataSARIS getSarData() {
+        return sarData;
     }
 
     public static void main(String[] args) {

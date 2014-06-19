@@ -29,6 +29,7 @@ import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
@@ -140,6 +141,9 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     }
 
     public void displaySar() {
+
+        // This is where we display SAR
+
         updateLayers();
         notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
     }
@@ -157,6 +161,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
     public void notifyListeners(VOCTUpdateEvent e) {
         for (VOCTUpdateListener listener : listeners) {
+            System.out.println("Our listeners are: " + listener.getClass());
             listener.voctUpdated(e);
         }
 
@@ -189,7 +194,11 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         System.out.println(sarData != null);
         this.sarData = sarData;
 
-        sarFutureData = sarOperation.sarFutureCalculations(sarData);
+        if (!(sarData instanceof DatumPointDataSARIS)) {
+            sarFutureData = sarOperation.sarFutureCalculations(sarData);
+        } else {
+            this.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
+        }
 
         notifyListeners(VOCTUpdateEvent.SAR_READY);
     }

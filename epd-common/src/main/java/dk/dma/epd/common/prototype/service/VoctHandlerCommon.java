@@ -24,8 +24,8 @@ import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastListener;
 import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
 import net.maritimecloud.net.broadcast.BroadcastOptions;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARInfoMessage;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
 
@@ -35,7 +35,7 @@ import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessag
  * Listens for intended route broadcasts, and updates the vessel target when one is received.
  */
 public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon implements
-        ICloudMessageListener<VOCTCommunicationMessageRapidResponse, VOCTCommunicationReplyRapidResponse> {
+        ICloudMessageListener<VOCTCommunicationMessage, VOCTCommunicationReply> {
 
     /**
      * Time an intended route is considered valid without update
