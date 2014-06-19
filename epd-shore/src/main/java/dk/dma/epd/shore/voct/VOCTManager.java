@@ -124,6 +124,8 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
             EPDShore.getInstance().getMainFrame().addSARWindow(MapFrameType.SAR_Planning);
         }
 
+        System.out.println("Update layers " + sarOperation.getOperationType());
+
         notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
     }
 
@@ -322,6 +324,5 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
         }
 
     }
-    
-    
+
 }

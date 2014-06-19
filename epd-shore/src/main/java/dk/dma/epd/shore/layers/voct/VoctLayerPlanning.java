@@ -27,6 +27,7 @@ import com.bbn.openmap.omGraphics.OMList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.voct.SARAreaData;
 import dk.dma.epd.common.prototype.layers.voct.AreaInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics.LineType;
@@ -36,6 +37,7 @@ import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
@@ -351,6 +353,9 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         }
 
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
+
+            System.out.println("SAR DISPLAY " + voctManager.getSarType());
+
             if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
                 drawRapidResponse();
             }
@@ -362,6 +367,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             }
 
             if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
+                System.out.println("SARIS DATUM POINT DETECTED");
                 drawSarisDatumPoint();
             }
             this.setVisible(true);
@@ -374,6 +380,32 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
     }
 
+    
+    
+    private void drawSarisDatumPoint() {
+
+
+        
+        graphics.clear();
+
+        DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
+
+        for (int i = 0; i < data.getSarisTarget().size(); i++) {
+
+            System.out.println("Adding graphics");
+            SARAreaData sarArea = data.getSarAreaData().get(i);
+
+            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(), sarArea.getB(), sarArea.getC(), sarArea.getD(),
+                    sarArea.getCentre(), data.getSarisTarget().get(i).getName());
+
+            graphics.add(sarAreaGraphic);
+        }
+
+        doPrepare();
+         this.setVisible(true);
+    }
+    
+    
     private void drawDatumLine() {
 
         // Create as many data objects as is contained

@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.voct.DatumPointDTO;
+import dk.dma.enav.model.voct.DatumPointSARISDTO;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
@@ -38,6 +39,7 @@ import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
@@ -165,65 +167,70 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         // System.out.println("Send to : " + mmsi);
         String mmsiStr = "mmsi://" + mmsi;
 
-//        if (sarData instanceof RapidResponseData) {
-            ServiceEndpoint<VOCTCommunicationService.VOCTCommunicationMessage, VOCTCommunicationService.VOCTCommunicationReply> end = null;
+        // if (sarData instanceof RapidResponseData) {
+        ServiceEndpoint<VOCTCommunicationService.VOCTCommunicationMessage, VOCTCommunicationService.VOCTCommunicationReply> end = null;
 
-            for (int i = 0; i < voctMessageList.size(); i++) {
-                if (voctMessageList.get(i).getId().toString().equals(mmsiStr)) {
-                    end = voctMessageList.get(i);
+        for (int i = 0; i < voctMessageList.size(); i++) {
+            if (voctMessageList.get(i).getId().toString().equals(mmsiStr)) {
+                end = voctMessageList.get(i);
 
-                    break;
-                }
+                break;
             }
-            // end = voctMessageList.get(voctMessageList.size() - 1);
+        }
+        // end = voctMessageList.get(voctMessageList.size() - 1);
 
-            VOCTCommunicationMessage voctMessage = null;
+        VOCTCommunicationMessage voctMessage = null;
 
-            EffortAllocationDTO effortAllocationData = null;
-            Route searchPattern = null;
+        EffortAllocationDTO effortAllocationData = null;
+        Route searchPattern = null;
 
-            if (isAO) {
-                if (sarData.getEffortAllocationData().size() > id) {
-                    effortAllocationData = sarData.getEffortAllocationData().get(id).getModelData();
+        if (isAO) {
+            if (sarData.getEffortAllocationData().size() > id) {
+                effortAllocationData = sarData.getEffortAllocationData().get(id).getModelData();
 
-                    if (isSearchPattern) {
+                if (isSearchPattern) {
 
-                        if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
+                    if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
 
-                            if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute().isDynamic()) {
-                                sarData.getEffortAllocationData().get(id).getSearchPatternRoute().switchToStatic();
-                                searchPattern = sarData.getEffortAllocationData().get(id).getSearchPatternRoute()
-                                        .getFullRouteData();
-                                sarData.getEffortAllocationData().get(id).getSearchPatternRoute().switchToDynamic();
-                            } else {
-                                searchPattern = sarData.getEffortAllocationData().get(id).getSearchPatternRoute()
-                                        .getFullRouteData();
-                            }
-
+                        if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute().isDynamic()) {
+                            sarData.getEffortAllocationData().get(id).getSearchPatternRoute().switchToStatic();
+                            searchPattern = sarData.getEffortAllocationData().get(id).getSearchPatternRoute().getFullRouteData();
+                            sarData.getEffortAllocationData().get(id).getSearchPatternRoute().switchToDynamic();
+                        } else {
+                            searchPattern = sarData.getEffortAllocationData().get(id).getSearchPatternRoute().getFullRouteData();
                         }
+
                     }
-                    // }
-
                 }
-            }
-            if (sarData instanceof RapidResponseData) {
-                RapidResponseDTO sarModelData = ((RapidResponseData) sarData).getModelData();
-                voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(sarModelData, effortAllocationData,
-                        searchPattern, sender, message, voctManager.getVoctID(), mmsi);
+                // }
 
             }
+        }
+        
+        if (sarData instanceof RapidResponseData) {
+            RapidResponseDTO sarModelData = ((RapidResponseData) sarData).getModelData();
+            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(sarModelData, effortAllocationData, searchPattern,
+                    sender, message, voctManager.getVoctID(), mmsi);
 
-            if (sarData instanceof DatumPointData) {
-                DatumPointDTO sarModelData = ((DatumPointData) sarData).getModelData();
-                voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(sarModelData, effortAllocationData,
-                        searchPattern, sender, message, voctManager.getVoctID(), mmsi);
+        }
 
-                System.out.println("Creating datum point data DTO");
-            }
+        if (sarData instanceof DatumPointData) {
+            DatumPointDTO sarModelData = ((DatumPointData) sarData).getModelData();
+            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(sarModelData, effortAllocationData, searchPattern,
+                    sender, message, voctManager.getVoctID(), mmsi);
 
-            sendMaritimeCloudMessage(voctMessageList, new MmsiId((int) mmsi), voctMessage, this);
+        }
 
-//        }
+        if (sarData instanceof DatumPointDataSARIS) {
+            DatumPointSARISDTO sarModelData = ((DatumPointDataSARIS) sarData).getModelData();
+            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(sarModelData, effortAllocationData, searchPattern,
+                    sender, message, voctManager.getVoctID(), mmsi);
+
+        }
+
+        sendMaritimeCloudMessage(voctMessageList, new MmsiId((int) mmsi), voctMessage, this);
+
+        // }
 
         // if (sarData instanceof DatumPointData) {
         // ServiceEndpoint<VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint,

@@ -294,10 +294,13 @@ public class SARInputCommon extends JDialog implements ActionListener, DocumentL
             // Create SARIS parser for returned object
 
             try {
-                SARISXMLParser parser = new SARISXMLParser("E://Sarex 04 Juni.xml");
 
+//                SARISXMLParser parser = new SARISXMLParser("E://Sarex 04 Juni.xml");
+                SARISXMLParser parser = new SARISXMLParser("E://Sarex Fn.xml");
+
+                voctManager.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
                 voctManager.setSarData(parser.getSarData());
-                calculationsText.setText("Ello there");
+                calculationsText.setText("SARIS PARSE SUCCESSFULL");
                 backButton.setEnabled(true);
                 nextButton.setText("Finish");
 

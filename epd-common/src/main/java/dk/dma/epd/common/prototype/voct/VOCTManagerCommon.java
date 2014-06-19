@@ -67,6 +67,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     }
 
     public void setSarType(SAR_TYPE type) {
+        System.out.println("SET SAR TYPE " + type);
         sarOperation = null;
         sarOperation = new SAROperation(type);
     }
@@ -196,9 +197,10 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
         if (!(sarData instanceof DatumPointDataSARIS)) {
             sarFutureData = sarOperation.sarFutureCalculations(sarData);
-        } else {
-            this.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
         }
+        // else {
+        // this.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
+        // }
 
         notifyListeners(VOCTUpdateEvent.SAR_READY);
     }

@@ -237,6 +237,11 @@ public class VOCTManager extends VOCTManagerCommon {
                 setSarType(SAR_TYPE.DATUM_POINT);
             }
 
+            if (type == SAR_TYPE.SARIS_DATUM_POINT) {
+                // data = new DatumPointDataSARIS(message.gets());
+                setSarType(SAR_TYPE.SARIS_DATUM_POINT);
+            }
+
             if (message.getEffortAllocationData() != null) {
 
                 // message.getEffortAllocationData()
@@ -259,8 +264,6 @@ public class VOCTManager extends VOCTManagerCommon {
                 data.addEffortAllocationData(effortAllocationData, 0);
 
             }
-
-            
 
             this.setSarData(data);
 

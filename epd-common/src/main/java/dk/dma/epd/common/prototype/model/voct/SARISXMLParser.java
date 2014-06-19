@@ -36,9 +36,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.voct.SARAreaData;
+import dk.dma.enav.model.voct.SARISTarget;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
-import dk.dma.epd.common.prototype.model.voct.sardata.SARAreaData;
-import dk.dma.epd.common.prototype.model.voct.sardata.SARISTarget;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
 
 public class SARISXMLParser {

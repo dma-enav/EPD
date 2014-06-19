@@ -20,9 +20,6 @@ import java.awt.event.MouseEvent;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
 
-import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
-import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
-import dk.dma.epd.common.prototype.model.voct.sardata.SARAreaData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
@@ -116,26 +113,6 @@ public class VoctLayerCommon extends GeneralLayer implements MapMouseListener, V
     public void removeEffortAllocationArea(int i) {
         // TODO Auto-generated method stub
 
-    }
-
-    protected void drawSarisDatumPoint() {
-
-        graphics.clear();
-
-        DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
-
-        for (int i = 0; i < data.getSarisTarget().size(); i++) {
-
-            SARAreaData sarArea = data.getSarAreaData().get(i);
-
-            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(), sarArea.getB(), sarArea.getC(), sarArea.getD(),
-                    sarArea.getCentre(), data.getSarisTarget().get(i).getName());
-
-            graphics.add(sarAreaGraphic);
-        }
-
-        doPrepare();
-        // this.setVisible(true);
     }
 
     @Override

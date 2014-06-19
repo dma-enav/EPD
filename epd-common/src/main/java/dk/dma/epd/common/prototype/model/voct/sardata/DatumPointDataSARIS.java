@@ -15,11 +15,16 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.voct.DatumPointSARISDTO;
+import dk.dma.enav.model.voct.SARAreaData;
+import dk.dma.enav.model.voct.SARISTarget;
+import dk.dma.enav.model.voct.WeatherDataDTO;
 
 public class DatumPointDataSARIS extends SARData {
 
@@ -32,6 +37,7 @@ public class DatumPointDataSARIS extends SARData {
     public DatumPointDataSARIS(String sarID, DateTime TLKP, DateTime CSS, Position LKP, double x, double y, double safetyFactor,
             int searchObject) {
         super(sarID, TLKP, CSS, LKP, x, y, safetyFactor, searchObject);
+        this.setCSP(LKP);
     }
 
     /**
@@ -79,4 +85,20 @@ public class DatumPointDataSARIS extends SARData {
         this.sarAreaData = sarAreaData;
     }
 
+    public DatumPointSARISDTO getModelData() {
+
+        // private List<SARISTarget> sarisTarget;
+        // private List<SARWeatherData> sarWeatherData;
+        // private List<SARAreaData> sarAreaData;
+
+        List<WeatherDataDTO> weatherList = new ArrayList<WeatherDataDTO>();
+
+        for (int i = 0; i < getWeatherPoints().size(); i++) {
+            weatherList.add(getWeatherPoints().get(i).getDTO());
+        }
+
+        return new DatumPointSARISDTO(getSarID(), this.getLKPDate().toDate(), this.getCSSDate().toDate(), this.getLKP().getDTO(),
+                this.getCSP().getDTO(), this.getX(), this.getY(), this.getSafetyFactor(), this.getSearchObject(), this.getLKP()
+                        .getDTO(), 0, 0, 0, 0, 0, 0, 0, weatherList, sarisTarget, sarAreaData);
+    }
 }

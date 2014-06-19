@@ -23,6 +23,7 @@ import java.util.Date;
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voct.DatumPointDTO;
+import dk.dma.enav.model.voct.DatumPointSARISDTO;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
@@ -40,6 +41,7 @@ public class VOCTCommunicationService {
         private static final long serialVersionUID = -3556815314608410502L;
         private RapidResponseDTO sarDataRapidResponse;
         private DatumPointDTO sarDataDatumPoint;
+        private DatumPointSARISDTO sarDataDatumPointSaris;
 
         private EffortAllocationDTO effortAllocationData;
         private Route searchPattern;
@@ -84,6 +86,20 @@ public class VOCTCommunicationService {
             type = SAR_TYPE.DATUM_POINT;
         }
 
+        public VOCTCommunicationMessage(DatumPointSARISDTO sarData, EffortAllocationDTO effortAllocationData, Route searchPattern,
+                String sender, String message, long id, long receiversMMSI) {
+            super();
+            this.sarDataDatumPointSaris = requireNonNull(sarData);
+            this.effortAllocationData = effortAllocationData;
+            this.searchPattern = searchPattern;
+            this.sent = requireNonNull(new Date());
+            this.message = requireNonNull(message);
+            this.sender = requireNonNull(sender);
+            this.id = requireNonNull(id);
+            this.receiversMMSI = receiversMMSI;
+            type = SAR_TYPE.SARIS_DATUM_POINT;
+        }
+
         /**
          * Constructor - used for replys
          */
@@ -121,6 +137,21 @@ public class VOCTCommunicationService {
          */
         public DatumPointDTO getSarDataDatumPoint() {
             return sarDataDatumPoint;
+        }
+
+        /**
+         * @return the sarDataDatumPointSaris
+         */
+        public DatumPointSARISDTO getSarDataDatumPointSaris() {
+            return sarDataDatumPointSaris;
+        }
+
+        /**
+         * @param sarDataDatumPointSaris
+         *            the sarDataDatumPointSaris to set
+         */
+        public void setSarDataDatumPointSaris(DatumPointSARISDTO sarDataDatumPointSaris) {
+            this.sarDataDatumPointSaris = sarDataDatumPointSaris;
         }
 
         /**
@@ -259,15 +290,13 @@ public class VOCTCommunicationService {
         }
 
         /**
-         * @param type the type to set
+         * @param type
+         *            the type to set
          */
         public void setType(SAR_TYPE type) {
             this.type = type;
         }
 
-        
-        
-        
     }
 
     public static class VOCTCommunicationReply extends ServiceMessage<Void> {
