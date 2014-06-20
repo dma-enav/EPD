@@ -596,7 +596,7 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
 
         }
 
-        initSetValues();
+//        initSetValues();
 
     }
 

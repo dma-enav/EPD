@@ -384,7 +384,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
 
         }
 
-        initSetValues();
+//        initSetValues();
 
     }
 
