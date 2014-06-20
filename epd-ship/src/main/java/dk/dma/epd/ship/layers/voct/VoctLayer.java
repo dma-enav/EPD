@@ -467,6 +467,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
     private void drawSarisDatumPoint() {
 
+        graphics.clear();
         DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
 
         for (int i = 0; i < data.getSarisTarget().size(); i++) {
@@ -704,7 +705,10 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         // startingPosition = ((RapidResponseData) data).getA();
         // }
 
-        effectiveArea = new EffectiveSRUAreaGraphics(width, height, data, 0, "");
+        effectiveArea = new EffectiveSRUAreaGraphics(width, 
+                height, 
+                data, 
+                0, "");
 
         graphics.add(effectiveArea);
 

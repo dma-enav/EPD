@@ -54,7 +54,7 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
 
     JLabel messageInfoLabel;
 
-    VOCTCommunicationMessage rapidResponseMessage;
+    VOCTCommunicationMessage voctCommunicationMessage;
 
     SAR_TYPE type;
 
@@ -64,7 +64,7 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
     public SARInvitationRequest(VOCTManager voctManager, VOCTCommunicationMessage message) {
         super();
 
-        this.rapidResponseMessage = message;
+        this.voctCommunicationMessage = message;
 
         type = message.getType();
 
@@ -190,24 +190,24 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
         lblSARType.setText(type.toString());
 
         if (type == SAR_TYPE.RAPID_RESPONSE) {
-            if (!rapidResponseMessage.getSarDataRapidResponse().getSarID().equals("")) {
-                lblSARID.setText(rapidResponseMessage.getSarDataRapidResponse().getSarID());
+            if (!voctCommunicationMessage.getSarDataRapidResponse().getSarID().equals("")) {
+                lblSARID.setText(voctCommunicationMessage.getSarDataRapidResponse().getSarID());
             }
 
         }
 
         if (type == SAR_TYPE.DATUM_POINT) {
-            if (!rapidResponseMessage.getSarDataDatumPoint().getSarID().equals("")) {
-                lblSARID.setText(rapidResponseMessage.getSarDataDatumPoint().getSarID());
+            if (!voctCommunicationMessage.getSarDataDatumPoint().getSarID().equals("")) {
+                lblSARID.setText(voctCommunicationMessage.getSarDataDatumPoint().getSarID());
             }
 
         }
 
-        if (rapidResponseMessage.getEffortAllocationData() != null) {
+        if (voctCommunicationMessage.getEffortAllocationData() != null) {
             dataContained = dataContained + ", designated operational area";
         }
 
-        if (rapidResponseMessage.getSearchPattern() != null) {
+        if (voctCommunicationMessage.getSearchPattern() != null) {
             dataContained = dataContained + ", search pattern";
         }
 
@@ -224,7 +224,7 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
     @Override
     public void dispose() {
 
-        voctManager.handleDialogAction(false, rapidResponseMessage, type);
+        voctManager.handleDialogAction(false, voctCommunicationMessage, type);
 
         super.dispose();
 
@@ -238,7 +238,7 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
     public void actionPerformed(ActionEvent arg0) {
 
         if (arg0.getSource() == acceptBtn) {
-            voctManager.handleDialogAction(true, rapidResponseMessage, type);
+            voctManager.handleDialogAction(true, voctCommunicationMessage, type);
 
             // Is the SAR Panel active? If not show it
             if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("SAR")) {
@@ -252,7 +252,7 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
 
         if (arg0.getSource() == rejectBtn) {
 
-            voctManager.handleDialogAction(false, rapidResponseMessage, type);
+            voctManager.handleDialogAction(false, voctCommunicationMessage, type);
 
             disposeInternal();
             return;
@@ -263,26 +263,26 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
 
             if (type == SAR_TYPE.RAPID_RESPONSE) {
 
-                positions.add(Position.create(rapidResponseMessage.getSarDataRapidResponse().getA().getLatitude(),
-                        rapidResponseMessage.getSarDataRapidResponse().getA().getLongitude()));
-                positions.add(Position.create(rapidResponseMessage.getSarDataRapidResponse().getB().getLatitude(),
-                        rapidResponseMessage.getSarDataRapidResponse().getB().getLongitude()));
-                positions.add(Position.create(rapidResponseMessage.getSarDataRapidResponse().getC().getLatitude(),
-                        rapidResponseMessage.getSarDataRapidResponse().getC().getLongitude()));
-                positions.add(Position.create(rapidResponseMessage.getSarDataRapidResponse().getD().getLatitude(),
-                        rapidResponseMessage.getSarDataRapidResponse().getD().getLongitude()));
+                positions.add(Position.create(voctCommunicationMessage.getSarDataRapidResponse().getA().getLatitude(),
+                        voctCommunicationMessage.getSarDataRapidResponse().getA().getLongitude()));
+                positions.add(Position.create(voctCommunicationMessage.getSarDataRapidResponse().getB().getLatitude(),
+                        voctCommunicationMessage.getSarDataRapidResponse().getB().getLongitude()));
+                positions.add(Position.create(voctCommunicationMessage.getSarDataRapidResponse().getC().getLatitude(),
+                        voctCommunicationMessage.getSarDataRapidResponse().getC().getLongitude()));
+                positions.add(Position.create(voctCommunicationMessage.getSarDataRapidResponse().getD().getLatitude(),
+                        voctCommunicationMessage.getSarDataRapidResponse().getD().getLongitude()));
 
             }
 
             if (type == SAR_TYPE.DATUM_POINT) {
-                positions.add(Position.create(rapidResponseMessage.getSarDataDatumPoint().getA().getLatitude(),
-                        rapidResponseMessage.getSarDataDatumPoint().getA().getLongitude()));
-                positions.add(Position.create(rapidResponseMessage.getSarDataDatumPoint().getB().getLatitude(),
-                        rapidResponseMessage.getSarDataDatumPoint().getB().getLongitude()));
-                positions.add(Position.create(rapidResponseMessage.getSarDataDatumPoint().getC().getLatitude(),
-                        rapidResponseMessage.getSarDataDatumPoint().getC().getLongitude()));
-                positions.add(Position.create(rapidResponseMessage.getSarDataDatumPoint().getD().getLatitude(),
-                        rapidResponseMessage.getSarDataDatumPoint().getD().getLongitude()));
+                positions.add(Position.create(voctCommunicationMessage.getSarDataDatumPoint().getA().getLatitude(),
+                        voctCommunicationMessage.getSarDataDatumPoint().getA().getLongitude()));
+                positions.add(Position.create(voctCommunicationMessage.getSarDataDatumPoint().getB().getLatitude(),
+                        voctCommunicationMessage.getSarDataDatumPoint().getB().getLongitude()));
+                positions.add(Position.create(voctCommunicationMessage.getSarDataDatumPoint().getC().getLatitude(),
+                        voctCommunicationMessage.getSarDataDatumPoint().getC().getLongitude()));
+                positions.add(Position.create(voctCommunicationMessage.getSarDataDatumPoint().getD().getLatitude(),
+                        voctCommunicationMessage.getSarDataDatumPoint().getD().getLongitude()));
 
             }
 
