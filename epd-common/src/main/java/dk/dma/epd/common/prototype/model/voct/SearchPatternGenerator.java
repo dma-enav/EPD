@@ -253,7 +253,7 @@ public class SearchPatternGenerator {
             double timeElapsed = ((double) (wpETA.getTime() - cssDate.getMillis())) / 60 / 60 / 1000;
 
             // System.out.println("Elapsed is for " + i + " is " + timeElapsed);
-            
+
             if (sarData instanceof DatumPointDataSARIS) {
                 waypointsAdjustedForWeather.add(wpPos);
             } else {
@@ -451,15 +451,16 @@ public class SearchPatternGenerator {
 
             // System.out.println("Elapsed is for " + i + " is " + timeElapsed);
 
-            if (sarData instanceof DatumPointDataSARIS){
+            if (sarData instanceof DatumPointDataSARIS) {
+                waypointsAdjustedForWeather.add(wpPos);
+            } else {
+
                 Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos, timeElapsed);
 
                 waypointsAdjustedForWeather.add(newPos);
-                
-            }else{
-                waypointsAdjustedForWeather.add(wpPos);
+
             }
-            
+
             // searchRoute.getWaypoints().get(i).setPos(newPos);
         }
 
@@ -695,9 +696,9 @@ public class SearchPatternGenerator {
                 waypointsAdjustedForWeather.add(newPos);
             }
 
-//            Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos, timeElapsed);
+            // Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos, timeElapsed);
 
-//            waypointsAdjustedForWeather.add(newPos);
+            // waypointsAdjustedForWeather.add(newPos);
             // searchRoute.getWaypoints().get(i).setPos(newPos);
 
         }

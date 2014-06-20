@@ -45,8 +45,7 @@ import dk.dma.epd.shore.voct.SRU.SRU_TYPE;
 import dk.dma.epd.shore.voct.SRU.sru_status;
 import dk.dma.epd.shore.voct.SRUManager;
 
-public class SRUAddEditDialog extends JDialog implements ActionListener,
-        FocusListener {
+public class SRUAddEditDialog extends JDialog implements ActionListener, FocusListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -89,13 +88,17 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
         this.sruManager = sruManager;
         this.aisHandler = aisHandler;
 
-        if (this.aisHandler.getShipList().size() == 0) {
+        if (aisHandler != null) {
             btnSelectFromAis.setEnabled(false);
+        } else {
+
+            if (this.aisHandler.getShipList().size() == 0) {
+                btnSelectFromAis.setEnabled(false);
+            }
         }
     }
 
-    public SRUAddEditDialog(SRUManager sruManager, int sruID,
-            AisHandler aisHandler) {
+    public SRUAddEditDialog(SRUManager sruManager, int sruID, AisHandler aisHandler) {
         setTitle("Manage SRU");
         this.setModal(true);
         this.setResizable(false);
@@ -151,16 +154,14 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
 
         {
             JPanel panel = new JPanel();
-            panel.setBorder(new TitledBorder(UIManager
-                    .getBorder("TitledBorder.border"), "Manage SRU",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Manage SRU", TitledBorder.LEADING,
+                    TitledBorder.TOP, null, null));
             panel.setBounds(10, 11, 445, 281);
             initPanel.add(panel);
             panel.setLayout(null);
 
             JPanel panel_2 = new JPanel();
-            panel_2.setBorder(new TitledBorder(null, "SRU Information",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_2.setBorder(new TitledBorder(null, "SRU Information", TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel_2.setBounds(10, 25, 412, 162);
             panel.add(panel_2);
             panel_2.setLayout(null);
@@ -183,8 +184,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
             panel_2.add(lblNewLabel);
 
             sruType = new JComboBox<String>();
-            sruType.setModel(new DefaultComboBoxModel<String>(new String[] {
-                    "Smaller vessel (40 feet)", "Ship (90 feet)" }));
+            sruType.setModel(new DefaultComboBoxModel<String>(new String[] { "Smaller vessel (40 feet)", "Ship (90 feet)" }));
             sruType.setBounds(129, 100, 148, 20);
             panel_2.add(sruType);
 
@@ -193,8 +193,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
             panel_2.add(lblFatigue);
 
             fatigueDropDown = new JComboBox<Double>();
-            fatigueDropDown.setModel(new DefaultComboBoxModel<Double>(
-                    new Double[] { 1.0, 0.9 }));
+            fatigueDropDown.setModel(new DefaultComboBoxModel<Double>(new Double[] { 1.0, 0.9 }));
             fatigueDropDown.setBounds(129, 72, 45, 20);
             panel_2.add(fatigueDropDown);
 
@@ -220,9 +219,8 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
             mmsiTxt.addFocusListener(this);
 
             JPanel panel_3 = new JPanel();
-            panel_3.setBorder(new TitledBorder(UIManager
-                    .getBorder("TitledBorder.border"), "SAR Information",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_3.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SAR Information", TitledBorder.LEADING,
+                    TitledBorder.TOP, null, null));
             panel_3.setBounds(10, 198, 412, 72);
             panel.add(panel_3);
             panel_3.setLayout(null);
@@ -235,8 +233,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
             panel_3.add(lblTimeSpentSearching);
 
             hoursSearching = new JSpinner();
-            hoursSearching.setModel(new SpinnerNumberModel(new Integer(1),
-                    null, null, new Integer(1)));
+            hoursSearching.setModel(new SpinnerNumberModel(new Integer(1), null, null, new Integer(1)));
             hoursSearching.setBounds(139, 44, 54, 20);
             panel_3.add(hoursSearching);
 
@@ -251,8 +248,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
             visibilityDropDown = new JComboBox<Integer>();
             visibilityDropDown.setBounds(139, 15, 45, 20);
             panel_3.add(visibilityDropDown);
-            visibilityDropDown.setModel(new DefaultComboBoxModel<Integer>(
-                    new Integer[] { 1, 3, 5, 10, 15, 20 }));
+            visibilityDropDown.setModel(new DefaultComboBoxModel<Integer>(new Integer[] { 1, 3, 5, 10, 15, 20 }));
         }
 
     }
@@ -280,8 +276,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
             if (selectedSRU.getStaticData() != null) {
                 shipName.setText(selectedSRU.getStaticData().getTrimmedName());
 
-                double length = selectedSRU.getStaticData().getDimBow()
-                        + selectedSRU.getStaticData().getDimStern();
+                double length = selectedSRU.getStaticData().getDimBow() + selectedSRU.getStaticData().getDimStern();
                 // String width = Integer.toString(ownship.getStaticData()
                 // .getDimPort()
                 // + ownship.getStaticData().getDimStarboard()) + " M";
@@ -307,8 +302,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
 
             }
 
-            aisSelectionListDialog = new AISSelectionList(aisHandler,
-                    this.getLocation(), this);
+            aisSelectionListDialog = new AISSelectionList(aisHandler, this.getLocation(), this);
 
         }
 
@@ -337,20 +331,17 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
 
                 // Create a new one
                 if (sruSelection == -1) {
-                    SRU sru = new SRU(vesselName, mmsi, type,
-                            sru_status.UNAVAILABLE, searchSpeed, visibility,
-                            fatigue, timeSearching);
+                    SRU sru = new SRU(vesselName, mmsi, type, sru_status.UNAVAILABLE, searchSpeed, visibility, fatigue,
+                            timeSearching);
 
                     sruManager.addSRU(sru);
                 } else {
                     sruManager.getSRUs(sruSelection).setMmsi(mmsi);
                     sruManager.getSRUs(sruSelection).setName(vesselName);
-                    sruManager.getSRUs(sruSelection)
-                            .setSearchSpeed(searchSpeed);
+                    sruManager.getSRUs(sruSelection).setSearchSpeed(searchSpeed);
                     sruManager.getSRUs(sruSelection).setVisibility(visibility);
                     sruManager.getSRUs(sruSelection).setFatigue(fatigue);
-                    sruManager.getSRUs(sruSelection).setSearchTime(
-                            timeSearching);
+                    sruManager.getSRUs(sruSelection).setSearchTime(timeSearching);
                     sruManager.getSRUs(sruSelection).setType(type);
                 }
 
@@ -429,8 +420,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
 
     private void displayMissingField(String fieldname) {
         // Missing or incorrect value in
-        JOptionPane.showMessageDialog(this, "Missing or incorrect value in "
-                + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Missing or incorrect value in " + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
