@@ -114,4 +114,22 @@ public class DatumPointDataSARIS extends SARData {
                 this.getCSP().getDTO(), this.getX(), this.getY(), this.getSafetyFactor(), this.getSearchObject(), this.getLKP()
                         .getDTO(), 0, 0, 0, 0, 0, 0, 0, weatherList, sarisTarget, sarAreaData);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "DatumPointDataSARIS [sarisTarget=" + sarisTarget + ", sarWeatherData=" + sarWeatherData + ", sarAreaData="
+                + sarAreaData + ", effortAllocationData=" + effortAllocationData + ", getAdditionalInfo()=" + getAdditionalInfo()
+                + ", getFirstEffortAllocationData()=" + getFirstEffortAllocationData() + ", getEffortAllocationData()="
+                + getEffortAllocationData() + ", getLKPDate()=" + getLKPDate() + ", getCSSDate()=" + getCSSDate() + ", getCSP()="
+                + getCSP() + ", getX()=" + getX() + ", getY()=" + getY() + ", getSafetyFactor()=" + getSafetyFactor()
+                + ", getSearchObject()=" + getSearchObject() + ", getLKP()=" + getLKP() + ", getWeatherPoints()="
+                + getWeatherPoints() + ", getSarID()=" + getSarID() + ", generateHTML()=" + generateHTML() + ", getClass()="
+                + getClass() + ", hashCode()=" + hashCode() + ", toString()=" + super.toString() + "]";
+    }
+
 }

@@ -46,7 +46,7 @@ public class SARISXMLParser {
     private XPath xPath;
     private DatumPointDataSARIS sarData;
 
-    public SARISXMLParser(String path) throws XPathExpressionException {
+    public SARISXMLParser(String path) throws Exception {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
 
@@ -72,7 +72,9 @@ public class SARISXMLParser {
 
         LKPDate = getDateFromNodeList(lkpExpression);
 
-        //
+        if (LKPDate == null) {
+            throw new Exception("fail");
+        }
 
         String DSPExpression = "/saris-report/search-plan-information/search-plan-locations/dsp-information[@location='1']/position[@name='D.S.P.']/angle/*";
         Position DSP = getPositionFromNodeList(DSPExpression);
@@ -107,36 +109,6 @@ public class SARISXMLParser {
 
         sarData.setSarAreaData(sarAreas);
 
-        // String test = "/saris-report/search-plan-information/wind-input/wind-entry[@index='9']/time/*";
-        // getDateFromNodeList(test);
-
-        // System.out.println(CSP);
-
-        // Prepare Wind variables
-
-        // printExpressionResult(CSPExpression);
-
-        //
-        // // read a string value
-        // try {
-        // String email = xPath.compile(lkpString).evaluate(document);
-        //
-        // // System.out.println(email);
-        //
-        // // read an xml node using xpath
-        // Node node = (Node) xPath.compile(lkpString).evaluate(document, XPathConstants.NODE);
-        // // System.out.println(node);
-        // // read a nodelist using xpath
-        // NodeList nodeList = (NodeList) xPath.compile(lkpString).evaluate(document, XPathConstants.NODESET);
-        // // System.out.println(nodeList);
-        // for (int i = 0; i < nodeList.getLength(); i++) {
-        // System.out.println(nodeList.item(i).getFirstChild().getNodeValue());
-        // }
-        //
-        // } catch (XPathExpressionException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
     }
 
     private List<SARAreaData> getSearchAreas(String expression) throws XPathExpressionException {
@@ -510,7 +482,7 @@ public class SARISXMLParser {
         try {
             SARISXMLParser parser = new SARISXMLParser("E://Sarex 04 Juni.xml");
             // SARISXMLParser parser = new SARISXMLParser("E://Sarex Fn.xml");
-        } catch (XPathExpressionException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

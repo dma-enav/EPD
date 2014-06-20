@@ -22,6 +22,7 @@ import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -293,23 +295,37 @@ public class SARInputCommon extends JDialog implements ActionListener, DocumentL
 
             // Create SARIS parser for returned object
 
+            JFileChooser fileChooser = new JFileChooser(new File("."));
+            fileChooser.addChoosableFileFilter(new MyFilter());
+            fileChooser.setAcceptAllFileFilterUsed(true);
+            fileChooser.showOpenDialog(null);
+            String fileChoosen = fileChooser.getSelectedFile().getAbsolutePath();
+
             try {
 
-//                SARISXMLParser parser = new SARISXMLParser("E://Sarex 04 Juni.xml");
-                SARISXMLParser parser = new SARISXMLParser("E://Sarex Fn.xml");
+                // SARISXMLParser parser = new SARISXMLParser("E://Sarex 04 Juni.xml");
+                SARISXMLParser parser = new SARISXMLParser(fileChoosen);
 
                 voctManager.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
                 voctManager.setSarData(parser.getSarData());
                 calculationsText.setText("SARIS PARSE SUCCESSFULL");
                 backButton.setEnabled(true);
                 nextButton.setText("Finish");
+                nextButton.setEnabled(true);
 
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
                 cl.show(masterPanel, CALCULATIONSPANEL);
                 currentCard = CALCULATIONSPANEL;
 
                 // Move to final page where we show the info
-            } catch (XPathExpressionException e) {
+            } catch (Exception e) {
+                calculationsText.setText("SARIS Parse failed on file " + fileChoosen);
+                backButton.setEnabled(true);
+                nextButton.setEnabled(false);
+                voctManager.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
+                CardLayout cl = (CardLayout) (masterPanel.getLayout());
+                cl.show(masterPanel, CALCULATIONSPANEL);
+                currentCard = CALCULATIONSPANEL;
 
             }
         }
@@ -839,5 +855,18 @@ public class SARInputCommon extends JDialog implements ActionListener, DocumentL
             sarReady = false;
         }
 
+    }
+
+    class MyFilter extends javax.swing.filechooser.FileFilter {
+        public boolean accept(File file) {
+            String filename = file.getName();
+            return filename.endsWith(".xml");
+        }
+
+        @Override
+        public String getDescription() {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 }
