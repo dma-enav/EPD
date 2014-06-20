@@ -443,6 +443,10 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
                 drawDatumPoint();
             }
 
+            if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
+                drawSarisDatumPoint();
+            }
+
             if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
 
                 EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0);

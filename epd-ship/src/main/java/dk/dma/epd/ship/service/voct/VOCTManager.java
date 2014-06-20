@@ -29,6 +29,7 @@ import dk.dma.epd.common.prototype.model.voct.SAROperation;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
@@ -238,7 +239,7 @@ public class VOCTManager extends VOCTManagerCommon {
             }
 
             if (type == SAR_TYPE.SARIS_DATUM_POINT) {
-                // data = new DatumPointDataSARIS(message.gets());
+                 data = new DatumPointDataSARIS(message.getSarDataDatumPointSaris());
                 setSarType(SAR_TYPE.SARIS_DATUM_POINT);
             }
 

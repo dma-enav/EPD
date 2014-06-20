@@ -40,6 +40,19 @@ public class DatumPointDataSARIS extends SARData {
         this.setCSP(LKP);
     }
 
+    public DatumPointDataSARIS(DatumPointSARISDTO sarDataDatumPointSaris) {
+        super(sarDataDatumPointSaris.getSarID(), new DateTime(sarDataDatumPointSaris.getLKPDate().getTime()), new DateTime(
+                sarDataDatumPointSaris.getCSSDate()), Position.create(sarDataDatumPointSaris.getLKP().getLatitude(),
+                sarDataDatumPointSaris.getLKP().getLongitude()), sarDataDatumPointSaris.getX(), sarDataDatumPointSaris.getY(),
+                sarDataDatumPointSaris.getSafetyFactor(), sarDataDatumPointSaris.getSearchObject());
+
+        setSarisTarget(sarDataDatumPointSaris.getSarisTarget());
+        setSarAreaData(sarDataDatumPointSaris.getSarAreaDat());
+
+        // setWeatherPoints(sarDataDatumPointSaris.getWeatherData());
+
+    }
+
     /**
      * @return the sarisTarget
      */
