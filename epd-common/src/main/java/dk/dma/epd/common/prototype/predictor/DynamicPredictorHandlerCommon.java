@@ -28,31 +28,18 @@ import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 /**
  * Class for handling and distributing dynamic prediction information.
  * Clients can receive notifications by implementing {@link IDynamicPredictionsListener} and registering as an observer of a {@link DynamicPredictorHandlerCommon}.
- * This class also implements {@link IDynamicPredictionsListener} itself. This is to allow dynamic prediction data to arrive from any source, e.g. an on-ship sensor
- * or the Maritime Cloud. As such, the main purpose of this class is to centralize distribution of dynamic predictions and abstract the data source as part of this.
  */
 @ThreadSafe
-public class DynamicPredictorHandlerCommon extends EnavServiceHandlerCommon implements Runnable /*, IDynamicPredictionsListener*/ {
+public class DynamicPredictorHandlerCommon extends EnavServiceHandlerCommon implements Runnable {
     
 //    private static final long TIMEOUT = 30 * 1000; // 30 sec
 
     private final CopyOnWriteArrayList<IDynamicPredictionsListener> listeners = new CopyOnWriteArrayList<>();
 
-//    private volatile long lastPrediction;
-
     public DynamicPredictorHandlerCommon() {
         super();
         EPD.startThread(this, "DynamicPredictorHandler");
     }
-    
-//    @Override
-//    public void receivePredictions(DynamicPrediction prediction) {
-//        /*
-//         * TODO this assumes that there is only one prediction source, namely the on-ship sensor
-//         */
-//        lastPrediction = System.currentTimeMillis();
-//
-//    }
 
     @Override
     public void run() {
