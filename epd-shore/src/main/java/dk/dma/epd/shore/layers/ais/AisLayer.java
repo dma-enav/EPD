@@ -43,6 +43,7 @@ import dk.dma.epd.common.prototype.layers.ais.VesselGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonLocalSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
@@ -67,7 +68,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     * Creates a new AisLayer.
     * @param settings Settings specifiying the appearance of the new layer.
     */
-    public AisLayer(AisLayerCommonLocalSettings<AisLayerCommonSettings.IObserver> settings) {
+    public AisLayer(AisLayerCommonSettings<AisLayerCommonSettingsListener> settings) {
         super(settings);
         // Register self as observer of settings.
         settings.addObserver(this);

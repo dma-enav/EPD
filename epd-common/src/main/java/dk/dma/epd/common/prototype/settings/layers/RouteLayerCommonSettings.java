@@ -24,7 +24,7 @@ import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsLi
  * @author Janus Varmarken
  */
 public class RouteLayerCommonSettings<OBSERVER extends RouteLayerCommonSettingsListener>
-        extends LayerSettings<OBSERVER> {
+        extends LayerSettings<OBSERVER> implements RouteLayerCommonSettingsListener {
 
     /**
      * Setting specifying at what scale the directional arrows should be shown
@@ -37,7 +37,12 @@ public class RouteLayerCommonSettings<OBSERVER extends RouteLayerCommonSettingsL
      * Setting specifying the visual width of a route leg.
      */
     private float routeWidth = 2.0f;
-
+    
+    @Override
+    public RouteLayerCommonSettings<OBSERVER> copy() {
+        return (RouteLayerCommonSettings<OBSERVER>) super.copy();
+    }
+    
     /**
      * Gets the setting that specifies at what scale the directional arrows
      * should be shown for a route. The arrows should be displayed if the
@@ -115,4 +120,26 @@ public class RouteLayerCommonSettings<OBSERVER extends RouteLayerCommonSettingsL
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+    
+    @Override
+    public void showArrowScaleChanged(float maxScaleForArrowDisplay) {
+        // Obey to change in observed instance.
+        this.setShowArrowScale(maxScaleForArrowDisplay);
+    }
+
+    @Override
+    public void routeWidthChanged(float routeWidth) {
+        // Obey to change in observed instance.
+        this.setRouteWidth(routeWidth);
+    }
+    
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }

@@ -203,7 +203,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         });
         enc.setToolTipText("Show/hide ENC");
 
-        enc.setEnabled(EPDShore.getInstance().getSettings().getMapSettings().isUseEnc());
+        enc.setEnabled(EPDShore.getInstance().getSettings().getENCLayerSettings().isEncInUse());
         if (EPDShore.getInstance().getSettings().getMapSettings().isEncVisible()) {
             setActiveToolItem(enc);
         }

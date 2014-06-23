@@ -13,21 +13,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.settings.sensor;
+package dk.dma.epd.shore.settings.observers;
 
-import dk.dma.epd.common.prototype.settings.observers.ExternalSensorsCommonSettingsListener;
-import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
+import dk.dma.epd.shore.settings.gui.ENCLayerSettings;
 
 /**
+ * Interface for observing an {@link ENCLayerSettings} for changes.
+ * 
  * @author Janus Varmarken
+ * 
  */
-public class ExternalSensorsSettings extends
-        ExternalSensorsCommonSettings<ExternalSensorsCommonSettingsListener> {
-    
-    public ExternalSensorsSettings() {
-        super();
-        // Shore defaults to port 4002 while ship defaults to 4001.
-        setAisTcpOrUdpPort(4002);
-    }
-    
+public interface ENCLayerSettingsListener extends
+        ENCLayerCommonSettingsListener {
+
+    /**
+     * Invoked when {@link ENCLayerSettings#isEncSuccess()} has changed.
+     * 
+     * @param encSuccess
+     *            See return value of {@link ENCLayerSettings#isEncSuccess()}.
+     */
+    void encSuccessChanged(boolean encSuccess);
+
 }

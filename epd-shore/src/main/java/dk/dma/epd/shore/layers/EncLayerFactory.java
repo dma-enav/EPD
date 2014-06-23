@@ -114,7 +114,10 @@ public class EncLayerFactory {
 
             } catch (NullPointerException e) {
                 LOG.error("Could not set up layer instance of class: \"" + className + "\"");
-                this.encSettings.setEncSuccess(false);
+                /*
+                 * Update the value for the global setting such that new layers will not attempt instantiation.
+                 */
+                EPDShore.getInstance().getSettings().getENCLayerSettings().setEncSuccess(false);
             } catch (ClassNotFoundException e) {
                 LOG.error("Layer class not found: \"" + className + "\"");
             } catch (IOException e) {

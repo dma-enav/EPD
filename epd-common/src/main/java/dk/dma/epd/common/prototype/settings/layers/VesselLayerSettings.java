@@ -32,7 +32,7 @@ import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
  * @author Janus Varmarken
  */
 public abstract class VesselLayerSettings<OBSERVER extends VesselLayerSettingsListener>
-        extends LayerSettings<OBSERVER> {
+        extends LayerSettings<OBSERVER> implements VesselLayerSettingsListener {
 
     /**
      * Boolean indicating whether vessel name labels should be displayed.
@@ -151,7 +151,7 @@ public abstract class VesselLayerSettings<OBSERVER extends VesselLayerSettingsLi
             // There was an actual change, update and notify.
             this.movementVectorLengthMin = minutes;
             for (OBSERVER obs : this.observers) {
-                obs.movementVectorLengthMinChanged(minutes);
+                obs.movementVectorLengthMinChanged(this, minutes);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -200,7 +200,7 @@ public abstract class VesselLayerSettings<OBSERVER extends VesselLayerSettingsLi
             // There was an actual change, update and notify.
             this.movementVectorLengthMax = minutes;
             for (OBSERVER obs : this.observers) {
-                obs.movementVectorLengthMaxChanged(minutes);
+                obs.movementVectorLengthMaxChanged(this, minutes);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -255,7 +255,7 @@ public abstract class VesselLayerSettings<OBSERVER extends VesselLayerSettingsLi
             // There was an actual change, update and notify.
             this.movementVectorLengthStepSize = stepSize;
             for (OBSERVER obs : this.observers) {
-                obs.movementVectorLengthStepSizeChanged(stepSize);
+                obs.movementVectorLengthStepSizeChanged(this, stepSize);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -308,10 +308,58 @@ public abstract class VesselLayerSettings<OBSERVER extends VesselLayerSettingsLi
             // There was an actual change, update and notify.
             this.movementVectorHideBelow = minSpeed;
             for (OBSERVER obs : this.observers) {
-                obs.movementVectorHideBelowChanged(minSpeed);
+                obs.movementVectorHideBelowChanged(this, minSpeed);
             }
         } finally {
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    @Override
+    public void showVesselNameLabelsChanged(VesselLayerSettings<?> source,
+            boolean show) {
+        // Obey to change in observed instance.
+        this.setShowVesselNameLabels(show);
+    }
+
+    @Override
+    public void movementVectorLengthMinChanged(VesselLayerSettings<?> source,
+            int newMinLengthMinutes) {
+        // Obey to change in observed instance.
+        this.setMovementVectorLengthMin(newMinLengthMinutes);
+
+    }
+
+    @Override
+    public void movementVectorLengthMaxChanged(VesselLayerSettings<?> source,
+            int newMaxLengthMinutes) {
+        // Obey to change in observed instance.
+        this.setMovementVectorLengthMax(newMaxLengthMinutes);
+
+    }
+
+    @Override
+    public void movementVectorLengthStepSizeChanged(
+            VesselLayerSettings<?> source, float newStepSize) {
+        // Obey to change in observed instance.
+        this.setMovementVectorLengthStepSize(newStepSize);
+
+    }
+
+    @Override
+    public void movementVectorHideBelowChanged(VesselLayerSettings<?> source,
+            float newMinSpeed) {
+        // Obey to change in observed instance.
+        this.setMovementVectorHideBelow(newMinSpeed);
+    }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }

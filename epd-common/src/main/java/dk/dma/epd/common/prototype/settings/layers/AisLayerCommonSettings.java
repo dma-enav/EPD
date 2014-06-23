@@ -31,7 +31,8 @@ import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsList
  * @author Janus Varmarken
  */
 public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettingsListener>
-        extends VesselLayerSettings<OBSERVER> {
+        extends VesselLayerSettings<OBSERVER> implements
+        AisLayerCommonSettingsListener {
 
     /**
      * Specifies if all past tracks should be shown.
@@ -43,6 +44,11 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettingsListe
      * seconds).
      */
     private int layerRedrawInterval = 5;
+
+    @Override
+    public AisLayerCommonSettings<OBSERVER> copy() {
+        return (AisLayerCommonSettings<OBSERVER>) super.copy();
+    }
 
     /**
      * Get the value of the setting specifying if all past tracks should be
@@ -130,4 +136,25 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettingsListe
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    @Override
+    public void showAllPastTracksChanged(boolean newValue) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void layerRedrawIntervalChanged(int newValue) {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }

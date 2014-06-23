@@ -40,7 +40,7 @@ import dk.dma.epd.common.prototype.settings.observers.LayerSettingsListener;
  * @author Janus Varmarken
  */
 public abstract class LayerSettings<OBSERVER extends LayerSettingsListener>
-        extends ObservedSettings<OBSERVER> {
+        extends ObservedSettings<OBSERVER> implements LayerSettingsListener {
     /*
      * Add settings that are relevant to all layer types here.
      */
@@ -88,4 +88,19 @@ public abstract class LayerSettings<OBSERVER extends LayerSettingsListener>
         }
     }
 
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+    
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        // Obey to change in observed instance.
+        this.setVisible(newValue);
+    }
+    
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }

@@ -19,8 +19,8 @@ import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 
 /**
  * Interface for observing a {@link VesselLayerSettings} for changes. This
- * interface contains callbacks for changes to settings that are relevant to
- * all layers that visualize one or more vessels.
+ * interface contains callbacks for changes to settings that are relevant to all
+ * layers that visualize one or more vessels.
  * 
  * @author Janus Varmarken
  */
@@ -34,47 +34,57 @@ public interface VesselLayerSettingsListener extends LayerSettingsListener {
      * 
      * @param show
      *            {@code true} if vessel name labels display was toggled on,
-     *            {@code false} if vessel name label display was toggled
-     *            off.
+     *            {@code false} if vessel name label display was toggled off.
      */
-    void showVesselNameLabelsChanged(VesselLayerSettings<?> source,
-            boolean show);
+    void showVesselNameLabelsChanged(VesselLayerSettings<?> source, boolean show);
 
     /**
-     * Invoked when the setting specifying the minimum length (in minutes)
-     * of the movement vector has been changed.
+     * Invoked when the setting specifying the minimum length (in minutes) of
+     * the movement vector has been changed.
      * 
+     * @param source
+     *            The instance that fired this event.
      * @param newMinLengthMinutes
      *            The new minimum length (in minutes).
      */
-    void movementVectorLengthMinChanged(int newMinLengthMinutes);
+    void movementVectorLengthMinChanged(VesselLayerSettings<?> source,
+            int newMinLengthMinutes);
 
     /**
-     * Invoked when the setting specifying the maximum length (in minutes)
-     * of the movement vector has been changed.
+     * Invoked when the setting specifying the maximum length (in minutes) of
+     * the movement vector has been changed.
      * 
+     * @param source
+     *            The instance that fired this event.
      * @param newMaxLengthMinutes
      *            The new maximum length (in minutes).
      */
-    void movementVectorLengthMaxChanged(int newMaxLengthMinutes);
+    void movementVectorLengthMaxChanged(VesselLayerSettings<?> source,
+            int newMaxLengthMinutes);
 
     /**
      * Invoked when the setting specifying the scale difference between two
      * successive length values for the movement vector has been changed.
      * 
+     * @param source
+     *            The instance that fired this event.
      * @param newStepSize
-     *            The new difference in scale between two successive values
-     *            for the length of the movement vector.
+     *            The new difference in scale between two successive values for
+     *            the length of the movement vector.
      */
-    void movementVectorLengthStepSizeChanged(float newStepSize);
+    void movementVectorLengthStepSizeChanged(VesselLayerSettings<?> source,
+            float newStepSize);
 
     /**
      * Invoked when the setting specifying the minimum speed a vessel must
      * travel with for its movement vector to be displayed has changed.
      * 
+     * @param source
+     *            The instance that fired this event.
      * @param newMinSpeed
-     *            The new minimum speed a vessel must travel with for its
-     *            speed vector to be displayed (in nautical miles per hour).
+     *            The new minimum speed a vessel must travel with for its speed
+     *            vector to be displayed (in nautical miles per hour).
      */
-    void movementVectorHideBelowChanged(float newMinSpeed);
+    void movementVectorHideBelowChanged(VesselLayerSettings<?> source,
+            float newMinSpeed);
 }

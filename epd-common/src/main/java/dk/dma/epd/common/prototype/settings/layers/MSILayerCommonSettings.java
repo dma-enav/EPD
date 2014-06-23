@@ -24,7 +24,7 @@ import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsList
  * @author Janus Varmarken
  */
 public class MSILayerCommonSettings<OBSERVER extends MSILayerCommonSettingsListener>
-        extends LayerSettings<OBSERVER> {
+        extends LayerSettings<OBSERVER> implements MSILayerCommonSettingsListener {
 
     /**
      * Setting specifying at what scale MSI textboxes should appear. Textboxes
@@ -37,6 +37,11 @@ public class MSILayerCommonSettings<OBSERVER extends MSILayerCommonSettingsListe
      */
     private double msiVisibilityFromNewWaypoint = 30.0d;
 
+    @Override
+    public MSILayerCommonSettings<OBSERVER> copy() {
+        return (MSILayerCommonSettings<OBSERVER>) super.copy();
+    }
+    
     /**
      * Gets the setting that specifies at what scale MSI textboxes should
      * appear. Textboxes should appear if the map scale is between 0 and this
@@ -113,4 +118,26 @@ public class MSILayerCommonSettings<OBSERVER extends MSILayerCommonSettingsListe
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+    
+    @Override
+    public void msiTextboxesVisibleAtScaleChanged(int scale) {
+        // Obey to change in observed instance.
+        this.setMsiTextboxesVisibleAtScale(scale);
+    }
+
+    @Override
+    public void msiVisibilityFromNewWaypointChanged(double newValue) {
+        // Obey to change in observed instance.
+        this.setMsiVisibilityFromNewWaypoint(newValue);
+    }
+    
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }

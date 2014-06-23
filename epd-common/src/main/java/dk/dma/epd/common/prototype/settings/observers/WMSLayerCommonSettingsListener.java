@@ -23,7 +23,7 @@ import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
  * @author Janus Varmarken
  */
 public interface WMSLayerCommonSettingsListener extends LayerSettingsListener {
-    
+
     /**
      * Invoked when {@link WMSLayerCommonSettings#isUseWms()} has changed.
      * 
@@ -31,8 +31,10 @@ public interface WMSLayerCommonSettingsListener extends LayerSettingsListener {
      *            The update value. Refer to
      *            {@link WMSLayerCommonSettings#isUseWms()} for its
      *            interpretation.
+     * @param source
+     *            The instance that fired this event.
      */
-    void isUseWmsChanged(boolean useWms);
+    void isUseWmsChanged(WMSLayerCommonSettings<?> source, boolean useWms);
 
     /**
      * Invoked when {@link WMSLayerCommonSettings#getWmsQuery()} has changed.
@@ -41,6 +43,8 @@ public interface WMSLayerCommonSettingsListener extends LayerSettingsListener {
      *            The updated value. Refer to
      *            {@link WMSLayerCommonSettings#getWmsQuery()} for its
      *            interpretation.
+     * @param source
+     *            The instance that fired this event.
      */
-    void wmsQueryChanged(String wmsQuery);
+    void wmsQueryChanged(WMSLayerCommonSettings<?> source, String wmsQuery);
 }

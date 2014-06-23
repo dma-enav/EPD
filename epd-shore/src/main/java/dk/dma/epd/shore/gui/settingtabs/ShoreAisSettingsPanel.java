@@ -28,6 +28,7 @@ import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.gui.settings.CommonAisSettingsPanel;
 import dk.dma.epd.common.prototype.settings.handlers.AisHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisHandlerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.SensorConnectionType;
 import dk.dma.epd.shore.settings.sensor.ExternalSensorsSettings;
 
@@ -40,7 +41,7 @@ public class ShoreAisSettingsPanel extends CommonAisSettingsPanel {
     private JComboBox comboBoxAisConnectionType;
     private JSpinner spinnerTcpOrUpdPort;
 
-    public ShoreAisSettingsPanel(AisHandlerCommonSettings<AisHandlerCommonSettings.IObserver> aisHandlerSettings, ExternalSensorsSettings externalSensorsSettings) {
+    public ShoreAisSettingsPanel(AisHandlerCommonSettings<AisHandlerCommonSettingsListener> aisHandlerSettings, ExternalSensorsSettings externalSensorsSettings) {
         super(aisHandlerSettings);
         this.externalSensorsSettings = Objects.requireNonNull(externalSensorsSettings);
         getTransponderPanel().setLocation(6, 136);

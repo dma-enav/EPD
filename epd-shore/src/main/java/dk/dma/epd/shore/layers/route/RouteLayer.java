@@ -27,11 +27,10 @@ import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.MapMenu;
-
-
-//import dk.frv.enav.ins.gui.MapMenu;
 
 /**
  * Layer for showing routes
@@ -43,8 +42,8 @@ public class RouteLayer extends RouteLayerCommon {
     /**
      * Constructor
      */
-    public RouteLayer() {
-        super();
+    public RouteLayer(RouteLayerCommonSettings<RouteLayerCommonSettingsListener> localLayerSettings) {
+        super(localLayerSettings);
         
         // Hmmm, findAndInit not called with the RouteManager.
         // The RouteManager is in a different bean context, methinks...

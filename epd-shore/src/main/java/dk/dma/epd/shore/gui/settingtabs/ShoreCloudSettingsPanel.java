@@ -28,6 +28,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.gui.settings.CommonCloudSettingsPanel;
 import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
+import dk.dma.epd.common.prototype.settings.observers.NetworkSettingsListener;
 import dk.dma.epd.shore.settings.IdentitySettings;
 
 /**
@@ -47,7 +48,7 @@ public class ShoreCloudSettingsPanel extends CommonCloudSettingsPanel {
     /**
      * Constructor
      */
-    public ShoreCloudSettingsPanel(NetworkSettings<NetworkSettings.IObserver> cloudSettings, IdentitySettings shoreIdentitySettings) {
+    public ShoreCloudSettingsPanel(NetworkSettings<NetworkSettingsListener> cloudSettings, IdentitySettings shoreIdentitySettings) {
         super(cloudSettings);
         this.shoreIdentitySettings = Objects.requireNonNull(shoreIdentitySettings);
         JPanel shorePanel = new JPanel();

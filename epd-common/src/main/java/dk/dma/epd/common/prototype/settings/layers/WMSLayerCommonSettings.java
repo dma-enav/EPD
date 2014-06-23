@@ -17,14 +17,14 @@ package dk.dma.epd.common.prototype.settings.layers;
 
 import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 
-
 /**
  * This class is used to maintain settings for a WMS layer.
  * 
  * @author Janus Varmarken
  */
 public class WMSLayerCommonSettings<OBSERVER extends WMSLayerCommonSettingsListener>
-        extends LayerSettings<OBSERVER> {
+        extends LayerSettings<OBSERVER> implements
+        WMSLayerCommonSettingsListener {
 
     /**
      * Setting specifying if the WMS layer should be loaded on startup. Default
@@ -64,14 +64,14 @@ public class WMSLayerCommonSettings<OBSERVER extends WMSLayerCommonSettingsListe
     public void setUseWms(final boolean useWms) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.useWms == useWms) {
+            if (this.useWms == useWms) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.useWms = useWms;
-            for(OBSERVER obs : this.observers) {
-                obs.isUseWmsChanged(useWms);
+            for (OBSERVER obs : this.observers) {
+                obs.isUseWmsChanged(this, useWms);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -101,14 +101,14 @@ public class WMSLayerCommonSettings<OBSERVER extends WMSLayerCommonSettingsListe
     public void setWmsQuery(String wmsQuery) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.wmsQuery.equals(wmsQuery)) {
+            if (this.wmsQuery.equals(wmsQuery)) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.wmsQuery = wmsQuery;
-            for(OBSERVER obs : this.observers) {
-                obs.wmsQueryChanged(wmsQuery);
+            for (OBSERVER obs : this.observers) {
+                obs.wmsQueryChanged(this, wmsQuery);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -120,5 +120,34 @@ public class WMSLayerCommonSettings<OBSERVER extends WMSLayerCommonSettingsListe
         // TODO Auto-generated method stub
         return (WMSLayerCommonSettings<OBSERVER>) super.copy();
     }
-    
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void isUseWmsChanged(WMSLayerCommonSettings<?> source, boolean useWms) {
+        // Propagate value change on observed instance to this instance.
+        this.setUseWms(useWms);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void wmsQueryChanged(WMSLayerCommonSettings<?> source,
+            String wmsQuery) {
+        // Propagate value change on observed instance to this instance.
+        this.setWmsQuery(wmsQuery);
+    }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
 }

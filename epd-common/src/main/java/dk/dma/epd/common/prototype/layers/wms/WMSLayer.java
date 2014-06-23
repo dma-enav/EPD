@@ -210,12 +210,12 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
     }
 
     @Override
-    public void isUseWmsChanged(boolean useWms) {
+    public void isUseWmsChanged(WMSLayerCommonSettings<?> source, boolean useWms) {
         // TODO shouldRun = false?
     }
 
     @Override
-    public void wmsQueryChanged(String wmsQuery) {
+    public void wmsQueryChanged(WMSLayerCommonSettings<?> source, String wmsQuery) {
         // No longer listen to old service instance.
         wmsService.removeMyChangeListener(this);
         // Create new service instance and register.

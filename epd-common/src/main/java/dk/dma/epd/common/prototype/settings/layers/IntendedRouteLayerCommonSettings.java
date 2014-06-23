@@ -24,13 +24,18 @@ import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSe
  * @author Janus Varmarken
  */
 public class IntendedRouteLayerCommonSettings<OBSERVER extends IntendedRouteLayerCommonSettingsListener>
-        extends RouteLayerCommonSettings<OBSERVER> {
+        extends RouteLayerCommonSettings<OBSERVER> implements IntendedRouteLayerCommonSettingsListener {
 
     /**
      * Setting specifying whether to use intended route filter.
      */
     private boolean filter;
 
+    @Override
+    public IntendedRouteLayerCommonSettings<OBSERVER> copy() {
+        return (IntendedRouteLayerCommonSettings<OBSERVER>) super.copy();
+    }
+    
     /**
      * Get if intended route filter is enabled.
      * 
@@ -69,4 +74,20 @@ public class IntendedRouteLayerCommonSettings<OBSERVER extends IntendedRouteLaye
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+    
+    @Override
+    public void isIntendedRouteFilterInUseChanged(boolean useFilter) {
+        // Obey to change in observed instance.
+        this.setIntendedRouteFilterInUse(useFilter);
+    }
+    
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }

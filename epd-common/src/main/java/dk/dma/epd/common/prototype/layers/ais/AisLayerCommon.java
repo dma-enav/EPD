@@ -362,7 +362,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * on the {@link AisLayerCommonSettings} instance observed by this layer.
      */
     @Override
-    public void movementVectorLengthMinChanged(int newMinLengthMinutes) {
+    public void movementVectorLengthMinChanged(VesselLayerSettings<?> source, int newMinLengthMinutes) {
        /*
         * We need to repaint in order to visually reflect new length of the movement vector. 
         */
@@ -375,7 +375,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * by this layer.
      */
     @Override
-    public void movementVectorLengthMaxChanged(int newMaxLengthMinutes) {
+    public void movementVectorLengthMaxChanged(VesselLayerSettings<?> source, int newMaxLengthMinutes) {
         /*
          * We need to repaint in order to visually reflect new length of the movement vector. 
          */
@@ -388,7 +388,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * {@link AisLayerCommonSettings} instance observed by this layer.
      */
     @Override
-    public void movementVectorLengthStepSizeChanged(float newStepSize) {
+    public void movementVectorLengthStepSizeChanged(VesselLayerSettings<?> source, float newStepSize) {
         /*
          * We need to repaint in order to visually reflect new length of the movement vector. 
          */
@@ -401,7 +401,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * {@link AisLayerCommonSettings} instance observed by this layer.
      */
     @Override
-    public void movementVectorHideBelowChanged(float newMinSpeed) {
+    public void movementVectorHideBelowChanged(VesselLayerSettings<?> source, float newMinSpeed) {
         /*
          * Repaint to visually reflect the change (hide/show individual speed vectors). 
          */

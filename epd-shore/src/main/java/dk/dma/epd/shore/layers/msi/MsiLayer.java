@@ -22,6 +22,8 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
+import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
 import dk.dma.epd.shore.gui.views.MapMenu;
 
 
@@ -35,8 +37,8 @@ public class MsiLayer extends MsiLayerCommon {
     /**
      * Constructor for the layer
      */
-    public MsiLayer() {
-        super();
+    public MsiLayer(MSILayerCommonSettings<MSILayerCommonSettingsListener> localMsiLayerSettings) {
+        super(localMsiLayerSettings);
 
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(MsiSymbolGraphic.class, MsiDirectionalIcon.class);

@@ -52,6 +52,7 @@ import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.MapCommonSettingsListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 
@@ -90,7 +91,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
     /**
      * Map settings for this frame.
      */
-    private final MapCommonSettings<MapCommonSettings.IObserver> mapSettings;
+    private final MapCommonSettings<MapCommonSettingsListener> mapSettings;
     
     /**
      * Constructor for setting up the map frame
@@ -102,7 +103,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
      * @param frameMapSettings
      *            The map settings that this frame should use.
      */
-    public JMapFrame(int id, MainFrame mainFrame, final MapFrameType type, MapCommonSettings<MapCommonSettings.IObserver> frameMapSettings) {
+    public JMapFrame(int id, MainFrame mainFrame, final MapFrameType type, MapCommonSettings<MapCommonSettingsListener> frameMapSettings) {
         super("New Window " + id, true, true, true, true);
         this.mapSettings = Objects.requireNonNull(frameMapSettings);
         this.mainFrame = mainFrame;
@@ -139,7 +140,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
      * Get a reference to the {@link MapCommonSettings} used by this frame.
      * @return The {@link MapCommonSettings} used by this frame.
      */
-    public MapCommonSettings<MapCommonSettings.IObserver> getMapSettings() {
+    public MapCommonSettings<MapCommonSettingsListener> getMapSettings() {
         return this.mapSettings;
     }
     
@@ -154,14 +155,16 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
      *            where to center map
      * @param scale
      *            map zoom level
+     * @param frameMapSettings
+     *            The map settings that this frame should use.
      */
-    public JMapFrame(int id, MainFrame mainFrame, Point2D center, float scale) {
+    public JMapFrame(int id, MainFrame mainFrame, Point2D center, float scale, MapCommonSettings<MapCommonSettingsListener> frameMapSettings) {
 
         super("New Window " + id, true, true, true, true);
 
         this.mainFrame = mainFrame;
         this.id = id;
-
+        this.mapSettings = Objects.requireNonNull(frameMapSettings);
         // Initialize the glass pane
         initGlassPane();
 

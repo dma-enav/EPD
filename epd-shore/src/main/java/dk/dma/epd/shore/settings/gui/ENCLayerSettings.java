@@ -16,19 +16,28 @@
 package dk.dma.epd.shore.settings.gui;
 
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.shore.settings.observers.ENCLayerSettingsListener;
 
 /**
  * Maintains shore specific ENC layer settings.
  * 
  * @author Janus Varmarken
  */
-public class ENCLayerSettings extends ENCLayerCommonSettings<ENCLayerSettings.IObserver> {
+public class ENCLayerSettings extends
+        ENCLayerCommonSettings<ENCLayerSettingsListener> implements
+        ENCLayerSettingsListener {
 
     /**
      * Used internally to check if new map windows should try to make dongle
      * check - if no dongle, don't retry on every new map.
      */
     private boolean encSuccess = true;
+
+    @Override
+    public ENCLayerSettings copy() {
+        // TODO Auto-generated method stub
+        return (ENCLayerSettings) super.copy();
+    }
 
     /**
      * Used internally to check if new map windows should try to make dongle
@@ -63,7 +72,7 @@ public class ENCLayerSettings extends ENCLayerCommonSettings<ENCLayerSettings.IO
             }
             // There was a change, update and notify observers.
             this.encSuccess = encSuccess;
-            for (IObserver obs : this.observers) {
+            for (ENCLayerSettingsListener obs : this.observers) {
                 obs.encSuccessChanged(encSuccess);
             }
         } finally {
@@ -71,22 +80,18 @@ public class ENCLayerSettings extends ENCLayerCommonSettings<ENCLayerSettings.IO
         }
     }
 
-    /**
-     * Interface for observing an {@link ENCLayerSettings} for changes.
-     * 
-     * @author Janus Varmarken
-     * 
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
      */
-    public interface IObserver extends ENCLayerCommonSettings.IObserver {
 
-        /**
-         * Invoked when {@link ENCLayerSettings#isEncSuccess()} has changed.
-         * 
-         * @param encSuccess
-         *            See return value of
-         *            {@link ENCLayerSettings#isEncSuccess()}.
-         */
-        void encSuccessChanged(boolean encSuccess);
-
+    @Override
+    public void encSuccessChanged(boolean encSuccess) {
+        this.setEncSuccess(encSuccess);
     }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }

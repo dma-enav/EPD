@@ -24,7 +24,7 @@ import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsList
  * @author Janus Varmarken
  */
 public class ENCLayerCommonSettings<OBSERVER extends ENCLayerCommonSettingsListener>
-        extends LayerSettings<OBSERVER> {
+        extends LayerSettings<OBSERVER> implements ENCLayerCommonSettingsListener {
 
     /**
      * Setting specifying if the ENC layer should be loaded on application
@@ -562,4 +562,69 @@ public class ENCLayerCommonSettings<OBSERVER extends ENCLayerCommonSettingsListe
             return null;
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+    
+    @Override
+    public void isEncInUseChanged(boolean useEnc) {
+        this.setEncInUse(useEnc);
+    }
+
+    @Override
+    public void isS52ShowTextChanged(boolean showText) {
+        this.setS52ShowText(showText);
+    }
+
+    @Override
+    public void isS52ShallowPatternChanged(boolean useShallowPattern) {
+        this.setS52ShallowPattern(useShallowPattern);
+    }
+
+    @Override
+    public void s52ShallowContourChanged(int shallowContour) {
+        this.setS52ShallowContour(shallowContour);
+    }
+
+    @Override
+    public void s52SafetyDepthChanged(int safetyDepth) {
+        this.setS52SafetyDepth(safetyDepth);
+    }
+
+    @Override
+    public void s52SafetyContourChanged(int safetyContour) {
+        this.setS52SafetyContour(safetyContour);
+    }
+
+    @Override
+    public void s52DeepContourChanged(int deepContour) {
+        this.setS52DeepContour(deepContour);
+    }
+
+    @Override
+    public void isUseSimplePointSymbolsChanged(boolean useSimplePointSymbols) {
+        this.setUseSimplePointSymbols(useSimplePointSymbols);
+    }
+
+    @Override
+    public void isUsePlainAreasChanged(boolean usePlainAreas) {
+        this.setUsePlainAreas(usePlainAreas);
+    }
+
+    @Override
+    public void isS52TwoShadesChanged(boolean s52TwoShades) {
+        this.setS52TwoShades(s52TwoShades);
+    }
+
+    @Override
+    public void encColorSchemeChanged(ENCColorScheme newScheme) {
+        this.setEncColorScheme(newScheme);
+    }
+    
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }

@@ -31,7 +31,6 @@ import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.event.ProjectionSupport;
 import com.bbn.openmap.layer.shape.MultiShapeLayer;
 
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
@@ -40,7 +39,16 @@ import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
@@ -58,6 +66,7 @@ import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
+import dk.dma.epd.shore.settings.gui.ENCLayerSettings;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -69,6 +78,11 @@ public class ChartPanel extends ChartPanelCommon {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
+    /**
+     * The local settings for the ENC layer of this {@link ChartPanel}.
+     */
+    protected ENCLayerSettings localEncLayerSettings;
+    
     // Mouse modes
     private SelectMouseMode selectMouseMode;
 
@@ -203,10 +217,14 @@ public class ChartPanel extends ChartPanelCommon {
 
         Properties props = EPDShore.getInstance().getProperties();
 
-        if (EPDShore.getInstance().getSettings().getENCLayerSettings().isEncInUse()) {
-            // Try to create ENC layer
-            // TODO copy settings to local instance?
-            EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore.getInstance().getSettings().getENCLayerSettings());
+        ENCLayerSettings globalEncLayerSettings = EPDShore.getInstance().getSettings().getENCLayerSettings();
+        if (globalEncLayerSettings.isEncInUse()) {
+            // Try to create ENC layer...
+            // Create local settings instance for this layer to use
+            localEncLayerSettings = globalEncLayerSettings.copy();
+            // Make local settings obey to global settings
+            globalEncLayerSettings.addObserver(localEncLayerSettings);
+            EncLayerFactory encLayerFactory = new EncLayerFactory(localEncLayerSettings);
             encLayer = encLayerFactory.getEncLayer();
         }
 
@@ -252,9 +270,11 @@ public class ChartPanel extends ChartPanelCommon {
         mapHandler.add(generalLayer);
 
         // Add WMS Layer
-        WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> globalWmsLayerSettings = EPDShore.getInstance().getSettings().getPrimaryWMSLayerSettings();
+        WMSLayerCommonSettings<WMSLayerCommonSettingsListener> globalWmsLayerSettings = EPDShore.getInstance().getSettings().getPrimaryWMSLayerSettings();
         if (globalWmsLayerSettings.isUseWms()) {
-            WMSLayerCommonSettings<WMSLayerCommonSettings.IObserver> localWmsLayerSettings = globalWmsLayerSettings.copy();
+            WMSLayerCommonSettings<WMSLayerCommonSettingsListener> localWmsLayerSettings = globalWmsLayerSettings.copy();
+            // WMS settings for this frame should obey to global settings
+            globalWmsLayerSettings.addObserver(localWmsLayerSettings);
             wmsLayer = new WMSLayer(localWmsLayerSettings);
             mapHandler.add(wmsLayer);
         }
@@ -266,19 +286,19 @@ public class ChartPanel extends ChartPanelCommon {
             mapHandler.add(voyageLayer);
 
             // Add AIS Layer
-            aisLayer = new AisLayer(EPD.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
-            aisLayer.setVisible(true);
-            mapHandler.add(aisLayer);
+            this.setupAisLayer();
 
             // Add MSI Layer
-            msiLayer = new MsiLayer();
+            MSILayerCommonSettings<MSILayerCommonSettingsListener> globalMsiLayerSettings = EPDShore.getInstance().getSettings().getPrimaryMsiLayerSettings();
+            MSILayerCommonSettings<MSILayerCommonSettingsListener> localMsiLayerSettings = globalMsiLayerSettings.copy();
+            // MSI layer settings for this frame should obey to global settings
+            globalMsiLayerSettings.addObserver(localMsiLayerSettings);
+            msiLayer = new MsiLayer(localMsiLayerSettings);
             msiLayer.setVisible(true);
             mapHandler.add(msiLayer);
 
             // Add Route Layer
-            routeLayer = new RouteLayer();
-            routeLayer.setVisible(true);
-            mapHandler.add(routeLayer);
+            this.setupRouteLayer();
 
             // Create route editing layer
             newRouteContainerLayer = new NewRouteContainerLayer();
@@ -288,12 +308,8 @@ public class ChartPanel extends ChartPanelCommon {
             routeEditLayer.setVisible(true);
             mapHandler.add(routeEditLayer);
 
-            
             // Create Intended Route Layer
-            intendedRouteLayer = new IntendedRouteLayerCommon();
-            intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
-            mapHandler.add(intendedRouteLayer);
-
+            this.setupIntendedRouteLayer();
             
             //Create TCPA Graphics
             intendedRouteTCPALayer = new  IntendedRouteTCPALayer();
@@ -314,14 +330,10 @@ public class ChartPanel extends ChartPanelCommon {
             mapHandler.add(voyageHandlingLayer);
 
             // Add AIS Layer
-            aisLayer = new AisLayer(EPD.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
-            aisLayer.setVisible(true);
-            mapHandler.add(aisLayer);
+            this.setupAisLayer();
 
             // Add Route Layer
-            routeLayer = new RouteLayer();
-            routeLayer.setVisible(true);
-            mapHandler.add(routeLayer);
+            this.setupRouteLayer();
 
             // Create route editing layer
             newRouteContainerLayer = new NewRouteContainerLayer();
@@ -331,13 +343,8 @@ public class ChartPanel extends ChartPanelCommon {
             routeEditLayer.setVisible(true);
             mapHandler.add(routeEditLayer);
             
-            
-            
             // Create Intended Route Layer
-            intendedRouteLayer = new IntendedRouteLayerCommon();
-            intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
-            mapHandler.add(intendedRouteLayer);
-
+            this.setupIntendedRouteLayer();
             
             //Create TCPA Graphics
             intendedRouteTCPALayer = new  IntendedRouteTCPALayer();
@@ -354,14 +361,10 @@ public class ChartPanel extends ChartPanelCommon {
             mapHandler.add(EPDShore.getInstance().getSRUManager());
 
             // Add AIS Layer
-            aisLayer = new AisLayer(EPD.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
-            aisLayer.setVisible(true);
-            mapHandler.add(aisLayer);
+            this.setupAisLayer();
 
             // Add Route Layer
-            routeLayer = new RouteLayer();
-            routeLayer.setVisible(true);
-            mapHandler.add(routeLayer);
+            this.setupRouteLayer();
 
             // Create route editing layer
             newRouteContainerLayer = new NewRouteContainerLayer();
@@ -413,6 +416,55 @@ public class ChartPanel extends ChartPanelCommon {
     }
 
     /**
+     * Initializes the AIS layer of this frame.
+     */
+    private void setupAisLayer() {
+        // Fetch global settings
+        AisLayerCommonSettings<AisLayerCommonSettingsListener> globalAisLayerSettings = EPDShore.getInstance().getSettings().getPrimaryAisLayerSettings();
+        // Copy to local instance
+        AisLayerCommonSettings<AisLayerCommonSettingsListener> localAisLayerSettings = globalAisLayerSettings.copy();
+        // AIS layer settings for this frame should obey to global settings
+        globalAisLayerSettings.addObserver(localAisLayerSettings);
+        // Init AIS layer of this frame
+        aisLayer = new AisLayer(localAisLayerSettings);
+        aisLayer.setVisible(true);
+        mapHandler.add(aisLayer);
+    }
+  
+    /**
+     * Initializes the route layer of this frame.
+     */
+    private void setupRouteLayer() {
+        // Fetch global route layer settings.
+        RouteLayerCommonSettings<RouteLayerCommonSettingsListener> globalRouteLayerSettings = EPDShore.getInstance().getSettings().getPrimaryRouteLayerSettings();
+        // Copy to local instance.
+        RouteLayerCommonSettings<RouteLayerCommonSettingsListener> localRouteLayerSettings = globalRouteLayerSettings.copy();
+        // Route layer settings for this frame should obey to global settings
+        globalRouteLayerSettings.addObserver(localRouteLayerSettings);
+        // Init route layer of this frame using local settings
+        routeLayer = new RouteLayer(localRouteLayerSettings);
+        routeLayer.setVisible(true);
+        mapHandler.add(routeLayer);
+    }
+    
+    /**
+     * Initializes the intended route layer of this frame.
+     */
+    private void setupIntendedRouteLayer() {
+        // Fetch global intended route layer settings
+        IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener> globalIntendedRouteLayerSettings = EPDShore.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings();
+        // Copy to local instance
+        IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener> localIntendedRouteLayerSettings = globalIntendedRouteLayerSettings.copy();
+        // Intended route layer settings for this frame should obey to global settings.
+        globalIntendedRouteLayerSettings.addObserver(localIntendedRouteLayerSettings);
+        // Init intended route layer of this frame using local settings.
+        intendedRouteLayer = new IntendedRouteLayerCommon(localIntendedRouteLayerSettings);
+//        intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+        intendedRouteLayer.setVisible(true);
+        mapHandler.add(intendedRouteLayer);
+    }
+    
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -436,6 +488,14 @@ public class ChartPanel extends ChartPanelCommon {
         else if (modeID.equals(RouteEditMouseMode.MODEID)) {
             mouseDelegator.setActive(routeEditMouseMode);
         }
+    }
+    
+    /**
+     * Get the settings for the ENC layer of this {@link ChartPanel}.
+     * @return The settings for the ENC layer of this {@link ChartPanel} or null if there is no ENC layer for this {@link ChartPanel}.
+     */
+    public ENCLayerSettings getEncLayerSettings() {
+        return this.localEncLayerSettings;
     }
     
     public VoyageLayer getVoyageLayer() {
