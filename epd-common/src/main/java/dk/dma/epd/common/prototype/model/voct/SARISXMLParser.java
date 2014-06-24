@@ -79,7 +79,7 @@ public class SARISXMLParser {
         String DSPExpression = "/saris-report/search-plan-information/search-plan-locations/dsp-information[@location='1']/position[@name='D.S.P.']/angle/*";
         Position DSP = getPositionFromNodeList(DSPExpression);
 
-        // System.out.println(DSP);
+         System.out.println(DSP);
         DateTime CSP;
 
         String CSPExpression = "/saris-report/search-plan-information/time[@name='Datum']/*";
@@ -108,6 +108,8 @@ public class SARISXMLParser {
         sarData.setSarisTarget(sarisTargets);
 
         sarData.setSarAreaData(sarAreas);
+        
+        
 
     }
 
@@ -139,6 +141,8 @@ public class SARISXMLParser {
         // System.out.println("Expression is " + expression);
         expression = expression + "/search-area[@name='Area']";
 
+        System.out.println("Expression is " + expression);
+        
         // We need A, B C, D and center.
 
         String areaExpressionA = expression + "/position[@name='A']/angle/*";
@@ -156,17 +160,25 @@ public class SARISXMLParser {
         if (A == null || B == null || C == null || D == null) {
             return null;
         }
+        
+        System.out.println("A is " + A);
+        System.out.println("B is " + B);
+        System.out.println("C is " + C);
+        System.out.println("D is " + D);
 
         // Breadth or width
         String breadthExpression = expression + "/distance[@name='Breadth']";
         Node node = (Node) xPath.compile(breadthExpression).evaluate(document, XPathConstants.NODE);
         Double breadth = Double.parseDouble(node.getFirstChild().getNodeValue());
 
+        System.out.println("Breadth is " + breadth);
         // Length
         String lengthExpression = expression + "/distance[@name='Length']";
         node = (Node) xPath.compile(lengthExpression).evaluate(document, XPathConstants.NODE);
         Double length = Double.parseDouble(node.getFirstChild().getNodeValue());
 
+        System.out.println("Length is " + length);
+        
         SARAreaData sarArea = new SARAreaData(A, B, C, D, centre, breadth, length);
 
         return sarArea;
@@ -480,7 +492,7 @@ public class SARISXMLParser {
 
         // XPathParser parser = new XPathParser("000084-13052014/000084-13052014/Sarex Fn.xml");
         try {
-            SARISXMLParser parser = new SARISXMLParser("E://Sarex 04 Juni.xml");
+            SARISXMLParser parser = new SARISXMLParser("E://mfi abri.xml");
             // SARISXMLParser parser = new SARISXMLParser("E://Sarex Fn.xml");
         } catch (Exception e) {
             // TODO Auto-generated catch block

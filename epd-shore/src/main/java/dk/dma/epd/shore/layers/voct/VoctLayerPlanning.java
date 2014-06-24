@@ -94,7 +94,8 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         }
 
         selectedGraphic = null;
-        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                3.0f);
 
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof AreaInternalGraphics) {
@@ -140,7 +141,8 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         if (!dragging) {
             // mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
-            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
+            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                    3.0f);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof SarEffectiveAreaLines) {
                     // System.out.println("selected something");
@@ -166,9 +168,11 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             // If sides we can adjust longitude
 
             // New Position of line
-            LatLonPoint newLatLon = mapBean.getProjection().inverse(e.getPoint());
+            LatLonPoint newLatLon = mapBean.getProjection().inverse(
+                    e.getPoint());
 
-            Position newPos = Position.create(newLatLon.getLatitude(), newLatLon.getLongitude());
+            Position newPos = Position.create(newLatLon.getLatitude(),
+                    newLatLon.getLongitude());
 
             selectedLine.updateArea(newPos);
 
@@ -183,9 +187,11 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             AreaInternalGraphics selectedArea = (AreaInternalGraphics) selectedGraphic;
 
             // New Center
-            LatLonPoint newLatLon = mapBean.getProjection().inverse(e.getPoint());
+            LatLonPoint newLatLon = mapBean.getProjection().inverse(
+                    e.getPoint());
 
-            Position newPos = Position.create(newLatLon.getLatitude(), newLatLon.getLongitude());
+            Position newPos = Position.create(newLatLon.getLatitude(),
+                    newLatLon.getLongitude());
 
             if (!dragging) {
                 // System.out.println("only once? first time?");
@@ -210,7 +216,8 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         if (!dragging) {
             // mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
-            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 2.0f);
+            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                    2.0f);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof SarEffectiveAreaLines) {
                     // System.out.println("selected something");
@@ -231,7 +238,8 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             // System.out.println("Selected line");
             SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
 
-            double bearing = selectedLine.getA().rhumbLineBearingTo(selectedLine.getB());
+            double bearing = selectedLine.getA().rhumbLineBearingTo(
+                    selectedLine.getB());
             System.out.println(bearing);
 
             LineType type = selectedLine.getType();
@@ -242,18 +250,23 @@ public class VoctLayerPlanning extends VoctLayerCommon {
                 cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
 
                 // Straight line
-                if (bearing > 80 && bearing < 100 || bearing > 260 && bearing < 280) {
+                if (bearing > 80 && bearing < 100 || bearing > 260
+                        && bearing < 280) {
                     cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
                 }
 
                 // SE line
-                if (bearing > 100 && bearing < 170 || bearing > 290 && bearing < 350) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
+                if (bearing > 100 && bearing < 170 || bearing > 290
+                        && bearing < 350) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
                 }
 
                 // SW line
-                if (bearing > 0 && bearing < 80 || bearing > 190 && bearing < 270) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
+                if (bearing > 0 && bearing < 80 || bearing > 190
+                        && bearing < 270) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
                 }
 
             }
@@ -262,18 +275,23 @@ public class VoctLayerPlanning extends VoctLayerCommon {
                 cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
 
                 // Straight line
-                if (bearing > 80 && bearing < 100 || bearing > 260 && bearing < 280) {
+                if (bearing > 80 && bearing < 100 || bearing > 260
+                        && bearing < 280) {
                     cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
                 }
 
                 // NE line
-                if (bearing > 100 && bearing < 170 || bearing > 290 && bearing < 350) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
+                if (bearing > 100 && bearing < 170 || bearing > 290
+                        && bearing < 350) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
                 }
 
                 // NW line
-                if (bearing > 0 && bearing < 80 || bearing > 190 && bearing < 270) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
+                if (bearing > 0 && bearing < 80 || bearing > 190
+                        && bearing < 270) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
                 }
 
             }
@@ -282,18 +300,23 @@ public class VoctLayerPlanning extends VoctLayerCommon {
                 cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
 
                 // Straight line
-                if (bearing > 170 && bearing < 190 || bearing < 10 && bearing < 350) {
+                if (bearing > 170 && bearing < 190 || bearing < 10
+                        && bearing < 350) {
                     cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
                 }
 
                 // NE line
-                if (bearing > 130 && bearing < 160 || bearing > 210 && bearing < 240) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
+                if (bearing > 130 && bearing < 160 || bearing > 210
+                        && bearing < 240) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
                 }
 
                 // NW line
-                if (bearing > 130 && bearing < 160 || bearing > 300 && bearing < 330) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
+                if (bearing > 130 && bearing < 160 || bearing > 300
+                        && bearing < 330) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
                 }
 
             }
@@ -302,18 +325,23 @@ public class VoctLayerPlanning extends VoctLayerCommon {
                 cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
 
                 // Straight line
-                if (bearing > 170 && bearing < 190 || bearing < 10 && bearing < 350) {
+                if (bearing > 170 && bearing < 190 || bearing < 10
+                        && bearing < 350) {
                     cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
                 }
 
                 // NE line
-                if (bearing > 130 && bearing < 160 || bearing > 210 && bearing < 240) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
+                if (bearing > 130 && bearing < 160 || bearing > 210
+                        && bearing < 240) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
                 }
 
                 // NW line
-                if (bearing > 130 && bearing < 160 || bearing > 300 && bearing < 330) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
+                if (bearing > 130 && bearing < 160 || bearing > 300
+                        && bearing < 330) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
                 }
 
             }
@@ -325,14 +353,17 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
         }
 
-        if (selectedGraphic != null && selectedGraphic instanceof AreaInternalGraphics) {
+        if (selectedGraphic != null
+                && selectedGraphic instanceof AreaInternalGraphics) {
             jMapFrame.getGlassPane().setVisible(true);
-            jMapFrame.getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+            jMapFrame.getGlassPane().setCursor(
+                    Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
             return true;
 
         }
 
-        jMapFrame.getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        jMapFrame.getGlassPane().setCursor(
+                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         jMapFrame.getGlassPane().setVisible(false);
 
         return false;
@@ -380,32 +411,31 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
     }
 
-    
-    
     private void drawSarisDatumPoint() {
 
-
-        
         graphics.clear();
 
-        DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
+        DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager
+                .getSarData();
 
-        for (int i = 0; i < data.getSarisTarget().size(); i++) {
+        System.out.println("Draw SARIS DATUM " + data.getSarisTarget().size());
+
+        for (int i = 0; i < data.getSarAreaData().size(); i++) {
 
             System.out.println("Adding graphics");
             SARAreaData sarArea = data.getSarAreaData().get(i);
 
-            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(), sarArea.getB(), sarArea.getC(), sarArea.getD(),
+            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(),
+                    sarArea.getB(), sarArea.getC(), sarArea.getD(),
                     sarArea.getCentre(), data.getSarisTarget().get(i).getName());
 
             graphics.add(sarAreaGraphic);
         }
 
         doPrepare();
-         this.setVisible(true);
+        this.setVisible(true);
     }
-    
-    
+
     private void drawDatumLine() {
 
         // Create as many data objects as is contained
@@ -436,13 +466,15 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             Position LKP = data.getLKP();
             Position WTCPoint = data.getWtc();
 
-            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
-                    A, B, C, D, i + 1);
+            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax,
+                    radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint, A, B,
+                    C, D, i + 1);
 
             graphics.add(sarGraphics);
         }
 
-        SarAreaGraphic sarArea = new SarAreaGraphic(datumLineData.getDatumLinePolygon());
+        SarAreaGraphic sarArea = new SarAreaGraphic(
+                datumLineData.getDatumLinePolygon());
         graphics.add(sarArea);
 
         // public SarGraphics(Position datumDownWind, Position datumMin,
@@ -478,8 +510,8 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         // public SarGraphics(Position datumDownWind, Position datumMin,
         // Position datumMax, double radiusDownWind, double radiusMin, double
         // radiusMax, Position LKP, Position current) {
-        sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint, A, B,
-                C, D);
+        sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax,
+                radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint, A, B, C, D);
 
         graphics.add(sarGraphics);
 
@@ -502,7 +534,8 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
         graphics.clear();
 
-        sarGraphics = new SarGraphics(datum, radius, A, B, C, D, LKP, data.getCurrentList(), data.getWindList());
+        sarGraphics = new SarGraphics(datum, radius, A, B, C, D, LKP,
+                data.getCurrentList(), data.getWindList());
         graphics.add(sarGraphics);
 
         System.out.println("A is: " + A.getLongitude());
@@ -538,7 +571,8 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             EffectiveSRUAreaGraphics effectiveArea;
 
             if (!data.getEffortAllocationData().get(i).isNoRedraw()) {
-                double effectiveAreaSize = data.getEffortAllocationData().get(i).getEffectiveAreaSize();
+                double effectiveAreaSize = data.getEffortAllocationData()
+                        .get(i).getEffectiveAreaSize();
 
                 System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
 
@@ -546,10 +580,12 @@ public class VoctLayerPlanning extends VoctLayerCommon {
                 double width = Math.sqrt(effectiveAreaSize);
                 double height = Math.sqrt(effectiveAreaSize);
 
-                effectiveArea = new EffectiveSRUAreaGraphics(width, height, data, i, EPDShore.getInstance().getSRUManager()
-                        .getSRUs(i).getName());
+                effectiveArea = new EffectiveSRUAreaGraphics(width, height,
+                        data, i, EPDShore.getInstance().getSRUManager()
+                                .getSRUs(i).getName());
 
-                effectiveArea.setVisible(voctManager.getSruManager().getSRUs().get(i).isVisible());
+                effectiveArea.setVisible(voctManager.getSruManager().getSRUs()
+                        .get(i).isVisible());
 
                 if (effectiveSRUAreas.size() > i) {
                     effectiveSRUAreas.set(i, effectiveArea);
@@ -581,7 +617,8 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
     @Override
     public void toggleEffectiveAreaVisibility(int i, boolean visible) {
-        System.out.println("Toggle visibiity " + effectiveSRUAreas.size() + " and i " + i);
+        System.out.println("Toggle visibiity " + effectiveSRUAreas.size()
+                + " and i " + i);
         if (effectiveSRUAreas.size() >= i + 1) {
 
             effectiveSRUAreas.get(i).setVisible(visible);
@@ -630,10 +667,12 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             graphics.remove(sarGraphics);
 
             // public SarGraphics(Position datumDownWind, Position datumMin,
-            // Position datumMax, double radiusDownWind, double radiusMin, double
+            // Position datumMax, double radiusDownWind, double radiusMin,
+            // double
             // radiusMax, Position LKP, Position current) {
-            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
-                    A, B, C, D);
+            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax,
+                    radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint, A, B,
+                    C, D);
 
             graphics.add(sarGraphics);
 
@@ -655,7 +694,8 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
             graphics.remove(sarGraphics);
 
-            sarGraphics = new SarGraphics(datum, radius, A, B, C, D, LKP, data.getCurrentList(), data.getWindList());
+            sarGraphics = new SarGraphics(datum, radius, A, B, C, D, LKP,
+                    data.getCurrentList(), data.getWindList());
             graphics.add(sarGraphics);
         }
 
