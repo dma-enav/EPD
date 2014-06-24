@@ -1265,11 +1265,28 @@ public class SAROperation {
 
             Geo newA = Intersection.segmentsIntersect(ParseUtils.PositionToGeo(downWindGrowCenter),
                     ParseUtils.PositionToGeo(downWindLeft), ParseUtils.PositionToGeo(internalA), ParseUtils.PositionToGeo(AGrow));
+            
             Geo newB = Intersection.segmentsIntersect(ParseUtils.PositionToGeo(downWindGrowCenter),
                     ParseUtils.PositionToGeo(downWindRight), ParseUtils.PositionToGeo(internalB), ParseUtils.PositionToGeo(BGrow));
 
-            internalA = ParseUtils.GeoToPosition(newA);
-            internalB = ParseUtils.GeoToPosition(newB);
+            if (newA != null){
+                internalA = ParseUtils.GeoToPosition(newA);    
+                
+            }else{
+                System.out.println("ERROR Internal A");
+            }
+            
+            
+
+            if (newB != null){
+                internalB = ParseUtils.GeoToPosition(newB);
+                
+            }else{
+                System.out.println("ERROR Internal B");
+            }
+            
+            
+
 
             data.setA(internalA);
             data.setB(internalB);
