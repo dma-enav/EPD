@@ -32,7 +32,7 @@ public class VOCTAdditionalInfoDialog extends ComponentDialog {
         super(window, "Additional Info", Dialog.ModalityType.MODELESS);
         
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        setBounds(100, 100, 900, 500);
+        setBounds(100, 100, 400, 400);
         if (window != null) {
             setLocationRelativeTo(window);
         }
