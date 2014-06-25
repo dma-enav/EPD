@@ -51,23 +51,28 @@ public class SearchPatternGenerator {
         this.sarOperation = sarOperation;
     }
 
-    public SearchPatternRoute generateSearchPattern(searchPattern pattern, SARData data, NavSettings settings, int i) {
+    public SearchPatternRoute generateSearchPattern(searchPattern pattern,
+            SARData data, NavSettings settings, int i) {
 
         this.settings = settings;
 
         switch (pattern) {
         case Parallel_Sweep_Search:
-            return parallelSweepSearch(data.getCSP(), data.getEffortAllocationData().get(i), data);
+            return parallelSweepSearch(data.getCSP(), data
+                    .getEffortAllocationData().get(i), data);
         case Creeping_Line_Search:
-            return creepingLineSearch(data.getCSP(), data.getEffortAllocationData().get(i), data);
+            return creepingLineSearch(data.getCSP(), data
+                    .getEffortAllocationData().get(i), data);
         case Expanding_Square_Search:
-            return expandingSquareSearch(data.getCSP(), data.getEffortAllocationData().get(i), data);
+            return expandingSquareSearch(data.getCSP(), data
+                    .getEffortAllocationData().get(i), data);
         default:
             return null;
         }
     }
 
-    private SearchPatternRoute expandingSquareSearch(Position CSP, EffortAllocationData effortAllocationData, SARData sarData) {
+    private SearchPatternRoute expandingSquareSearch(Position CSP,
+            EffortAllocationData effortAllocationData, SARData sarData) {
 
         Position A = effortAllocationData.getEffectiveAreaA();
         Position B = effortAllocationData.getEffectiveAreaB();
@@ -93,13 +98,14 @@ public class SearchPatternGenerator {
 
         // Find center of top line
 
-        Position topCenter = Calculator.calculateEndingGlobalCoordinates(reference, A, horizontalBearing, width / 2, endBearing);
+        Position topCenter = Calculator.calculateEndingGlobalCoordinates(
+                reference, A, horizontalBearing, width / 2, endBearing);
 
         endBearing = new double[1];
 
         // Move down
-        Position center = Calculator
-                .calculateEndingGlobalCoordinates(reference, topCenter, verticalBearing, height / 2, endBearing);
+        Position center = Calculator.calculateEndingGlobalCoordinates(
+                reference, topCenter, verticalBearing, height / 2, endBearing);
 
         // center = topCenter;
 
@@ -108,7 +114,8 @@ public class SearchPatternGenerator {
         // Start from center position
 
         // Determine how long of a track we can generate
-        double totalLengthOfTrack = effortAllocationData.getEffectiveAreaSize() / S;
+        double totalLengthOfTrack = effortAllocationData.getEffectiveAreaSize()
+                / S;
 
         // We have not plotted anything yet
         double trackPlotted = 0;
@@ -134,7 +141,8 @@ public class SearchPatternGenerator {
         while (trackPlotted < totalLengthOfTrack) {
 
             // Move vertical
-            nextPos = Calculator.findPosition(currentPos, verticalBearing, Converter.nmToMeters(currentTrackLength));
+            nextPos = Calculator.findPosition(currentPos, verticalBearing,
+                    Converter.nmToMeters(currentTrackLength));
 
             // Reverse direction
             verticalBearing = Calculator.reverseDirection(verticalBearing);
@@ -149,10 +157,13 @@ public class SearchPatternGenerator {
                 positionList.add(currentPos);
 
                 // Move horizontally
-                nextPos = Calculator.findPosition(currentPos, horizontalBearing, Converter.nmToMeters(currentTrackLength));
+                nextPos = Calculator.findPosition(currentPos,
+                        horizontalBearing,
+                        Converter.nmToMeters(currentTrackLength));
 
                 // Reverse direction
-                horizontalBearing = Calculator.reverseDirection(horizontalBearing);
+                horizontalBearing = Calculator
+                        .reverseDirection(horizontalBearing);
 
                 // Do we move up?
                 if ((trackPlotted + currentTrackLength) <= totalLengthOfTrack) {
@@ -170,7 +181,8 @@ public class SearchPatternGenerator {
 
                 else {
                     // Cannot draw vertical track, draw what we can
-                    System.out.println("Cannot draw vertical track, draw what we can");
+                    System.out
+                            .println("Cannot draw vertical track, draw what we can");
 
                     break;
 
@@ -188,7 +200,8 @@ public class SearchPatternGenerator {
                     // positionList.add(currentPos);
                 }
             } else {
-                System.out.println("Cannot draw horizontal track, draw what we can");
+                System.out
+                        .println("Cannot draw horizontal track, draw what we can");
                 break;
                 // Cannot draw the full length of the track, draw the remaining
                 // distance
@@ -214,7 +227,8 @@ public class SearchPatternGenerator {
         for (RouteWaypoint routeWaypoint : waypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg outLeg = routeWaypoint.getOutLeg();
-                double xtd = settings.getDefaultXtd();
+                double xtd = 
+                        effortAllocationData.getTrackSpacing();
                 outLeg.setXtdPort(xtd);
                 outLeg.setXtdStarboard(xtd);
                 outLeg.setHeading(Heading.RL);
@@ -234,7 +248,8 @@ public class SearchPatternGenerator {
         if (sarData.getSarID().equals("")) {
             searchRoute.setName("Expanding Square Search");
         } else {
-            searchRoute.setName("Expanding Square Search - SAR No. " + sarData.getSarID());
+            searchRoute.setName("Expanding Square Search - SAR No. "
+                    + sarData.getSarID());
         }
 
         // Dynamic waypoints
@@ -250,14 +265,16 @@ public class SearchPatternGenerator {
             Position wpPos = searchRoute.getWaypoints().get(i).getPos();
 
             // How long has elapsed since time 0
-            double timeElapsed = ((double) (wpETA.getTime() - cssDate.getMillis())) / 60 / 60 / 1000;
+            double timeElapsed = ((double) (wpETA.getTime() - cssDate
+                    .getMillis())) / 60 / 60 / 1000;
 
             // System.out.println("Elapsed is for " + i + " is " + timeElapsed);
 
             if (sarData instanceof DatumPointDataSARIS) {
                 waypointsAdjustedForWeather.add(wpPos);
             } else {
-                Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos, timeElapsed);
+                Position newPos = sarOperation.applyDriftToPoint(sarData,
+                        wpPos, timeElapsed);
 
                 waypointsAdjustedForWeather.add(newPos);
             }
@@ -269,13 +286,15 @@ public class SearchPatternGenerator {
 
         searchRoute.getWaypoints().get(0).setName("Start");
 
-        searchRoute.getWaypoints().get(searchRoute.getWaypoints().size() - 1).setName("End");
+        searchRoute.getWaypoints().get(searchRoute.getWaypoints().size() - 1)
+                .setName("End");
 
         return searchRoute;
 
     }
 
-    private SearchPatternRoute creepingLineSearch(Position CSP, EffortAllocationData effortAllocationData, SARData sarData) {
+    private SearchPatternRoute creepingLineSearch(Position CSP,
+            EffortAllocationData effortAllocationData, SARData sarData) {
 
         // Find closest corner point
         Position A = effortAllocationData.getEffectiveAreaA();
@@ -322,13 +341,16 @@ public class SearchPatternGenerator {
         double S = effortAllocationData.getTrackSpacing();
 
         // Find init position from the corner
-        Position verticalPos = Calculator.findPosition(toDrawTo, verticalBearing, Converter.nmToMeters(S / 2));
+        Position verticalPos = Calculator.findPosition(toDrawTo,
+                verticalBearing, Converter.nmToMeters(S / 2));
 
         // This is where we start
-        Position finalPos = Calculator.findPosition(verticalPos, horizontalBearing, Converter.nmToMeters(S / 2));
+        Position finalPos = Calculator.findPosition(verticalPos,
+                horizontalBearing, Converter.nmToMeters(S / 2));
 
         // Determine how long of a track we can generate
-        double totalLengthOfTrack = effortAllocationData.getEffectiveAreaSize() / S;
+        double totalLengthOfTrack = effortAllocationData.getEffectiveAreaSize()
+                / S;
 
         // Individual track length - has ½S in each end, so we take width minus
         // S
@@ -351,7 +373,8 @@ public class SearchPatternGenerator {
             System.out.println("Vertical Bearing " + verticalBearing);
 
             // Move vertically
-            nextPos = Calculator.findPosition(currentPos, verticalBearing, Converter.nmToMeters(trackHeight));
+            nextPos = Calculator.findPosition(currentPos, verticalBearing,
+                    Converter.nmToMeters(trackHeight));
 
             // Reverse direction
             // verticalBearing = verticalBearing + 180;
@@ -367,7 +390,8 @@ public class SearchPatternGenerator {
                 positionList.add(currentPos);
 
                 // Move horizontally
-                nextPos = Calculator.findPosition(currentPos, horizontalBearing, Converter.nmToMeters(S / 2));
+                nextPos = Calculator.findPosition(currentPos,
+                        horizontalBearing, Converter.nmToMeters(S / 2));
 
                 // Do we move up a half ½S distance?
                 if ((trackPlotted + (S / 2)) <= totalLengthOfTrack) {
@@ -378,12 +402,16 @@ public class SearchPatternGenerator {
 
                     positionList.add(currentPos);
 
-                    System.out.println("Track Plotted is: " + trackPlotted + " vs. the total length " + totalLengthOfTrack);
+                    System.out.println("Track Plotted is: " + trackPlotted
+                            + " vs. the total length " + totalLengthOfTrack);
                 } else {
                     // Cannot draw ½S track, draw what we can
-                    double remainingDistance = totalLengthOfTrack - trackPlotted;
+                    double remainingDistance = totalLengthOfTrack
+                            - trackPlotted;
 
-                    nextPos = Calculator.findPosition(currentPos, horizontalBearing, Converter.nmToMeters(remainingDistance));
+                    nextPos = Calculator.findPosition(currentPos,
+                            horizontalBearing,
+                            Converter.nmToMeters(remainingDistance));
                     trackPlotted = trackPlotted + remainingDistance;
                     currentPos = nextPos;
                     positionList.add(currentPos);
@@ -394,7 +422,8 @@ public class SearchPatternGenerator {
                 verticalBearing = Calculator.reverseDirection(verticalBearing);
 
                 double remainingDistance = totalLengthOfTrack - trackPlotted;
-                nextPos = Calculator.findPosition(currentPos, verticalBearing, Converter.nmToMeters(remainingDistance));
+                nextPos = Calculator.findPosition(currentPos, verticalBearing,
+                        Converter.nmToMeters(remainingDistance));
 
                 trackPlotted = trackPlotted + remainingDistance;
 
@@ -411,7 +440,8 @@ public class SearchPatternGenerator {
         for (RouteWaypoint routeWaypoint : waypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg outLeg = routeWaypoint.getOutLeg();
-                double xtd = settings.getDefaultXtd();
+                double xtd = 
+                        effortAllocationData.getTrackSpacing();
                 outLeg.setXtdPort(xtd);
                 outLeg.setXtdStarboard(xtd);
                 outLeg.setHeading(Heading.RL);
@@ -431,7 +461,8 @@ public class SearchPatternGenerator {
         if (sarData.getSarID().equals("")) {
             searchRoute.setName("Creeping Line Search");
         } else {
-            searchRoute.setName("Creeping Line Search - SAR No. " + sarData.getSarID());
+            searchRoute.setName("Creeping Line Search - SAR No. "
+                    + sarData.getSarID());
         }
 
         // Dynamic waypoints
@@ -447,7 +478,8 @@ public class SearchPatternGenerator {
             Position wpPos = searchRoute.getWaypoints().get(i).getPos();
 
             // How long has elapsed since time 0
-            double timeElapsed = ((double) (wpETA.getTime() - cssDate.getMillis())) / 60 / 60 / 1000;
+            double timeElapsed = ((double) (wpETA.getTime() - cssDate
+                    .getMillis())) / 60 / 60 / 1000;
 
             // System.out.println("Elapsed is for " + i + " is " + timeElapsed);
 
@@ -455,7 +487,8 @@ public class SearchPatternGenerator {
                 waypointsAdjustedForWeather.add(wpPos);
             } else {
 
-                Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos, timeElapsed);
+                Position newPos = sarOperation.applyDriftToPoint(sarData,
+                        wpPos, timeElapsed);
 
                 waypointsAdjustedForWeather.add(newPos);
 
@@ -468,12 +501,14 @@ public class SearchPatternGenerator {
 
         searchRoute.getWaypoints().get(0).setName("Start");
 
-        searchRoute.getWaypoints().get(searchRoute.getWaypoints().size() - 1).setName("End");
+        searchRoute.getWaypoints().get(searchRoute.getWaypoints().size() - 1)
+                .setName("End");
 
         return searchRoute;
     }
 
-    public void calculateDynamicWaypoints(SearchPatternRoute searchRoute, SARData sarData) {
+    public void calculateDynamicWaypoints(SearchPatternRoute searchRoute,
+            SARData sarData) {
 
         if (sarData instanceof DatumPointDataSARIS) {
             ArrayList<Position> dummyPositionList = new ArrayList<Position>();
@@ -491,7 +526,8 @@ public class SearchPatternGenerator {
             // Dynamic waypoints
             List<Position> waypointsAdjustedForWeather = new ArrayList<Position>();
 
-            // We must calculate from time 0 of our arrival as the effective area
+            // We must calculate from time 0 of our arrival as the effective
+            // area
             // has been calculated from LKP
             // Thus our time 0 is Commence Search Start
             DateTime cssDate = sarData.getCSSDate();
@@ -501,11 +537,14 @@ public class SearchPatternGenerator {
                 Position wpPos = searchRoute.getWaypoints().get(i).getPos();
 
                 // How long has elapsed since time 0
-                double timeElapsed = ((double) (wpETA.getTime() - cssDate.getMillis())) / 60 / 60 / 1000;
+                double timeElapsed = ((double) (wpETA.getTime() - cssDate
+                        .getMillis())) / 60 / 60 / 1000;
 
-                // System.out.println("Elapsed is for " + i + " is " + timeElapsed);
+                // System.out.println("Elapsed is for " + i + " is " +
+                // timeElapsed);
 
-                Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos, timeElapsed);
+                Position newPos = sarOperation.applyDriftToPoint(sarData,
+                        wpPos, timeElapsed);
 
                 waypointsAdjustedForWeather.add(newPos);
                 // searchRoute.getWaypoints().get(i).setPos(newPos);
@@ -515,7 +554,8 @@ public class SearchPatternGenerator {
         }
     }
 
-    private SearchPatternRoute parallelSweepSearch(Position CSP, EffortAllocationData effortAllocationData, SARData sarData) {
+    private SearchPatternRoute parallelSweepSearch(Position CSP,
+            EffortAllocationData effortAllocationData, SARData sarData) {
         // Find closest corner point
         Position A = effortAllocationData.getEffectiveAreaA();
         Position B = effortAllocationData.getEffectiveAreaB();
@@ -561,13 +601,16 @@ public class SearchPatternGenerator {
         double S = effortAllocationData.getTrackSpacing();
 
         // Find init position from the corner
-        Position verticalPos = Calculator.findPosition(toDrawTo, verticalBearing, Converter.nmToMeters(S / 2));
+        Position verticalPos = Calculator.findPosition(toDrawTo,
+                verticalBearing, Converter.nmToMeters(S / 2));
 
         // This is where we start
-        Position finalPos = Calculator.findPosition(verticalPos, horizontalBearing, Converter.nmToMeters(S / 2));
+        Position finalPos = Calculator.findPosition(verticalPos,
+                horizontalBearing, Converter.nmToMeters(S / 2));
 
         // Determine how long of a track we can generate
-        double totalLengthOfTrack = effortAllocationData.getEffectiveAreaSize() / S;
+        double totalLengthOfTrack = effortAllocationData.getEffectiveAreaSize()
+                / S;
 
         // Individual track length - has ½S in each end, so we take width minus
         // S
@@ -588,7 +631,8 @@ public class SearchPatternGenerator {
         while (trackPlotted < totalLengthOfTrack) {
 
             // Move horizontally
-            nextPos = Calculator.findPosition(currentPos, horizontalBearing, Converter.nmToMeters(trackLength));
+            nextPos = Calculator.findPosition(currentPos, horizontalBearing,
+                    Converter.nmToMeters(trackLength));
 
             // Reverse direction
             horizontalBearing = Calculator.reverseDirection(horizontalBearing);
@@ -604,7 +648,8 @@ public class SearchPatternGenerator {
                 positionList.add(currentPos);
 
                 // Move vertically
-                nextPos = Calculator.findPosition(currentPos, verticalBearing, Converter.nmToMeters(S / 2));
+                nextPos = Calculator.findPosition(currentPos, verticalBearing,
+                        Converter.nmToMeters(S / 2));
 
                 // Do we move up a half ½S distance?
                 if ((trackPlotted + (S / 2)) <= totalLengthOfTrack) {
@@ -615,12 +660,16 @@ public class SearchPatternGenerator {
 
                     positionList.add(currentPos);
 
-                    System.out.println("Track Plotted is: " + trackPlotted + " vs. the total length " + totalLengthOfTrack);
+                    System.out.println("Track Plotted is: " + trackPlotted
+                            + " vs. the total length " + totalLengthOfTrack);
                 } else {
                     // Cannot draw ½S track, draw what we can
-                    double remainingDistance = totalLengthOfTrack - trackPlotted;
+                    double remainingDistance = totalLengthOfTrack
+                            - trackPlotted;
 
-                    nextPos = Calculator.findPosition(currentPos, verticalBearing, Converter.nmToMeters(remainingDistance));
+                    nextPos = Calculator.findPosition(currentPos,
+                            verticalBearing,
+                            Converter.nmToMeters(remainingDistance));
                     trackPlotted = trackPlotted + remainingDistance;
                     currentPos = nextPos;
                     positionList.add(currentPos);
@@ -628,10 +677,13 @@ public class SearchPatternGenerator {
             } else {
                 // Cannot draw the full length of the track, draw the remaining
                 // distance
-                horizontalBearing = Calculator.reverseDirection(horizontalBearing);
+                horizontalBearing = Calculator
+                        .reverseDirection(horizontalBearing);
 
                 double remainingDistance = totalLengthOfTrack - trackPlotted;
-                nextPos = Calculator.findPosition(currentPos, horizontalBearing, Converter.nmToMeters(remainingDistance));
+                nextPos = Calculator.findPosition(currentPos,
+                        horizontalBearing,
+                        Converter.nmToMeters(remainingDistance));
 
                 trackPlotted = trackPlotted + remainingDistance;
 
@@ -648,7 +700,7 @@ public class SearchPatternGenerator {
         for (RouteWaypoint routeWaypoint : waypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg outLeg = routeWaypoint.getOutLeg();
-                double xtd = settings.getDefaultXtd();
+                double xtd = effortAllocationData.getTrackSpacing();
                 outLeg.setXtdPort(xtd);
                 outLeg.setXtdStarboard(xtd);
                 outLeg.setHeading(Heading.RL);
@@ -668,7 +720,8 @@ public class SearchPatternGenerator {
         if (sarData.getSarID().equals("")) {
             searchRoute.setName("Parallel Sweep Search");
         } else {
-            searchRoute.setName("Parallel Sweep Search - SAR No. " + sarData.getSarID());
+            searchRoute.setName("Parallel Sweep Search - SAR No. "
+                    + sarData.getSarID());
         }
 
         // Dynamic waypoints
@@ -684,19 +737,22 @@ public class SearchPatternGenerator {
             Position wpPos = searchRoute.getWaypoints().get(i).getPos();
 
             // How long has elapsed since time 0
-            double timeElapsed = ((double) (wpETA.getTime() - cssDate.getMillis())) / 60 / 60 / 1000;
+            double timeElapsed = ((double) (wpETA.getTime() - cssDate
+                    .getMillis())) / 60 / 60 / 1000;
 
             // System.out.println("Elapsed is for " + i + " is " + timeElapsed);
 
             if (sarData instanceof DatumPointDataSARIS) {
                 waypointsAdjustedForWeather.add(wpPos);
             } else {
-                Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos, timeElapsed);
+                Position newPos = sarOperation.applyDriftToPoint(sarData,
+                        wpPos, timeElapsed);
 
                 waypointsAdjustedForWeather.add(newPos);
             }
 
-            // Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos, timeElapsed);
+            // Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos,
+            // timeElapsed);
 
             // waypointsAdjustedForWeather.add(newPos);
             // searchRoute.getWaypoints().get(i).setPos(newPos);
@@ -707,7 +763,8 @@ public class SearchPatternGenerator {
 
         searchRoute.getWaypoints().get(0).setName("Start");
 
-        searchRoute.getWaypoints().get(searchRoute.getWaypoints().size() - 1).setName("End");
+        searchRoute.getWaypoints().get(searchRoute.getWaypoints().size() - 1)
+                .setName("End");
 
         return searchRoute;
     }
