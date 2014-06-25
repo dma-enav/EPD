@@ -349,10 +349,6 @@ public class ActiveRoute extends Route {
 
     public synchronized ActiveWpSelectionResult chooseActiveWp() {
 
-        if (searchPattern) {
-            return ActiveWpSelectionResult.NO_CHANGE;
-        }
-
         // Calculate if in Wp circle
         boolean inWpCircle = false;
         double xtd = currentLeg.getMaxXtd() == null ? 0.0 : currentLeg.getMaxXtd();
@@ -387,8 +383,8 @@ public class ActiveRoute extends Route {
                 return ActiveWpSelectionResult.CHANGED;
             }
         } else {
-            // Some temporary fallback when we are really off course
-            if (relaxedWpChange) {
+            // Some temporary fallback when we are really off course and not doing sar
+            if (!searchPattern && relaxedWpChange) {
                 if (2 * nextWpRng < getWpRng(activeWaypointIndex)) {
                     changeActiveWaypoint(activeWaypointIndex + 1);
                     return ActiveWpSelectionResult.CHANGED;
