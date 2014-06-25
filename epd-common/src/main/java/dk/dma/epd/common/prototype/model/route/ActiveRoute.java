@@ -127,11 +127,15 @@ public class ActiveRoute extends Route {
         super.calcAllWpEta();
         calcValues(true);
 
-        changeActiveWaypoint(getBestWaypoint(route, pntData));
+        int activeWp = 0;
 
         if (route instanceof SearchPatternRoute) {
             searchPattern = true;
+        } else {
+            activeWp = getBestWaypoint(route, pntData);
         }
+        
+        changeActiveWaypoint(activeWp);
 
     }
 
