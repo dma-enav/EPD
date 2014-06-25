@@ -174,6 +174,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
         JScrollPane rapidResponseScrollPanel = new JScrollPane(
                 rapidResponseDatumPointInputPanel);
+        rapidResponseScrollPanel.getVerticalScrollBar().setUnitIncrement(16);
         rapidResponseScrollPanel.setPreferredSize(new Dimension(559, 363));
         masterPanel.add(rapidResponseScrollPanel, INPUTSARRAPIDRESPONSEDATUM);
 
@@ -181,7 +182,8 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
         JScrollPane datumLineScrollPanel = new JScrollPane(datumLineInputPanel);
         datumLineScrollPanel.setPreferredSize(new Dimension(559, 363));
-
+        datumLineScrollPanel.getVerticalScrollBar().setUnitIncrement(16);
+        
         masterPanel.add(datumLineScrollPanel, INPUTPANELDATUMLINE);
 
     }

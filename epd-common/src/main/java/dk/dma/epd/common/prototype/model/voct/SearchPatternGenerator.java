@@ -227,8 +227,7 @@ public class SearchPatternGenerator {
         for (RouteWaypoint routeWaypoint : waypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg outLeg = routeWaypoint.getOutLeg();
-                double xtd = 
-                        effortAllocationData.getTrackSpacing();
+                double xtd = effortAllocationData.getTrackSpacing() / 2;
                 outLeg.setXtdPort(xtd);
                 outLeg.setXtdStarboard(xtd);
                 outLeg.setHeading(Heading.RL);
@@ -440,8 +439,7 @@ public class SearchPatternGenerator {
         for (RouteWaypoint routeWaypoint : waypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg outLeg = routeWaypoint.getOutLeg();
-                double xtd = 
-                        effortAllocationData.getTrackSpacing();
+                double xtd = effortAllocationData.getTrackSpacing() / 2;
                 outLeg.setXtdPort(xtd);
                 outLeg.setXtdStarboard(xtd);
                 outLeg.setHeading(Heading.RL);
@@ -700,7 +698,7 @@ public class SearchPatternGenerator {
         for (RouteWaypoint routeWaypoint : waypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg outLeg = routeWaypoint.getOutLeg();
-                double xtd = effortAllocationData.getTrackSpacing();
+                double xtd = effortAllocationData.getTrackSpacing() / 2;
                 outLeg.setXtdPort(xtd);
                 outLeg.setXtdStarboard(xtd);
                 outLeg.setHeading(Heading.RL);
