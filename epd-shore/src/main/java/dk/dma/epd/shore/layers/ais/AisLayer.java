@@ -75,6 +75,12 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         // Register mouse over of VesselGraphics to invoke the AisTargetInfoPanel
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselGraphic.class);
     }
+    
+    @Override
+    public AisLayerCommonSettings<AisLayerCommonSettingsListener> getSettings() {
+        // TODO Auto-generated method stub
+        return (AisLayerCommonSettings<AisLayerCommonSettingsListener>) super.getSettings();
+    }
 
     /**
 * Check if vessel is near map coordinates or it's

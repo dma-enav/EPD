@@ -404,6 +404,10 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         return encLayer;
     }
     
+    public IntendedRouteLayerCommon getIntendedRouteLayer() {
+        return this.intendedRouteLayer;
+    }
+    
     public HistoryListener getHistoryListener() {
         return historyListener;
     }

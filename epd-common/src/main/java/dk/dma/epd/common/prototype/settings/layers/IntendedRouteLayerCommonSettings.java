@@ -68,7 +68,7 @@ public class IntendedRouteLayerCommonSettings<OBSERVER extends IntendedRouteLaye
             // There was a change, update and notify.
             this.filter = isFilterInUse;
             for (OBSERVER obs : this.observers) {
-                obs.isIntendedRouteFilterInUseChanged(isFilterInUse);
+                obs.isIntendedRouteFilterInUseChanged(this, isFilterInUse);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -81,7 +81,7 @@ public class IntendedRouteLayerCommonSettings<OBSERVER extends IntendedRouteLaye
      */
     
     @Override
-    public void isIntendedRouteFilterInUseChanged(boolean useFilter) {
+    public void isIntendedRouteFilterInUseChanged(IntendedRouteLayerCommonSettings<?> source, boolean useFilter) {
         // Obey to change in observed instance.
         this.setIntendedRouteFilterInUse(useFilter);
     }

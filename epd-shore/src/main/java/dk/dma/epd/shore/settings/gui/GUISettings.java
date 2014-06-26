@@ -16,14 +16,14 @@
 package dk.dma.epd.shore.settings.gui;
 
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
+import dk.dma.epd.shore.settings.observers.GUISettingsListener;
 
 /**
  * Extends {@link GUICommonSettings} with shore specific GUI settings.
  * 
  * @author Janus Varmarken
  */
-public class GUISettings<OBSERVER extends GUISettings.IObserver> extends
-        GUICommonSettings<OBSERVER> {
+public class GUISettings extends GUICommonSettings<GUISettingsListener> {
     /**
      * Points to a file containing the workspace layout.
      */
@@ -58,28 +58,11 @@ public class GUISettings<OBSERVER extends GUISettings.IObserver> extends
             }
             // There was a change, update and notify observers.
             this.workspace = workspace;
-            for (OBSERVER obs : this.observers) {
+            for (GUISettingsListener obs : this.observers) {
                 obs.workspaceChanged(workspace);
             }
         } finally {
             this.settingLock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Interface for observing a {@link GUISettings} for changes.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    public interface IObserver extends GUICommonSettings.IObserver {
-
-        /**
-         * Invoked when {@link GUISettings#getWorkspace()} has changed.
-         * 
-         * @param workspacePath
-         *            See return value of {@link GUISettings#getWorkspace()}.
-         */
-        void workspaceChanged(String workspacePath);
     }
 }

@@ -28,13 +28,18 @@ import com.bbn.openmap.util.PropUtils;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.settings.S57LayerSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
+import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.GUICommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.MapCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.IObserver;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.settings.gui.ENCLayerSettings;
+import dk.dma.epd.shore.settings.gui.GUISettings;
 import dk.dma.epd.shore.settings.sensor.ExternalSensorsSettings;
 
 /**
@@ -52,9 +57,6 @@ public class EPDSettings extends Settings implements Serializable {
     private String defaultWorkSpace ="workspaces/default.workspace";
     private String workspaceFile = "";
 
-    private EPDGuiSettings guiSettings = new EPDGuiSettings();
-
-    private EPDMapSettings mapSettings = new EPDMapSettings();
     private EPDSensorSettings sensorSettings = new EPDSensorSettings();
     private EPDNavSettings navSettings = new EPDNavSettings();
 
@@ -64,6 +66,9 @@ public class EPDSettings extends Settings implements Serializable {
     
     private Workspace workspace = new Workspace();
 
+    private GUISettings guiSettings;
+
+    private MapCommonSettings<MapCommonSettingsListener> mapSettings;
     
     private ExternalSensorsSettings externalSensorsSettings;
     
@@ -82,6 +87,18 @@ public class EPDSettings extends Settings implements Serializable {
      */
     @Override
     public void loadFromFile() {
+        
+        // Load general GUI settings
+        GUISettings gui = ObservedSettings.loadFromFile(GUISettings.class, resolve(guiSettingsFile).toFile());
+        // Create new instance if no saved instance found.
+        this.guiSettings = gui != null ? gui : new GUISettings();
+        
+        /*
+         * Load map settings.
+         * Even though Shore uses common version, we need to load it here instead of in super class as Ship uses specific version.
+         */
+        MapCommonSettings<MapCommonSettingsListener> map = ObservedSettings.loadFromFile(MapCommonSettings.class, resolve(mapSettingsFile).toFile());
+        this.mapSettings = map != null ? map : new MapCommonSettings<>();
         
         // Load external sensors settings. 
         ExternalSensorsSettings ext = ObservedSettings.loadFromFile(ExternalSensorsSettings.class, resolve(externalSensorsSettingsFile).toFile());
@@ -133,6 +150,16 @@ public class EPDSettings extends Settings implements Serializable {
         }
     }
 
+    @Override
+    public GUISettings getGuiSettings() {
+        return this.guiSettings;
+    }
+    
+    @Override
+    public MapCommonSettings<MapCommonSettingsListener> getMapSettings() {
+        return this.mapSettings;
+    }
+    
     @Override
     public ExternalSensorsSettings getExternalSensorsSettings() {
         return this.externalSensorsSettings;
@@ -204,16 +231,6 @@ public class EPDSettings extends Settings implements Serializable {
         workspace.setProperties(props, mapWindows);
         saveProperties(props, "workspaces/" + filename, "# workspace settings saved: " + new Date());
         guiSettings.setWorkspace("/workspaces/" + filename);
-    }
-
-    @Override
-    public EPDGuiSettings getGuiSettings() {
-        return guiSettings;
-    }
-
-    @Override
-    public EPDMapSettings getMapSettings() {
-        return mapSettings;
     }
 
     @Override

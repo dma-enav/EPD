@@ -35,6 +35,9 @@ import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+import dk.dma.epd.common.prototype.settings.layers.VoyageLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.VoyageLayerCommonSettingsListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
@@ -89,6 +92,12 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
         voyageManager.addListener(this);
     }
 
+    @Override
+    public VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> getSettings() {
+        // TODO Auto-generated method stub
+        return (VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener>) super.getSettings();
+    }
+    
     /**
      * {@inheritDoc}
      */

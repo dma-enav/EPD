@@ -52,8 +52,9 @@ public class SARFrame extends JMapFrame {
     
 
     public SARFrame(int id, MainFrame mainFrame, MapFrameType type) {
-        super(id, mainFrame, type);
-
+        super(id, mainFrame, type, EPDShore.getInstance().getSettings().getMapSettings().copy());
+        // Make local map settings obey to global map settings.
+        EPDShore.getInstance().getSettings().getMapSettings().addObserver(this.getMapSettings());
         System.out.println("SAR Frame created with type : " + type);
     }
 

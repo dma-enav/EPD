@@ -19,7 +19,9 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
 
+
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.settingtabs.ShoreAisSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreCloudSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreMapFramesSettingsPanel;
@@ -48,9 +50,9 @@ public class SetupDialogShore extends SetupDialogCommon {
         // Resize the dialog to make more room for tabs on the right side.
         this.setSize(800, super.getHeight() - 50);
 
-        this.shoreSettings = new ShoreCloudSettingsPanel();
+        this.shoreSettings = new ShoreCloudSettingsPanel(EPDShore.getInstance().getSettings().getMaritimeCloudHttpSettings(), EPDShore.getInstance().getSettings().getShoreIdentitySettings());
         this.windowsSettings = new ShoreMapFramesSettingsPanel();
-        this.aisSettings = new ShoreAisSettingsPanel();
+        this.aisSettings = new ShoreAisSettingsPanel(EPDShore.getInstance().getSettings().getAisHandlerSettings(), EPDShore.getInstance().getSettings().getExternalSensorsSettings());
 
         // Register the panels for shore setup.
         super.registerSettingsPanels(

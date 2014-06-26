@@ -33,7 +33,7 @@ import dk.dma.epd.common.prototype.settings.observers.MapCommonSettingsListener;
  * @author Janus Varmarken
  */
 public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
-        extends ObservedSettings<OBSERVER> {
+        extends ObservedSettings<OBSERVER> implements MapCommonSettingsListener {
 
     /**
      * Specifies a (Latitude, Longitude) point that the map should be centered
@@ -48,14 +48,18 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
 
     /**
      * The lowest possible map scale (i.e. it defines the highest possible level
-     * of zoom). TODO: Consider changing to float as OpenMap uses float for
-     * scale.
+     * of zoom).
      */
-    private int minMapScale = 5000;
+    private float minMapScale = 5000f;
 
     public MapCommonSettings() {
         super();
         this.yamlEmitter = new Yaml(new MapCommonSettingsRepresenter());
+    }
+    
+    @Override
+    public MapCommonSettings<OBSERVER> copy() {
+        return (MapCommonSettings<OBSERVER>) super.copy();
     }
 
     /**
@@ -158,7 +162,7 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
      * 
      * @return The lowest possible map scale (i.e. the highest level of zoom).
      */
-    public int getMinMapScale() {
+    public float getMinMapScale() {
         try {
             this.settingLock.readLock().lock();
             return this.minMapScale;
@@ -174,7 +178,7 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
      * @param minScale
      *            The new value for the lowest possible map scale.
      */
-    public void setMinMapScale(final int minScale) {
+    public void setMinMapScale(final float minScale) {
         try {
             this.settingLock.writeLock().lock();
             if (this.minMapScale == minScale) {
@@ -278,4 +282,32 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
                     propertyValue, customTag);
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+    
+    @Override
+    public void mapCenterChanged(LatLonPoint newCenter) {
+        // Obey to change in observed instance.
+        this.setCenter(newCenter);
+    }
+
+    @Override
+    public void initialMapScaleChanged(float newScale) {
+        // Obey to change in observed instance.
+        this.setInitialMapScale(newScale);
+    }
+
+    @Override
+    public void minimumMapScaleChanged(float newMinScale) {
+        // Obey to change in observed instance.
+        this.setMinMapScale(newMinScale);
+    }
+    
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }

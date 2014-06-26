@@ -48,6 +48,18 @@ import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.util.LayerVisiblityListener;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
+import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.VoyageLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.utils.ToolItemGroup;
 import dk.dma.epd.shore.layers.ais.AisLayer;
@@ -56,8 +68,9 @@ import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.voyage.EmbeddedInfoPanelMoveMouseListener;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 
-public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVisiblityListener, 
-        HistoryNavigationPanelInterface {
+public class LayerTogglingPanel extends JPanel implements MouseListener,
+        HistoryNavigationPanelInterface, AisLayerCommonSettingsListener, IntendedRouteLayerCommonSettingsListener,
+        WMSLayerCommonSettingsListener, MSILayerCommonSettingsListener, VoyageLayerCommonSettingsListener {
 
     private static final long serialVersionUID = 1L;
     private JPanel moveHandler;
@@ -94,7 +107,9 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
     JLabel enc;
     JLabel msi;
     JLabel ais;
+    JLabel aisNameLabels;
     JLabel intendedRoutes;
+    JLabel intendedRoutesFilter;
     JLabel routes;
     JLabel voyages;
     private GoBackButton goBckBtn;
@@ -154,30 +169,36 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
     }
 
-    private void toggleLayerButton(Layer layer, JLabel label) {
-        if (layer.isVisible()) {
+//    private void toggleLayerButton(Layer layer, JLabel label) {
+//        if (layer.isVisible()) {
+//            setActiveToolItem(label);
+//        } else {
+//            setInactiveToolItem(label);
+//        }
+//
+//    }
+    
+    private void toggleLayerButton(boolean toggled, JLabel label) {
+        if (toggled) {
             setActiveToolItem(label);
         } else {
             setInactiveToolItem(label);
         }
-
     }
 
-    private void addWMS(final Layer wmsLayer) {
+    private void addWMS(final WMSLayer wmsLayer) {
         // Tool: WMS layer
         wms = new JLabel(toolbarIcon("images/toolbar/wms_small.png"));
         wms.setName("wms");
         wms.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-
-                wmsLayer.setVisible(!wmsLayer.isVisible());
-
-                // Operation done
-                toggleLayerButton(wmsLayer, wms);
+                // Toggle WMS layer visibility.
+                // Toggle button is toggled on/off in listener method.
+                wmsLayer.getSettings().setVisible(!wmsLayer.getSettings().isVisible());
             }
         });
         wms.setToolTipText("Show/hide WMS seacharts");
-        toggleLayerButton(wmsLayer, wms);
+        toggleLayerButton(wmsLayer.getSettings().isVisible(), this.wms);
         // group.add(wms);
         toolItemGroups.addToolItem(wms);
     }
@@ -213,23 +234,20 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         repaintToolbar();
     }
 
-    private void addMSI(final Layer msiLayer) {
+    private void addMSI(final MsiLayer msiLayer) {
         // Tool: MSI layer
         msi = new JLabel(toolbarIcon("images/toolbar/msi_symbol_16.png"));
         msi.setName("msi");
         msi.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-
-                msiLayer.setVisible(!msiLayer.isVisible());
-
-                // Operation done
-                toggleLayerButton(msiLayer, msi);
-
+                // Toggle MSI layer visibility
+                // Toggle button is toggled on/off in listener method.
+                msiLayer.getSettings().setVisible(!msiLayer.getSettings().isVisible());
             }
         });
         msi.setToolTipText("Show/hide maritime safety information");
 
-        toggleLayerButton(msiLayer, msi);
+        toggleLayerButton(msiLayer.getSettings().isVisible(), this.msi);
 
         toolItemGroups.addToolItem(msi);
     }
@@ -240,77 +258,66 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         ais.setName("ais");
         ais.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                aisLayer.setVisible(!aisLayer.isVisible());
-
-                // Operation done
-
-                toggleLayerButton(aisLayer, ais);
-
+                // Toggle visibility on settings.
+                // Toggle button is toggled on/off as part of settings listener method.
+                aisLayer.getSettings().setVisible(!aisLayer.getSettings().isVisible());
             }
         });
         ais.setToolTipText("Show/hide AIS Layer");
 
-        toggleLayerButton(aisLayer, ais);
+        toggleLayerButton(aisLayer.getSettings().isVisible(), this.ais);
         toolItemGroups.addToolItem(ais);
     }
 
-    private void addIntendedRoutes(final Layer intendedRouteLayer) {
+    private void addIntendedRoutes(final IntendedRouteLayerCommon intendedRouteLayer) {
         // Tool: Intended Routes Layer
         intendedRoutes = new JLabel(toolbarIcon("images/toolbar/direction.png"));
         intendedRoutes.setName("intendedroutes");
         intendedRoutes.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-
-                intendedRouteLayer.setVisible(!intendedRouteLayer.isVisible());
-
-                // Operation done
-
-                toggleLayerButton(intendedRouteLayer, intendedRoutes);
+                // Toggle visibility on settings.
+                // Toggle button is toggled on/off as part of settings listener method.
+                intendedRouteLayer.getSettings().setVisible(!intendedRouteLayer.getSettings().isVisible());
             }
         });
-        intendedRoutes.setToolTipText("Show/hide IntendedRoutes");
+        intendedRoutes.setToolTipText("Show/hide intended routes");
 
         // group.add(wms);
         toolItemGroups.addToolItem(intendedRoutes);
-        toggleLayerButton(intendedRouteLayer, intendedRoutes);
+        toggleLayerButton(intendedRouteLayer.getSettings().isVisible(), this.intendedRoutes);
     }
 
-    private void addRoutes(final Layer routeLayer) {
+    private void addRoutes(final RouteLayer routeLayer) {
         // Tool: Routes Layer
         routes = new JLabel(toolbarIcon("images/toolbar/marker.png"));
         routes.setName("routes");
         routes.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                routeLayer.setVisible(!routeLayer.isVisible());
-
-                // Operation done
-
-                toggleLayerButton(routeLayer, routes);
-
+                // Toggle visibility on settings
+                // Toggle button is toggled on/off as part of settings listener method.
+                routeLayer.getSettings().setVisible(!routeLayer.getSettings().isVisible());
             }
         });
         routes.setToolTipText("Show/hide Routes");
-        toggleLayerButton(routeLayer, routes);
+        toggleLayerButton(routeLayer.getSettings().isVisible(), this.routes);
 
         // group.add(wms);
         toolItemGroups.addToolItem(routes);
     }
 
-    private void addVoyages(final Layer voyageLayer) {
+    private void addVoyages(final VoyageLayer voyageLayer) {
         // Tool: voyage Layer
         voyages = new JLabel(toolbarIcon("images/toolbar/marker_green.png"));
         voyages.setName("voyages");
         voyages.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                voyageLayer.setVisible(!voyageLayer.isVisible());
-
-                // Operation done
-                toggleLayerButton(voyageLayer, voyages);
-
+                // Toggle visibility on settings.
+                // Toggle button is toggled on/off as part of settings listener method.
+                voyageLayer.getSettings().setVisible(!voyageLayer.getSettings().isVisible());
             }
         });
         voyages.setToolTipText("Show/hide Strategic Voyages");
-        toggleLayerButton(voyageLayer, voyages);
+        toggleLayerButton(voyageLayer.getSettings().isVisible(), voyages);
 
         // group.add(wms);
         toolItemGroups.addToolItem(voyages);
@@ -318,22 +325,13 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
     private void addAISNameLabels(final AisLayer layer) {
         // Tool: ais name labels
-        final JLabel aisNameLabels = new JLabel(toolbarIcon("images/toolbar/edit-letter-spacing.png"));
+        aisNameLabels = new JLabel(toolbarIcon("images/toolbar/edit-letter-spacing.png"));
         aisNameLabels.setName("aisnamelabels");
         aisNameLabels.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-
-                // Toggle namelabels
-                layer.setShowNameLabels(!aisNameLabels.isOpaque());
-
-                if (!aisNameLabels.isOpaque()) {
-                    setActiveToolItem(aisNameLabels);
-                    System.out.println("Activating");
-                } else {
-                    setInactiveToolItem(aisNameLabels);
-                    System.out.println("Deactivating");
-                }
-
+                // Toggle namelabels on settings
+                // Toggle button is toggled on/off as part of the settings listener method
+                layer.getSettings().setShowVesselNameLabels(!layer.getSettings().isShowVesselNameLabels());
             }
         });
         aisNameLabels.setToolTipText("Show/hide AIS Name Labels");
@@ -344,46 +342,37 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
     }
 
     private void addIntendedRoutesFilter(final IntendedRouteLayerCommon layer) {
-        // Tool: voyage Layer
-        final JLabel aisNameLabels = new JLabel(toolbarIcon("images/toolbar/road-sign.png"));
-        aisNameLabels.setName("aisnamelabels");
-        aisNameLabels.addMouseListener(new MouseAdapter() {
+        // Tool: Intended Route Layer
+        this.intendedRoutesFilter = new JLabel(toolbarIcon("images/toolbar/road-sign.png"));
+        intendedRoutesFilter.setName("intendedroutesfilter");
+        intendedRoutesFilter.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-
-                if (layer.isUseFilter()) {
-                    layer.toggleFilter(false);
-                    setInactiveToolItem(aisNameLabels);
-                } else {
-                    layer.toggleFilter(true);
-                    setActiveToolItem(aisNameLabels);
-                }
+                // Toggle setting.
+                // Toggle button is toggled on/off as part of settings listener method.
+                layer.getSettings().setIntendedRouteFilterInUse(layer.getSettings().isIntendedRouteFilterInUse());
             }
         });
-        aisNameLabels.setToolTipText("Toggle Intended Route Filter");
-
-        if (!layer.isUseFilter()) {
-            setInactiveToolItem(aisNameLabels);
-        } else {
-            setActiveToolItem(aisNameLabels);
-        }
-
-        functionItemGroups.addToolItem(aisNameLabels);
+        intendedRoutesFilter.setToolTipText("Toggle Intended Route Filter");
+        // update button to reflect initial value of setting
+        this.toggleLayerButton(layer.getSettings().isIntendedRouteFilterInUse(), intendedRoutesFilter);
+        functionItemGroups.addToolItem(intendedRoutesFilter);
     }
 
     private void addPastTrack(final AisLayer aisLayer) {
-        // Tool: voyage Layer
-        final JLabel aisNameLabels = new JLabel(toolbarIcon("images/toolbar/pasttrack.png"));
-        aisNameLabels.setName("pastrack");
-        aisNameLabels.addMouseListener(new MouseAdapter() {
+        // Tool: AIS past tracks toggle
+        final JLabel aisPastTrack = new JLabel(toolbarIcon("images/toolbar/pasttrack.png"));
+        aisPastTrack.setName("pastrack");
+        aisPastTrack.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-
+                // TODO why is this empty?
             }
         });
-        aisNameLabels.setToolTipText("Show/hide Past Track");
-        setInactiveToolItem(aisNameLabels);
-        aisNameLabels.setEnabled(false);
+        aisPastTrack.setToolTipText("Show/hide Past Track");
+        // TODO why inactive + disabled?
+        setInactiveToolItem(aisPastTrack);
+        aisPastTrack.setEnabled(false);
 
-        functionItemGroups.addToolItem(aisNameLabels);
+        functionItemGroups.addToolItem(aisPastTrack);
     }
 
     public void checkPosition() {
@@ -451,41 +440,32 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
     }
     
     public void addLayerFunctionality(EPDLayerCommon layer) {
-        // System.out.println(layer);
         if (layer instanceof AisLayerCommon) {
-
             addAIS((AisLayer) layer);
             addAISNameLabels((AisLayer) layer);
             addPastTrack((AisLayer) layer);
-
-            // Add listener
-            layer.addVisibilityListener(this);
-        }
-
-        if (layer instanceof WMSLayer) {
-            addWMS(layer);
-            layer.addVisibilityListener(this);
-        }
-
-        if (layer instanceof MsiLayer) {
-            addMSI(layer);
-            layer.addVisibilityListener(this);
-        }
-
-        if (layer instanceof RouteLayer) {
-            addRoutes(layer);
-            layer.addVisibilityListener(this);
-        }
-
-        if (layer instanceof IntendedRouteLayerCommon) {
-            addIntendedRoutes(layer);
+            ((AisLayer)layer).getSettings().addObserver(this);
+        } else if (layer instanceof WMSLayer) {
+            addWMS((WMSLayer)layer);
+            ((WMSLayer)layer).getSettings().addObserver(this);
+//            layer.addVisibilityListener(this);
+        } else if (layer instanceof MsiLayer) {
+            addMSI((MsiLayer)layer);
+            ((MsiLayer)layer).getSettings().addObserver(this);
+//            layer.addVisibilityListener(this);
+        } else if (layer instanceof RouteLayer) {
+            addRoutes((RouteLayer)layer);
+            ((RouteLayer)layer).getSettings().addObserver(this);
+//            layer.addVisibilityListener(this);
+        } else if (layer instanceof IntendedRouteLayerCommon) {
+            addIntendedRoutes((IntendedRouteLayerCommon)layer);
             addIntendedRoutesFilter((IntendedRouteLayerCommon) layer);
-            layer.addVisibilityListener(this);
-        }
-
-        if (layer instanceof VoyageLayer) {
-            addVoyages(layer);
-            layer.addVisibilityListener(this);
+            ((IntendedRouteLayerCommon)layer).getSettings().addObserver(this);
+//            layer.addVisibilityListener(this);
+        } else if (layer instanceof VoyageLayer) {
+            addVoyages((VoyageLayer)layer);
+            ((VoyageLayer)layer).getSettings().addObserver(this);
+//            layer.addVisibilityListener(this);
         }
 
         repaintToolbar();
@@ -623,38 +603,38 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         toolItem.setOpaque(true);
     }
 
-    @Override
-    public void visibilityChanged(Layer layer) {
-        // Handle the toggling of buttons based on global changes
-        if (layer instanceof WMSLayer) {
-            toggleLayerButton(layer, wms);
-        }
-
-        if (layer instanceof MsiLayer) {
-            toggleLayerButton(layer, msi);
-        }
-        if (layer instanceof AisLayer) {
-            toggleLayerButton(layer, ais);
-        }
-        if (layer instanceof IntendedRouteLayerCommon) {
-            toggleLayerButton(layer, intendedRoutes);
-        }
-
-        if (layer instanceof RouteLayer) {
-            toggleLayerButton(layer, routes);
-        }
-        if (layer instanceof VoyageLayer) {
-            toggleLayerButton(layer, voyages);
-        }
-
-        if (layer != null && chartPanel != null && layer == chartPanel.getEncLayer()) {
-            if (chartPanel.isEncVisible()) {
-                setActiveToolItem(enc);
-            } else {
-                setInactiveToolItem(enc);
-            }
-        }
-    }
+//    @Override
+//    public void visibilityChanged(Layer layer) {
+//        // Handle the toggling of buttons based on global changes
+//        if (layer instanceof WMSLayer) {
+//            toggleLayerButton(layer, wms);
+//        }
+//
+//        if (layer instanceof MsiLayer) {
+//            toggleLayerButton(layer, msi);
+//        }
+//        if (layer instanceof AisLayer) {
+//            toggleLayerButton(layer, ais);
+//        }
+//        if (layer instanceof IntendedRouteLayerCommon) {
+//            toggleLayerButton(layer, intendedRoutes);
+//        }
+//
+//        if (layer instanceof RouteLayer) {
+//            toggleLayerButton(layer, routes);
+//        }
+//        if (layer instanceof VoyageLayer) {
+//            toggleLayerButton(layer, voyages);
+//        }
+//
+//        if (layer != null && chartPanel != null && layer == chartPanel.getEncLayer()) {
+//            if (chartPanel.isEncVisible()) {
+//                setActiveToolItem(enc);
+//            } else {
+//                setInactiveToolItem(enc);
+//            }
+//        }
+//    }
 
     @Override
     public GoBackButton getGoBackButton() {
@@ -669,4 +649,134 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
     public HistoryListener getHistoryListener() {
         return this.chartPanel.getHistoryListener();
     }
+
+    /*
+     * Begin [Settings listener methods]
+     */
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void showVesselNameLabelsChanged(VesselLayerSettings<?> source,
+            boolean show) {
+        if(source instanceof AisLayerCommonSettings<?>) {
+            // Observed AIS layer had name labels toggled on/off
+            if (show) {
+                setActiveToolItem(aisNameLabels);
+            } else {
+                setInactiveToolItem(aisNameLabels);
+            }
+        }
+    }
+
+    @Override
+    public void movementVectorLengthMinChanged(VesselLayerSettings<?> source,
+            int newMinLengthMinutes) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void movementVectorLengthMaxChanged(VesselLayerSettings<?> source,
+            int newMaxLengthMinutes) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void movementVectorLengthStepSizeChanged(
+            VesselLayerSettings<?> source, float newStepSize) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void movementVectorHideBelowChanged(VesselLayerSettings<?> source,
+            float newMinSpeed) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if(this.chartPanel == null) {
+            return;
+        }
+        // Find out what observed layer settings had its visibility toggled
+        if (source == chartPanel.getAisLayer().getSettings()) {
+            // Observed AIS layer had visibility toggled on/off
+            this.toggleLayerButton(newValue, this.ais);
+        } else if (source == chartPanel.getWmsLayer().getSettings()) {
+            // Observed WMS layer had visibility toggled on/off
+            this.toggleLayerButton(newValue, this.wms);
+        } else if (source == chartPanel.getMsiLayer().getSettings()) {
+            // Observed MSI layer had visibility toggled on/off
+            this.toggleLayerButton(newValue, this.msi);
+        } else if (source == chartPanel.getIntendedRouteLayer().getSettings()) {
+            // Observed Intended Route Layer had visibility toggled on/off
+            this.toggleLayerButton(newValue, this.intendedRoutes);
+        } else if (source == chartPanel.getRouteLayer().getSettings()) {
+            // Observed route layer had visibility toggled on/off
+            this.toggleLayerButton(newValue, this.routes);
+        } else if (source == chartPanel.getVoyageLayer().getSettings()) {
+            // Observed voyage layer had visibility toggled on/off
+            this.toggleLayerButton(newValue, this.voyages);
+        }
+        // TODO add instanceof checks for other layers
+    }
+
+    @Override
+    public void showAllPastTracksChanged(boolean newValue) {
+        // TODO implement to toggle past track display toggle button.        
+    }
+
+    @Override
+    public void layerRedrawIntervalChanged(int newValue) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void showArrowScaleChanged(float maxScaleForArrowDisplay) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void routeWidthChanged(float routeWidth) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void isIntendedRouteFilterInUseChanged(IntendedRouteLayerCommonSettings<?> source, boolean useFilter) {
+        // TODO implement source check, toggle button according to useFilter
+        if(chartPanel == null || chartPanel.getIntendedRouteLayer() == null) {
+            return;
+        }
+        
+        if (source == chartPanel.getIntendedRouteLayer().getSettings()) {
+            // Observed intended route layer had its filter setting toggled
+            this.toggleLayerButton(useFilter, this.intendedRoutesFilter);
+        }
+    }
+
+    @Override
+    public void isUseWmsChanged(WMSLayerCommonSettings<?> source, boolean useWms) {
+        // TODO enable/disable WMS layer toggle button?
+    }
+
+    @Override
+    public void wmsQueryChanged(WMSLayerCommonSettings<?> source,
+            String wmsQuery) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void msiTextboxesVisibleAtScaleChanged(int scale) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void msiVisibilityFromNewWaypointChanged(double newValue) {
+        // Not relevant for this class.
+    }
+    
+    /*
+     * End [Settings listener methods]
+     */
 }

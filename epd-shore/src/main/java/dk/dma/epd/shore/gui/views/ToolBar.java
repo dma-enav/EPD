@@ -45,6 +45,12 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.settings.Settings;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
+import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
@@ -52,12 +58,13 @@ import dk.dma.epd.shore.event.RouteEditMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ToolItemGroup;
+import dk.dma.epd.shore.settings.EPDSettings;
 
 /**
  * Class for setting up the toolbar of the application
  * 
  */
-public class ToolBar extends JInternalFrame {
+public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsListener, MSILayerCommonSettingsListener, AisLayerCommonSettingsListener {
 
     private static final long serialVersionUID = 1L;
     private Boolean locked = false;
@@ -85,7 +92,27 @@ public class ToolBar extends JInternalFrame {
     private final ToolItemGroup routeToolItems;
     private MainFrame mainFrame;
     private final ToolItemGroup mapToolItems;
+    
+    /**
+     *  Tool group: Layer tools
+     */
+    private final ToolItemGroup layerToolItems = new ToolItemGroup();
 
+    /**
+     * Tool item for toggling WMS layer visibility.
+     */
+    private JLabel wms;
+    
+    /**
+     * Tool item for toggling MSI layer visibility.
+     */
+    private JLabel msi;
+    
+    /**
+     * Tool item for toggling AIS name labels.
+     */
+    private JLabel aisToggle;
+    
     /**
      * Constructor for setting up the toolbar
      * 
@@ -95,7 +122,7 @@ public class ToolBar extends JInternalFrame {
     public ToolBar(final MainFrame mainFrame) {
 
         this.mainFrame = mainFrame;
-        final Settings settings = EPD.getInstance().getSettings();
+        final EPDSettings settings = EPDShore.getInstance().getSettings();
 
         // Setup location
         this.setLocation(10 + moveHandlerHeight, 10);
@@ -185,123 +212,91 @@ public class ToolBar extends JInternalFrame {
 
         toolItemGroups.add(mapToolItems);
 
-        // Tool group: Layer tools
-        final ToolItemGroup layerToolItems = new ToolItemGroup();
-
         // Tool: WMS layer
-        final JLabel wms = new JLabel(
-                toolbarIcon("images/toolbar/wms_small.png"));
+        // Observe primary/global WMS layer settings
+        settings.getPrimaryWMSLayerSettings().addObserver(this);
+        wms = new JLabel(toolbarIcon("images/toolbar/wms_small.png"));
         wms.setName("wms");
         wms.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                if (settings.getMapSettings().isWmsVisible()) {
-                    settings.getMapSettings().setWmsVisible(false);
-                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                        if (mapFrame.getChartPanel().getWmsLayer() != null) {
-                            mapFrame.getChartPanel().getWmsLayer().setVisible(false);
-                        }
-                    }
-                    setInactiveToolItem(wms);
-
-                } else {
-                    settings.getMapSettings().setWmsVisible(true);
-                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                        if (mapFrame.getChartPanel().getWmsLayer() != null) {
-                            mapFrame.getChartPanel().getWmsLayer().setVisible(true);
-                        }
-                    }
-                    setActiveToolItem(wms, layerToolItems);
-                }
+                // Toggle on primary/global WMS layer settings
+                settings.getPrimaryWMSLayerSettings().setVisible(!settings.getPrimaryWMSLayerSettings().isVisible());
+//                if (settings.getMapSettings().isWmsVisible()) {
+//                    settings.getMapSettings().setWmsVisible(false);
+//                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+//                        if (mapFrame.getChartPanel().getWmsLayer() != null) {
+//                            mapFrame.getChartPanel().getWmsLayer().setVisible(false);
+//                        }
+//                    }
+//                    setInactiveToolItem(wms);
+//
+//                } else {
+//                    settings.getMapSettings().setWmsVisible(true);
+//                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+//                        if (mapFrame.getChartPanel().getWmsLayer() != null) {
+//                            mapFrame.getChartPanel().getWmsLayer().setVisible(true);
+//                        }
+//                    }
+//                    setActiveToolItem(wms, layerToolItems);
+//                }
             }
         });
         wms.setToolTipText("Show/hide WMS seacharts");
         layerToolItems.addToolItem(wms);
-        if (!settings.getMapSettings().isUseWms()) {
-            wms.setEnabled(false);
-        }
-        if (settings.getMapSettings().isWmsVisible()) {
-            setActiveToolItem(wms, layerToolItems);
-        }
+        wms.setEnabled(settings.getPrimaryWMSLayerSettings().isUseWms());
+        // Update tool item to reflect layer visibility stored in settings
+        this.toggleToolItem(settings.getPrimaryWMSLayerSettings().isVisible(), wms, layerToolItems);
 
         // Tool: MSI layer
-        final JLabel msi = new JLabel(
-                toolbarIcon("images/toolbar/msi_symbol_16.png"));
+        // Observe primary/global MSI layer settings
+        settings.getPrimaryMsiLayerSettings().addObserver(this);
+        msi = new JLabel(toolbarIcon("images/toolbar/msi_symbol_16.png"));
         msi.setName("msi");
         msi.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-
-                if (mainFrame.isMsiLayerEnabled()) {
-                    mainFrame.setMSILayerEnabled(false);
-                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                        mapFrame.getChartPanel().getMsiLayer().setVisible(false);
-                    }
-                    setInactiveToolItem(msi);
-                } else {
-                    mainFrame.setMSILayerEnabled(true);
-                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                        mapFrame.getChartPanel().getMsiLayer().setVisible(true);
-                    }
-                    setActiveToolItem(msi, layerToolItems);
-                }
+                // Toggle on primary/global MSI layer settings
+                settings.getPrimaryMsiLayerSettings().setVisible(!settings.getPrimaryMsiLayerSettings().isVisible());
+                
+//                if (mainFrame.isMsiLayerEnabled()) {
+//                    mainFrame.setMSILayerEnabled(false);
+//                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+//                        mapFrame.getChartPanel().getMsiLayer().setVisible(false);
+//                    }
+//                    setInactiveToolItem(msi);
+//                } else {
+//                    mainFrame.setMSILayerEnabled(true);
+//                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+//                        mapFrame.getChartPanel().getMsiLayer().setVisible(true);
+//                    }
+//                    setActiveToolItem(msi, layerToolItems);
+//                }
             }
         });
         msi.setToolTipText("Show/hide maritime safety information");
         layerToolItems.addToolItem(msi);
+        // Update tool item to reflect setting value
+        this.toggleToolItem(settings.getPrimaryMsiLayerSettings().isVisible(), msi, layerToolItems);
         
-        // Button which will toggle vessel names on or off.
-        final JLabel aisToggle = new JLabel(toolbarIcon("images/toolbar/edit-letter-spacing.png"));
+        // Tool: AIS name labels
+        // Observe primary/global AIS layer settings
+        settings.getPrimaryAisLayerSettings().addObserver(this);
+        aisToggle = new JLabel(toolbarIcon("images/toolbar/edit-letter-spacing.png"));
         aisToggle.addMouseListener(new MouseAdapter() {
-            
-            // Initialize with ship visibility.
-            private boolean isPressed = settings.getAisSettings().isShowNameLabels();
             
             /**
              * {@inheritDoc}
              */
             @Override
             public void mouseClicked(MouseEvent e) {
-                // If names are show -
-                if (isPressed) {
-                    // Set button to off.
-                    setInactiveToolItem(aisToggle);
-                    // Name labels should not be seen.
-                    isPressed = false;
-                    // Update visibility of the vessel names.
-                    toggleVesselNames(isPressed);
-                    
-                // If names are not shown.
-                } else if (!isPressed) {
-                    // set button to on.
-                    setActiveToolItem(aisToggle, layerToolItems);
-                    // Name labels should now be seen.
-                    isPressed = true;
-                    // Update visibility of the vessel names.
-                    toggleVesselNames(isPressed);
-                }
+                // Toggle primary/global AIS layer settings.
+                settings.getPrimaryAisLayerSettings().setShowVesselNameLabels(!settings.getPrimaryAisLayerSettings().isShowVesselNameLabels());
             }
 
-            /**
-             * Updates the visibility of vessel names.
-             * @param showLabels
-             *          Sets visibility of vessel names to
-             *          the passed value. 
-             */
-            private void toggleVesselNames(boolean showLabels) {
-                // For each JMapFrame which is used in the mainFrame.
-                for (JMapFrame map : EPDShore.getInstance().getMainFrame().getMapWindows()) {
-                    // Updates the right click menu option to set visibility of vessel names.
-                    map.getMapMenu().getAisNames().setNamesShouldBeVisible(showLabels);
-                }
-                // Update the settings file. PropertyChangeListeners of AisSettings will be notified as part of this call.
-                settings.getAisSettings().setShowNameLabels(showLabels);
-            }
         });
-        
-        if (settings.getAisSettings().isShowNameLabels()) {
-            setActiveToolItem(aisToggle, layerToolItems);            
-        }
         aisToggle.setToolTipText("Show/hide AIS names");
         layerToolItems.addToolItem(aisToggle);
+        // Update tool item to reflect setting value
+        this.toggleToolItem(settings.getPrimaryAisLayerSettings().isShowVesselNameLabels(), aisToggle, layerToolItems);
 
         try {
 
@@ -701,4 +696,101 @@ public class ToolBar extends JInternalFrame {
     public boolean isEncButtonEnabled() {
         return enc.isEnabled();
     }
+
+
+    /**
+     * Toggles a tool item on/off.
+     * @param toggled {@code true} if the layer tool should be toggled on, {@code false} if it should be toggled off.
+     * @param tool The tool item to toggle.
+     * @param toolGroup The {@link ToolItemGroup} the {@code tool} resides in.
+     */
+    private void toggleToolItem(boolean toggled, JLabel tool, ToolItemGroup toolGroup) {
+        if (toggled) {
+            setActiveToolItem(tool, toolGroup);
+        } else {
+            setInactiveToolItem(tool);
+        }
+    }
+    
+    /*
+     * Begin [Settings listener methods]
+     */
+    
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        EPDSettings settings = EPDShore.getInstance().getSettings();
+        if (source == settings.getPrimaryWMSLayerSettings()) {
+            this.toggleToolItem(newValue, this.wms, this.layerToolItems);
+        } else if (source == settings.getPrimaryMsiLayerSettings()) {
+            this.toggleToolItem(newValue, this.msi, this.layerToolItems);
+        }
+    }
+
+    @Override
+    public void isUseWmsChanged(WMSLayerCommonSettings<?> source, boolean useWms) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void wmsQueryChanged(WMSLayerCommonSettings<?> source,
+            String wmsQuery) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void msiTextboxesVisibleAtScaleChanged(int scale) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void msiVisibilityFromNewWaypointChanged(double newValue) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void showVesselNameLabelsChanged(VesselLayerSettings<?> source,
+            boolean show) {
+        if (source == EPDShore.getInstance().getSettings().getPrimaryAisLayerSettings()) {
+            this.toggleToolItem(show, this.aisToggle, this.layerToolItems);
+        }
+    }
+
+    @Override
+    public void movementVectorLengthMinChanged(VesselLayerSettings<?> source,
+            int newMinLengthMinutes) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void movementVectorLengthMaxChanged(VesselLayerSettings<?> source,
+            int newMaxLengthMinutes) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void movementVectorLengthStepSizeChanged(
+            VesselLayerSettings<?> source, float newStepSize) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void movementVectorHideBelowChanged(VesselLayerSettings<?> source,
+            float newMinSpeed) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void showAllPastTracksChanged(boolean newValue) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void layerRedrawIntervalChanged(int newValue) {
+        // Not relevant for this class.
+    }
+    
+    /*
+     * End [Settings listener methods]
+     */
 }

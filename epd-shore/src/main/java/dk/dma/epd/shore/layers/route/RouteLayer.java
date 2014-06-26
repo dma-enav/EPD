@@ -51,6 +51,12 @@ public class RouteLayer extends RouteLayerCommon {
         routeManager.addListener(this);
     }
     
+    @Override
+    public RouteLayerCommonSettings<RouteLayerCommonSettingsListener> getSettings() {
+        // TODO Auto-generated method stub
+        return (RouteLayerCommonSettings<RouteLayerCommonSettingsListener>) super.getSettings();
+    }
+    
     /**
      * Returns a reference to the map menu
      * @return a reference to the map menu

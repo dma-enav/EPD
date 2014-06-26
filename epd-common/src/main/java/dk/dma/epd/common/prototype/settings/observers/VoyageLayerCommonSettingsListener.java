@@ -15,27 +15,15 @@
  */
 package dk.dma.epd.common.prototype.settings.observers;
 
-import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
-
 /**
- * Interface for observing an {@link IntendedRouteLayerCommonSettings} for
- * changes.
- * 
  * @author Janus Varmarken
  */
-public interface IntendedRouteLayerCommonSettingsListener extends
-        RouteLayerCommonSettingsListener {
+public interface VoyageLayerCommonSettingsListener extends
+        LayerSettingsListener {
 
-    /**
-     * Invoked when the setting, specifying if intended route filter is enabled,
-     * has been changed.
-     * 
-     * @param source
-     *            The settings instance that fired this event.
-     * @param useFilter
-     *            {@code true} if intended route filter has been enabled,
-     *            {@code false} if intended route filter has been disabled.
+    /*
+     * Add listener method if new settings are added to
+     * VoyageLayerCommonSettings.
      */
-    void isIntendedRouteFilterInUseChanged(
-            IntendedRouteLayerCommonSettings<?> source, boolean useFilter);
+
 }

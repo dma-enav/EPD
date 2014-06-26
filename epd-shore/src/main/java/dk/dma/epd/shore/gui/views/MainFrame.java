@@ -42,8 +42,8 @@ import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
-import dk.dma.epd.shore.settings.EPDGuiSettings;
 import dk.dma.epd.shore.settings.Workspace;
+import dk.dma.epd.shore.settings.gui.GUISettings;
 import dk.dma.epd.shore.util.ThreadedMapCreator;
 import dk.dma.epd.shore.voyage.Voyage;
 
@@ -97,7 +97,7 @@ public class MainFrame extends MainFrameCommon {
 
         beanHandler = EPDShore.getInstance().getBeanHandler();
         // Get settings
-        EPDGuiSettings guiSettings = EPDShore.getInstance().getSettings().getGuiSettings();
+        GUISettings guiSettings = EPDShore.getInstance().getSettings().getGuiSettings();
 
         Workspace workspace = EPDShore.getInstance().getSettings().getWorkspace();
 

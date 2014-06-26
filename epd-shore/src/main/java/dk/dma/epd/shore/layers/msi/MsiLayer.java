@@ -44,6 +44,11 @@ public class MsiLayer extends MsiLayerCommon {
         registerMapMenuClasses(MsiSymbolGraphic.class, MsiDirectionalIcon.class);
     }
 
+    @Override
+    public MSILayerCommonSettings<MSILayerCommonSettingsListener> getSettings() {
+        return (MSILayerCommonSettings<MSILayerCommonSettingsListener>) super.getSettings();
+    }
+    
     /**
      * Returns a reference to the map menu
      * @return a reference to the map menu
