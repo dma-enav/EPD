@@ -99,6 +99,12 @@
 										<jdkPreference>preferJre</jdkPreference>
 										<maxHeapSize>2048</maxHeapSize>
 									</jre>
+									<splash>
+										<file>${basedir}/splash.bmp</file>
+										<waitForWindow>true</waitForWindow>
+										<timeout>60</timeout>
+										<timeoutErr>true</timeoutErr>
+									</splash>
 								</configuration>
 							</execution>
 						</executions>

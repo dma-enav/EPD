@@ -15,6 +15,9 @@
  */
 package dk.dma.epd.common.prototype.sensor.predictor;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.jcip.annotations.Immutable;
 import dk.dma.enav.model.geometry.Position;
 
@@ -23,7 +26,12 @@ public class DynamicPredictorPredictionData extends DynamicPredictorData {
 
     private final int number;
 
-    public DynamicPredictorPredictionData(int number, Position position, float heading, Float cog, Float sog, long time) {
+    @JsonCreator
+    public DynamicPredictorPredictionData(@JsonProperty("number") int number,
+            @JsonProperty("position") Position position,
+            @JsonProperty("heading") float heading,
+            @JsonProperty("cog") Float cog, @JsonProperty("sog") Float sog,
+            @JsonProperty("time") long time) {
         super(position, heading, cog, sog, time);
         this.number = number;
     }
@@ -35,10 +43,9 @@ public class DynamicPredictorPredictionData extends DynamicPredictorData {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("DynamicPredictorPredictionData [number=").append(number).append(super.toString());
+        builder.append("DynamicPredictorPredictionData [number=")
+                .append(number).append(super.toString());
         return builder.toString();
     }
-    
-    
 
 }

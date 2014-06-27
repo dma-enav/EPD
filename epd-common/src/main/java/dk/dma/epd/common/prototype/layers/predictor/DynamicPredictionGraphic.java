@@ -16,7 +16,7 @@
 package dk.dma.epd.common.prototype.layers.predictor;
 
 import java.awt.Color;
-import java.util.Objects;
+import java.awt.Paint;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.Projection;
@@ -31,27 +31,23 @@ import dk.dma.epd.common.prototype.zoom.ZoomLevel;
  */
 @SuppressWarnings("serial")
 public class DynamicPredictionGraphic extends OMGraphicList {
-    
-    private final Color paint;
-    
+
     private VesselOutline outline = new VesselOutline(Color.GRAY, 1.0f);
     private VesselTriangle triangle = new VesselTriangle();
     private VesselDot dot = new VesselDot();
-    
+
     /**
      * Create a new {@link DynamicPredictionGraphic}.
-     * @param paint Color used when drawing this graphic.
      */
-    public DynamicPredictionGraphic(Color paint) {
-        this.paint = Objects.requireNonNull(paint);
-        this.triangle.setLinePaint(this.paint);
+    public DynamicPredictionGraphic() {
+
     }
-    
+
     private void drawAccordingToScale(float scale) {
         // clear old display
         this.clear();
         // figure what display to use
-        switch(ZoomLevel.getFromScale(scale)) {
+        switch (ZoomLevel.getFromScale(scale)) {
         case VESSEL_OUTLINE:
             this.add(outline);
             break;
@@ -60,21 +56,37 @@ public class DynamicPredictionGraphic extends OMGraphicList {
             break;
         case VESSEL_DOT:
             this.add(dot);
-            this.dot.setLinePaint(this.paint);
-            this.dot.setFillPaint(this.paint);
             break;
         }
     }
-    
+
+    @Override
+    public void setFillPaint(Paint arg0) {
+        super.setFillPaint(arg0);
+        this.dot.setFillPaint(arg0);
+        /*
+         * We do not set fill paint on outline and triangle in order to keep
+         * these transparent.
+         */
+    }
+
+    @Override
+    public void setLinePaint(Paint paint) {
+        super.setLinePaint(paint);
+        this.outline.setLinePaint(paint);
+        this.triangle.setLinePaint(paint);
+        this.dot.setLinePaint(paint);
+    }
+
     @Override
     public boolean generate(Projection proj, boolean forceProjectAll) {
-        if(proj == null) {
+        if (proj == null) {
             return true;
         }
         this.drawAccordingToScale(proj.getScale());
         return super.generate(proj, forceProjectAll);
     }
-    
+
     public void update(VesselPortrayalData data) {
         this.outline.updateGraphic(data);
         this.triangle.updateGraphic(data);

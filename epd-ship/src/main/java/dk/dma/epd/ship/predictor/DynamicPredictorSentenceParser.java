@@ -13,52 +13,50 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.predictor;
+package dk.dma.epd.ship.predictor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import net.jcip.annotations.ThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
 import dk.dma.epd.common.prototype.sensor.predictor.IDynamicPredictorDataListener;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
- * Class for handling and distributing dynamic prediction information
+ * The purpose of this class is to receive the individual parts (sentences) of a dynamic prediction and combine these parts into a complete
+ * dynamic prediction. The complete dynamic prediction is forwarded to a {@link DynamicPredictorHandler} which is in charge of distributing
+ * the dynamic prediction to interested clients.
  */
-@ThreadSafe
-public class DynamicPredictorHandler extends MapHandlerChild implements Runnable, IDynamicPredictorDataListener {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DynamicPredictorHandler.class);
-
-    private static final long TIMEOUT = 30 * 1000; // 30 sec
-
-    private final CopyOnWriteArrayList<IDynamicPredictionsListener> listeners = new CopyOnWriteArrayList<>();
-
+public class DynamicPredictorSentenceParser extends MapHandlerChild implements IDynamicPredictorDataListener {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicPredictorSentenceParser.class);
+    
     private final List<DynamicPredictorPredictionData> predictions = new ArrayList<>();
+    
     private volatile DynamicPredictorStateData state;
-    private volatile long lastPrediction;
-
-    public DynamicPredictorHandler() {
-        EPD.startThread(this, "DynamicPredictorHandler");
-    }
-
+    
+    private volatile DynamicPredictorHandler dynamicPredictorHandler;
+    
+    private volatile OwnShipHandler ownShipHandler;
+    
     @Override
     public void dynamicPredictorUpdate(DynamicPredictorData dynamicPredictorData) {        
-        List<DynamicPredictorPredictionData> toDistribute = null;        
-        DynamicPredictorStateData s = null;
-        
-        synchronized (this) {
+        DynamicPrediction toDistribute = null;
+        synchronized (this) {            
 
+            if (dynamicPredictorHandler == null || ownShipHandler == null) {
+                // We cannot distribute sensor data if handlers are not yet available.
+                return;
+            }
+            
             if (dynamicPredictorData instanceof DynamicPredictorStateData) {
                 state = (DynamicPredictorStateData) dynamicPredictorData;
                 predictions.clear();
@@ -76,48 +74,28 @@ public class DynamicPredictorHandler extends MapHandlerChild implements Runnable
             predictions.add(prediction);
 
             if (state.getCount() == prediction.getNumber()) {
-                lastPrediction = System.currentTimeMillis();
-                toDistribute = new ArrayList<>(predictions);
-                s = state;
+                toDistribute = new DynamicPrediction(ownShipHandler.getMmsi(), state, new ArrayList<>(predictions));
                 state = null;
                 predictions.clear();
             }
-
         }
 
         if (toDistribute != null) {
-            for (IDynamicPredictionsListener listener : listeners) {
-                listener.receivePredictions(s, toDistribute);
-            }
+            this.dynamicPredictorHandler.ownShipDynamicPredictionChanged(toDistribute);
         }
-
     }
-
+    
     @Override
-    public void run() {
-        while (true) {
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return;
+    public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        if (obj instanceof DynamicPredictorHandler) {
+            synchronized(this) {
+                this.dynamicPredictorHandler = (DynamicPredictorHandler) obj;
             }
-            // Distribute timeout
-            if (System.currentTimeMillis() - lastPrediction > TIMEOUT) {
-                for (IDynamicPredictionsListener listener : listeners) {
-                    listener.receivePredictions(null, null);
-                }
+        } else if (obj instanceof OwnShipHandler) {
+            synchronized(this) {
+                this.ownShipHandler = (OwnShipHandler) obj;
             }
         }
-
     }
-
-    public void addListener(IDynamicPredictionsListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListener(IDynamicPredictionsListener listener) {
-        listeners.remove(listener);
-    }
-
 }

@@ -29,7 +29,7 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget.AisClass;
-import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandler;
+import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
@@ -105,12 +105,8 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
         }
         
         // Distribute to dynamic predictor handler
-        dynamicPredictorHandler.dynamicPredictorUpdate(state);
-        for (DynamicPredictorPredictionData prediction : predictions) {
-            dynamicPredictorHandler.dynamicPredictorUpdate(prediction);
-        }        
-
-
+        DynamicPrediction dynamicPrediction = new DynamicPrediction(ownShip.getMmsi(), state, predictions);
+        dynamicPredictorHandler.ownShipDynamicPredictionChanged(dynamicPrediction);
     }
 
     @Override
