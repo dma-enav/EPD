@@ -24,7 +24,7 @@ import dk.dma.epd.common.prototype.settings.observers.MetocLayerCommonSettingsLi
  * @author Janus Varmarken
  */
 public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettingsListener>
-        extends LayerSettings<OBSERVER> {
+        extends LayerSettings<OBSERVER> implements MetocLayerCommonSettingsListener {
 
     /**
      * The wind warning limit. Unit: m/s.
@@ -62,6 +62,12 @@ public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettingsL
      */
     private double waveMedium = 2.0;
 
+    @Override
+    public MetocLayerCommonSettings<OBSERVER> copy() {
+        // TODO Auto-generated method stub
+        return (MetocLayerCommonSettings<OBSERVER>) super.copy();
+    }
+    
     /**
      * Gets the wind warning limit. Unit: m/s.
      * 
@@ -322,4 +328,56 @@ public class MetocLayerCommonSettings<OBSERVER extends MetocLayerCommonSettingsL
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+    
+    @Override
+    public void defaultWindWarnLimitChanged(double windWarnLimit) {
+        // Obey to change to observed instance.
+        this.setDefaultWindWarnLimit(windWarnLimit);
+    }
+
+    @Override
+    public void defaultCurrentWarnLimitChanged(double currentWarnLimit) {
+        // Obey to change to observed instance.
+        this.setDefaultCurrentWarnLimit(currentWarnLimit);
+    }
+
+    @Override
+    public void defaultWaveWarnLimitChanged(double defaultWaveWarnLimit) {
+        // Obey to change to observed instance.
+        this.setDefaultWaveWarnLimit(defaultWaveWarnLimit);
+    }
+
+    @Override
+    public void defaultCurrentLowChanged(double defaultCurrentLow) {
+        // Obey to change to observed instance.
+        this.setDefaultCurrentLow(defaultCurrentLow);
+    }
+    
+    @Override
+    public void defaultCurrentMediumChanged(double defaultCurrentMedium) {
+        // Obey to change to observed instance.
+        this.setDefaultCurrentMedium(defaultCurrentMedium);
+    }
+
+    @Override
+    public void defaultWaveLowChanged(double defaultWaveLow) {
+        // Obey to change to observed instance.
+        this.setDefaultWaveLow(defaultWaveLow);
+    }
+
+    @Override
+    public void defaultWaveMediumChanged(double defaultWaveMedium) {
+        // Obey to change to observed instance.
+        this.setDefaultWaveMedium(defaultWaveMedium);
+    }
+    
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }

@@ -212,26 +212,31 @@ public class LayerTogglingPanel extends JPanel implements MouseListener,
             public void mouseReleased(MouseEvent e) {
                 if (enc.isEnabled()) {
 
-                    Layer encLayer = chartPanel.getEncLayer();
-
-                    if (encLayer != null) {
-                        // Set the visibility, but do not persist the settings
-                        chartPanel.encVisible(!chartPanel.isEncVisible(), false);
-                    }
+                    chartPanel.getEncLayerSettings().setVisible(!chartPanel.getEncLayerSettings().isVisible());
+//                    Layer encLayer = chartPanel.getEncLayer();
+//
+//                    if (encLayer != null) {
+//                        // Set the visibility, but do not persist the settings
+//                        chartPanel.encVisible(!chartPanel.isEncVisible(), false);
+//                    }
 
                 }
             }
         });
         enc.setToolTipText("Show/hide ENC");
 
-        enc.setEnabled(EPDShore.getInstance().getSettings().getENCLayerSettings().isEncInUse());
-        if (EPDShore.getInstance().getSettings().getMapSettings().isEncVisible()) {
+        enc.setEnabled(chartPanel.getEncLayerSettings().isEncInUse());
+        // TODO this check may not be correct for default values when there is no dongle....
+        if (chartPanel.getEncLayerSettings().isVisible()) {
             setActiveToolItem(enc);
         }
         toolItemGroups.addToolItem(enc);
         
         
         repaintToolbar();
+        
+        
+        
     }
 
     private void addMSI(final MsiLayer msiLayer) {
@@ -411,9 +416,8 @@ public class LayerTogglingPanel extends JPanel implements MouseListener,
         this.chartPanel.getMap().addProjectionListener(this.chartPanel.getHistoryListener());
         this.chartPanel.getHistoryListener().setNavigationPanel(this);
         
-        // Listen to visibility changes for the ENC layer
         if (chartPanel.getEncLayer() != null) {
-            chartPanel.getEncVisibilityAdapter().addVisibilityListener(this);
+//            chartPanel.getEncVisibilityAdapter().addVisibilityListener(this);
             addEnc();
         }
     }

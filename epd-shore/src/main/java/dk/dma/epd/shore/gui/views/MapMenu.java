@@ -167,9 +167,9 @@ public class MapMenu extends MapMenuCommon {
 
         voyageHideAll = new VoyageHideAll("Toggle Voyage Layer");
         voyageHideAll.addActionListener(this);
-
-        setAisNames(new ToggleAisTargetNames());
-        getAisNames().addActionListener(this);
+        // This goes to generalMenu() where we know what mapframe ais target names are to be toggled on...
+//        setAisNames(new ToggleAisTargetNames());
+//        getAisNames().addActionListener(this);
         hideAisTargetName = new ToggleAisTargetName();
         hideAisTargetName.addActionListener(this);
 
@@ -220,7 +220,12 @@ public class MapMenu extends MapMenuCommon {
             add(showPastTracks);
             add(hidePastTracks);
             addSeparator();
-            add(getAisNames());
+            ChartPanel cp = jMapFrame.getChartPanel();
+            if(cp != null) {
+                setAisNames(new ToggleAisTargetNames(cp.getAisLayer().getSettings()));
+                getAisNames().addActionListener(this);
+                add(getAisNames());
+            }
             addSeparator();
             add(scaleMenu);
 

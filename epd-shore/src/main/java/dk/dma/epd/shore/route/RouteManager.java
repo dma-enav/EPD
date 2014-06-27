@@ -28,6 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.MetocHandlerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.RouteManagerCommonSettingsListener;
+import dk.dma.epd.shore.EPDShore;
 
 
 /**
@@ -42,8 +47,9 @@ public class RouteManager extends RouteManagerCommon {
     /**
 * Constructor
 */
-    public RouteManager() {
-        super();
+    public RouteManager(RouteManagerCommonSettings<RouteManagerCommonSettingsListener> routeManagerSettings,
+            MetocHandlerCommonSettings<MetocHandlerCommonSettingsListener> metocSettings) {
+        super(routeManagerSettings, metocSettings);
     }
 
     /**************************************/
@@ -56,7 +62,7 @@ public class RouteManager extends RouteManagerCommon {
 * @return the new route manager
 */
     public static RouteManager loadRouteManager() {
-        RouteManager manager = new RouteManager();
+        RouteManager manager = new RouteManager(EPDShore.getInstance().getSettings().getRouteManagerSettings(), EPDShore.getInstance().getSettings().getMetocHandlerSettings());
         try {
             FileInputStream fileIn = new FileInputStream(ROUTESFILE);
             ObjectInputStream objectIn = new ObjectInputStream(fileIn);

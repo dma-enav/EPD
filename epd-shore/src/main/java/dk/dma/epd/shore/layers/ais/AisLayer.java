@@ -41,7 +41,6 @@ import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
-import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonLocalSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
 import dk.dma.epd.common.text.Formatter;

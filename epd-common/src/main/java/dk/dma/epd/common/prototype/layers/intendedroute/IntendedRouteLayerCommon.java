@@ -326,7 +326,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
     }
 
     @Override
-    public void isIntendedRouteFilterInUseChanged(boolean useFilter) {
+    public void isIntendedRouteFilterInUseChanged(IntendedRouteLayerCommonSettings<?> source, boolean useFilter) {
         // intended route filter toggled on observed settings
         System.out.println("Toggling filter");
         this.useFilter = useFilter;

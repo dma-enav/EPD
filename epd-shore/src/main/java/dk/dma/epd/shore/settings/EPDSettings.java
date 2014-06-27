@@ -15,10 +15,16 @@
  */
 package dk.dma.epd.shore.settings;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +37,13 @@ import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
+import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.observers.GUICommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteHandlerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.MapCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.RouteManagerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
-import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings.IObserver;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.settings.gui.ENCLayerSettings;
@@ -56,13 +64,6 @@ public class EPDSettings extends Settings implements Serializable {
     private String settingsFile = "settings.properties";
     private String defaultWorkSpace ="workspaces/default.workspace";
     private String workspaceFile = "";
-
-    private EPDSensorSettings sensorSettings = new EPDSensorSettings();
-    private EPDNavSettings navSettings = new EPDNavSettings();
-
-    private EPDAisSettings aisSettings = new EPDAisSettings();
-    private EPDEnavSettings enavSettings = new EPDEnavSettings();
-    private EPDCloudSettings cloudSettings = new EPDCloudSettings();
     
     private Workspace workspace = new Workspace();
 
@@ -74,10 +75,12 @@ public class EPDSettings extends Settings implements Serializable {
     
     private ENCLayerSettings encLayerSettings;
     
-    private IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettings.IObserver> intendedRouteHandlerSettings;
+    private IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettingsListener> intendedRouteHandlerSettings;
     
     private IdentitySettings shoreIdentitySettings;
 
+    private RouteManagerCommonSettings<RouteManagerCommonSettingsListener> routeManagerSettings;
+    
     public EPDSettings() {
         super();
     }
@@ -87,6 +90,8 @@ public class EPDSettings extends Settings implements Serializable {
      */
     @Override
     public void loadFromFile() {
+        // Do work in super to load non-specialized settings.
+        super.loadFromFile();
         
         // Load general GUI settings
         GUISettings gui = ObservedSettings.loadFromFile(GUISettings.class, resolve(guiSettingsFile).toFile());
@@ -113,24 +118,19 @@ public class EPDSettings extends Settings implements Serializable {
          *  Load intended route handler settings.
          *  Even though Shore uses common version, we need to load it here instead of in super class as Ship uses specific version.
          */
-        IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettings.IObserver> intendedRouteHandler = ObservedSettings.loadFromFile(IntendedRouteHandlerCommonSettings.class, resolve(intendedRouteHandlerSettingsFile).toFile());
+        IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettingsListener> intendedRouteHandler = ObservedSettings.loadFromFile(IntendedRouteHandlerCommonSettings.class, resolve(intendedRouteHandlerSettingsFile).toFile());
         this.intendedRouteHandlerSettings = intendedRouteHandler != null ? intendedRouteHandler : new IntendedRouteHandlerCommonSettings<>();
         
         // Load shore identity settings
         IdentitySettings idSettings = ObservedSettings.loadFromFile(IdentitySettings.class, resolve(shoreIdentitySettingsFile).toFile());
         this.shoreIdentitySettings = idSettings != null ? idSettings : new IdentitySettings();
         
-        // Open properties file
-        Properties props = new Properties();
-        loadProperties(props, settingsFile);
-
-        aisSettings.readProperties(props);
-        enavSettings.readProperties(props);
-        guiSettings.readProperties(props);
-        mapSettings.readProperties(props);
-        navSettings.readProperties(props);
-        sensorSettings.readProperties(props);
-        cloudSettings.readProperties(props);
+        /*
+         *  Load Route Manager settings.
+         *  Even though Shore uses common version, we need to load it here instead of in super class as Ship uses specific version.
+         */
+        RouteManagerCommonSettings<RouteManagerCommonSettingsListener> routeMgr = ObservedSettings.loadFromFile(RouteManagerCommonSettings.class, resolve(routeManagerSettingsFile).toFile());
+        this.routeManagerSettings = routeMgr != null ? routeMgr : new RouteManagerCommonSettings<>();
 
         workspaceFile = guiSettings.getWorkspace();
 
@@ -171,12 +171,17 @@ public class EPDSettings extends Settings implements Serializable {
     }
     
     @Override
-    public IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettings.IObserver> getIntendedRouteHandlerSettings() {
+    public IntendedRouteHandlerCommonSettings<IntendedRouteHandlerCommonSettingsListener> getIntendedRouteHandlerSettings() {
         return this.intendedRouteHandlerSettings;
     }
     
     public IdentitySettings getShoreIdentitySettings() {
         return shoreIdentitySettings;
+    }
+    
+    @Override
+    public RouteManagerCommonSettings<RouteManagerCommonSettingsListener> getRouteManagerSettings() {
+        return this.routeManagerSettings;
     }
     
     /**
@@ -203,24 +208,6 @@ public class EPDSettings extends Settings implements Serializable {
     }
 
     /**
-     * Save the settings to the files
-     */
-    @Override
-    public void saveToFile() {
-        Properties props = new Properties();
-
-        aisSettings.setProperties(props);
-        enavSettings.setProperties(props);
-        guiSettings.setProperties(props);
-        mapSettings.setProperties(props);
-        navSettings.setProperties(props);
-        sensorSettings.setProperties(props);
-        cloudSettings.setProperties(props);
-
-        saveProperties(props, settingsFile, "# epd settings saved: " + new Date());
-    }
-
-    /**
      * Save the current workspace
      * 
      * @param mapWindows
@@ -233,41 +220,69 @@ public class EPDSettings extends Settings implements Serializable {
         guiSettings.setWorkspace("/workspaces/" + filename);
     }
 
-    @Override
-    public EPDAisSettings getAisSettings() {
-        return aisSettings;
-    }
-
-    @Override
-    public EPDEnavSettings getEnavSettings() {
-        return enavSettings;
-    }
-
-    @Override
-    public EPDNavSettings getNavSettings() {
-        return navSettings;
-    }
-
-    @Override
-    public EPDSensorSettings getSensorSettings() {
-        return sensorSettings;
-    }
-
-    @Override
-    public S57LayerSettings getS57Settings() {
-        return null;
-    }
-    
-    @Override
-    public EPDCloudSettings getCloudSettings() {
-        return cloudSettings;
-    }
-
     public Workspace getWorkspace() {
         return workspace;
     }
 
     public String getSettingsFile() {
         return settingsFile;
+    }
+    
+    /**
+     * Loads the given properties file. Deprecated: Only intended for use during {@link Workspace} initialization.
+     * @param props the properties to load the file into
+     * @param file the properties file to load
+     * @return success or failure
+     */
+    @Deprecated
+    protected boolean loadProperties(Properties props, String file) {
+        if (file.startsWith("/")) {
+            file = file.substring(1);
+        }
+        try {
+            props.load(new FileInputStream(resolve(file).toFile()));
+        } catch (FileNotFoundException e) {
+            LOG.error("No settings file found: " + resolve(file));
+            return false;
+        } catch (IOException e) {
+            LOG.error("Settings file could not be loaded: " + resolve(file));
+            return false;
+        }
+        
+        LOG.info("Settings file loaded, path=" + resolve(file));
+        return true;
+    }
+    
+    /**
+     * Saves the properties to the given file. Deprecated: Only intended for use during {@link Workspace} serialization.
+     * @param props the properties to save
+     * @param file the file to save the properties to
+     * @return success or failure
+     */
+    @Deprecated
+    protected boolean saveProperties(Properties props, String file, String header) {
+        if (file.startsWith("/")) {
+            file = file.substring(1);
+        }
+        try (
+                FileWriter outFile = new FileWriter(resolve(file).toFile());
+                PrintWriter out = new PrintWriter(outFile);) {
+                if (header != null) {
+                    out.println(header);
+                }
+                TreeSet<String> keys = new TreeSet<>();
+                for (Object key : props.keySet()) {
+                    keys.add((String) key);
+                }
+                for (String key : keys) {
+                    out.println(key + "=" + props.getProperty(key));
+                }
+        } catch (IOException e) {
+            LOG.error("Failed to save settings file " + resolve(file) + ": " + e.getMessage());
+            return false;
+        }
+        
+        LOG.info("Settings file updated, path=" + resolve(file));
+        return true;
     }
 }

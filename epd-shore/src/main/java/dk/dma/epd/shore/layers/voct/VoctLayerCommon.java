@@ -38,7 +38,10 @@ public class VoctLayerCommon extends GeneralLayer implements
     protected VOCTManager voctManager;
     protected JMapFrame jMapFrame;
 
-
+    public VoctLayerCommon() {
+        super(null);
+    }
+    
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
         // TODO Auto-generated method stub

@@ -18,8 +18,8 @@ package dk.dma.epd.shore.layers.route;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Stroke;
+import java.util.Objects;
 
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.metoc.MetocGraphic;
 import dk.dma.epd.common.prototype.layers.route.ActiveRouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
@@ -27,7 +27,9 @@ import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.MetocLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.MapMenu;
@@ -39,12 +41,14 @@ public class RouteLayer extends RouteLayerCommon {
 
     private static final long serialVersionUID = 1L;
 
+    private final MetocLayerCommonSettings<MetocLayerCommonSettingsListener> metocLayerSettings;
+    
     /**
      * Constructor
      */
-    public RouteLayer(RouteLayerCommonSettings<RouteLayerCommonSettingsListener> localLayerSettings) {
+    public RouteLayer(RouteLayerCommonSettings<RouteLayerCommonSettingsListener> localLayerSettings, MetocLayerCommonSettings<MetocLayerCommonSettingsListener> metocLayerSettings) {
         super(localLayerSettings);
-        
+        this.metocLayerSettings = Objects.requireNonNull(metocLayerSettings);
         // Hmmm, findAndInit not called with the RouteManager.
         // The RouteManager is in a different bean context, methinks...
         routeManager = EPDShore.getInstance().getRouteManager();
@@ -78,16 +82,16 @@ public class RouteLayer extends RouteLayerCommon {
 
         graphics.clear();
 
-        float routeWidth = EPD.getInstance().getSettings().getNavSettings().getRouteWidth();
+//        float routeWidth = EPD.getInstance().getSettings().getNavSettings().getRouteWidth();
         Stroke stroke = new BasicStroke(
-                routeWidth,                // Width
+                getSettings().getRouteWidth(),                // Width
                 BasicStroke.CAP_SQUARE,    // End cap
                 BasicStroke.JOIN_MITER,    // Join style
                 10.0f,                     // Miter limit
                 new float[] { 3.0f, 10.0f }, // Dash pattern
                 0.0f);
         Stroke activeStroke = new BasicStroke(
-                routeWidth,                // Width
+                getSettings().getRouteWidth(),                // Width
                 BasicStroke.CAP_SQUARE,    // End cap
                 BasicStroke.JOIN_MITER,    // Join style
                 10.0f,                     // Miter limit
@@ -124,7 +128,7 @@ public class RouteLayer extends RouteLayerCommon {
             }
 
             if (routeManager.showMetocForRoute(route)) {
-                routeMetoc = new MetocGraphic(route, activeRoute, EPDShore.getInstance().getSettings().getEnavSettings());
+                routeMetoc = new MetocGraphic(route, activeRoute, this.metocLayerSettings);
                 metocGraphics.add(routeMetoc);
             }
         }

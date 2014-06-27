@@ -79,7 +79,7 @@ public class VoyageHandlingLayer extends EPDLayerCommon implements IVoyageUpdate
      * Constructor
      */
     public VoyageHandlingLayer() {
-        super();
+        super(null);
         
         
         // Automatically add info panels

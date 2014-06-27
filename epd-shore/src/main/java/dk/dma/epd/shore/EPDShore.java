@@ -137,7 +137,7 @@ public final class EPDShore extends EPD {
         }
     
         new Bootstrap().run(this, new String[] { "epd-shore.properties", "settings.properties", "transponder.xml" }, new String[] {
-                "workspaces", "routes", "shape/GSHHS_shp" });
+                "settings/workspaces", "routes", "shape/GSHHS_shp" });
 
         // Set up log4j logging
         LOG = LoggerFactory.getLogger(EPDShore.class);

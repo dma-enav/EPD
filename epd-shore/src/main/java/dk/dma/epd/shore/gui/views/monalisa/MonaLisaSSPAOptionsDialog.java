@@ -196,8 +196,8 @@ public class MonaLisaSSPAOptionsDialog extends
         serverTxtField.setBounds(95, 8, 217, 20);
         panel_2.add(serverTxtField);
         serverTxtField.setColumns(10);
-        serverTxtField.setText(EPDShore.getInstance().getSettings().getEnavSettings()
-                .getMonaLisaServer());
+        serverTxtField.setText(EPDShore.getInstance().getSettings().getMonaLisaHttpSettings()
+                .getHost());
         serverTxtField.setEditable(false);
 
         JLabel lblPort = new JLabel("Port:");
@@ -209,7 +209,7 @@ public class MonaLisaSSPAOptionsDialog extends
         panel_2.add(portTxtField);
         portTxtField.setColumns(10);
         portTxtField.setText(String.valueOf(EPDShore.getInstance().getSettings()
-                .getEnavSettings().getMonaLisaPort()));
+                .getMonaLisaHttpSettings().getPort()));
         portTxtField.setEditable(false);
 
         JLabel lblTimeout = new JLabel("Timeout in ms:");

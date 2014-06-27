@@ -158,7 +158,7 @@ public class VOCTManager extends VOCTManagerCommon implements
 
         SearchPatternRoute searchRoute = searchPatternGenerator
                 .generateSearchPattern(type, sarData, EPDShore.getInstance().getSettings()
-                        .getNavSettings(), id);
+                        .getRouteManagerSettings(), id);
 
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {

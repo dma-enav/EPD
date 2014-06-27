@@ -29,7 +29,8 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.settings.MapSettings;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.MapCommonSettingsListener;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
@@ -112,9 +113,9 @@ public class ThreadedMapCreator implements Runnable {
     private JMapFrame addStrategicRouteHandlingWindow(String shipName, Voyage voyage,
             Route originalRoute, boolean renegotiate) {
         mainFrame.increaseWindowCount();
-
+        
         JMapFrame window = new JMapFrame(mainFrame.getWindowCount(), mainFrame,
-                MapFrameType.suggestedRoute);
+                MapFrameType.suggestedRoute, this.prepareLocalMapSettingsInstance());
 
         mainFrame.getDesktop().add(window);
 
@@ -199,7 +200,7 @@ public class ThreadedMapCreator implements Runnable {
         mainFrame.increaseWindowCount();
 
         JMapFrame window = new JMapFrame(mainFrame.getWindowCount(), mainFrame,
-                MapFrameType.standard);
+                MapFrameType.standard, this.prepareLocalMapSettingsInstance());
         mainFrame.getDesktop().add(window);
 
         mainFrame.getMapWindows().add(window);
@@ -215,7 +216,7 @@ public class ThreadedMapCreator implements Runnable {
         mainFrame.increaseWindowCount();
 
         JMapFrame window = new JMapFrame(mainFrame.getWindowCount(), mainFrame,
-                center, scale);
+                center, scale, this.prepareLocalMapSettingsInstance());
 
         window.setTitle(title);
         // Maybe not needed
@@ -344,17 +345,20 @@ public class ThreadedMapCreator implements Runnable {
             });
             return;
         }
-
-        MapSettings mapSettings = EPD.getInstance().getSettings().getMapSettings();
         
-        if (mapSettings.isUseWms() && window.getChartPanel().getWmsLayer() != null) {
-            window.getChartPanel().wmsVisible(mapSettings.isWmsVisible());
+//        MapSettings mapSettings = EPD.getInstance().getSettings().getMapSettings();
+                
+        if (window.getChartPanel().getWmsLayer().getSettings().isUseWms() && window.getChartPanel().getWmsLayer() != null) {
+            window.getChartPanel().wmsVisible(window.getChartPanel().getWmsLayer().getSettings().isVisible());
         }
 
-        if (mapSettings.isUseEnc() && window.getChartPanel().getEncLayer() != null) {
-            window.getChartPanel().encVisible(mapSettings.isEncVisible());
+        if (window.getChartPanel().getEncLayerSettings().isEncInUse() && window.getChartPanel().getEncLayer() != null) {
+            // TODO is this needed in order to display ENC on startup?
+//            window.getChartPanel().encVisible(window.getChartPanel().getEncLayerSettings().isVisible());
         }
-
+        /*
+         *  TODO update to query lcoal MSI settings, e.g. window.getChartPanel().getMsiLayer().getSettings().... ?
+         */
         if (!mainFrame.isMsiLayerEnabled()) {
             window.getChartPanel().getMsiLayer().setVisible(false);
 
@@ -366,4 +370,19 @@ public class ThreadedMapCreator implements Runnable {
         }
     }
 
+    /**
+     * Utility function for creating a new local {@link MapCommonSettings} instance by copying values from the global instance.
+     * The returned instance is registered as observer of the global instance.
+     * @return A new {@link MapCommonSettings} that has the same values as the global instance and is registered as observer of the global instance.
+     */
+    private MapCommonSettings<MapCommonSettingsListener> prepareLocalMapSettingsInstance() {
+        // Get global map settings
+        MapCommonSettings<MapCommonSettingsListener> globalMapSettings = EPDShore.getInstance().getSettings().getMapSettings();
+        // Create local copy
+        MapCommonSettings<MapCommonSettingsListener> localMapSettings = globalMapSettings.copy();
+        // Register local copy to obey to global changes
+        globalMapSettings.addObserver(localMapSettings);
+        return localMapSettings;
+    }
+    
 }

@@ -22,6 +22,7 @@ import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.swing.SwingUtilities;
 
@@ -71,21 +72,21 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
     /**
      * Constructor
      */
-    public VoyageLayer() {
-        this(false);
+    public VoyageLayer(VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> localLayerSettings) {
+        this(localLayerSettings, false);
     }
 
     /**
      * Constructor
      */
-    public VoyageLayer(boolean windowHandling) {
-        super();
+    public VoyageLayer(VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> localLayerSettings, boolean windowHandling) {
+        super(Objects.requireNonNull(localLayerSettings));
         this.windowHandling = windowHandling;
 
         // Automatically add info panels
         registerInfoPanel(voyageInfoPanel, VoyageLegGraphic.class);
 
-        // Register the classes the will trigger the map menu
+        // Register the classes that will trigger the map menu
         registerMapMenuClasses(VoyageWaypointCircle.class, VoyageLegGraphic.class);
 
         voyageManager = EPDShore.getInstance().getVoyageManager();

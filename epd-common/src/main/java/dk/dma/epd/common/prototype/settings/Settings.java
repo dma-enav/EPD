@@ -32,6 +32,7 @@ import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
 import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.VoyageLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.prototype.settings.observers.AisHandlerCommonSettingsListener;
@@ -50,6 +51,7 @@ import dk.dma.epd.common.prototype.settings.observers.NetworkSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.PastTrackSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.RouteManagerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.VoyageLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 
@@ -162,6 +164,11 @@ public abstract class Settings {
     protected final String pastTrackSettingsFile = "past-track_settings.yaml";
     
     /**
+     * Filename for the file with voyage layer settings.
+     */
+    protected final String voyageLayerSettingsFile = "voyage-layer_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -221,7 +228,9 @@ public abstract class Settings {
     protected AisHandlerCommonSettings<AisHandlerCommonSettingsListener> aisHandlerSettings;
     
     protected PastTrackSettings<PastTrackSettingsListener> pastTrackSettings;
-       
+    
+    protected VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> voyageLayerSettings;
+    
     public abstract GUICommonSettings<? extends GUICommonSettingsListener> getGuiSettings();
     
     public abstract MapCommonSettings<? extends MapCommonSettingsListener> getMapSettings();
@@ -332,6 +341,10 @@ public abstract class Settings {
         return this.pastTrackSettings;
     }
 
+    public VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> getVoyageLayerSettings() {
+        return this.voyageLayerSettings;
+    }
+    
     /**
      * Resolves the given file in the current home settings folder
      * @param file the file to resolve
@@ -474,6 +487,13 @@ public abstract class Settings {
          */
         PastTrackSettings<PastTrackSettingsListener> pastTrack = ObservedSettings.loadFromFile(PastTrackSettings.class, resolve(pastTrackSettingsFile).toFile());
         this.pastTrackSettings = pastTrack != null ? pastTrack : new PastTrackSettings<>();
+        
+        /*
+         * Load Voyage layer settings.
+         * If ship/shore specific AIS handler settings are added later, move this to subclass.
+         */
+        VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> voyage = ObservedSettings.loadFromFile(VoyageLayerCommonSettings.class, resolve(voyageLayerSettingsFile).toFile());
+        this.voyageLayerSettings = voyage != null ? voyage : new VoyageLayerCommonSettings<>();
     }
 
     /**
@@ -499,8 +519,10 @@ public abstract class Settings {
         this.getPrimaryRouteLayerSettings().saveToYamlFile(resolve(routeLayerSettingsFile).toFile());
         this.getPrimaryWMSLayerSettings().saveToYamlFile(resolve(wmsLayerSettingsFile).toFile());
         this.getRouteManagerSettings().saveToYamlFile(resolve(routeManagerSettingsFile).toFile());
+        this.getVoyageLayerSettings().saveToYamlFile(resolve(voyageLayerSettingsFile).toFile());
         
         // Save S57 settings
         this.getS57LayerSettings().saveSettings(resolve(s57LayerSettingsFile).toString());
     }
+    
 }

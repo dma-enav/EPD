@@ -18,6 +18,7 @@ package dk.dma.epd.shore.layers;
 import java.awt.event.MouseEvent;
 
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
 
@@ -26,6 +27,10 @@ import dk.dma.epd.shore.gui.views.MapMenu;
  * General layer for EPDShore that may be sub-classed by other layers.
  */
 public class GeneralLayer extends EPDLayerCommon {
+
+    public GeneralLayer(LayerSettings<?> localSettings) {
+        super(localSettings);
+    }
 
     private static final long serialVersionUID = 1L;
     

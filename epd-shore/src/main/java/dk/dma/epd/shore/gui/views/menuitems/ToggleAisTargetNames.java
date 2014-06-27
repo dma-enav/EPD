@@ -15,10 +15,12 @@
  */
 package dk.dma.epd.shore.gui.views.menuitems;
 
+import java.util.Objects;
+
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 
 /**
  * Creates a menu item for the MapMenu pop-up. When the menu item is
@@ -28,43 +30,49 @@ import dk.dma.epd.shore.EPDShore;
 public class ToggleAisTargetNames extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
-    private boolean namesShouldBeVisible;
-
-    public ToggleAisTargetNames() {
+//    private boolean namesShouldBeVisible;
+    private VesselLayerSettings<?> settings;
+    
+    public ToggleAisTargetNames(VesselLayerSettings<?> settings) {
         super("Toggle AIS target names");
-        
-        // Initialize if vessel names labels are shown. 
-        setNamesShouldBeVisible(EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels());
+        this.settings = Objects.requireNonNull(settings);
+//        // Initialize if vessel names labels are shown. 
+//        setNamesShouldBeVisible(EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels());
     }
 
     @Override
-    public void doAction() {        
+    public void doAction() {
+        // Simply toggle the setting value.
+        /*
+         *  Clients that wish to take an action based on this should be registered observers of the settings instance.
+         */
+        this.settings.setShowVesselNameLabels(!this.settings.isShowVesselNameLabels());
         
-        // Check if AIS target names are already set to be shown or not, and
-        // set it to the opposite.
-        if (isNamesShouldBeVisible()) {
-            setNamesShouldBeVisible(false);
-        } else if (!isNamesShouldBeVisible()) {
-            setNamesShouldBeVisible(true);
-        }
-                
-        // Update vessel target names for the selected frame only.
-        EPDShore.getInstance().getMainFrame().getActiveChartPanel().
-                getAisLayer().setShowNameLabels(isNamesShouldBeVisible());
+//        // Check if AIS target names are already set to be shown or not, and
+//        // set it to the opposite.
+//        if (isNamesShouldBeVisible()) {
+//            setNamesShouldBeVisible(false);
+//        } else if (!isNamesShouldBeVisible()) {
+//            setNamesShouldBeVisible(true);
+//        }
+//                
+//        // Update vessel target names for the selected frame only.
+//        EPDShore.getInstance().getMainFrame().getActiveChartPanel().
+//                getAisLayer().setShowNameLabels(isNamesShouldBeVisible());
     }
 
-    /**
-     * @return The visibility value of vessel names labels.
-     */
-    public boolean isNamesShouldBeVisible() {
-        return namesShouldBeVisible;
-    }
-
-    /**
-     * Updates the visibility value of vessel names labels.
-     * @param namesShouldBeVisible
-     */
-    public void setNamesShouldBeVisible(boolean namesShouldBeVisible) {
-        this.namesShouldBeVisible = namesShouldBeVisible;
-    }
+//    /**
+//     * @return The visibility value of vessel names labels.
+//     */
+//    public boolean isNamesShouldBeVisible() {
+//        return namesShouldBeVisible;
+//    }
+//
+//    /**
+//     * Updates the visibility value of vessel names labels.
+//     * @param namesShouldBeVisible
+//     */
+//    public void setNamesShouldBeVisible(boolean namesShouldBeVisible) {
+//        this.namesShouldBeVisible = namesShouldBeVisible;
+//    }
 }

@@ -87,7 +87,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      * @return the ownMMSI
      */
     public long getOwnMMSI() {
-        String shoreID = (String) EPDShore.getInstance().getSettings().getEnavSettings().getShoreId().subSequence(0, 9);
+        String shoreID = (String) EPDShore.getInstance().getSettings().getShoreIdentitySettings().getShoreId().subSequence(0, 9);
         return Long.parseLong(shoreID);
     }
     

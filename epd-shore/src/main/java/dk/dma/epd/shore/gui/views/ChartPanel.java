@@ -42,11 +42,13 @@ import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.MetocLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 import dk.dma.epd.shore.EPDShore;
@@ -67,13 +69,14 @@ import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.settings.gui.ENCLayerSettings;
+import dk.dma.epd.shore.settings.observers.ENCLayerSettingsListener;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  * 
  * @author David A. Camre (davidcamre@gmail.com)
  */
-public class ChartPanel extends ChartPanelCommon {
+public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
@@ -218,12 +221,12 @@ public class ChartPanel extends ChartPanelCommon {
         Properties props = EPDShore.getInstance().getProperties();
 
         ENCLayerSettings globalEncLayerSettings = EPDShore.getInstance().getSettings().getENCLayerSettings();
+        // Create local settings instance for this chartpanel's enc layer to use
+        localEncLayerSettings = globalEncLayerSettings.copy();
+        // Make local settings obey to global settings
+        globalEncLayerSettings.addObserver(localEncLayerSettings);
         if (globalEncLayerSettings.isEncInUse()) {
             // Try to create ENC layer...
-            // Create local settings instance for this layer to use
-            localEncLayerSettings = globalEncLayerSettings.copy();
-            // Make local settings obey to global settings
-            globalEncLayerSettings.addObserver(localEncLayerSettings);
             EncLayerFactory encLayerFactory = new EncLayerFactory(localEncLayerSettings);
             encLayer = encLayerFactory.getEncLayer();
         }
@@ -265,7 +268,7 @@ public class ChartPanel extends ChartPanelCommon {
         mapHandler.add(layerHandler);
 
         // Create the general layer
-        GeneralLayer generalLayer = new GeneralLayer();
+        GeneralLayer generalLayer = new GeneralLayer(null);
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
 
@@ -281,7 +284,7 @@ public class ChartPanel extends ChartPanelCommon {
 
         if (type == MapFrameType.standard) {
             // Add Voyage Layer
-            voyageLayer = new VoyageLayer();
+            voyageLayer = new VoyageLayer(EPDShore.getInstance().getSettings().getVoyageLayerSettings());
             voyageLayer.setVisible(true);
             mapHandler.add(voyageLayer);
 
@@ -321,7 +324,7 @@ public class ChartPanel extends ChartPanelCommon {
         if (type == MapFrameType.suggestedRoute) {
 
             // Add Voyage Layer
-            voyageLayer = new VoyageLayer(true);
+            voyageLayer = new VoyageLayer(EPDShore.getInstance().getSettings().getVoyageLayerSettings(), true);
             voyageLayer.setVisible(true);
             mapHandler.add(voyageLayer);
 
@@ -441,8 +444,14 @@ public class ChartPanel extends ChartPanelCommon {
         RouteLayerCommonSettings<RouteLayerCommonSettingsListener> localRouteLayerSettings = globalRouteLayerSettings.copy();
         // Route layer settings for this frame should obey to global settings
         globalRouteLayerSettings.addObserver(localRouteLayerSettings);
+        // Fetch global metoc layer settings
+        MetocLayerCommonSettings<MetocLayerCommonSettingsListener> globalMetocLayerSettings = EPDShore.getInstance().getSettings().getPrimaryMetocLayerSettings();
+        // Copy to local instance
+        MetocLayerCommonSettings<MetocLayerCommonSettingsListener> localMetocLayerSettings = globalMetocLayerSettings.copy();
+        // Register local instance to observe global instance
+        globalMetocLayerSettings.addObserver(localMetocLayerSettings);
         // Init route layer of this frame using local settings
-        routeLayer = new RouteLayer(localRouteLayerSettings);
+        routeLayer = new RouteLayer(localRouteLayerSettings, localMetocLayerSettings);
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
     }
@@ -494,6 +503,7 @@ public class ChartPanel extends ChartPanelCommon {
      * Get the settings for the ENC layer of this {@link ChartPanel}.
      * @return The settings for the ENC layer of this {@link ChartPanel} or null if there is no ENC layer for this {@link ChartPanel}.
      */
+    @Override
     public ENCLayerSettings getEncLayerSettings() {
         return this.localEncLayerSettings;
     }
@@ -506,4 +516,17 @@ public class ChartPanel extends ChartPanelCommon {
         return voyageHandlingLayer;
     }
 
+    /*
+     * Begin settings listener methods.
+     */
+
+    @Override
+    public void encSuccessChanged(boolean encSuccess) {
+        // Not relevant.
+    }
+    
+    /*
+     * End settings listener methods.
+     */
+    
 }

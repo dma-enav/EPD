@@ -45,10 +45,12 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.settings.Settings;
+import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 import dk.dma.epd.shore.EPDShore;
@@ -64,7 +66,8 @@ import dk.dma.epd.shore.settings.EPDSettings;
  * Class for setting up the toolbar of the application
  * 
  */
-public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsListener, MSILayerCommonSettingsListener, AisLayerCommonSettingsListener {
+public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsListener, MSILayerCommonSettingsListener, AisLayerCommonSettingsListener,
+    IntendedRouteLayerCommonSettingsListener {
 
     private static final long serialVersionUID = 1L;
     private Boolean locked = false;
@@ -112,6 +115,11 @@ public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsLis
      * Tool item for toggling AIS name labels.
      */
     private JLabel aisToggle;
+    
+    /**
+     * Tool item for toggling display of intended routes.
+     */
+    private JLabel intendedRoutes;
     
     /**
      * Constructor for setting up the toolbar
@@ -300,7 +308,7 @@ public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsLis
 
         try {
 
-            if (settings.getMapSettings().isUseEnc()) {
+            if (settings.getENCLayerSettings().isEncInUse()) {
 
                 // Tool: ENC layer
 
@@ -308,21 +316,22 @@ public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsLis
                 enc.addMouseListener(new MouseAdapter() {
                     public void mouseReleased(MouseEvent e) {
                         if (enc.isEnabled()) {
-
-                            if (settings.getMapSettings().isEncVisible()) {
-                                settings.getMapSettings().setEncVisible(false);
-                                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                                    mapFrame.getChartPanel().encVisible(false);
-                                }
-                                setInactiveToolItem(enc);
-
-                            } else {
-                                settings.getMapSettings().setEncVisible(true);
-                                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                                    mapFrame.getChartPanel().encVisible(true);
-                                }
-                                setActiveToolItem(enc, layerToolItems);
-                            }
+                            settings.getENCLayerSettings().setVisible(!settings.getENCLayerSettings().isVisible());
+                            
+//                            if (settings.getMapSettings().isEncVisible()) {
+//                                settings.getMapSettings().setEncVisible(false);
+//                                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+//                                    mapFrame.getChartPanel().encVisible(false);
+//                                }
+//                                setInactiveToolItem(enc);
+//
+//                            } else {
+//                                settings.getMapSettings().setEncVisible(true);
+//                                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+//                                    mapFrame.getChartPanel().encVisible(true);
+//                                }
+//                                setActiveToolItem(enc, layerToolItems);
+//                            }
                         }
                     }
                 });
@@ -332,7 +341,8 @@ public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsLis
                 // disable bg or wms or enc?
 
                 layerToolItems.addToolItem(enc);
-                if (settings.getMapSettings().isEncVisible()) {
+                // TODO this might be incorrect for default values..?
+                if (settings.getENCLayerSettings().isVisible()) {
                     setActiveToolItem(enc, layerToolItems);
                 }
 
@@ -342,29 +352,37 @@ public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsLis
             System.out.println("failed to load enc dongle");
         }
         
-        // Tool: MSI layer
-        final JLabel intendedRoutes = new JLabel(
+        // Tool: Intended routes layer
+        // Observe primary/global intended route settings
+        settings.getPrimaryIntendedRouteLayerSettings().addObserver(this);
+        intendedRoutes = new JLabel(
                 toolbarIcon("images/toolbar/direction.png"));
         intendedRoutes.setName("intended routes");
         intendedRoutes.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                boolean intendedRoutesVisible = settings.getCloudSettings().isShowIntendedRoute();
-                settings.getCloudSettings().setShowIntendedRoute(!intendedRoutesVisible);
-                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                    mapFrame.getChartPanel().intendedRouteLayerVisible(!intendedRoutesVisible);
-                }
-                if (intendedRoutesVisible) {
-                    setInactiveToolItem(intendedRoutes);
-                } else {
-                    setActiveToolItem(intendedRoutes, layerToolItems);
-                }
+                // Toggle on primary settings.
+                // Tool item is updated when listener method is invoked.
+                settings.getPrimaryIntendedRouteLayerSettings().setVisible(!settings.getPrimaryIntendedRouteLayerSettings().isVisible());
+                
+//                boolean intendedRoutesVisible = settings.getCloudSettings().isShowIntendedRoute();
+//                settings.getCloudSettings().setShowIntendedRoute(!intendedRoutesVisible);
+//                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+//                    mapFrame.getChartPanel().intendedRouteLayerVisible(!intendedRoutesVisible);
+//                }
+//                if (intendedRoutesVisible) {
+//                    setInactiveToolItem(intendedRoutes);
+//                } else {
+//                    setActiveToolItem(intendedRoutes, layerToolItems);
+//                }
             }
         });
         intendedRoutes.setToolTipText("Show/hide intended routes");
         layerToolItems.addToolItem(intendedRoutes);
-        if (settings.getCloudSettings().isShowIntendedRoute()) {
-            setActiveToolItem(intendedRoutes, layerToolItems);
-        }
+        // Update tool item to reflect setting value
+        this.toggleToolItem(settings.getPrimaryIntendedRouteLayerSettings().isVisible(), intendedRoutes, layerToolItems);
+//        if (settings.getCloudSettings().isShowIntendedRoute()) {
+//            setActiveToolItem(intendedRoutes, layerToolItems);
+//        }
         
 
         // Set that the layer tools can have more than 1 active tool item at a
@@ -372,7 +390,7 @@ public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsLis
         layerToolItems.setSingleEnable(false);
 
         // Set default active tool(s) for this group
-        setActiveToolItem(msi, layerToolItems);
+//        setActiveToolItem(msi, layerToolItems); TODO can this be omitted?
 
         toolItemGroups.add(layerToolItems);
 
@@ -503,15 +521,15 @@ public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsLis
                     RouteLeg outLeg = routeWaypoint.getOutLeg();
 
                     double xtd = EPDShore.getInstance().getSettings()
-                            .getNavSettings().getDefaultXtd();
+                            .getRouteManagerSettings().getDefaultXtd();
                     outLeg.setXtdPort(xtd);
                     outLeg.setXtdStarboard(xtd);
                     outLeg.setHeading(Heading.RL);
                     outLeg.setSpeed(EPDShore.getInstance().getSettings()
-                            .getNavSettings().getDefaultSpeed());
+                            .getRouteManagerSettings().getDefaultSpeed());
                 }
                 routeWaypoint.setTurnRad(EPDShore.getInstance().getSettings()
-                        .getNavSettings().getDefaultTurnRad());
+                        .getRouteManagerSettings().getDefaultTurnRad());
                 routeWaypoint.setName(String.format("WP_%03d", i));
                 i++;
             }
@@ -723,6 +741,8 @@ public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsLis
             this.toggleToolItem(newValue, this.wms, this.layerToolItems);
         } else if (source == settings.getPrimaryMsiLayerSettings()) {
             this.toggleToolItem(newValue, this.msi, this.layerToolItems);
+        } else if (source == settings.getPrimaryIntendedRouteLayerSettings()) {
+            this.toggleToolItem(newValue, this.intendedRoutes, this.layerToolItems);
         }
     }
 
@@ -787,6 +807,22 @@ public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsLis
 
     @Override
     public void layerRedrawIntervalChanged(int newValue) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void showArrowScaleChanged(float maxScaleForArrowDisplay) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void routeWidthChanged(float routeWidth) {
+        // Not relevant for this class.
+    }
+
+    @Override
+    public void isIntendedRouteFilterInUseChanged(
+            IntendedRouteLayerCommonSettings<?> source, boolean useFilter) {
         // Not relevant for this class.
     }
     

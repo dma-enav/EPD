@@ -47,17 +47,19 @@ import dk.dma.epd.common.prototype.layers.routeedit.RouteEditLayerCommon;
 import dk.dma.epd.common.prototype.layers.util.LayerVisibilityAdapter;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings.ENCColorScheme;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
+import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  * 
  * @author Jens Tuxen (mail@jenstuxen.com)
  */
-public abstract class ChartPanelCommon extends OMComponentPanel {
+public abstract class ChartPanelCommon extends OMComponentPanel implements ENCLayerCommonSettingsListener {
     
     private static final long serialVersionUID = 1L;
-
-//    protected int maxScale = 5000;
     
     // Mouse modes
     protected String mouseMode;
@@ -280,59 +282,57 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         }
     }
 
-    /**
-     * Sets ENC layer visibility
-     * 
-     * @param visible the visibility
-     */
-    public void encVisible(boolean visible) {
-        encVisible(visible, true);
-    }
+//    /**
+//     * Sets ENC layer visibility
+//     * 
+//     * @param visible the visibility
+//     */
+//    public void encVisible(boolean visible) {
+//        encVisible(visible, true);
+//    }
     
-    /**
-     * Sets ENC layer visibility
-     * 
-     * @param visible the visibility
-     * @param persist persist the change to the settings
-     */
-    public void encVisible(boolean visible, boolean persist) {
-        // Note: After upgrading to OpenMap 5.0.3, there seemed to be a minor problem
-        // with having multiple background layers installed (EPD-186), causing the 
-        // background layer to turn blank after launch.
-        // Hence instead of adding both background layers and toggling the visibility,
-        // the strategy was changed to add and remove the background layers:
-        
-        if (encLayer != null) {
-            if (visible) {
-                mapHandler.remove(bgLayer);
-                // TODO update to encLayer.getSettings().setVisible(visible)...
-                encLayer.setVisible(true);
-                mapHandler.add(encLayer);
-                encLayer.doPrepare();
-                encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
-            } else {
-                mapHandler.remove(encLayer);
-                mapHandler.add(bgLayer);
-                // TODO update to encLayer.getSettings().setVisible(visible)...
-                encLayer.setVisible(false);
-                bgLayer.doPrepare();
-                encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
-            }
-            if (persist) {
-                // TODO update to encLayer.getSettings().setEncVisible(visible);
-                EPD.getInstance().getSettings().getENCLayerSettings().setVisible(visible);
-            }
-        } else {
-            bgLayer.setVisible(true);
-        }
-    }
+//    /**
+//     * Sets ENC layer visibility
+//     * 
+//     * @param visible the visibility
+//     * @param persist persist the change to the settings
+//     */
+//    public void encVisible(boolean visible, boolean persist) {
+//        // Note: After upgrading to OpenMap 5.0.3, there seemed to be a minor problem
+//        // with having multiple background layers installed (EPD-186), causing the 
+//        // background layer to turn blank after launch.
+//        // Hence instead of adding both background layers and toggling the visibility,
+//        // the strategy was changed to add and remove the background layers:
+//        
+//        if (encLayer != null) {
+//            if (visible) {
+//                mapHandler.remove(bgLayer);
+//                encLayer.setVisible(true);
+//                mapHandler.add(encLayer);
+//                encLayer.doPrepare();
+//                encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
+//            } else {
+//                mapHandler.remove(encLayer);
+//                mapHandler.add(bgLayer);
+//                encLayer.setVisible(false);
+//                bgLayer.doPrepare();
+//                encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
+//            }
+//            if (persist) {
+//                EPD.getInstance().getSettings().getENCLayerSettings().setVisible(visible);
+//            }
+//        } else {
+//            bgLayer.setVisible(true);
+//        }
+//    }
 
     /**
      * Returns if the ENC layer is visible or not
      * @return if the ENC layer is visible or not
      */
     public boolean isEncVisible() {
-        return encLayer != null && encLayer.isVisible() && mapHandler.contains(encLayer);
+//        return encLayer != null && encLayer.isVisible() && mapHandler.contains(encLayer);
+        return getEncLayerSettings() != null && getEncLayerSettings().isEncInUse() && getEncLayerSettings().isVisible();
     }
     
     /**
@@ -423,4 +423,108 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     public LayerVisibilityAdapter getEncVisibilityAdapter() {
         return encVisibilityAdapter;
     }
+    
+    /**
+     * Get the settings for the ENC layer of this {@link ChartPanelCommon}.
+     * As the ENC layer is a 3rd party dynamically loaded class, the layer itself cannot hold its settings instance.
+     * As such, the {@link ChartPanelCommon} is responsible for the the link between the settings instance and the layer.
+     * @return The settings for the ENC layer of this {@link ChartPanelCommon}.
+     */
+    public abstract ENCLayerCommonSettings<? extends ENCLayerCommonSettingsListener> getEncLayerSettings();
+
+    /*
+     * Begin settings listener methods.
+     */
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if (source == getEncLayerSettings()) {
+            
+            // Note: After upgrading to OpenMap 5.0.3, there seemed to be a minor problem
+            // with having multiple background layers installed (EPD-186), causing the 
+            // background layer to turn blank after launch.
+            // Hence instead of adding both background layers and toggling the visibility,
+            // the strategy was changed to add and remove the background layers:
+            
+            if (encLayer != null) {
+                if (newValue) {
+                    mapHandler.remove(bgLayer);
+                    encLayer.setVisible(true);
+                    mapHandler.add(encLayer);
+                    encLayer.doPrepare();
+                    encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
+                } else {
+                    mapHandler.remove(encLayer);
+                    mapHandler.add(bgLayer);
+                    encLayer.setVisible(false);
+                    bgLayer.doPrepare();
+                    encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
+                }
+            } else {
+                bgLayer.setVisible(true);
+            }
+        }
+    }
+
+    @Override
+    public void isEncInUseChanged(boolean useEnc) {
+        // Not relevant.
+    }
+
+    @Override
+    public void isS52ShowTextChanged(boolean showText) {
+        // Not relevant.
+    }
+
+    @Override
+    public void isS52ShallowPatternChanged(boolean useShallowPattern) {
+        // Not relevant.
+    }
+
+    @Override
+    public void s52ShallowContourChanged(int shallowContour) {
+        // Not relevant.
+    }
+
+    @Override
+    public void s52SafetyDepthChanged(int safetyDepth) {
+        // Not relevant.
+    }
+
+    @Override
+    public void s52SafetyContourChanged(int safetyContour) {
+        // Not relevant.
+    }
+
+    @Override
+    public void s52DeepContourChanged(int deepContour) {
+        // Not relevant.
+    }
+
+    @Override
+    public void isUseSimplePointSymbolsChanged(boolean useSimplePointSymbols) {
+        // Not relevant.
+    }
+
+    @Override
+    public void isUsePlainAreasChanged(boolean usePlainAreas) {
+        // Not relevant.
+    }
+
+    @Override
+    public void isS52TwoShadesChanged(boolean s52TwoShades) {
+        // Not relevant.
+    }
+
+    @Override
+    public void encColorSchemeChanged(ENCColorScheme newScheme) {
+        // Not relevant.
+    }
+    
+    /*
+     * End settings listener methods.
+     */
 }

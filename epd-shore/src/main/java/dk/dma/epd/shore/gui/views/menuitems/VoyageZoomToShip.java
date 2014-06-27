@@ -41,7 +41,10 @@ public class VoyageZoomToShip extends JMenuItem implements IMapMenuAction {
     @Override
     public void doAction() {
         mapBean.setCenter(position.getLatitude(), position.getLongitude());
-        mapBean.setScale(EPDShore.getInstance().getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
+        // TODO
+        // 1: why msi text boxes visibility scale?
+        // 2: use layer-local settings instead of general settings?
+        mapBean.setScale(EPDShore.getInstance().getSettings().getPrimaryMsiLayerSettings().getMsiTextboxesVisibleAtScale());
     }
 
     /**
