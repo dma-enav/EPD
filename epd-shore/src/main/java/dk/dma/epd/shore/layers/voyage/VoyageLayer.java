@@ -55,7 +55,7 @@ import dk.dma.epd.shore.voyage.VoyageUpdateListener;
  * Layer for showing routes
  */
 public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener, StrategicRouteListener, IAisTargetListener,
-        ProjectionListener {
+        ProjectionListener, VoyageLayerCommonSettingsListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -81,6 +81,8 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
      */
     public VoyageLayer(VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> localLayerSettings, boolean windowHandling) {
         super(Objects.requireNonNull(localLayerSettings));
+        // register self as observer of own settings
+        localLayerSettings.addObserver(this);
         this.windowHandling = windowHandling;
 
         // Automatically add info panels
@@ -312,4 +314,23 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
     public MapMenu getMapMenu() {
         return (MapMenu) mapMenu;
     }
+
+    /*
+     * [Begin settings listener methods]
+     */
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if (source == this.getSettings()) {
+            this.setVisible(newValue);
+        }
+    }
+
+    /*
+     * [End settings listener methods]
+     */
+    
 }
