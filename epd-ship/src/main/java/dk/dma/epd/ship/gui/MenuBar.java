@@ -771,12 +771,12 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     }
 
     @Override
-    public void showAllPastTracksChanged(boolean newValue) {
+    public void showAllPastTracksChanged(AisLayerCommonSettings<?> source, boolean newValue) {
         // Not relevant for MenuBar.
     }
 
     @Override
-    public void layerRedrawIntervalChanged(int newValue) {
+    public void layerRedrawIntervalChanged(AisLayerCommonSettings<?> source, int newValue) {
         // Not relevant for MenuBar.
     }
 

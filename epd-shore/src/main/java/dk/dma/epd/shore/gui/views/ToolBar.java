@@ -39,12 +39,11 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
-import dk.dma.epd.common.prototype.settings.Settings;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
@@ -801,12 +800,12 @@ public class ToolBar extends JInternalFrame implements WMSLayerCommonSettingsLis
     }
 
     @Override
-    public void showAllPastTracksChanged(boolean newValue) {
+    public void showAllPastTracksChanged(AisLayerCommonSettings<?> source, boolean newValue) {
         // Not relevant for this class.
     }
 
     @Override
-    public void layerRedrawIntervalChanged(int newValue) {
+    public void layerRedrawIntervalChanged(AisLayerCommonSettings<?> source, int newValue) {
         // Not relevant for this class.
     }
 

@@ -84,7 +84,7 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettingsListe
             // There was a change, update and notify observers.
             this.showAllPastTracks = show;
             for (OBSERVER obs : this.observers) {
-                obs.showAllPastTracksChanged(show);
+                obs.showAllPastTracksChanged(this, show);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -130,7 +130,7 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettingsListe
             // There was a change, update and notify observers.
             this.layerRedrawInterval = seconds;
             for (OBSERVER obs : this.observers) {
-                obs.layerRedrawIntervalChanged(seconds);
+                obs.layerRedrawIntervalChanged(this, seconds);
             }
         } finally {
             this.settingLock.writeLock().unlock();
@@ -143,12 +143,12 @@ public class AisLayerCommonSettings<OBSERVER extends AisLayerCommonSettingsListe
      */
 
     @Override
-    public void showAllPastTracksChanged(boolean newValue) {
+    public void showAllPastTracksChanged(AisLayerCommonSettings<?> source, boolean newValue) {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void layerRedrawIntervalChanged(int newValue) {
+    public void layerRedrawIntervalChanged(AisLayerCommonSettings<?> source, int newValue) {
         // TODO Auto-generated method stub
         
     }

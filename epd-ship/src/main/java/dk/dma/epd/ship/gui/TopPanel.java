@@ -38,6 +38,7 @@ import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings.ENCColorScheme;
+import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
@@ -539,12 +540,12 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     }
 
     @Override
-    public void showAllPastTracksChanged(boolean newValue) {
+    public void showAllPastTracksChanged(AisLayerCommonSettings<?> source, boolean newValue) {
         // Not relevant for TopPanel.   
     }
 
     @Override
-    public void layerRedrawIntervalChanged(int newValue) {
+    public void layerRedrawIntervalChanged(AisLayerCommonSettings<?> source, int newValue) {
         // Not relevant for TopPanel.
     }
 

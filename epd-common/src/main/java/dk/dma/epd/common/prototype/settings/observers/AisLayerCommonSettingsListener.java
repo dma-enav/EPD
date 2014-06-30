@@ -30,18 +30,24 @@ public interface AisLayerCommonSettingsListener extends
      * Invoked when the setting specifying whether to show all past tracks has
      * been changed on the observed instance.
      * 
+     * @param source
+     *            The settings instance that fired this event.
      * @param newValue
      *            The updated value of the setting.
      */
-    void showAllPastTracksChanged(boolean newValue);
+    void showAllPastTracksChanged(AisLayerCommonSettings<?> source,
+            boolean newValue);
 
     /**
      * Invoked when the setting specifying how often the layer should repaint
      * itself has been changed on the observed instance.
      * 
+     * @param source
+     *            The settings instance that fired this event.
      * @param newValue
      *            The updated value of the setting.
      */
-    void layerRedrawIntervalChanged(int newValue);
+    void layerRedrawIntervalChanged(AisLayerCommonSettings<?> source,
+            int newValue);
 
 }

@@ -37,8 +37,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-import com.bbn.openmap.Layer;
-
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.event.HistoryNavigationPanelInterface;
 import dk.dma.epd.common.prototype.gui.GoBackButton;
@@ -46,13 +44,10 @@ import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
-import dk.dma.epd.common.prototype.layers.util.LayerVisiblityListener;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
-import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
-import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
@@ -727,12 +722,12 @@ public class LayerTogglingPanel extends JPanel implements MouseListener,
     }
 
     @Override
-    public void showAllPastTracksChanged(boolean newValue) {
+    public void showAllPastTracksChanged(AisLayerCommonSettings<?> source, boolean newValue) {
         // TODO implement to toggle past track display toggle button.        
     }
 
     @Override
-    public void layerRedrawIntervalChanged(int newValue) {
+    public void layerRedrawIntervalChanged(AisLayerCommonSettings<?> source, int newValue) {
         // Not relevant for this class.
     }
 

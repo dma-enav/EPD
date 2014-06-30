@@ -319,34 +319,35 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
     
     /**
      * Invoked when the layer visibility is toggled on/off on the
-     * {@link AisLayerCommonSettings} instance observed by this
+     * {@link AisLayerCommonSettings} instance associated with this
      * layer.
      */
     @Override
     public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
-        if (source instanceof AisLayerCommonSettings<?>) {
+        if (source == this.getSettings()) {
             this.setVisible(newValue);
         }
     }
     
     /**
      * Invoked when the layer redraw interval is changed on the
-     * {@link AisLayerCommonSettings} instance observed by this
-     * layer.
+     * {@link AisLayerCommonSettings} instance associated with this layer.
      */
     @Override
-    public void layerRedrawIntervalChanged(int newValue) {
-        this.setRepaintInterval(newValue);
+    public void layerRedrawIntervalChanged(AisLayerCommonSettings<?> source, int newValue) {
+        if (source == this.getSettings()) {            
+            this.setRepaintInterval(newValue);
+        }
     }
     
     /**
      * Invoked when the AIS name labels are toggled on/off on the
-     * {@link AisLayerCommonSettings} instance observed by this
+     * {@link AisLayerCommonSettings} instance associated with this
      * layer.
      */
     @Override
     public void showVesselNameLabelsChanged(VesselLayerSettings<?> source, boolean newValue) {
-        if (source instanceof AisLayerCommonSettings<?>) {
+        if (source == this.getSettings()) {
             for(TargetGraphic tg : this.targets.values()) {
                 if(tg instanceof VesselGraphicComponentSelector) {
                     ((VesselGraphicComponentSelector)tg).setShowNameLabel(newValue);
@@ -359,61 +360,70 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
     
     /**
      * Invoked when the minimum length of the movement vector is changed
-     * on the {@link AisLayerCommonSettings} instance observed by this layer.
+     * on the {@link AisLayerCommonSettings} instance associated with this layer.
      */
     @Override
     public void movementVectorLengthMinChanged(VesselLayerSettings<?> source, int newMinLengthMinutes) {
-       /*
-        * We need to repaint in order to visually reflect new length of the movement vector. 
-        */
-        this.doPrepare();
+        if (source == this.getSettings()) {
+            /*
+             * We need to repaint in order to visually reflect new length of the movement vector. 
+             */
+             this.doPrepare();
+        }
     }
     
     /**
      * Invoked when the maximum length of the movement vector is
-     * changed on the {@link AisLayerCommonSettings} instance observed
-     * by this layer.
+     * changed on the {@link AisLayerCommonSettings} instance associated with this layer.
      */
     @Override
     public void movementVectorLengthMaxChanged(VesselLayerSettings<?> source, int newMaxLengthMinutes) {
-        /*
-         * We need to repaint in order to visually reflect new length of the movement vector. 
-         */
-         this.doPrepare();
+        if (source == this.getSettings()) {
+            /*
+             * We need to repaint in order to visually reflect new length of the movement vector. 
+             */
+             this.doPrepare();
+        }
     }
     
     /**
      * Invoked when the setting specifying the scale difference between two
      * successive length values for the movement vector is changed on the
-     * {@link AisLayerCommonSettings} instance observed by this layer.
+     * {@link AisLayerCommonSettings} instance associated with this layer.
      */
     @Override
     public void movementVectorLengthStepSizeChanged(VesselLayerSettings<?> source, float newStepSize) {
-        /*
-         * We need to repaint in order to visually reflect new length of the movement vector. 
-         */
-         this.doPrepare();
+        if (source == this.getSettings()) {
+            /*
+             * We need to repaint in order to visually reflect new length of the movement vector. 
+             */
+             this.doPrepare();
+        }
     }
     
     /**
      * Invoked when the setting specifying the minimum speed a vessel must
      * travel with for its movement vector to be displayed is changed on the
-     * {@link AisLayerCommonSettings} instance observed by this layer.
+     * {@link AisLayerCommonSettings} instance associated with this layer.
      */
     @Override
     public void movementVectorHideBelowChanged(VesselLayerSettings<?> source, float newMinSpeed) {
-        /*
-         * Repaint to visually reflect the change (hide/show individual speed vectors). 
-         */
-         this.doPrepare();
+        if (source == this.getSettings()) {
+            /*
+             * Repaint to visually reflect the change (hide/show individual speed vectors). 
+             */
+             this.doPrepare();
+        }
     }
     
     @Override
-    public void showAllPastTracksChanged(boolean newValue) {
-        /*
-         * Repaint to visually reflect the past track toggle.
-         */
-        this.doPrepare();
+    public void showAllPastTracksChanged(AisLayerCommonSettings<?> source, boolean newValue) {
+        if (source == this.getSettings()) {
+            /*
+             * Repaint to visually reflect the past track toggle.
+             */
+            this.doPrepare();
+        }
     }
     
     /*
