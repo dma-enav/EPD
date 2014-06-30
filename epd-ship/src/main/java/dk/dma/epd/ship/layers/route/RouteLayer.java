@@ -33,6 +33,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.route.RouteManager;
@@ -53,8 +54,10 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
     /**
      * Constructor
      */
-    public RouteLayer(RouteLayerCommonSettings<?> localSettings, MetocLayerCommonSettings<?> metocSettings) {
+    public RouteLayer(RouteLayerCommonSettings<RouteLayerCommonSettingsListener> localSettings, MetocLayerCommonSettings<?> metocSettings) {
         super(localSettings);
+        // add self as observer of own settings
+        localSettings.addObserver(this);
         this.metocSettings = Objects.requireNonNull(metocSettings);
         // Register ship-specific classes that will trigger the map menu        
         registerMapMenuClasses(SuggestedRouteGraphic.class);

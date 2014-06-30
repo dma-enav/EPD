@@ -31,14 +31,16 @@ import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
 import dk.frv.enav.common.xml.msi.MsiLocation;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 
 /**
  * Base layer class for handling all MSI messages
  */
-public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpdateListener {
+public abstract class MsiLayerCommon extends EPDLayerCommon  implements MSILayerCommonSettingsListener, IMsiUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -48,7 +50,7 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpda
     /**
      * Constructor
      */
-    public MsiLayerCommon(MSILayerCommonSettings<?> localSettings) {
+    public MsiLayerCommon(MSILayerCommonSettings<? extends MSILayerCommonSettingsListener> localSettings) {
         super(Objects.requireNonNull(localSettings));
         
         // Register the info panels
@@ -160,4 +162,34 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpda
             msiHandler.addListener(this);
         }
     }
+
+    /*
+     * [Begin settings listener methods]
+     */
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if (source == this.getSettings()) {
+            this.setVisible(newValue);
+        }
+    }
+
+    @Override
+    public void msiTextboxesVisibleAtScaleChanged(int scale) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void msiVisibilityFromNewWaypointChanged(double newValue) {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    /*
+     * [End settings listener methods]
+     */
 }

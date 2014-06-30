@@ -39,7 +39,9 @@ public class MsiLayer extends MsiLayerCommon {
      */
     public MsiLayer(MSILayerCommonSettings<MSILayerCommonSettingsListener> localMsiLayerSettings) {
         super(localMsiLayerSettings);
-
+        // add self as observer of own settings
+        localMsiLayerSettings.addObserver(this);
+        
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(MsiSymbolGraphic.class, MsiDirectionalIcon.class);
     }

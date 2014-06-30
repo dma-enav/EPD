@@ -21,8 +21,13 @@ import dk.dma.epd.common.prototype.settings.observers.VoyageLayerCommonSettingsL
  * @author Janus Varmarken
  */
 public class VoyageLayerCommonSettings<OBSERVER extends VoyageLayerCommonSettingsListener>
-        extends LayerSettings<OBSERVER> {
+        extends LayerSettings<OBSERVER> implements VoyageLayerCommonSettingsListener {
 
+    @Override
+    public VoyageLayerCommonSettings<OBSERVER> copy() {
+        return (VoyageLayerCommonSettings<OBSERVER>) super.copy();
+    }
+    
     /*
      * Add voyage layer specific settings here...
      */

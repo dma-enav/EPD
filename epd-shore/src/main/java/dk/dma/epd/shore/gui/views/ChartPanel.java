@@ -44,12 +44,14 @@ import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSetti
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MetocLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.VoyageLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.MetocLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.VoyageLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.WMSLayerCommonSettingsListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.DragMouseMode;
@@ -284,9 +286,7 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
 
         if (type == MapFrameType.standard) {
             // Add Voyage Layer
-            voyageLayer = new VoyageLayer(EPDShore.getInstance().getSettings().getVoyageLayerSettings());
-            voyageLayer.setVisible(true);
-            mapHandler.add(voyageLayer);
+            this.setupVoyageLayer(false);
 
             // Add AIS Layer
             this.setupAisLayer();
@@ -324,9 +324,7 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         if (type == MapFrameType.suggestedRoute) {
 
             // Add Voyage Layer
-            voyageLayer = new VoyageLayer(EPDShore.getInstance().getSettings().getVoyageLayerSettings(), true);
-            voyageLayer.setVisible(true);
-            mapHandler.add(voyageLayer);
+            this.setupVoyageLayer(true);
 
             voyageHandlingLayer = new VoyageHandlingLayer();
             voyageHandlingLayer.setVisible(true);
@@ -471,6 +469,16 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
 //        intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
         intendedRouteLayer.setVisible(true);
         mapHandler.add(intendedRouteLayer);
+    }
+    
+    private void setupVoyageLayer(boolean windowHandling) {
+        // Create local voyage layer settings
+        VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> localVoyageLayerSettings = EPDShore.getInstance().getSettings().getVoyageLayerSettings().copy();
+        // Local settings obeys to global settings
+        EPDShore.getInstance().getSettings().getVoyageLayerSettings().addObserver(localVoyageLayerSettings);
+        voyageLayer = new VoyageLayer(localVoyageLayerSettings, windowHandling);
+        voyageLayer.setVisible(true);
+        mapHandler.add(voyageLayer);
     }
     
     /**

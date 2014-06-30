@@ -141,7 +141,7 @@ public abstract class ObservedSettings<OBSERVER> {
         this.settingLock.readLock().unlock();
         return copy;
     }
-
+    
     /**
      * Save this settings instance to a file. If an error occurs, this method
      * calls {@link #onSaveFailure(IOException)} with the error. Subclasses may

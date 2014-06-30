@@ -48,6 +48,8 @@ public class RouteLayer extends RouteLayerCommon {
      */
     public RouteLayer(RouteLayerCommonSettings<RouteLayerCommonSettingsListener> localLayerSettings, MetocLayerCommonSettings<MetocLayerCommonSettingsListener> metocLayerSettings) {
         super(localLayerSettings);
+        // register self as observer of own settings
+        localLayerSettings.addObserver(this);
         this.metocLayerSettings = Objects.requireNonNull(metocLayerSettings);
         // Hmmm, findAndInit not called with the RouteManager.
         // The RouteManager is in a different bean context, methinks...

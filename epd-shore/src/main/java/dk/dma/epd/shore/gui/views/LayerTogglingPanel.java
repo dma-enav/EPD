@@ -341,7 +341,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener,
         });
         aisNameLabels.setToolTipText("Show/hide AIS Name Labels");
 
-        setActiveToolItem(aisNameLabels);
+        toggleLayerButton(layer.getSettings().isShowVesselNameLabels(), aisNameLabels);
 
         functionItemGroups.addToolItem(aisNameLabels);
     }
@@ -707,7 +707,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener,
         if (source == chartPanel.getAisLayer().getSettings()) {
             // Observed AIS layer had visibility toggled on/off
             this.toggleLayerButton(newValue, this.ais);
-        } else if (source == chartPanel.getWmsLayer().getSettings()) {
+        } else if (chartPanel.getWmsLayer() != null && source == chartPanel.getWmsLayer().getSettings()) {
             // Observed WMS layer had visibility toggled on/off
             this.toggleLayerButton(newValue, this.wms);
         } else if (source == chartPanel.getMsiLayer().getSettings()) {

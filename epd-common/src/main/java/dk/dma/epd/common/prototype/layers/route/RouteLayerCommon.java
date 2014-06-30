@@ -44,14 +44,16 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.RouteLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.RouteLayerCommonSettingsListener;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
 
 /**
  * Base class for EPDShip and EPDShore route layers
  */
-public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutesUpdateListener {
+public abstract class RouteLayerCommon extends EPDLayerCommon implements RouteLayerCommonSettingsListener, IRoutesUpdateListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(RouteLayerCommon.class);
@@ -69,7 +71,7 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
     /**
      * Constructor
      */
-    public RouteLayerCommon(RouteLayerCommonSettings<?> localSettings) {
+    public RouteLayerCommon(RouteLayerCommonSettings<? extends RouteLayerCommonSettingsListener> localSettings) {
         super(Objects.requireNonNull(localSettings));
         
         // Register the info panels
@@ -81,8 +83,8 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
     }
     
     @Override
-    public RouteLayerCommonSettings<?> getSettings() {
-        return (RouteLayerCommonSettings<?>) super.getSettings();
+    public RouteLayerCommonSettings<? extends RouteLayerCommonSettingsListener> getSettings() {
+        return (RouteLayerCommonSettings<? extends RouteLayerCommonSettingsListener>) super.getSettings();
     }
     
     /**
@@ -325,6 +327,25 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
             routeManager.removeListener(this);
         }
         super.findAndUndo(obj);
+    }
+
+    @Override
+    public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
+        if (source == this.getSettings()) {
+            this.setVisible(newValue);
+        }
+    }
+
+    @Override
+    public void showArrowScaleChanged(float maxScaleForArrowDisplay) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void routeWidthChanged(float routeWidth) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

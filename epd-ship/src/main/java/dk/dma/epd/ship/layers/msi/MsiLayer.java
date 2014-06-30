@@ -33,6 +33,7 @@ import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.MSILayerCommonSettingsListener;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
@@ -55,8 +56,10 @@ public class MsiLayer extends MsiLayerCommon {
     /**
      * Constructor
      */
-    public MsiLayer(MSILayerCommonSettings<?> layerSettings, MSIHandlerCommonSettings<?> handlerSettings) {
+    public MsiLayer(MSILayerCommonSettings<MSILayerCommonSettingsListener> layerSettings, MSIHandlerCommonSettings<?> handlerSettings) {
         super(layerSettings);
+        // register self as observer of own settings
+        layerSettings.addObserver(this);
         this.handlerSettings = Objects.requireNonNull(handlerSettings);
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(MsiSymbolGraphic.class, MsiDirectionalIcon.class);

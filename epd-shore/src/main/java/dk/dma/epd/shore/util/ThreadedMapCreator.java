@@ -348,7 +348,7 @@ public class ThreadedMapCreator implements Runnable {
         
 //        MapSettings mapSettings = EPD.getInstance().getSettings().getMapSettings();
                 
-        if (window.getChartPanel().getWmsLayer().getSettings().isUseWms() && window.getChartPanel().getWmsLayer() != null) {
+        if (window.getChartPanel().getWmsLayer() != null && window.getChartPanel().getWmsLayer().getSettings().isUseWms()) {
             window.getChartPanel().wmsVisible(window.getChartPanel().getWmsLayer().getSettings().isVisible());
         }
 
