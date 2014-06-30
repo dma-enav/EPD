@@ -354,7 +354,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener,
             public void mouseReleased(MouseEvent e) {
                 // Toggle setting.
                 // Toggle button is toggled on/off as part of settings listener method.
-                layer.getSettings().setIntendedRouteFilterInUse(layer.getSettings().isIntendedRouteFilterInUse());
+                layer.getSettings().setIntendedRouteFilterInUse(!layer.getSettings().isIntendedRouteFilterInUse());
             }
         });
         intendedRoutesFilter.setToolTipText("Toggle Intended Route Filter");
