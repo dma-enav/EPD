@@ -36,13 +36,14 @@ import dk.dma.epd.common.prototype.gui.GoBackButton;
 import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
-import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings.ENCColorScheme;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
@@ -57,7 +58,8 @@ import dk.dma.epd.ship.layers.route.RouteLayer;
  * The top buttons panel
  */
 public class TopPanel extends OMComponentPanel implements ActionListener,
-        MouseListener, HistoryNavigationPanelInterface, AisLayerCommonSettingsListener, IntendedRouteLayerCommonSettingsListener {
+        MouseListener, HistoryNavigationPanelInterface, AisLayerCommonSettingsListener, IntendedRouteLayerCommonSettingsListener, 
+        ENCLayerCommonSettingsListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -131,9 +133,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     public TopPanel() {
         super();
         
-        // Register self as observer of AIS layer settings
+        // Register self as observer of global AIS layer settings
         EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().addObserver(this);
-        // Observe intended route layer settings for changes
+        // Observe global intended route layer settings for changes
         EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().addObserver(this);
         setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
@@ -358,8 +360,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         } else if (e.getSource() == aisBtn) {
             mainFrame.getChartPanel().aisVisible(aisBtn.isSelected());
         } else if (e.getSource() == encBtn) {
-            mainFrame.getChartPanel().encVisible(encBtn.isSelected());
-            menuBar.getEncLayer().setSelected(encBtn.isSelected());
+//            mainFrame.getChartPanel().encVisible(encBtn.isSelected());
+//            menuBar.getEncLayer().setSelected(encBtn.isSelected());
+            // Toggle global ENC layer settings
+            EPDShip.getInstance().getSettings().getENCLayerSettings().setVisible(!EPDShip.getInstance().getSettings().getENCLayerSettings().isVisible());
 
         } else if (e.getSource() == wmsBtn) {
             mainFrame.getChartPanel().wmsVisible(wmsBtn.isSelected());
@@ -475,9 +479,16 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         return newImage;
     }
 
+    /*
+     * [Begin settings listener methods]
+     */
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void showVesselNameLabelsChanged(VesselLayerSettings<?> source, boolean show) {
-        if (source instanceof AisLayerCommonSettings<?>) {
+        if (source == EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings()) {
             // Name labels toggled for AIS layer.
             // Update toggle button to reflect this.
             this.aisToggleName.setSelected(show);
@@ -485,39 +496,45 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     }
 
     @Override
-    public void movementVectorLengthMinChanged(int newMinLengthMinutes) {
+    public void movementVectorLengthMinChanged(VesselLayerSettings<?> source, int newMinLengthMinutes) {
         // Not relevant for TopPanel.
     }
 
     @Override
-    public void movementVectorLengthMaxChanged(int newMaxLengthMinutes) {
+    public void movementVectorLengthMaxChanged(VesselLayerSettings<?> source, int newMaxLengthMinutes) {
         // Not relevant for TopPanel.
     }
 
     @Override
-    public void movementVectorLengthStepSizeChanged(float newStepSize) {
+    public void movementVectorLengthStepSizeChanged(VesselLayerSettings<?> source, float newStepSize) {
         // Not relevant for TopPanel.
     }
 
     @Override
-    public void movementVectorHideBelowChanged(float newMinSpeed) {
+    public void movementVectorHideBelowChanged(VesselLayerSettings<?> source, float newMinSpeed) {
         // Not relevant for TopPanel.
     }
 
     @Override
     public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
-        if (source instanceof AisLayerCommonSettings<?>) {
+        if (source == EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings()) {
             /*
              * AIS layer visibility toggled.
              * Update toggle button accordingly.
              */
             aisBtn.setSelected(newValue);
-        } else if (source instanceof IntendedRouteLayerCommonSettings<?>) {
+        } else if (source == EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings()) {
             /*
              * Intended route layer visibility toggled.
              * Update toggle button accordingly.
              */
             toggleIntendedRoute.setSelected(newValue);
+        } else if (source == EPDShip.getInstance().getSettings().getENCLayerSettings()) {
+            /*
+             * ENC layer visibility toggled.
+             * Update toggle button accordingly.
+             */
+            encBtn.setSelected(newValue);
         }
     }
 
@@ -542,9 +559,69 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     }
 
     @Override
-    public void isIntendedRouteFilterInUseChanged(boolean useFilter) {
+    public void isIntendedRouteFilterInUseChanged(IntendedRouteLayerCommonSettings<?> source, boolean useFilter) {
         // TODO Auto-generated method stub
         
     }
 
+    @Override
+    public void isEncInUseChanged(boolean useEnc) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void isS52ShowTextChanged(boolean showText) {
+     // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void isS52ShallowPatternChanged(boolean useShallowPattern) {
+     // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void s52ShallowContourChanged(int shallowContour) {
+     // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void s52SafetyDepthChanged(int safetyDepth) {
+     // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void s52SafetyContourChanged(int safetyContour) {
+     // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void s52DeepContourChanged(int deepContour) {
+     // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void isUseSimplePointSymbolsChanged(boolean useSimplePointSymbols) {
+     // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void isUsePlainAreasChanged(boolean usePlainAreas) {
+     // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void isS52TwoShadesChanged(boolean s52TwoShades) {
+     // Not relevant for TopPanel.
+    }
+
+    @Override
+    public void encColorSchemeChanged(ENCColorScheme newScheme) {
+     // Not relevant for TopPanel.
+    }
+
+    /*
+     * [End settings listener methods]
+     */
+    
 }

@@ -52,17 +52,19 @@ import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings.ENCColorScheme;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 
 public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextChild, BeanContextMembershipListener,
-        LightMapHandlerChild, AisLayerCommonSettingsListener, IntendedRouteLayerCommonSettingsListener {
+        LightMapHandlerChild, AisLayerCommonSettingsListener, IntendedRouteLayerCommonSettingsListener, ENCLayerCommonSettingsListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -94,10 +96,12 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
 
     public MenuBar() {
         super();
-        // Observe AIS layer settings
+        // Observe global AIS layer settings
         EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().addObserver(this);
-        // Observe intended route layer settings
+        // Observe global intended route layer settings
         EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().addObserver(this);
+        // Observe global ENC layer settings
+        EPDShip.getInstance().getSettings().getENCLayerSettings().addObserver(this);
     }
 
     private void initMenuBar() {
@@ -245,9 +249,8 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             @Override
             public void actionPerformed(ActionEvent e) {
                 topPanel.getEncBtn().setSelected(!topPanel.getEncBtn().isSelected());
-                // persisting setting is done as part of encVisible - no need to do it here.
-//                EPDShip.getInstance().getSettings().getMapSettings().setEncVisible(topPanel.getEncBtn().isSelected());
-                mainFrame.getChartPanel().encVisible(topPanel.getEncBtn().isSelected());
+                // Toggle global setting.
+                EPDShip.getInstance().getSettings().getENCLayerSettings().setVisible(!EPDShip.getInstance().getSettings().getENCLayerSettings().isVisible());
             }
         });
 
@@ -712,45 +715,58 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         return newImage;
     }
 
+    /*
+     * [Begin settings listener methods]
+     */
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void showVesselNameLabelsChanged(VesselLayerSettings<?> source, boolean show) {
         // Not relevant for MenuBar.
     }
 
     @Override
-    public void movementVectorLengthMinChanged(int newMinLengthMinutes) {
+    public void movementVectorLengthMinChanged(VesselLayerSettings<?> source, int newMinLengthMinutes) {
         // Not relevant for MenuBar.
     }
 
     @Override
-    public void movementVectorLengthMaxChanged(int newMaxLengthMinutes) {
+    public void movementVectorLengthMaxChanged(VesselLayerSettings<?> source, int newMaxLengthMinutes) {
         // Not relevant for MenuBar.
     }
 
     @Override
-    public void movementVectorLengthStepSizeChanged(float newStepSize) {
+    public void movementVectorLengthStepSizeChanged(VesselLayerSettings<?> source, float newStepSize) {
         // Not relevant for MenuBar.
     }
 
     @Override
-    public void movementVectorHideBelowChanged(float newMinSpeed) {
+    public void movementVectorHideBelowChanged(VesselLayerSettings<?> source, float newMinSpeed) {
         // Not relevant for MenuBar.
     }
 
     @Override
     public void isVisibleChanged(LayerSettings<?> source, boolean newValue) {
-        if (source instanceof AisLayerCommonSettings<?> && aisLayer != null) {
+        if (source == EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings() && aisLayer != null) {
             /*
              * AIS layer was toggled on/off.
              * Update menu bar accordingly.
              */
             aisLayer.setSelected(newValue);
-        } else if (source instanceof IntendedRouteLayerCommonSettings<?> && intendedRouteLayer != null) {
+        } else if (source == EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings() && intendedRouteLayer != null) {
             /*
              * Intended route layer was toggled on/off.
              * Update menu bar accordingly.
              */
             intendedRouteLayer.setSelected(newValue);
+        } else if (source == EPDShip.getInstance().getSettings().getENCLayerSettings() && encLayer != null) {
+            /*
+             * ENC layer was toggled on/off.
+             * Update menu bar accordingly.
+             */
+            encLayer.setSelected(newValue);
         }
     }
 
@@ -775,8 +791,67 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     }
 
     @Override
-    public void isIntendedRouteFilterInUseChanged(boolean useFilter) {
+    public void isIntendedRouteFilterInUseChanged(IntendedRouteLayerCommonSettings<?> source, boolean useFilter) {
         // Not relevant for MenuBar.
     }
 
+    @Override
+    public void isEncInUseChanged(boolean useEnc) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void isS52ShowTextChanged(boolean showText) {
+     // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void isS52ShallowPatternChanged(boolean useShallowPattern) {
+     // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void s52ShallowContourChanged(int shallowContour) {
+     // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void s52SafetyDepthChanged(int safetyDepth) {
+     // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void s52SafetyContourChanged(int safetyContour) {
+     // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void s52DeepContourChanged(int deepContour) {
+     // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void isUseSimplePointSymbolsChanged(boolean useSimplePointSymbols) {
+     // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void isUsePlainAreasChanged(boolean usePlainAreas) {
+     // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void isS52TwoShadesChanged(boolean s52TwoShades) {
+     // Not relevant for MenuBar.
+    }
+
+    @Override
+    public void encColorSchemeChanged(ENCColorScheme newScheme) {
+     // Not relevant for MenuBar.
+    }
+    
+    /*
+     * [End settings listener methods]
+     */
 }

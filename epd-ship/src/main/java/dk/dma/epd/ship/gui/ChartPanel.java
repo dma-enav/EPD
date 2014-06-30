@@ -47,6 +47,8 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.EPDShip;
@@ -109,6 +111,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
      */
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel, MapSettings mapSettings) {
         super(mapSettings);
+        // register as observer of ENC layer settings
+        getEncLayerSettings().addObserver(this);
         
         // Set map handler
         mapHandler = EPDShip.getInstance().getMapHandler();
@@ -308,11 +312,12 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         // Add this class as PNT data listener
         EPDShip.getInstance().getPntHandler().addListener(this);
 
+        // TODO fix this - probably bugs if ENC is set to invisible when app starts
         // Show ENC or not
         // (updated this to also check use)
         // (previous version only checked layer visibility)
-        encVisible(EPDShip.getInstance().getSettings().getENCLayerSettings().isEncInUse() &&
-                EPDShip.getInstance().getSettings().getENCLayerSettings().isVisible());
+//        encVisible(EPDShip.getInstance().getSettings().getENCLayerSettings().isEncInUse() &&
+//                EPDShip.getInstance().getSettings().getENCLayerSettings().isVisible());
 
         // Show intended routes or not
         intendedRouteLayerVisible(EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().isVisible());
@@ -689,4 +694,13 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         return nogoDialog;
     }
 
+    /**
+     * {@inheritDoc} The EPDShip specific implementation returns the global settings instance as there is only
+     * one {@link ChartPanel} which simply uses the global settings instance.
+     */
+    @Override
+    public ENCLayerCommonSettings<ENCLayerCommonSettingsListener> getEncLayerSettings() {
+        return EPDShip.getInstance().getSettings().getENCLayerSettings();
+    }
+    
 }
