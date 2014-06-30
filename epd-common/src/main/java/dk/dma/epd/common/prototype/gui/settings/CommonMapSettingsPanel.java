@@ -362,7 +362,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         
         // Save generel panel.
         this.mapSettings.setInitialMapScale((Float) spinnerDefaultMapScale.getValue());
-        this.mapSettings.setMinMapScale((Integer) this.spinnerMaximumScale.getValue());
+        this.mapSettings.setMinMapScale((Float) this.spinnerMaximumScale.getValue());
         LatLonPoint center = new LatLonPoint.Double(
                 (Double) this.spinnerLatitude.getValue(), (Double) this.spinnerLongitude.getValue());
         this.mapSettings.setCenter(center);
