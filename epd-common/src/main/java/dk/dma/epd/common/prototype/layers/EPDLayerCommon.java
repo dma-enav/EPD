@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.layers;
 
+import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -97,6 +98,25 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     
     public LayerSettings<?> getSettings() {
         return this.localSettings;
+    }
+    
+    @Override
+    public void added(Container cont) {
+        super.added(cont);
+        /*
+         * If this layer has an associated settings instance, we set the
+         * visibility of the layer according to the value maintained by
+         * the settings instance. Visibility is toggled in this method as
+         * this method is called when the layer has been fully added to
+         * the map bean. Apparently a layer must be visible when it is first
+         * added to the mapbean; if it isn't it cannot be toggled visible later on.
+         * Hence if a layer's settings specifies that it is to be hidden on
+         * startup, we need to first add it as visible and then make it
+         * invisible now (at this point in execution).
+         */
+        if (this.getSettings() != null) {            
+            this.setVisible(this.getSettings().isVisible());
+        }
     }
     
     /**

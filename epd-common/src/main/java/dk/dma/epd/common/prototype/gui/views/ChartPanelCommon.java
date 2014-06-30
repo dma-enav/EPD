@@ -31,7 +31,6 @@ import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.event.mouse.CommonDragMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
@@ -240,31 +239,6 @@ public abstract class ChartPanelCommon extends OMComponentPanel implements ENCLa
         map.setProjection(p);
 
         forceAisLayerUpdate();
-    }
-    
-    @Override
-    public void findAndInit(Object obj) {
-        super.findAndInit(obj);
-        if(obj instanceof AisLayerCommon<?>) {
-            /*
-             * Toggle layer visibility according to layer settings.
-             * This is required as layers must be visible in order
-             * to be added to the map bean. Hence we must wait until
-             * the layer is properly added to the map bean before we
-             * set its visibility.
-             */
-            AisLayerCommon<?> alc = (AisLayerCommon<?>) obj;
-            alc.setVisible(alc.getSettings().isVisible());
-        } else if (obj instanceof WMSLayer) {
-            // Same as for AIS layer.
-            WMSLayer wl = (WMSLayer) obj;
-            wl.setVisible(wl.getSettings().isVisible());
-        } else if  (obj instanceof IntendedRouteLayerCommon) {
-            // Same as for AIS layer.
-            IntendedRouteLayerCommon irlc = (IntendedRouteLayerCommon) obj;
-            irlc.setVisible(irlc.getSettings().isVisible());
-        }
-        
     }
     
     /*******************************/
