@@ -227,6 +227,8 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         localEncLayerSettings = globalEncLayerSettings.copy();
         // Make local settings obey to global settings
         globalEncLayerSettings.addObserver(localEncLayerSettings);
+        // And register self as observer of local settings
+        localEncLayerSettings.addObserver(this);
         if (globalEncLayerSettings.isEncInUse()) {
             // Try to create ENC layer...
             EncLayerFactory encLayerFactory = new EncLayerFactory(localEncLayerSettings);
@@ -471,6 +473,10 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         mapHandler.add(intendedRouteLayer);
     }
     
+    /**
+     * Initializes the voyage layer of this frame.
+     * @param windowHandling
+     */
     private void setupVoyageLayer(boolean windowHandling) {
         // Create local voyage layer settings
         VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> localVoyageLayerSettings = EPDShore.getInstance().getSettings().getVoyageLayerSettings().copy();

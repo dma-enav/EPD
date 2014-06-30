@@ -356,13 +356,6 @@ public class ThreadedMapCreator implements Runnable {
             // TODO is this needed in order to display ENC on startup?
 //            window.getChartPanel().encVisible(window.getChartPanel().getEncLayerSettings().isVisible());
         }
-        /*
-         *  TODO update to query lcoal MSI settings, e.g. window.getChartPanel().getMsiLayer().getSettings().... ?
-         */
-        if (!mainFrame.isMsiLayerEnabled()) {
-            window.getChartPanel().getMsiLayer().setVisible(false);
-
-        }
 
         if (mainFrame.getWindowCount() == 1 && window.getChartPanel().getWmsLayer() != null) {
             EPDShore.getInstance().getBeanHandler()
