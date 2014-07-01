@@ -26,7 +26,8 @@ import dk.dma.epd.common.prototype.settings.observers.IntendedRouteHandlerCommon
  * this class.
  */
 public class IntendedRouteHandlerCommonSettings<OBSERVER extends IntendedRouteHandlerCommonSettingsListener>
-        extends HandlerSettings<OBSERVER> {
+        extends HandlerSettings<OBSERVER> implements
+        IntendedRouteHandlerCommonSettingsListener {
 
     /**
      * If no updates are received for an intended route within this time frame,
@@ -217,4 +218,39 @@ public class IntendedRouteHandlerCommonSettings<OBSERVER extends IntendedRouteHa
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+    
+    @Override
+    public void onRouteTimeToLiveChanged(long routeTtl) {
+        // Obey to change in observed instance.
+        this.setRouteTimeToLive(routeTtl);
+    }
+
+    @Override
+    public void onFilterDistanceChanged(double filterDist) {
+        // Obey to change in observed instance.
+        this.setFilterDistance(filterDist);
+    }
+
+    @Override
+    public void onNotificationDistanceChanged(double notificationDist) {
+        // Obey to change in observed instance.
+        this.setNotificationDistance(notificationDist);
+    }
+
+    @Override
+    public void onAlertDistanceChanged(double alertDist) {
+        // Obey to change in observed instance.
+        this.setAlertDistance(alertDist);
+    }
+    
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+    
 }
