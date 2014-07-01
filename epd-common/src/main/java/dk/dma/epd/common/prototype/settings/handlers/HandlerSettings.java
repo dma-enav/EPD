@@ -20,9 +20,10 @@ import dk.dma.epd.common.prototype.settings.observers.HandlerSettingsListener;
 
 /**
  * <p>
- * A base class for maintaining settings that apply to an individual handlers. I.e.
- * this class should be used as an abstract base class when writing classes that
- * store settings that are specifically targeted at a given type of handler.
+ * A base class for maintaining settings that apply to an individual handlers.
+ * I.e. this class should be used as an abstract base class when writing classes
+ * that store settings that are specifically targeted at a given type of
+ * handler.
  * </p>
  * <p>
  * If you discover a setting that is relevant to <b>all</b> handler types, you
@@ -35,8 +36,8 @@ import dk.dma.epd.common.prototype.settings.observers.HandlerSettingsListener;
  * </p>
  */
 public abstract class HandlerSettings<OBSERVER extends HandlerSettingsListener>
-        extends ObservedSettings<OBSERVER> {
-    
+        extends ObservedSettings<OBSERVER> implements HandlerSettingsListener {
+
     /*
      * Add settings that are relevant to all handler types here.
      */
