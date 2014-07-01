@@ -24,7 +24,8 @@ import dk.dma.epd.common.prototype.settings.observers.MSIHandlerCommonSettingsLi
  * @author Janus Varmarken
  */
 public class MSIHandlerCommonSettings<OBSERVER extends MSIHandlerCommonSettingsListener>
-        extends HandlerSettings<OBSERVER> {
+        extends HandlerSettings<OBSERVER> implements
+        MSIHandlerCommonSettingsListener {
 
     /**
      * Setting specifying if MSI filter is in use.
@@ -198,4 +199,40 @@ public class MSIHandlerCommonSettings<OBSERVER extends MSIHandlerCommonSettingsL
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    @Override
+    public void useMsiFilterChanged(boolean msiFilter) {
+        // Obey to change in observed instance.
+        this.setMsiFilter(msiFilter);
+    }
+
+    @Override
+    public void msiPollIntervalChanged(int pollInterval) {
+        // Obey to change in observed instance.
+        this.setMsiPollInterval(pollInterval);
+    }
+
+    @Override
+    public void msiRelevanceFromOwnShipRangeChanged(
+            double relevanceFromOwnShipRange) {
+        // Obey to change in observed instance.
+        this.setMsiRelevanceFromOwnShipRange(relevanceFromOwnShipRange);
+    }
+
+    @Override
+    public void msiRelevanceGpsUpdateRangeChanged(double relevanceGpsUpdateRange) {
+        // Obey to change in observed instance.
+        this.setMsiRelevanceGpsUpdateRange(relevanceGpsUpdateRange);
+    }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
 }
