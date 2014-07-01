@@ -23,7 +23,8 @@ import dk.dma.epd.common.prototype.settings.observers.MetocHandlerCommonSettings
  * @author Janus Varmarken
  */
 public class MetocHandlerCommonSettings<OBSERVER extends MetocHandlerCommonSettingsListener>
-        extends HandlerSettings<OBSERVER> {
+        extends HandlerSettings<OBSERVER> implements
+        MetocHandlerCommonSettingsListener {
 
     /**
      * How long should METOC for route be considered valid. Unit: minutes.
@@ -165,4 +166,33 @@ public class MetocHandlerCommonSettings<OBSERVER extends MetocHandlerCommonSetti
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    @Override
+    public void metocTtlChanged(int newMetocTtl) {
+        // Obey to change in observed instance.
+        this.setMetocTtl(newMetocTtl);
+    }
+
+    @Override
+    public void activeRouteMetocPollIntervalChanged(int newInterval) {
+        // Obey to change in observed instance.
+        this.setActiveRouteMetocPollInterval(newInterval);
+    }
+
+    @Override
+    public void metocTimeDiffToleranceChanged(int metocTimeDiffTolerance) {
+        // Obey to change in observed instance.
+        this.setMetocTimeDiffTolerance(metocTimeDiffTolerance);
+    }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
 }
