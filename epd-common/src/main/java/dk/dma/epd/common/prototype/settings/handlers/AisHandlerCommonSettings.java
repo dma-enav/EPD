@@ -28,7 +28,8 @@ import dk.dma.epd.common.prototype.settings.observers.AisHandlerCommonSettingsLi
  * @author Janus Varmarken
  */
 public class AisHandlerCommonSettings<OBSERVER extends AisHandlerCommonSettingsListener>
-        extends HandlerSettings<OBSERVER> {
+        extends HandlerSettings<OBSERVER> implements
+        AisHandlerCommonSettingsListener {
 
     /**
      * Specifies the prefix to use for a Search and Rescue Target (SART).
@@ -220,4 +221,41 @@ public class AisHandlerCommonSettings<OBSERVER extends AisHandlerCommonSettingsL
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void sartPrefixChanged(int sartPrefix) {
+        // Obey to change in observed instance.
+        this.setSartPrefix(sartPrefix);
+    }
+
+    @Override
+    public void simulatedSartMmsiChanged(String[] simulatedSartMmsi) {
+        // Obey to change in observed instance.
+        this.setSimulatedSartMmsi(simulatedSartMmsi);
+    }
+
+    @Override
+    public void strictChanged(boolean strict) {
+        // Obey to change in observed instance.
+        this.setStrict(strict);
+    }
+
+    @Override
+    public void allowSendingChanged(boolean allowSending) {
+        // Obey to change in observed instance.
+        this.setAllowSending(allowSending);
+    }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }
