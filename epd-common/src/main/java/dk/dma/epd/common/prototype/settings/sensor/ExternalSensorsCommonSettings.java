@@ -25,32 +25,33 @@ import dk.dma.epd.common.prototype.settings.observers.ExternalSensorsCommonSetti
 
 /**
  * Maintains settings for external sensors.
+ * 
  * @author Janus Varmarken
  */
-public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommonSettingsListener> extends ObservedSettings<OBSERVER> {
+public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommonSettingsListener>
+        extends ObservedSettings<OBSERVER> implements
+        ExternalSensorsCommonSettingsListener {
 
     private static final TimeZone TZ_GMT = TimeZone.getTimeZone("GMT+0000");
-    
+
     /**
      * Enumeration of sensor connection types
      */
     public enum SensorConnectionType {
-        NONE("None"), 
-        TCP("TCP"), 
-        UDP("UDP"), 
-        SERIAL("Serial"), 
-        FILE("File");
-        
+        NONE("None"), TCP("TCP"), UDP("UDP"), SERIAL("Serial"), FILE("File");
+
         String title;
-        
+
         /**
          * Constructor
-         * @param title the title of the enumeration
+         * 
+         * @param title
+         *            the title of the enumeration
          */
         private SensorConnectionType(String title) {
             this.title = title;
         }
-        
+
         /**
          * Returns a string representation of this value
          */
@@ -58,10 +59,12 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
         public String toString() {
             return title;
         }
-        
+
         /**
          * Parse the parameter as a SensorConnectionType
-         * @param type the String to parse
+         * 
+         * @param type
+         *            the String to parse
          * @return the corresponding SensorConnectionType
          */
         public static SensorConnectionType parseString(String type) {
@@ -82,22 +85,22 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
      * Enumeration of PNT sources
      */
     public enum PntSourceSetting {
-        AUTO("Automatic selection"), 
-        AIS("AIS Connection"), 
-        GPS("GPS Connection"), 
-        MSPNT("Multi-source PNT connection"), 
-        NONE("None");
-        
+        AUTO("Automatic selection"), AIS("AIS Connection"), GPS(
+                "GPS Connection"), MSPNT("Multi-source PNT connection"), NONE(
+                "None");
+
         String title;
-        
+
         /**
          * Constructor
-         * @param title the title of the enumeration
+         * 
+         * @param title
+         *            the title of the enumeration
          */
         private PntSourceSetting(String title) {
             this.title = title;
         }
-        
+
         /**
          * Returns a string representation of this value
          */
@@ -105,10 +108,12 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
         public String toString() {
             return title;
         }
-        
+
         /**
          * Parse the parameter as a PntSource
-         * @param type the String to parse
+         * 
+         * @param type
+         *            the String to parse
          * @return the corresponding PntSource
          */
         public static PntSourceSetting parseString(String type) {
@@ -144,26 +149,30 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
 
     private boolean startTransponder = true;
     /**
-     * If farther away than this range, the messages are discarded In nautical miles (theoretical distance is about 40 miles)
+     * If farther away than this range, the messages are discarded In nautical
+     * miles (theoretical distance is about 40 miles)
      */
     private double aisSensorRange;
 
     private int replaySpeedup = 1;
     private Date replayStartDate;
-    
+
     /**
      * Formats the given date in the ISO-8620 format
-     * @param date the date to format
+     * 
+     * @param date
+     *            the date to format
      * @return the formatted date
      */
     public static String getISO8620(Date date) {
-        SimpleDateFormat iso8601gmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        SimpleDateFormat iso8601gmt = new SimpleDateFormat(
+                "yyyy-MM-dd'T'HH:mm:ss");
         iso8601gmt.setTimeZone(TZ_GMT);
         return iso8601gmt.format(date);
     }
-    
+
     // TODO implement getters/setters with locking, observer calls etc.
-    
+
     public SensorConnectionType getAisConnectionType() {
         try {
             this.settingLock.readLock().lock();
@@ -173,16 +182,17 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
         }
     }
 
-    public void setAisConnectionType(final SensorConnectionType aisConnectionType) {
+    public void setAisConnectionType(
+            final SensorConnectionType aisConnectionType) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.aisConnectionType == aisConnectionType) {
+            if (this.aisConnectionType == aisConnectionType) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.aisConnectionType = aisConnectionType;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.aisConnectionTypeChanged(aisConnectionType);
             }
         } finally {
@@ -202,13 +212,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setAisHostOrSerialPort(final String aisHostOrSerialPort) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.aisHostOrSerialPort.equals(aisHostOrSerialPort)) {
+            if (this.aisHostOrSerialPort.equals(aisHostOrSerialPort)) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.aisHostOrSerialPort = aisHostOrSerialPort;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.aisHostOrSerialPortChanged(aisHostOrSerialPort);
             }
         } finally {
@@ -228,13 +238,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setAisFilename(final String aisFilename) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.aisFilename.equals(aisFilename)) {
+            if (this.aisFilename.equals(aisFilename)) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.aisFilename = aisFilename;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.aisFilenameChanged(aisFilename);
             }
         } finally {
@@ -254,13 +264,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setAisTcpOrUdpPort(final int aisTcpOrUdpPort) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.aisTcpOrUdpPort == aisTcpOrUdpPort) {
+            if (this.aisTcpOrUdpPort == aisTcpOrUdpPort) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.aisTcpOrUdpPort = aisTcpOrUdpPort;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.aisTcpOrUdpPortChanged(aisTcpOrUdpPort);
             }
         } finally {
@@ -276,24 +286,25 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
             this.settingLock.readLock().unlock();
         }
     }
-    
-    public void setGpsConnectionType(final SensorConnectionType gpsConnectionType) {
+
+    public void setGpsConnectionType(
+            final SensorConnectionType gpsConnectionType) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.gpsConnectionType == gpsConnectionType) {
+            if (this.gpsConnectionType == gpsConnectionType) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
-           this.gpsConnectionType = gpsConnectionType;
-           for(OBSERVER obs : this.observers) {
-               obs.gpsConnectionTypeChanged(gpsConnectionType);
-           }
+            this.gpsConnectionType = gpsConnectionType;
+            for (OBSERVER obs : this.observers) {
+                obs.gpsConnectionTypeChanged(gpsConnectionType);
+            }
         } finally {
             this.settingLock.writeLock().unlock();
         }
     }
-    
+
     public String getGpsHostOrSerialPort() {
         try {
             this.settingLock.readLock().lock();
@@ -306,13 +317,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setGpsHostOrSerialPort(final String gpsHostOrSerialPort) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.gpsHostOrSerialPort.equals(gpsHostOrSerialPort)) {
+            if (this.gpsHostOrSerialPort.equals(gpsHostOrSerialPort)) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.gpsHostOrSerialPort = gpsHostOrSerialPort;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.gpsHostOrSerialPortChanged(gpsHostOrSerialPort);
             }
         } finally {
@@ -332,13 +343,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setGpsFilename(final String gpsFilename) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.gpsFilename.equals(gpsFilename)) {
+            if (this.gpsFilename.equals(gpsFilename)) {
                 // No change, no need to notify observers.
                 return;
             }
             // There ws a change, update and notify observers.
             this.gpsFilename = gpsFilename;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.gpsFilenameChanged(gpsFilename);
             }
         } finally {
@@ -358,13 +369,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setGpsTcpOrUdpPort(final int gpsTcpOrUdpPort) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.gpsTcpOrUdpPort == gpsTcpOrUdpPort) {
+            if (this.gpsTcpOrUdpPort == gpsTcpOrUdpPort) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.gpsTcpOrUdpPort = gpsTcpOrUdpPort;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.gpsTcpOrUdpPortChanged(gpsTcpOrUdpPort);
             }
         } finally {
@@ -381,16 +392,17 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
         }
     }
 
-    public void setMsPntConnectionType(final SensorConnectionType msPntConnectionType) {
+    public void setMsPntConnectionType(
+            final SensorConnectionType msPntConnectionType) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.msPntConnectionType == msPntConnectionType) {
+            if (this.msPntConnectionType == msPntConnectionType) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.msPntConnectionType = msPntConnectionType;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.msPntConnectionTypeChanged(msPntConnectionType);
             }
         } finally {
@@ -410,13 +422,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setMsPntHostOrSerialPort(final String msPntHostOrSerialPort) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.msPntHostOrSerialPort.equals(msPntHostOrSerialPort)) {
+            if (this.msPntHostOrSerialPort.equals(msPntHostOrSerialPort)) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.msPntHostOrSerialPort = msPntHostOrSerialPort;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.msPntHostOrSerialPortChanged(msPntHostOrSerialPort);
             }
         } finally {
@@ -436,13 +448,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setMsPntFilename(final String msPntFilename) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.msPntFilename.equals(msPntFilename)) {
+            if (this.msPntFilename.equals(msPntFilename)) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.msPntFilename = msPntFilename;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.msPntFilenameChanged(msPntFilename);
             }
         } finally {
@@ -462,13 +474,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setMsPntTcpOrUdpPort(final int msPntTcpOrUdpPort) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.msPntTcpOrUdpPort == msPntTcpOrUdpPort) {
+            if (this.msPntTcpOrUdpPort == msPntTcpOrUdpPort) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.msPntTcpOrUdpPort = msPntTcpOrUdpPort;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.msPntTcpOrUdpPortChanged(msPntTcpOrUdpPort);
             }
         } finally {
@@ -488,13 +500,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setPntSource(final PntSourceSetting pntSource) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.pntSource == pntSource) {
+            if (this.pntSource == pntSource) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.pntSource = pntSource;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.pntSourceChanged(pntSource);
             }
         } finally {
@@ -514,13 +526,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setStartTransponder(final boolean startTransponder) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.startTransponder == startTransponder) {
+            if (this.startTransponder == startTransponder) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.startTransponder = startTransponder;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.startTransponderChanged(startTransponder);
             }
         } finally {
@@ -540,13 +552,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setAisSensorRange(final double aisSensorRange) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.aisSensorRange == aisSensorRange) {
+            if (this.aisSensorRange == aisSensorRange) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.aisSensorRange = aisSensorRange;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.aisSensorRangeChanged(aisSensorRange);
             }
         } finally {
@@ -566,13 +578,13 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setReplaySpeedup(final int replaySpeedup) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.replaySpeedup == replaySpeedup) {
+            if (this.replaySpeedup == replaySpeedup) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             this.replaySpeedup = replaySpeedup;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.replaySpeedupChanged(replaySpeedup);
             }
         } finally {
@@ -592,18 +604,132 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     public void setReplayStartDate(final Date replayStartDate) {
         try {
             this.settingLock.writeLock().lock();
-            if(Objects.equals(this.replayStartDate, replayStartDate)) {
+            if (Objects.equals(this.replayStartDate, replayStartDate)) {
                 // No change, no need to notify observers.
                 return;
             }
             // There was a change, update and notify observers.
             // Use clones to avoid reference leak.
-            this.replayStartDate = replayStartDate == null ? null : (Date) replayStartDate.clone();
-            for(OBSERVER obs : this.observers) {
-                obs.replayStartDateChanged(replayStartDate == null ? null : (Date) replayStartDate.clone());
+            this.replayStartDate = replayStartDate == null ? null
+                    : (Date) replayStartDate.clone();
+            for (OBSERVER obs : this.observers) {
+                obs.replayStartDateChanged(replayStartDate == null ? null
+                        : (Date) replayStartDate.clone());
             }
         } finally {
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    @Override
+    public void aisConnectionTypeChanged(SensorConnectionType connType) {
+        // Obey to change in observed instance.
+        this.setAisConnectionType(connType);
+    }
+
+    @Override
+    public void aisHostOrSerialPortChanged(String aisHostOrSerialPort) {
+        // Obey to change in observed instance.
+        this.setAisHostOrSerialPort(aisHostOrSerialPort);
+    }
+
+    @Override
+    public void aisFilenameChanged(String aisFilename) {
+        // Obey to change in observed instance.
+        this.setAisFilename(aisFilename);
+    }
+
+    @Override
+    public void aisTcpOrUdpPortChanged(int port) {
+        // Obey to change in observed instance.
+        this.setAisTcpOrUdpPort(port);
+    }
+
+    @Override
+    public void gpsConnectionTypeChanged(SensorConnectionType connType) {
+        // Obey to change in observed instance.
+        this.setGpsConnectionType(connType);
+    }
+
+    @Override
+    public void gpsHostOrSerialPortChanged(String gpsHostOrSerialPort) {
+        // Obey to change in observed instance.
+        this.setGpsHostOrSerialPort(gpsHostOrSerialPort);
+    }
+
+    @Override
+    public void gpsFilenameChanged(String gpsFilename) {
+        // Obey to change in observed instance.
+        this.setGpsFilename(gpsFilename);
+    }
+
+    @Override
+    public void gpsTcpOrUdpPortChanged(int port) {
+        // Obey to change in observed instance.
+        this.setGpsTcpOrUdpPort(port);
+    }
+
+    @Override
+    public void msPntConnectionTypeChanged(SensorConnectionType connType) {
+        // Obey to change in observed instance.
+        this.setMsPntConnectionType(connType);
+    }
+
+    @Override
+    public void msPntHostOrSerialPortChanged(String msPntHostOrSerialPort) {
+        // Obey to change in observed instance.
+        this.setMsPntHostOrSerialPort(msPntHostOrSerialPort);
+    }
+
+    @Override
+    public void msPntFilenameChanged(String msPntFilename) {
+        // Obey to change in observed instance.
+        this.setMsPntFilename(msPntFilename);
+    }
+
+    @Override
+    public void msPntTcpOrUdpPortChanged(int msPntTcpOrUdpPort) {
+        // Obey to change in observed instance.
+        this.setMsPntTcpOrUdpPort(msPntTcpOrUdpPort);
+    }
+
+    @Override
+    public void pntSourceChanged(PntSourceSetting pntSource) {
+        // Obey to change in observed instance.
+        this.setPntSource(pntSource);
+    }
+
+    @Override
+    public void startTransponderChanged(boolean startTransponder) {
+        // Obey to change in observed instance.
+        this.setStartTransponder(startTransponder);
+    }
+
+    @Override
+    public void aisSensorRangeChanged(double aisSensorRange) {
+        // Obey to change in observed instance.
+        this.setAisSensorRange(aisSensorRange);
+    }
+
+    @Override
+    public void replaySpeedupChanged(int replaySpeedup) {
+        // Obey to change in observed instance.
+        this.setReplaySpeedup(replaySpeedup);
+    }
+
+    @Override
+    public void replayStartDateChanged(Date replayStartDate) {
+        // Obey to change in observed instance.
+        this.setReplayStartDate(replayStartDate);
+    }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }
