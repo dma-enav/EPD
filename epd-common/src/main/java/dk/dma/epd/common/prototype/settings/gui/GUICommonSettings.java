@@ -175,7 +175,6 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettingsListener>
      *         unsynchronized access or modification of the setting value.
      */
     public Point getAppLocation() {
-        // TODO does YamlBeans handle this getter correctly?
         try {
             this.settingLock.readLock().lock();
             return new Point(this.appLocation);
@@ -229,7 +228,6 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettingsListener>
      *         unsynchronized access or modification of the setting value.
      */
     public Dimension getAppDimensions() {
-        // TODO does YamlBeans handle this getter correctly?
         try {
             this.settingLock.readLock().lock();
             return new Dimension(this.appDimensions);
@@ -246,7 +244,6 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettingsListener>
      *            the appDimensions to set
      */
     public void setAppDimensions(Dimension newAppDimensions) {
-        // TODO does YamlBeans handle this setter correctly?
         try {
             this.settingLock.writeLock().lock();
             Dimension copy = new Dimension(newAppDimensions);
@@ -258,7 +255,7 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettingsListener>
             // There was a change, update and notify.
             this.appDimensions = copy;
             for (OBSERVER obs : this.observers) {
-                // Feed each observer with its own Dimension instance.
+                // Give each observer with its own Dimension instance.
                 obs.appDimensionsChanged(new Dimension(this.appDimensions));
             }
         } finally {
