@@ -23,8 +23,8 @@ import dk.dma.epd.common.prototype.settings.observers.NetworkSettingsListener;
  * 
  * @author Janus Varmarken
  */
-public class NetworkSettings<OBSERVER extends NetworkSettingsListener>
-        extends ObservedSettings<OBSERVER> {
+public class NetworkSettings<OBSERVER extends NetworkSettingsListener> extends
+        ObservedSettings<OBSERVER> implements NetworkSettingsListener {
 
     /**
      * Setting specifying a port.
@@ -193,4 +193,38 @@ public class NetworkSettings<OBSERVER extends NetworkSettingsListener>
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    @Override
+    public void onPortChanged(int newPort) {
+        // Obey to change in observed instance.
+        this.setPort(newPort);
+    }
+
+    @Override
+    public void onHostChanged(String newHost) {
+        // Obey to change in observed instance.
+        this.setHost(newHost);
+    }
+
+    @Override
+    public void onConnectTimeoutChanged(int newConnectTimeout) {
+        // Obey to change in observed instance.
+        this.setConnectTimeout(newConnectTimeout);
+    }
+
+    @Override
+    public void onReadTimeoutChanged(int newReadTimeout) {
+        // Obey to change in observed instance.
+        this.setReadTimeout(newReadTimeout);
+    }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }
