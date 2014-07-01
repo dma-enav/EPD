@@ -25,7 +25,8 @@ import dk.dma.epd.common.prototype.settings.observers.RouteManagerCommonSettings
  * @author Janus Varmarken
  */
 public class RouteManagerCommonSettings<OBSERVER extends RouteManagerCommonSettingsListener>
-        extends HandlerSettings<OBSERVER> {
+        extends HandlerSettings<OBSERVER> implements
+        RouteManagerCommonSettingsListener {
 
     /**
      * Default speed for a (new) route.
@@ -158,4 +159,32 @@ public class RouteManagerCommonSettings<OBSERVER extends RouteManagerCommonSetti
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    @Override
+    public void onDefaultSpeedChanged(double defaultSpeed) {
+        // Obey to change in observed instance.
+        this.setDefaultSpeed(defaultSpeed);
+    }
+
+    @Override
+    public void onDefaultTurnRadChanged(double defaultTurnRad) {
+        // Obey to change in observed instance.
+        this.setDefaultTurnRad(defaultTurnRad);
+    }
+
+    @Override
+    public void onDefaultXtdChanged(double defaultXtd) {
+        // Obey to change in observed instance.
+        this.setDefaultXtd(defaultXtd);
+    }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }
