@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.slf4j.Logger;
@@ -40,11 +42,9 @@ import dk.dma.epd.shore.voct.VOCTManager;
 public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory
-            .getLogger(SRUSearchRouteTableModel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SRUSearchRouteTableModel.class);
 
-    private static final String[] COLUMN_NAMES = { "Name", "SearchPtn",
-            "Visible", "Dynamic" };
+    private static final String[] COLUMN_NAMES = { "Name", "SearchPtn", "Visible", "Dynamic" };
 
     private SRUManager sruManager;
     private VOCTManager voctManager;
@@ -53,8 +53,7 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     private SRUSearchPAtternButtonHandler handler;
 
-    public SRUSearchRouteTableModel(SRUSearchPAtternButtonHandler handler,
-            SRUManager sruManager, VOCTManager voctManager) {
+    public SRUSearchRouteTableModel(SRUSearchPAtternButtonHandler handler, SRUManager sruManager, VOCTManager voctManager) {
         super();
         this.handler = handler;
         this.sruManager = sruManager;
@@ -81,8 +80,7 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         SRU sru = sruManager.getSRUs().get(rowIndex);
-        EffortAllocationData effortAllocationData = voctManager.getSarData()
-                .getEffortAllocationData().get(rowIndex);
+        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(rowIndex);
         switch (columnIndex) {
         case 0:
             return Formatter.formatString(sru.getName());
@@ -112,23 +110,19 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        System.out.println("Set value at, aValue: " + aValue + " rowIndex: "
-                + rowIndex + " columIndex: " + columnIndex);
+        System.out.println("Set value at, aValue: " + aValue + " rowIndex: " + rowIndex + " columIndex: " + columnIndex);
         // SRU sru = sruManager.getSRUs().get(rowIndex);
 
         if (voctManager.getSarData().getEffortAllocationData().size() > rowIndex) {
-            EffortAllocationData effortAllocationData = voctManager
-                    .getSarData().getEffortAllocationData().get(rowIndex);
+            EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(rowIndex);
 
             switch (columnIndex) {
 
             case 2:
 
                 if (effortAllocationData.getSearchPatternRoute() != null) {
-                    effortAllocationData.getSearchPatternRoute().setVisible(
-                            (Boolean) aValue);
-                    EPDShore.getInstance().getRouteManager().notifyListeners(
-                            RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+                    effortAllocationData.getSearchPatternRoute().setVisible((Boolean) aValue);
+                    EPDShore.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
                     fireTableCellUpdated(rowIndex, columnIndex);
                 } else {
                     break;
@@ -148,15 +142,12 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
                     boolean switchDynamic = (boolean) aValue;
 
                     if (switchDynamic) {
-                        effortAllocationData.getSearchPatternRoute()
-                                .switchToDynamic();
+                        effortAllocationData.getSearchPatternRoute().switchToDynamic();
                     } else {
-                        effortAllocationData.getSearchPatternRoute()
-                                .switchToStatic();
+                        effortAllocationData.getSearchPatternRoute().switchToStatic();
                     }
 
-                    EPDShore.getInstance().getRouteManager().notifyListeners(
-                            RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
+                    EPDShore.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
                     fireTableCellUpdated(rowIndex, columnIndex);
                 } else {
                     break;
@@ -181,8 +172,7 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
         }
 
         if (columnIndex == 2 || columnIndex == 3) {
-            EffortAllocationData effortAllocationData = voctManager
-                    .getSarData().getEffortAllocationData().get(rowIndex);
+            EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(rowIndex);
 
             if (effortAllocationData.getSearchPatternRoute() != null) {
                 return true;
@@ -210,6 +200,7 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
             buttons.put(sruID, button);
         }
         return button;
+
     }
 
     private JButton createButton(final int sruID) {
@@ -224,7 +215,25 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
         return button;
     }
 
+    // @Override
+    // public void fireTableChanged(TableModelEvent paramTableModelEvent) {
+    //
+    // Object[] arrayOfObject = this.listenerList.getListenerList();
+    // for (int i = arrayOfObject.length - 2; i >= 0; i -= 2) {
+    // if (arrayOfObject[i] == TableModelListener.class) {
+    // ((TableModelListener) arrayOfObject[(i + 1)]).tableChanged(paramTableModelEvent);
+    // }
+    // }
+    // }
+
+    public void fireTableDataChanged() {
+//        buttons.clear();
+        super.fireTableDataChanged();
+
+    }
+
     public interface SRUSearchPAtternButtonHandler {
         void buttonClicked(int e);
     }
+
 }

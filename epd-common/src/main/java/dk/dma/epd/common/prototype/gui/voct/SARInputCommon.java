@@ -41,7 +41,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.joda.time.DateTime;
 

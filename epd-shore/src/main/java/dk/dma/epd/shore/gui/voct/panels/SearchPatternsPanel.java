@@ -48,9 +48,8 @@ import dk.dma.epd.shore.gui.voct.panels.SRUSearchRouteTableModel.SRUSearchPAtter
 import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
 
-public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
-        ActionListener, ListSelectionListener, TableModelListener,
-        MouseListener, SRUSearchPAtternButtonHandler, SRUUpdateListener {
+public class SearchPatternsPanel extends SearchPatternsPanelCommon implements ActionListener, ListSelectionListener,
+        TableModelListener, MouseListener, SRUSearchPAtternButtonHandler, SRUUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -65,18 +64,15 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
 
         EPDShore.getInstance().getVoctManager().getSruManager().addListener(this);
 
-        this.setBorder(new TitledBorder(null, "Search Patterns",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        this.setBorder(new TitledBorder(null, "Search Patterns", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
         DefaultTableModel model = new DefaultTableModel(30, 3);
 
         sruTable = new JTable(model) {
             private static final long serialVersionUID = 1L;
 
-            public Component prepareRenderer(TableCellRenderer renderer,
-                    int Index_row, int Index_col) {
-                Component comp = super.prepareRenderer(renderer, Index_row,
-                        Index_col);
+            public Component prepareRenderer(TableCellRenderer renderer, int Index_row, int Index_col) {
+                Component comp = super.prepareRenderer(renderer, Index_row, Index_col);
                 if (Index_row % 2 == 0) {
                     comp.setBackground(new Color(49, 49, 49));
                 } else {
@@ -111,22 +107,19 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
         sruTable.setFocusable(false);
         // routeTable.setAutoResizeMode(0);
 
-        sruTableModel = new SRUSearchRouteTableModel(this, EPDShore.getInstance()
-                .getVoctManager().getSruManager(), EPDShore.getInstance().getVoctManager());
+        sruTableModel = new SRUSearchRouteTableModel(this, EPDShore.getInstance().getVoctManager().getSruManager(), EPDShore
+                .getInstance().getVoctManager());
         sruTableModel.addTableModelListener(this);
 
         sruTable.setShowHorizontalLines(false);
         sruTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         sruScrollPane = new JScrollPane(sruTable);
-        sruScrollPane
-                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        sruScrollPane
-                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        sruScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        sruScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         sruTable.setFillsViewportHeight(true);
 
-        sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,
-                new Color(30, 30, 30)));
+        sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(30, 30, 30)));
 
         // TODO: Comment this line when using WindowBuilder
         sruTable.setModel(sruTableModel);
@@ -152,10 +145,8 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
         GridBagLayout gbl_searchPatternsPanel = new GridBagLayout();
         gbl_searchPatternsPanel.columnWidths = new int[] { 153, 0 };
         gbl_searchPatternsPanel.rowHeights = new int[] { 75, 0 };
-        gbl_searchPatternsPanel.columnWeights = new double[] { 1.0,
-                Double.MIN_VALUE };
-        gbl_searchPatternsPanel.rowWeights = new double[] { 1.0,
-                Double.MIN_VALUE };
+        gbl_searchPatternsPanel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+        gbl_searchPatternsPanel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
         setLayout(gbl_searchPatternsPanel);
 
         GridBagConstraints gbc_sruScrollPane = new GridBagConstraints();
@@ -192,6 +183,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
 
     @Override
     public void tableChanged(TableModelEvent e) {
+
         if (e.getColumn() == 2) {
             // Visibility has changed
             // routeManager
@@ -240,7 +232,16 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
 
     @Override
     public void sruUpdated(SRUUpdateEvent e, long mmsi) {
+        sruTable.removeAll();
         sruTableModel.fireTableDataChanged();
+        // sruTableModel.setValueAt(null, 0, 1);
 
+        sruTable.updateUI();
+        sruTable.repaint();
+        sruTable.validate();
+
+        this.repaint();
+        this.updateUI();
+        this.validate();
     }
 }

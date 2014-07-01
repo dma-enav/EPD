@@ -54,8 +54,7 @@ import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.util.ParseUtils;
 
-public class RapidResponseDatumPointInputPanel extends JPanel implements
-        ActionListener, DocumentListener {
+public class RapidResponseDatumPointInputPanel extends JPanel implements ActionListener, DocumentListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -118,8 +117,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         setLayout(null);
 
         JPanel lkpPanel = new JPanel();
-        lkpPanel.setBorder(new TitledBorder(null, "Last Known Position",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        lkpPanel.setBorder(new TitledBorder(null, "Last Known Position", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         lkpPanel.setBounds(20, 59, 494, 87);
         add(lkpPanel);
         lkpPanel.setLayout(null);
@@ -136,23 +134,19 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         lblTimeOfLast.setBounds(13, 25, 147, 14);
         lkpPanel.add(lblTimeOfLast);
 
-        SpinnerDateModel lkpTimeModel = new SpinnerDateModel(LKPDate.toDate(),
-                null, null, Calendar.HOUR_OF_DAY);
+        SpinnerDateModel lkpTimeModel = new SpinnerDateModel(LKPDate.toDate(), null, null, Calendar.HOUR_OF_DAY);
 
         lkpSpinner = new JSpinner(lkpTimeModel);
 
         lkpSpinner.setLocation(278, 22);
         lkpSpinner.setSize(54, 20);
-        JSpinner.DateEditor dateEditorLKP = new JSpinner.DateEditor(lkpSpinner,
-                "HH:mm");
+        JSpinner.DateEditor dateEditorLKP = new JSpinner.DateEditor(lkpSpinner, "HH:mm");
         lkpSpinner.setEditor(dateEditorLKP);
 
         lkpPanel.add(lkpSpinner);
 
-        ((DefaultEditor) lkpSpinner.getEditor()).getTextField().getDocument()
-                .addDocumentListener(this);
-        ((DefaultEditor) lkpSpinner.getEditor()).getTextField().getDocument()
-                .putProperty("name", "lkpSpinner");
+        ((DefaultEditor) lkpSpinner.getEditor()).getTextField().getDocument().addDocumentListener(this);
+        ((DefaultEditor) lkpSpinner.getEditor()).getTextField().getDocument().putProperty("name", "lkpSpinner");
 
         JLabel lblLastKnownPosition = new JLabel("Last Known Position:");
         lblLastKnownPosition.setBounds(13, 50, 147, 14);
@@ -167,8 +161,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         lkpFirstLat.setColumns(10);
 
         timeZoneDropdown = new JComboBox<String>();
-        timeZoneDropdown.setModel(new DefaultComboBoxModel<String>(
-                new String[] { "CET", "UTC", "GMT" }));
+        timeZoneDropdown.setModel(new DefaultComboBoxModel<String>(new String[] { "CET", "UTC", "GMT" }));
         timeZoneDropdown.setBounds(342, 22, 46, 20);
         lkpPanel.add(timeZoneDropdown);
         timeZoneDropdown.addActionListener(this);
@@ -186,8 +179,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         lkpPanel.add(lkpThirdLat);
 
         comboLKPLat = new JComboBox<String>();
-        comboLKPLat.setModel(new DefaultComboBoxModel<String>(new String[] {
-                "N", "S" }));
+        comboLKPLat.setModel(new DefaultComboBoxModel<String>(new String[] { "N", "S" }));
         comboLKPLat.setBounds(250, 47, 37, 20);
         lkpPanel.add(comboLKPLat);
 
@@ -205,8 +197,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         lkpPanel.add(lkpSecondLon);
 
         comboLKPLon = new JComboBox<String>();
-        comboLKPLon.setModel(new DefaultComboBoxModel<String>(new String[] {
-                "E", "W" }));
+        comboLKPLon.setModel(new DefaultComboBoxModel<String>(new String[] { "E", "W" }));
         comboLKPLon.setBounds(370, 47, 37, 20);
         lkpPanel.add(comboLKPLon);
 
@@ -217,9 +208,8 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         lkpPanel.add(lkpThirdLon);
 
         JPanel commenceStartPanel = new JPanel();
-        commenceStartPanel.setBorder(new TitledBorder(null,
-                "Commence Search Start", TitledBorder.LEADING,
-                TitledBorder.TOP, null, null));
+        commenceStartPanel.setBorder(new TitledBorder(null, "Commence Search Start", TitledBorder.LEADING, TitledBorder.TOP, null,
+                null));
         commenceStartPanel.setBounds(20, 157, 494, 53);
         commenceStartPanel.setLayout(null);
         add(commenceStartPanel);
@@ -236,31 +226,25 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         lblCommenceStartSearch.setBounds(13, 25, 147, 14);
         commenceStartPanel.add(lblCommenceStartSearch);
 
-        SpinnerDateModel CSSTimeModel = new SpinnerDateModel(CSSDate.toDate(),
-                null, null, Calendar.HOUR_OF_DAY);
+        SpinnerDateModel CSSTimeModel = new SpinnerDateModel(CSSDate.toDate(), null, null, Calendar.HOUR_OF_DAY);
 
         commenceStartSpinner = new JSpinner(CSSTimeModel);
 
         commenceStartSpinner.setLocation(278, 22);
         commenceStartSpinner.setSize(54, 20);
-        JSpinner.DateEditor dateEditorCommenceSearchStart = new JSpinner.DateEditor(
-                commenceStartSpinner, "HH:mm");
+        JSpinner.DateEditor dateEditorCommenceSearchStart = new JSpinner.DateEditor(commenceStartSpinner, "HH:mm");
         commenceStartSpinner.setEditor(dateEditorCommenceSearchStart);
 
-        ((DefaultEditor) commenceStartSpinner.getEditor()).getTextField()
-                .getDocument().addDocumentListener(this);
-        ((DefaultEditor) commenceStartSpinner.getEditor()).getTextField()
-                .getDocument().putProperty("name", "commenceStartSpinner");
+        ((DefaultEditor) commenceStartSpinner.getEditor()).getTextField().getDocument().addDocumentListener(this);
+        ((DefaultEditor) commenceStartSpinner.getEditor()).getTextField().getDocument().putProperty("name", "commenceStartSpinner");
 
         commenceStartPanel.add(commenceStartSpinner);
 
         surfaceDriftPanelContainer = new JPanel();
         scrollPaneSurfaceDrift = new JScrollPane(surfaceDriftPanelContainer);
-        scrollPaneSurfaceDrift
-                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPaneSurfaceDrift.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        surfaceDriftPanelContainer.setBorder(new TitledBorder(null,
-                "Surface Drift", TitledBorder.LEADING, TitledBorder.TOP, null,
+        surfaceDriftPanelContainer.setBorder(new TitledBorder(null, "Surface Drift", TitledBorder.LEADING, TitledBorder.TOP, null,
                 null));
 
         // surfaceDriftPanel.setBounds(20, 195, 494, 9000);
@@ -268,8 +252,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
 
         // Add 1 to start, 110 + 56
 
-        surfaceDriftPanelContainer.setPreferredSize(new Dimension(494,
-                surfaceDriftPanelHeight));
+        surfaceDriftPanelContainer.setPreferredSize(new Dimension(494, surfaceDriftPanelHeight));
 
         // surfaceDriftPanelHeight
 
@@ -287,11 +270,10 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         surfaceDriftPanelContainer.add(btnFetchMetocData);
 
         btnAddPoint = new JButton("Add point");
-         
+
         btnAddPoint.setEnabled(false);
-        
-         
-         btnAddPoint.setBounds(265, 22, 89, 23);
+
+        btnAddPoint.setBounds(265, 22, 89, 23);
         surfaceDriftPanelContainer.add(btnAddPoint);
         btnAddPoint.addActionListener(this);
 
@@ -302,14 +284,12 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         btnRemoveLastButton.addActionListener(this);
 
         JPanel panel = new JPanel();
-        panel.setBorder(new TitledBorder(null, "Other variables",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        panel.setBorder(new TitledBorder(null, "Other variables", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         panel.setBounds(20, 410, 487, 100);
         add(panel);
         panel.setLayout(null);
 
-        JLabel lblInitialPositionError = new JLabel(
-                "Initial Position Error (X), nm:");
+        JLabel lblInitialPositionError = new JLabel("Initial Position Error (X), nm:");
         lblInitialPositionError.setBounds(13, 25, 164, 14);
         panel.add(lblInitialPositionError);
 
@@ -319,8 +299,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         panel.add(xErrorField);
         xErrorField.setColumns(10);
 
-        JLabel lblSruNavigationalError = new JLabel(
-                "SRU Navigational Error (Y), nm:");
+        JLabel lblSruNavigationalError = new JLabel("SRU Navigational Error (Y), nm:");
         lblSruNavigationalError.setBounds(13, 50, 164, 14);
         panel.add(lblSruNavigationalError);
 
@@ -346,8 +325,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         safetyFactorField.setColumns(10);
 
         JPanel panel_1 = new JPanel();
-        panel_1.setBorder(new TitledBorder(null, "Search Object",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        panel_1.setBorder(new TitledBorder(null, "Search Object", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         panel_1.setBounds(20, 520, 487, 87);
         add(panel_1);
         panel_1.setLayout(null);
@@ -364,8 +342,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         panel_1.add(searchObjectText);
 
         topPanel = new JPanel();
-        topPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING,
-                TitledBorder.TOP, null, null));
+        topPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         topPanel.setBounds(20, 0, 487, 48);
         add(topPanel);
         topPanel.setLayout(null);
@@ -384,7 +361,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
 
         }
 
-//        initSetValues();
+        initSetValues();
 
     }
 
@@ -404,8 +381,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
 
         surfaceDriftPanelHeight = surfaceDriftPanelHeight + 110;
 
-        surfaceDriftPanelContainer.setPreferredSize(new Dimension(494,
-                surfaceDriftPanelHeight));
+        surfaceDriftPanelContainer.setPreferredSize(new Dimension(494, surfaceDriftPanelHeight));
 
         metocPoints++;
 
@@ -416,13 +392,11 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
 
     private JPanel removePoint() {
 
-        SurfaceDriftPanel surfaceDriftPanel = surfaceDriftPanelList
-                .get(surfaceDriftPanelList.size() - 1);
+        SurfaceDriftPanel surfaceDriftPanel = surfaceDriftPanelList.get(surfaceDriftPanelList.size() - 1);
 
         surfaceDriftPanelHeight = surfaceDriftPanelHeight - 110;
 
-        surfaceDriftPanelContainer.setPreferredSize(new Dimension(494,
-                surfaceDriftPanelHeight));
+        surfaceDriftPanelContainer.setPreferredSize(new Dimension(494, surfaceDriftPanelHeight));
 
         metocPoints--;
 
@@ -443,8 +417,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
 
         // Departure
         if ("lkpSpinner".equals(name)) {
-            JSpinner.DateEditor editor = (JSpinner.DateEditor) lkpSpinner
-                    .getEditor();
+            JSpinner.DateEditor editor = (JSpinner.DateEditor) lkpSpinner.getEditor();
             // System.out.println("DepartureTime was changed to "
             // + departureSpinner.getValue());
             SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -469,8 +442,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
 
         // Departure
         if ("commenceStartSpinner".equals(name)) {
-            JSpinner.DateEditor editor = (JSpinner.DateEditor) commenceStartSpinner
-                    .getEditor();
+            JSpinner.DateEditor editor = (JSpinner.DateEditor) commenceStartSpinner.getEditor();
             // System.out.println("DepartureTime was changed to "
             // + departureSpinner.getValue());
             SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -529,8 +501,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         }
 
         if (arg0.getSource() == searchObjectDropDown) {
-            searchObjectText.setText(LeewayValues.getLeeWayContent().get(
-                    searchObjectDropDown.getSelectedIndex()));
+            searchObjectText.setText(LeewayValues.getLeeWayContent().get(searchObjectDropDown.getSelectedIndex()));
             return;
         }
 
@@ -541,10 +512,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
             Calendar cal = Calendar.getInstance();
             cal.setTime(tempDate);
 
-            LKPDate = LKPDate
-                    .withDate(cal.get(Calendar.YEAR),
-                            cal.get(Calendar.MONTH) + 1,
-                            cal.get(Calendar.DAY_OF_MONTH));
+            LKPDate = LKPDate.withDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
             return;
         }
         if (arg0.getSource() == cssDatePicker) {
@@ -554,10 +522,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
             Calendar cal = Calendar.getInstance();
             cal.setTime(tempDate);
 
-            CSSDate = CSSDate
-                    .withDate(cal.get(Calendar.YEAR),
-                            cal.get(Calendar.MONTH) + 1,
-                            cal.get(Calendar.DAY_OF_MONTH));
+            CSSDate = CSSDate.withDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
             return;
         }
     }
@@ -598,8 +563,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
     }
 
     public double getRapidResponseDatumLKPLat() {
-        String LKPLatitude = lkpFirstLat.getText() + " "
-                + lkpSecondLat.getText() + "." + lkpThirdLat.getText()
+        String LKPLatitude = lkpFirstLat.getText() + " " + lkpSecondLat.getText() + "." + lkpThirdLat.getText()
                 + comboLKPLat.getSelectedItem();
 
         System.out.println(LKPLatitude);
@@ -615,8 +579,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
     }
 
     public double getRapidResponseDatumLKPLon() {
-        String LKPLongitude = lkpFirstLon.getText() + " "
-                + lkpSecondLon.getText() + "." + lkpThirdLon.getText()
+        String LKPLongitude = lkpFirstLon.getText() + " " + lkpSecondLon.getText() + "." + lkpThirdLon.getText()
                 + comboLKPLon.getSelectedItem();
 
         System.out.println(LKPLongitude);
@@ -642,90 +605,78 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
 
     public void displayMissingField(String fieldname) {
         // Missing or incorrect value in
-        JOptionPane.showMessageDialog(this, "Missing or incorrect value in "
-                + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Missing or incorrect value in " + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public void displayMsgbox(String msg) {
         // Missing or incorrect value in
-        JOptionPane.showMessageDialog(this, msg, "Input Error",
-                JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, msg, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public boolean checkMetocTime() {
 
-        
         DateTime previous = null;
-        
-         for (int i = 0; i < surfaceDriftPanelList.size(); i++) {
-             
-             //We are at first point
-             if (previous == null){
-                 
-                 //Is this point before LKP
-                 if (!LKPDate.isAfter(surfaceDriftPanelList.get(i).getDateTime()
-                         .getTime())){
-                     
-                     displayMsgbox("Surfact drift point must be before\nLast Known Position");
-                     return false;
-                 }else{
-                     previous = new DateTime(surfaceDriftPanelList.get(i).getDateTime().getTime());
-                 }
-                 
-             }else{
-                 if (previous.isAfter(surfaceDriftPanelList.get(i).getDateTime()
-                         .getTime())){
-                     
-                     displayMsgbox("Surfact drift point must be in correct time order");
-                     
-                     return false;
-                     
-                 }
-                 
-                 if (CSSDate.isBefore(surfaceDriftPanelList.get(i).getDateTime()
-                         .getTime())){
-                     
-                     displayMsgbox("Surface Drift Point " + (i+1) + " is not useable as it is after CSS \nPlease Remove");
-                     
-                     return false;
-                     
-                 }
-                 
-                 if (LKPDate.isAfter(surfaceDriftPanelList.get(i).getDateTime().getTime())){
-                     
-                     displayMsgbox("Multiple Surface Drift points before LKP \nPlease remove irrelevant ones");
-                     
-                     return false;
-                     
-                 }
-                 
-                 
-                 
-                 //Point must be after previous
-                 //Point must be before CSP
-                 
-             }
-             
-             
-             
-         }
-        
-         
-         return true;
-         
-         
-//        //First point must be before LKP
-//        if (LKPDate.isAfter(surfaceDriftPanelList.get(0).getDateTime()
-//                .getTime())) {
-//            
-//            
-//            
-//            
-//            
-//            
-//            
-//            return true;
-//        }
+
+        for (int i = 0; i < surfaceDriftPanelList.size(); i++) {
+
+            // We are at first point
+            if (previous == null) {
+
+                // Is this point before LKP
+                if (!LKPDate.isAfter(surfaceDriftPanelList.get(i).getDateTime().getTime())) {
+
+                    displayMsgbox("Surfact drift point must be before\nLast Known Position");
+                    return false;
+                } else {
+                    previous = new DateTime(surfaceDriftPanelList.get(i).getDateTime().getTime());
+                }
+
+            } else {
+                if (previous.isAfter(surfaceDriftPanelList.get(i).getDateTime().getTime())) {
+
+                    displayMsgbox("Surfact drift point must be in correct time order");
+
+                    return false;
+
+                }
+
+                if (CSSDate.isBefore(surfaceDriftPanelList.get(i).getDateTime().getTime())) {
+
+                    displayMsgbox("Surface Drift Point " + (i + 1) + " is not useable as it is after CSS \nPlease Remove");
+
+                    return false;
+
+                }
+
+                if (LKPDate.isAfter(surfaceDriftPanelList.get(i).getDateTime().getTime())) {
+
+                    displayMsgbox("Multiple Surface Drift points before LKP \nPlease remove irrelevant ones");
+
+                    return false;
+
+                }
+
+                // Point must be after previous
+                // Point must be before CSP
+
+            }
+
+        }
+
+        return true;
+
+        // //First point must be before LKP
+        // if (LKPDate.isAfter(surfaceDriftPanelList.get(0).getDateTime()
+        // .getTime())) {
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        // return true;
+        // }
 
         // for (int i = 0; i < surfaceDriftPanelList.size(); i++) {
         //
@@ -743,10 +694,9 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
 
         // // The weather point must be before LKP
 
+        // displayMsgbox("Surfact drift point must be before\nLast Known Position");
 
-//        displayMsgbox("Surfact drift point must be before\nLast Known Position");
-
-//        return true;
+        // return true;
     }
 
     public boolean checkTime() {
@@ -856,14 +806,12 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
     public void setSARType(SAR_TYPE type) {
 
         if (type == SAR_TYPE.RAPID_RESPONSE) {
-            topPanel.setBorder(new TitledBorder(null,
-                    "Rapid Response Operation", TitledBorder.LEADING,
-                    TitledBorder.TOP, null, null));
+            topPanel.setBorder(new TitledBorder(null, "Rapid Response Operation", TitledBorder.LEADING, TitledBorder.TOP, null,
+                    null));
         }
 
         if (type == SAR_TYPE.DATUM_POINT) {
-            topPanel.setBorder(new TitledBorder(null, "Datum Point Operation",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            topPanel.setBorder(new TitledBorder(null, "Datum Point Operation", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         }
 
     }
