@@ -57,9 +57,10 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements MSILayer
         registerInfoPanel(msiInfoPanel, MsiSymbolGraphic.class, MsiDirectionalIcon.class);        
     }
     
+    @SuppressWarnings("unchecked")
     @Override
-    public MSILayerCommonSettings<?> getSettings() {
-        return (MSILayerCommonSettings<?>) super.getSettings();
+    public MSILayerCommonSettings<? extends MSILayerCommonSettingsListener> getSettings() {
+        return (MSILayerCommonSettings<? extends MSILayerCommonSettingsListener>) super.getSettings();
     }
     
     /**
