@@ -38,7 +38,7 @@ import dk.dma.epd.common.prototype.settings.observers.PastTrackSettingsListener;
  * @author Janus Varmarken
  */
 public class PastTrackSettings<OBSERVER extends PastTrackSettingsListener>
-        extends ObservedSettings<OBSERVER> {
+        extends ObservedSettings<OBSERVER> implements PastTrackSettingsListener {
 
     /**
      * Setting specifying the maximum length (in minutes) of the past track.
@@ -191,4 +191,35 @@ public class PastTrackSettings<OBSERVER extends PastTrackSettingsListener>
             this.settingLock.writeLock().unlock();
         }
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void pastTrackMaxTimeChanged(int maxTime) {
+        // Obey to change in observed instance.
+        this.setPastTrackMaxTime(maxTime);
+    }
+
+    @Override
+    public void pastTrackDisplayTimeChanged(int displayTime) {
+        // Obey to change in observed instance.
+        this.setPastTrackDisplayTime(displayTime);
+    }
+
+    @Override
+    public void pastTrackMinDistChanged(int minDist) {
+        // Obey to change in observed instance.
+        this.setPastTrackMinDist(minDist);
+    }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }
