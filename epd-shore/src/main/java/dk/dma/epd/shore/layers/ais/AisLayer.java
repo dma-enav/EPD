@@ -75,6 +75,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselGraphic.class);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public AisLayerCommonSettings<AisLayerCommonSettingsListener> getSettings() {
         // TODO Auto-generated method stub

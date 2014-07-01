@@ -57,6 +57,7 @@ public class RouteLayer extends RouteLayerCommon {
         routeManager.addListener(this);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public RouteLayerCommonSettings<RouteLayerCommonSettingsListener> getSettings() {
         // TODO Auto-generated method stub
@@ -84,7 +85,6 @@ public class RouteLayer extends RouteLayerCommon {
 
         graphics.clear();
 
-//        float routeWidth = EPD.getInstance().getSettings().getNavSettings().getRouteWidth();
         Stroke stroke = new BasicStroke(
                 getSettings().getRouteWidth(),                // Width
                 BasicStroke.CAP_SQUARE,    // End cap

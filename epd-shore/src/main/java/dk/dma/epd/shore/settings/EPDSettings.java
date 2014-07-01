@@ -32,18 +32,13 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
-import dk.dma.epd.common.prototype.settings.S57LayerSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
-import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
-import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
-import dk.dma.epd.common.prototype.settings.observers.GUICommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.IntendedRouteHandlerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.MapCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.RouteManagerCommonSettingsListener;
-import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.settings.gui.ENCLayerSettings;
@@ -88,6 +83,7 @@ public class EPDSettings extends Settings implements Serializable {
     /**
      * Load the settings files as well as the workspace files
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void loadFromFile() {
         // Do work in super to load non-specialized settings.

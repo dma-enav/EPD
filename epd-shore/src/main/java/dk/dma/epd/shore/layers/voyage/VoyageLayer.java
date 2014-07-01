@@ -95,6 +95,7 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
         voyageManager.addListener(this);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> getSettings() {
         // TODO Auto-generated method stub

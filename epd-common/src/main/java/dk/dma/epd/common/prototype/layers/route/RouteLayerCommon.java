@@ -82,6 +82,7 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements RouteLa
         registerMapMenuClasses(WaypointCircle.class, RouteLegGraphic.class);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public RouteLayerCommonSettings<? extends RouteLayerCommonSettingsListener> getSettings() {
         return (RouteLayerCommonSettings<? extends RouteLayerCommonSettingsListener>) super.getSettings();

@@ -46,6 +46,7 @@ public class MsiLayer extends MsiLayerCommon {
         registerMapMenuClasses(MsiSymbolGraphic.class, MsiDirectionalIcon.class);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public MSILayerCommonSettings<MSILayerCommonSettingsListener> getSettings() {
         return (MSILayerCommonSettings<MSILayerCommonSettingsListener>) super.getSettings();
