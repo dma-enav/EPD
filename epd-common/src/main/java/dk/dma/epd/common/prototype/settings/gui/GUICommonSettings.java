@@ -40,7 +40,7 @@ import dk.dma.epd.common.prototype.settings.observers.GUICommonSettingsListener;
  * @author Janus Varmarken
  */
 public class GUICommonSettings<OBSERVER extends GUICommonSettingsListener>
-        extends ObservedSettings<OBSERVER> {
+        extends ObservedSettings<OBSERVER> implements GUICommonSettingsListener {
 
     /**
      * Setting specifying if the application should run in fullscreen.
@@ -335,4 +335,44 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettingsListener>
         }
 
     }
+
+    /*
+     * Begin: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
+
+    @Override
+    public void isFullscreenChanged(boolean fullscreen) {
+        // Obey to change in observed instance.
+        this.setFullscreen(fullscreen);
+    }
+
+    @Override
+    public void isMaximizedChanged(boolean maximized) {
+        // Obey to change in observed instance.
+        this.setMaximized(maximized);
+    }
+
+    @Override
+    public void appDimensionsChanged(Dimension newDimension) {
+        // Obey to change in observed instance.
+        this.setAppDimensions(newDimension);
+    }
+
+    @Override
+    public void appScreenLocationChanged(Point newLocation) {
+        // Obey to change in observed instance.
+        this.setAppLocation(newLocation);
+    }
+
+    @Override
+    public void graphicInteractToleranceChanged(float newValue) {
+        // Obey to change in observed instance.
+        this.setGraphicInteractTolerance(newValue);
+    }
+
+    /*
+     * End: Listener methods that are only used if this instance observes
+     * another instance of this class.
+     */
 }
