@@ -236,12 +236,12 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements Ac
         sruTableModel.fireTableDataChanged();
         // sruTableModel.setValueAt(null, 0, 1);
 
-        sruTable.updateUI();
-        sruTable.repaint();
-        sruTable.validate();
-
-        this.repaint();
-        this.updateUI();
-        this.validate();
+//        sruTable.updateUI();
+//        sruTable.repaint();
+//        sruTable.validate();
+//
+//        this.repaint();
+//        this.updateUI();
+//        this.validate();
     }
 }
