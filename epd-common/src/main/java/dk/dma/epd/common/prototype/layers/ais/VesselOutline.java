@@ -182,7 +182,9 @@ public class VesselOutline extends VesselGraphic {
         this.remove(this.shipOutline);
         // create and add new shape
         this.shipOutline = new OMPoly(shipCorners, OMGraphic.DECIMAL_DEGREES, OMGraphic.LINETYPE_RHUMB);
+        // apply paint and stroke on new graphic
         this.shipOutline.setLinePaint(this.getLinePaint());
+        this.shipOutline.setStroke(this.getStroke());
         this.add(this.shipOutline);
     }
     

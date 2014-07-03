@@ -66,6 +66,7 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements
         float vesselWidth = state.getWidth();
         float vesselLength = state.getLength();
         // Create graphics for prediction points
+        float count = 0f;
         for (DynamicPredictorPredictionData prediction : dynamicPrediction
                 .getPredictionDataPoints()) {
             LOG.info("Dynamic predictor data: " + prediction);
@@ -88,9 +89,13 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements
             dpg.update(portrayalData);
             // TODO move color selection such that own ship prediction can be
             // portrayed in different color
-            dpg.setLinePaint(Color.GRAY);
-            dpg.setFillPaint(Color.GRAY);
+            float alpha = count / (dynamicPrediction.getPredictionDataPoints().size());
+            Color c = new Color(0.0f, 0.5f, 0.0f, 1.0f - alpha);
+            dpg.setLinePaint(c);
+            dpg.setFillPaint(c);
+            
             graphicMap.get(dynamicPrediction.getMmsi()).add(dpg);
+            count++;
         }
         // Repaint
         doPrepare();
