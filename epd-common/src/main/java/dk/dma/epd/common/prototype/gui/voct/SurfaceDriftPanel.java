@@ -264,7 +264,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         leewayHeadingField.setBounds(415, 75, 39, 20);
         add(leewayHeadingField);
 
-//        initSetValues();
+        initSetValues();
 
     }
 

@@ -25,9 +25,9 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics.LineType;
+import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics.LineType;
 
-public class SarEffectiveAreaLines extends OMGraphicList{
+public class EffortAllocationLines extends OMGraphicList{
 
     private static final long serialVersionUID = 1L;
     float[] dash = { 0.1f };
@@ -35,9 +35,9 @@ public class SarEffectiveAreaLines extends OMGraphicList{
     Position A;
     Position B;
     
-    EffectiveSRUAreaGraphics effectiveSRUAreaGraphics;
+    EffortAllocationAreaGraphics effectiveSRUAreaGraphics;
     
-    public SarEffectiveAreaLines(Position pointA, Position pointB, LineType type, EffectiveSRUAreaGraphics effectiveSRUAreaGraphics){
+    public EffortAllocationLines(Position pointA, Position pointB, LineType type, EffortAllocationAreaGraphics effectiveSRUAreaGraphics){
         this.type = type;
         this.setVague(true);
         this.effectiveSRUAreaGraphics = effectiveSRUAreaGraphics;
