@@ -22,6 +22,10 @@ import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
 import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandlerCommon;
 
 /**
+ * Extends {@link DynamicPredictorHandlerCommon} with functionality that allows
+ * for reception of dynamic predictor data from the own ship dynamic predictor
+ * sensor as well as broadcast of this data through the Maritime Cloud.
+ * 
  * @author Janus Varmarken
  */
 public class DynamicPredictorHandler extends DynamicPredictorHandlerCommon {
@@ -36,11 +40,10 @@ public class DynamicPredictorHandler extends DynamicPredictorHandlerCommon {
      * The most recent dynamic prediction for own ship.
      */
     private volatile DynamicPrediction latestOwnShipPrediction;
-    
-    public DynamicPredictorHandler() {
-        super();
-    }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void cloudConnected(final MaritimeCloudClient connection) {
         /*
@@ -54,13 +57,17 @@ public class DynamicPredictorHandler extends DynamicPredictorHandlerCommon {
                     @Override
                     public void run() {
                         /*
-                         *  Use a local reference to allow null check without a field lock.
+                         * Use a local reference to allow null check without a
+                         * field lock.
                          */
                         DynamicPrediction toBroadcast = DynamicPredictorHandler.this.latestOwnShipPrediction;
-                        if(toBroadcast == null) {
+                        // If no prediction or timed out prediction, we don't
+                        // broadcast
+                        if (toBroadcast == null
+                                || !DynamicPredictorHandler.this
+                                        .isDynamicPredictionValid(DynamicPredictorHandler.this.latestOwnShipPrediction)) {
                             return;
                         }
-                        System.out.println("BROADCASTING OWN SHIP DYNAMIC PREDICTION");
                         connection.broadcast(toBroadcast);
                     }
                 });
@@ -74,12 +81,11 @@ public class DynamicPredictorHandler extends DynamicPredictorHandlerCommon {
      * Updates this handler with a new dynamic prediction for own ship.
      * 
      * @param newPrediction
-     *            The dynamic prediction for own ship.
+     *            The new dynamic prediction for own ship.
      */
     public void ownShipDynamicPredictionChanged(DynamicPrediction newPrediction) {
         // Store in field for repeated broadcast to access.
         this.latestOwnShipPrediction = newPrediction;
-        // TODO log time stamp and update last prediction or store in DynamicPrediction?
         // Publish own ship prediction to local listeners.
         this.publishDynamicPrediction(newPrediction);
     }

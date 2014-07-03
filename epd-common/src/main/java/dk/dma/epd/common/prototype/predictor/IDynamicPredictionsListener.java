@@ -15,12 +15,18 @@
  */
 package dk.dma.epd.common.prototype.predictor;
 
-
 /**
  * Interface to implement for listeners of dynamic predictions
  */
 public interface IDynamicPredictionsListener {
-    
+
     void receivePredictions(DynamicPrediction prediction);
+
+    /**
+     * Invoked when a vessel no longer has a valid {@link DynamicPrediction}.
+     * 
+     * @param prediction The {@link DynamicPrediction} that is no longer valid.
+     */
+    void receivePredictionTimeout(DynamicPrediction prediction);
 
 }
