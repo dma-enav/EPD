@@ -47,7 +47,7 @@ import dk.dma.epd.common.util.Converter;
  * Graphic for effective area for a SRU
  */
 @SuppressWarnings("unused")
-public class AreaInternalGraphics extends OMGraphicList {
+public class EffortAllocationInternalGraphics extends OMGraphicList {
     private static final long serialVersionUID = 1L;
 
     private Rectangle hatchFillRectangle;
@@ -59,7 +59,7 @@ public class AreaInternalGraphics extends OMGraphicList {
     Double height;
     Double width;
 
-    EffectiveSRUAreaGraphics effecticeSRUAreaGraphics;
+    EffortAllocationAreaGraphics effecticeSRUAreaGraphics;
 
     Position A;
     Position B;
@@ -81,9 +81,9 @@ public class AreaInternalGraphics extends OMGraphicList {
             OMText.JUSTIFY_CENTER);
 
     // Initialize with
-    public AreaInternalGraphics(Position A, Position B, Position C, Position D,
+    public EffortAllocationInternalGraphics(Position A, Position B, Position C, Position D,
             Double width, Double height,
-            EffectiveSRUAreaGraphics effecticeSRUAreaGraphics,
+            EffortAllocationAreaGraphics effecticeSRUAreaGraphics,
             double verticalBearing, double horizontalBearing, String labelText) {
         super();
 

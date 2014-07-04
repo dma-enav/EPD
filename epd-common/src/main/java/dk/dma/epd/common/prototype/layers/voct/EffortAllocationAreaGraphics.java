@@ -29,14 +29,14 @@ import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 
-public class EffectiveSRUAreaGraphics extends OMGraphicList {
+public class EffortAllocationAreaGraphics extends OMGraphicList {
     private static final long serialVersionUID = 1L;
 
-    AreaInternalGraphics effectiveArea;
-    SarEffectiveAreaLines topLine;
-    SarEffectiveAreaLines bottomLine;
-    SarEffectiveAreaLines leftLine;
-    SarEffectiveAreaLines rightLine;
+    EffortAllocationInternalGraphics effectiveArea;
+    EffortAllocationLines topLine;
+    EffortAllocationLines bottomLine;
+    EffortAllocationLines leftLine;
+    EffortAllocationLines rightLine;
 
     Position A;
     Position B;
@@ -56,7 +56,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         TOP, BOTTOM, LEFT, RIGHT
     }
 
-    public EffectiveSRUAreaGraphics(Position A, Position B, Position C, Position D, int id, String labelName) {
+    public EffortAllocationAreaGraphics(Position A, Position B, Position C, Position D, int id, String labelName) {
         super();
 
         verticalBearing = Calculator.bearing(A, C, Heading.RL);
@@ -74,14 +74,14 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         System.out.println("Width is " + width);
         System.out.println("Height is : " + height);
 
-        effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height, this, verticalBearing, horizontalBearing, labelName);
+        effectiveArea = new EffortAllocationInternalGraphics(A, B, C, D, width, height, this, verticalBearing, horizontalBearing, labelName);
 
-        topLine = new SarEffectiveAreaLines(A, B, LineType.TOP, this);
-        bottomLine = new SarEffectiveAreaLines(C, D, LineType.BOTTOM, this);
+        topLine = new EffortAllocationLines(A, B, LineType.TOP, this);
+        bottomLine = new EffortAllocationLines(C, D, LineType.BOTTOM, this);
 
-        leftLine = new SarEffectiveAreaLines(A, C, LineType.LEFT, this);
+        leftLine = new EffortAllocationLines(A, C, LineType.LEFT, this);
 
-        rightLine = new SarEffectiveAreaLines(B, D, LineType.RIGHT, this);
+        rightLine = new EffortAllocationLines(B, D, LineType.RIGHT, this);
 
         add(effectiveArea);
         add(bottomLine);
@@ -91,7 +91,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
     }
 
-    public EffectiveSRUAreaGraphics(Double width, Double height, SARData data, int id, String labelName) {
+    public EffortAllocationAreaGraphics(Double width, Double height, SARData data, int id, String labelName) {
         super();
 
         this.id = id;
@@ -219,14 +219,14 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         sarData.getEffortAllocationData().get(id).setEffectiveAreaC(C);
         sarData.getEffortAllocationData().get(id).setEffectiveAreaD(D);
 
-        effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height, this, verticalBearing, horizontalBearing, labelName);
+        effectiveArea = new EffortAllocationInternalGraphics(A, B, C, D, width, height, this, verticalBearing, horizontalBearing, labelName);
 
-        topLine = new SarEffectiveAreaLines(A, B, LineType.TOP, this);
-        bottomLine = new SarEffectiveAreaLines(C, D, LineType.BOTTOM, this);
+        topLine = new EffortAllocationLines(A, B, LineType.TOP, this);
+        bottomLine = new EffortAllocationLines(C, D, LineType.BOTTOM, this);
 
-        leftLine = new SarEffectiveAreaLines(A, C, LineType.LEFT, this);
+        leftLine = new EffortAllocationLines(A, C, LineType.LEFT, this);
 
-        rightLine = new SarEffectiveAreaLines(B, D, LineType.RIGHT, this);
+        rightLine = new EffortAllocationLines(B, D, LineType.RIGHT, this);
 
         add(effectiveArea);
         add(bottomLine);

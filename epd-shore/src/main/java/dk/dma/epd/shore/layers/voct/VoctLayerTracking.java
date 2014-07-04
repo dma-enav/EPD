@@ -22,7 +22,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voct.SARAreaData;
-import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
+import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
@@ -41,7 +41,7 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
     private static final long serialVersionUID = 1L;
     private OMGraphicList graphics = new OMGraphicList();
 
-    private HashMap<Long, EffectiveSRUAreaGraphics> effectiveAreas = new HashMap<>();
+    private HashMap<Long, EffortAllocationAreaGraphics> effectiveAreas = new HashMap<>();
     // private HashMap<Long, SRUObject> sruVessels = new HashMap<>();
     private SRUManager sruManager;
 
@@ -129,7 +129,7 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
 
         if (effectiveAreas.containsKey(mmsi)) {
             System.out.println("Removing existing");
-            EffectiveSRUAreaGraphics area = effectiveAreas.get(mmsi);
+            EffortAllocationAreaGraphics area = effectiveAreas.get(mmsi);
             graphics.remove(area);
             effectiveAreas.remove(mmsi);
         }
@@ -146,7 +146,7 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
             System.out.println("The effort allocation is : " + effortAllocationData);
             System.out.println(sruManager.getSRUs(id).getName());
 
-            EffectiveSRUAreaGraphics area = new EffectiveSRUAreaGraphics(effortAllocationData.getEffectiveAreaA(),
+            EffortAllocationAreaGraphics area = new EffortAllocationAreaGraphics(effortAllocationData.getEffectiveAreaA(),
                     effortAllocationData.getEffectiveAreaB(), effortAllocationData.getEffectiveAreaC(),
                     effortAllocationData.getEffectiveAreaD(), id, sruManager.getSRUs(id).getName());
 

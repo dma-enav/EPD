@@ -28,14 +28,13 @@ public class SarGraphics extends OMGraphicList {
 
     // private MsiTextBox msiTextBox;
 
-    public SarGraphics(Position datum, double radius, Position A, Position B, Position C, Position D, Position LKP,
-            List<Position> currents, List<Position> winds) {
+    public SarGraphics(Position datum, double radius, Position LKP, List<Position> currents, List<Position> winds) {
         super();
 
         // this.polygon = polygon;
 
         // Create location grahic
-        SarAreaGraphic sarArea = new SarAreaGraphic(A, B, C, D);
+
         SarCircleGraphic sarCircle = new SarCircleGraphic(datum, radius);
 
         // currents is first
@@ -73,20 +72,29 @@ public class SarGraphics extends OMGraphicList {
 
         }
 
-        add(sarArea);
         add(sarCircle);
 
     }
 
+    /**
+     * Constructor used for Datum Point Graphics
+     * 
+     * @param datumDownWind
+     * @param datumMin
+     * @param datumMax
+     * @param radiusDownWind
+     * @param radiusMin
+     * @param radiusMax
+     * @param LKP
+     * @param current
+     */
     public SarGraphics(Position datumDownWind, Position datumMin, Position datumMax, double radiusDownWind, double radiusMin,
-            double radiusMax, Position LKP, Position current, Position A, Position B, Position C, Position D) {
+            double radiusMax, Position LKP, Position current) {
         super();
 
         // this.polygon = polygon;
 
         // Create location grahic
-
-        SarAreaGraphic sarArea = new SarAreaGraphic(A, B, C, D);
 
         SarCircleGraphic sarCircleDownWind = new SarCircleGraphic(datumDownWind, radiusDownWind);
         SarCircleGraphic sarCircleMin = new SarCircleGraphic(datumMin, radiusMin);
@@ -95,8 +103,6 @@ public class SarGraphics extends OMGraphicList {
         SarLinesGraphics sarLinesDownWind = new SarLinesGraphics(LKP, current, datumDownWind, true, "Datum DW");
         SarLinesGraphics sarLinesMin = new SarLinesGraphics(LKP, current, datumMin, false, "Datum Min");
         SarLinesGraphics sarLinesMax = new SarLinesGraphics(LKP, current, datumMax, false, "Datum Max");
-
-        add(sarArea);
 
         add(sarCircleDownWind);
         add(sarCircleMin);
@@ -119,14 +125,12 @@ public class SarGraphics extends OMGraphicList {
     }
 
     public SarGraphics(Position datumDownWind, Position datumMin, Position datumMax, double radiusDownWind, double radiusMin,
-            double radiusMax, Position LKP, Position current, Position A, Position B, Position C, Position D, int dsp) {
+            double radiusMax, Position LKP, Position current, int dsp) {
         super();
 
         // this.polygon = polygon;
 
         // Create location grahic
-
-        SarAreaGraphic sarArea = new SarAreaGraphic(A, B, C, D);
 
         SarCircleGraphic sarCircleDownWind = new SarCircleGraphic(datumDownWind, radiusDownWind);
         SarCircleGraphic sarCircleMin = new SarCircleGraphic(datumMin, radiusMin);
@@ -135,8 +139,6 @@ public class SarGraphics extends OMGraphicList {
         SarLinesGraphics sarLinesDownWind = new SarLinesGraphics(LKP, current, datumDownWind, true, "Datum DW", dsp);
         SarLinesGraphics sarLinesMin = new SarLinesGraphics(LKP, current, datumMin, false, "Datum Min", dsp);
         SarLinesGraphics sarLinesMax = new SarLinesGraphics(LKP, current, datumMax, false, "Datum Max", dsp);
-
-        add(sarArea);
 
         add(sarCircleDownWind);
         add(sarCircleMin);
