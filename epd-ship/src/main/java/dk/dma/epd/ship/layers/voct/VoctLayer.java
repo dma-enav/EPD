@@ -66,8 +66,6 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
     private MainFrame mainFrame;
 
-    
-
     boolean editLocked;
 
     public VoctLayer() {
@@ -224,6 +222,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
             doPrepare();
             dragging = true;
+            updateEffectiveAreaLocation(voctManager.getSarData());
             return true;
 
         }
@@ -245,6 +244,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             // if (!(newPos == initialBoxRelativePosition)){
             selectedArea.moveRelative(newPos, voctManager.getSarData());
             // }
+
+            updateEffectiveAreaLocation(voctManager.getSarData());
 
             doPrepare();
             dragging = true;
@@ -430,8 +431,20 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         }
 
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {
+            System.out.println("Draw effort allocation");
             createEffectiveArea();
             this.setVisible(true);
+            editLocked = false;
+        }
+
+        if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED) {
+
+            EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0);
+
+            effectiveArea = new EffortAllocationAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
+                    effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(),
+                    effortAllocationArea.getEffectiveAreaD(), 0, "");
+            graphics.add(effectiveArea);
             editLocked = false;
         }
 
@@ -601,8 +614,6 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         Position C = data.getC();
         Position D = data.getD();
 
-
-
         Position datumDownWind = data.getDatumDownWind();
         Position datumMin = data.getDatumMin();
         Position datumMax = data.getDatumMax();
@@ -615,7 +626,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         Position WTCPoint = data.getWtc();
 
         graphics.clear();
-        
+
         sarArea = new SarAreaGraphic(A, B, C, D);
         graphics.add(sarArea);
 
@@ -692,5 +703,6 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
     public void updateEffectiveAreaLocation(SARData sarData) {
         effectiveArea.updateEffectiveAreaSize(sarData);
+        voctManager.saveToFile();
     }
 }

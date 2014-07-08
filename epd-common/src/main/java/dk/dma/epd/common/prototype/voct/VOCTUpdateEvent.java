@@ -22,7 +22,8 @@ import java.util.EnumSet;
  * Different events for VOCT events
  */
 public enum VOCTUpdateEvent {
-    NEW_SAR, SAR_CANCEL, SAR_READY, SAR_DISPLAY, EFFORT_ALLOCATION_READY, EFFORT_ALLOCATION_DISPLAY, SEARCH_PATTERN_GENERATED, SAR_RECEIVED_CLOUD;
+    NEW_SAR, SAR_CANCEL, SAR_READY, SAR_DISPLAY, EFFORT_ALLOCATION_READY, EFFORT_ALLOCATION_DISPLAY, SEARCH_PATTERN_GENERATED, SAR_RECEIVED_CLOUD
+    , EFFORT_ALLOCATION_SERIALIZED;
     
     public boolean is(VOCTUpdateEvent... events) {
         return EnumSet.copyOf(Arrays.asList(events)).contains(this);

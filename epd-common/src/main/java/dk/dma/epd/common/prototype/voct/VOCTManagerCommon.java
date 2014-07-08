@@ -145,8 +145,8 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         hasSar = false;
 
         notifyListeners(VOCTUpdateEvent.SAR_CANCEL);
-        
-        //Delete stored SAR
+
+        // Delete stored SAR
         new File(VOCT_FILE).delete();
     }
 
@@ -189,6 +189,8 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
         if (loadSarFromSerialize) {
             listener.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
+            listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
+            listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
         }
     }
 
@@ -227,9 +229,9 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
         sarOperation.calculateEffortAllocation(sarData);
 
-        System.out.println("Display");
         notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY);
 
+        saveToFile();
     }
 
     public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, int id) {

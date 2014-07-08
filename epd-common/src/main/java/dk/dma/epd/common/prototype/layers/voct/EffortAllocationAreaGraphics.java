@@ -73,6 +73,8 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
         System.out.println("Width is " + width);
         System.out.println("Height is : " + height);
+        
+        totalSize = width * height;
 
         effectiveArea = new EffortAllocationInternalGraphics(A, B, C, D, width, height, this, verticalBearing, horizontalBearing, labelName);
 

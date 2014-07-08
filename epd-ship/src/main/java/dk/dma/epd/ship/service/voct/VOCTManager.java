@@ -138,7 +138,10 @@ public class VOCTManager extends VOCTManagerCommon {
             setSarData(sarOperation.startDatumLineCalculations(datumLinetData));
         }
 
+
+        
         displaySar();
+        
     }
 
     public static VOCTManager loadVOCTManager() {
