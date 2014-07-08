@@ -14,6 +14,8 @@
  */
 package dk.dma.epd.shore.voct;
 
+import java.io.Serializable;
+
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 
@@ -23,7 +25,9 @@ import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
  * 
  */
 
-public class SRU {
+public class SRU implements Serializable{
+
+    private static final long serialVersionUID = 1L;
 
     public enum SRU_TYPE {
         // SHIP, HELICOPTER, PLANE

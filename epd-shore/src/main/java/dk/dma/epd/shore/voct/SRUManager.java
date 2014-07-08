@@ -14,6 +14,13 @@
  */
 package dk.dma.epd.shore.voct;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,8 +30,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.MapHandlerChild;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
@@ -42,8 +53,8 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
 
     private VOCTManager voctManager;
     private VoctHandler voctHandler;
-
-    // private EnavServiceHandler enavServiceHandler;
+    private static final String SRU_FILE = EPD.getInstance().getHomePath().resolve(".srus").toString();
+    private static final Logger LOG = LoggerFactory.getLogger(SRUManager.class);
 
     private LinkedHashMap<Long, SRUCommunicationObject> sRUCommunication = new LinkedHashMap<Long, SRUCommunicationObject>();
     private VoctLayerTracking voctLayerTracking;
@@ -64,7 +75,17 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
         }
 
         // Persist update VOCT info
-        // saveToFile();
+        saveToFile();
+    }
+
+    public synchronized void saveToFile() {
+        System.out.println("SAVE TO FILE");
+        try (FileOutputStream fileOut = new FileOutputStream(SRU_FILE);
+                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+            objectOut.writeObject(srus);
+        } catch (IOException e) {
+            LOG.error("Failed to save VOCT data: " + e.getMessage());
+        }
     }
 
     public void addListener(SRUUpdateListener listener) {
@@ -398,6 +419,7 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
         synchronized (srus) {
             srus.add(sru);
             notifyListeners(SRUUpdateEvent.SRU_ADDED, srus.size());
+            // saveToFile();
         }
 
     }
@@ -429,40 +451,36 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
         return getSRUs().get(index);
     }
 
+    @SuppressWarnings("unchecked")
     public static SRUManager loadSRUManager() {
         SRUManager manager = new SRUManager();
 
-        // try {
-        // FileInputStream fileIn = new FileInputStream(VOYAGESFILE);
-        // ObjectInputStream objectIn = new ObjectInputStream(fileIn);
-        // VoyageStore voyageStore = (VoyageStore) objectIn.readObject();
-        // objectIn.close();
-        // fileIn.close();
-        // manager.setVoyages(voyageStore.getVoyages());
-        //
-        // } catch (FileNotFoundException e) {
-        // // Not an error
-        // } catch (Exception e) {
-        // LOG.error("Failed to load routes file: " + e.getMessage());
-        // // Delete possible corrupted or old file
-        // new File(VOYAGESFILE).delete();
-        // }
+        try {
+            FileInputStream fileIn = new FileInputStream(SRU_FILE);
+            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+
+            manager.setSrus((List<SRU>) objectIn.readObject());
+            objectIn.close();
+            fileIn.close();
+
+        } catch (FileNotFoundException e) {
+            // Not an error
+        } catch (Exception e) {
+            LOG.error("Failed to load sru file: " + e.getMessage());
+            // Delete possible corrupted or old file
+            new File(SRU_FILE).delete();
+        }
 
         return manager;
     }
 
-    // public void handleSRUBroadcast(long mmsi, VOCTSARBroadCast r) {
-    //
-    // System.out.println("Recieved Broadcast");
-    //
-    // // Only react to mmsi that we invited
-    // if (sRUCommunication.containsKey(mmsi)) {
-    //
-    // sRUCommunication.get(mmsi).addBroadcastMessage(r);
-    //
-    // notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
-    // }
-    // }
+    /**
+     * @param srus
+     *            the srus to set
+     */
+    public void setSrus(List<SRU> srus) {
+        this.srus = srus;
+    }
 
     public void forceTrackingLayerRepaint() {
         voctLayerTracking.doPrepare();
