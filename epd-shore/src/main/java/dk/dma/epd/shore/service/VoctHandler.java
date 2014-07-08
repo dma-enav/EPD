@@ -143,7 +143,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
     }
 
     private void fetchVOCTMessageList() {
-        System.out.println("Checking for VOCT message list");
+//        System.out.println("Checking for VOCT message list");
         try {
 
             voctMessageList = getMaritimeCloudConnection().serviceLocate(VOCTCommunicationService.INIT).nearest(Integer.MAX_VALUE)
