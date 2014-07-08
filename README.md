@@ -9,7 +9,7 @@ information, and as a JavaBeans(tm) component framework.
 
 ## Prerequisites ##
 
-  * Java 1.7
+  * Java 8
   * Maven 3
 
 ## Building ##
