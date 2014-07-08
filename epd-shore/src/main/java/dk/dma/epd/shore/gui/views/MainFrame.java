@@ -495,6 +495,7 @@ public class MainFrame extends MainFrameCommon {
         return sendRouteDialog;
     }
 
+    @Override
     public JMenuWorkspaceBar getTopMenu() {
         return topMenu;
     }

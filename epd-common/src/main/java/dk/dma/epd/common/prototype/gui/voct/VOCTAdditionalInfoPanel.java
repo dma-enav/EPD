@@ -51,8 +51,6 @@ import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.JTextComponent;
 
-import net.maritimecloud.core.id.MaritimeId;
-
 import org.apache.commons.lang.StringUtils;
 
 import dk.dma.epd.common.graphics.GraphicsUtil;
@@ -338,8 +336,6 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
  */
 class ChatMessageBorder extends AbstractBorder {
     private static final long serialVersionUID = 1L;
-    private static final Color ALERT_COLOR = new Color(255, 50, 50, 200);
-    private static final Color WARN_COLOR = new Color(255, 225, 50, 200);
 
     int cornerRadius = 12;
     int pointerWidth = 10;

@@ -25,16 +25,13 @@ import java.io.ObjectOutputStream;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
-import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
@@ -69,7 +66,6 @@ public class VOCTManager extends VOCTManagerCommon {
 
     VoctLayer voctLayer;
 
-    private static final Logger LOG = LoggerFactory.getLogger(VOCTManagerCommon.class);
 
     public VOCTManager() {
         EPDShip.startThread(this, "VOCTManager");
@@ -116,32 +112,7 @@ public class VOCTManager extends VOCTManagerCommon {
 
     }
 
-    private void initializeFromSerializedFile(SARData sarData) {
 
-        if (sarData instanceof RapidResponseData) {
-            setSarType(SAR_TYPE.RAPID_RESPONSE);
-            RapidResponseData rapidResponseData = (RapidResponseData) sarData;
-            setSarData(sarOperation.startRapidResponseCalculations(rapidResponseData));
-
-        }
-
-        if (sarData instanceof DatumPointData) {
-            setSarType(SAR_TYPE.DATUM_POINT);
-            DatumPointData datumPointData = (DatumPointData) sarData;
-            setSarData(sarOperation.startDatumPointCalculations(datumPointData));
-        }
-
-        if (sarData instanceof DatumLineData) {
-            setSarType(SAR_TYPE.DATUM_LINE);
-            DatumLineData datumLinetData = (DatumLineData) sarData;
-            setSarData(sarOperation.startDatumLineCalculations(datumLinetData));
-        }
-
-
-        
-        displaySar();
-        
-    }
 
     public static VOCTManager loadVOCTManager() {
 

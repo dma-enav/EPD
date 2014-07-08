@@ -57,7 +57,7 @@ public class EffortAllocationPanel extends EffortAllocationPanelCommon
 
     public EffortAllocationPanel() {
         
-        EPDShore.getInstance().getVoctManager().getSruManager().addListener(this);
+        EPDShore.getInstance().getSruManager().addListener(this);
         
         this.setBorder(new TitledBorder(null,
                 "Effort Allocation", TitledBorder.LEADING, TitledBorder.TOP,
@@ -105,7 +105,7 @@ public class EffortAllocationPanel extends EffortAllocationPanelCommon
         sruTable.setFocusable(false);
         // routeTable.setAutoResizeMode(0);
 
-        sruTableModel = new SRUTableModelPanel(EPDShore.getInstance().getVoctManager().getSruManager(), EPDShore.getInstance().getVoctManager());
+        sruTableModel = new SRUTableModelPanel(EPDShore.getInstance().getSruManager(), EPDShore.getInstance().getVoctManager());
         sruTableModel.addTableModelListener(this);
 
         sruTable.setShowHorizontalLines(false);

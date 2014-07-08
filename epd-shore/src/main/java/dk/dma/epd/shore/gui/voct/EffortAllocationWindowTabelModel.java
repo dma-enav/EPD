@@ -33,8 +33,7 @@ import dk.dma.epd.shore.voct.VOCTManager;
 public class EffortAllocationWindowTabelModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory
-            .getLogger(EffortAllocationWindowTabelModel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EffortAllocationWindowTabelModel.class);
 
     private static final String[] COLUMN_NAMES = { "Name", "Type", "Calculate" };
 
@@ -43,8 +42,7 @@ public class EffortAllocationWindowTabelModel extends AbstractTableModel {
 
     private List<Boolean> calculate = new ArrayList<Boolean>();
 
-    public EffortAllocationWindowTabelModel(SRUManager sruManager,
-            VOCTManager voctManager) {
+    public EffortAllocationWindowTabelModel(SRUManager sruManager, VOCTManager voctManager) {
         super();
         this.sruManager = sruManager;
         this.voctManager = voctManager;
@@ -99,17 +97,15 @@ public class EffortAllocationWindowTabelModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        System.out.println("Set value at, aValue: " + aValue + " rowIndex: "
-                + rowIndex + " columIndex: " + columnIndex);
+        System.out.println("Set value at, aValue: " + aValue + " rowIndex: " + rowIndex + " columIndex: " + columnIndex);
         // SRU sru = sruManager.getSRUs().get(rowIndex);
         switch (columnIndex) {
         case 2:
-            
-            if (voctManager.getSarData().getEffortAllocationData().size() > rowIndex){
-                calculate.set(rowIndex, (Boolean) aValue);    
+
+            if (voctManager.getSarData().getEffortAllocationData().size() > rowIndex) {
+                calculate.set(rowIndex, (Boolean) aValue);
             }
-            
-            
+
             // super.setValueAt((Boolean) aValue, rowIndex, columnIndex);
 
             // sru.setVisible((Boolean)aValue);

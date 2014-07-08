@@ -227,7 +227,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
             // routeTable.setAutoResizeMode(0);
 
             sruTableModel = new EffortAllocationWindowTabelModel(EPDShore.getInstance()
-                    .getVoctManager().getSruManager(),
+                    .getSruManager(),
                     EPDShore.getInstance().getVoctManager());
             sruTableModel.addTableModelListener(this);
 

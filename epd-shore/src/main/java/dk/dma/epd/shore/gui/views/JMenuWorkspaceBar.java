@@ -31,8 +31,6 @@ import javax.swing.JMenuItem;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
-import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.fileselection.WorkspaceFileFilter;
 
@@ -42,7 +40,7 @@ import dk.dma.epd.shore.gui.fileselection.WorkspaceFileFilter;
  * @author David A. Camre (davidcamre@gmail.com
  * 
  */
-public class JMenuWorkspaceBar extends JMenuBar implements VOCTUpdateListener {
+public class JMenuWorkspaceBar extends JMenuBar {
 
     private static final long serialVersionUID = 1L;
     private JMenu maps;
@@ -60,7 +58,6 @@ public class JMenuWorkspaceBar extends JMenuBar implements VOCTUpdateListener {
     public JMenuWorkspaceBar(final MainFrame mainFrame) {
         super();
 
-        EPDShore.getInstance().getVoctManager().addListener(this);
         this.mainFrame = mainFrame;
         this.desktop = mainFrame.getDesktop();
 
@@ -491,11 +488,8 @@ public class JMenuWorkspaceBar extends JMenuBar implements VOCTUpdateListener {
         this.transponderFrame = transponderFrame;
     }
 
-    @Override
-    public void voctUpdated(VOCTUpdateEvent e) {
-        if (e == VOCTUpdateEvent.SAR_CANCEL) {
-            newSar.setEnabled(true);
-        }
+    public void setSarBtnEnabled(){
+        newSar.setEnabled(true);
     }
 
 }

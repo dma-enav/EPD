@@ -61,7 +61,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements Ac
 
     public SearchPatternsPanel() {
 
-        EPDShore.getInstance().getVoctManager().getSruManager().addListener(this);
+        EPDShore.getInstance().getSruManager().addListener(this);
 
         this.setBorder(new TitledBorder(null, "Search Patterns", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
@@ -106,7 +106,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements Ac
         sruTable.setFocusable(false);
         // routeTable.setAutoResizeMode(0);
 
-        sruTableModel = new SRUSearchRouteTableModel(this, EPDShore.getInstance().getVoctManager().getSruManager(), EPDShore
+        sruTableModel = new SRUSearchRouteTableModel(this, EPDShore.getInstance().getSruManager(), EPDShore
                 .getInstance().getVoctManager());
         sruTableModel.addTableModelListener(this);
 

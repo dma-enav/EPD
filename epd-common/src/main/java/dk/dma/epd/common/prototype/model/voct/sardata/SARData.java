@@ -44,8 +44,8 @@ public class SARData implements Serializable {
     private List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
     private String additionalInfo;
 
-    public SARData(String sarID, DateTime TLKP, DateTime CSS, Position LKP,
-            double x, double y, double safetyFactor, int searchObject) {
+    public SARData(String sarID, DateTime TLKP, DateTime CSS, Position LKP, double x, double y, double safetyFactor,
+            int searchObject) {
 
         this.setSarID(sarID);
         this.setLKP(LKP);
@@ -58,9 +58,6 @@ public class SARData implements Serializable {
         this.setSearchObject(searchObject);
     }
 
-    
-    
-    
     /**
      * @return the additionalInfo
      */
@@ -68,18 +65,13 @@ public class SARData implements Serializable {
         return additionalInfo;
     }
 
-
-
-
     /**
-     * @param additionalInfo the additionalInfo to set
+     * @param additionalInfo
+     *            the additionalInfo to set
      */
     public void setAdditionalInfo(String additionalInfo) {
         this.additionalInfo = additionalInfo;
     }
-
-
-
 
     /**
      * @return the effortAllocationData
@@ -98,8 +90,7 @@ public class SARData implements Serializable {
      * @param effortAllocationData
      *            the effortAllocationData to set
      */
-    public void setFirstEffortAllocationData(
-            EffortAllocationData effortAllocationData) {
+    public void setFirstEffortAllocationData(EffortAllocationData effortAllocationData) {
         this.effortAllocationData.add(0, effortAllocationData);
     }
 
@@ -138,8 +129,7 @@ public class SARData implements Serializable {
      * @param effortAllocationData
      *            the effortAllocationData to set
      */
-    public void setEffortAllocationData(
-            List<EffortAllocationData> effortAllocationData) {
+    public void setEffortAllocationData(List<EffortAllocationData> effortAllocationData) {
         this.effortAllocationData = effortAllocationData;
     }
 

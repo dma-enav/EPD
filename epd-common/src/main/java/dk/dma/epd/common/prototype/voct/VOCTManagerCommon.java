@@ -15,11 +15,16 @@
 package dk.dma.epd.common.prototype.voct;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
@@ -59,6 +64,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     protected List<SARData> sarFutureData;
 
     protected static final String VOCT_FILE = EPD.getInstance().getHomePath().resolve(".voct").toString();
+    protected static final Logger LOG = LoggerFactory.getLogger(VOCTManagerCommon.class);
 
     public enum VoctMsgStatus {
         ACCEPTED, REJECTED, NOTED, IGNORED, UNKNOWN, WITHDRAWN
@@ -158,8 +164,12 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     }
 
     protected void saveToFile() {
-        // TODO Auto-generated method stub
-
+        try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
+                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+            objectOut.writeObject(sarData);
+        } catch (IOException e) {
+            LOG.error("Failed to save VOCT data: " + e.getMessage());
+        }
     }
 
     @Override
@@ -210,17 +220,11 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
      */
     public void setSarData(SARData sarData) {
 
-        System.out.println("SAR data is not null!");
-        System.out.println(sarData != null);
         this.sarData = sarData;
 
         if (!(sarData instanceof DatumPointDataSARIS)) {
             sarFutureData = sarOperation.sarFutureCalculations(sarData);
         }
-        // else {
-        // this.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
-        // }
-
         notifyListeners(VOCTUpdateEvent.SAR_READY);
     }
 
@@ -258,6 +262,33 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
      */
     public void setLoadSarFromSerialize(boolean loadSarFromSerialize) {
         this.loadSarFromSerialize = loadSarFromSerialize;
+    }
+
+    protected void initializeFromSerializedFile(SARData sarData) {
+
+        if (sarData instanceof RapidResponseData) {
+            setSarType(SAR_TYPE.RAPID_RESPONSE);
+            RapidResponseData rapidResponseData = (RapidResponseData) sarData;
+            setSarData(sarOperation.startRapidResponseCalculations(rapidResponseData));
+
+        }
+
+        if (sarData instanceof DatumPointData) {
+            setSarType(SAR_TYPE.DATUM_POINT);
+            DatumPointData datumPointData = (DatumPointData) sarData;
+            setSarData(sarOperation.startDatumPointCalculations(datumPointData));
+
+        }
+
+        if (sarData instanceof DatumLineData) {
+            setSarType(SAR_TYPE.DATUM_LINE);
+            DatumLineData datumLinetData = (DatumLineData) sarData;
+            setSarData(sarOperation.startDatumLineCalculations(datumLinetData));
+
+        }
+
+        displaySar();
+
     }
 
 }

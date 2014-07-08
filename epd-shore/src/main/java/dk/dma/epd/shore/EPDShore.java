@@ -195,9 +195,6 @@ public final class EPDShore extends EPD {
         voyageManager = VoyageManager.loadVoyageManager();
         beanHandler.add(voyageManager);
 
-        voctManager = VOCTManager.loadVOCTManager();
-        beanHandler.add(voctManager);
-
         sruManager = SRUManager.loadSRUManager();
         beanHandler.add(sruManager);
 
@@ -238,10 +235,6 @@ public final class EPDShore extends EPD {
         identityHandler = new IdentityHandler();
         beanHandler.add(identityHandler);
 
-        // Create identity handler
-        voctHandler = new VoctHandler();
-        beanHandler.add(voctHandler);
-
         // Start sensors
         startSensors();
 
@@ -261,9 +254,21 @@ public final class EPDShore extends EPD {
         // Wait for gui to be created
         try {
             guiCreated.await();
+
         } catch (InterruptedException e) {
             LOG.error("Interrupted while waiting for GUI to be created", e);
         }
+
+        // Create vocthandler
+        voctHandler = new VoctHandler();
+        beanHandler.add(voctHandler);
+        
+        // Create voct manager
+        voctManager = new VOCTManager();
+        voctManager.loadVOCTManager();
+        beanHandler.add(voctManager);
+
+
 
         // Create embedded transponder frame
         transponderFrame = new TransponderFrame(getHomePath().resolve("transponder.xml").toString(), true, mainFrame);
@@ -705,6 +710,13 @@ public final class EPDShore extends EPD {
     }
 
     /**
+     * @return the sruManager
+     */
+    public SRUManager getSruManager() {
+        return sruManager;
+    }
+
+    /**
      * @return the monaLisaRouteExchange
      */
     public MonaLisaRouteOptimization getMonaLisaRouteExchange() {
@@ -719,8 +731,6 @@ public final class EPDShore extends EPD {
     public VoyageEventDispatcher getVoyageEventDispatcher() {
         return voyageEventDispatcher;
     }
-    
-    
 
     /**
      * @return the voctHandler
