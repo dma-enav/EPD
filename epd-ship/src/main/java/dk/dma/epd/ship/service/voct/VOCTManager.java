@@ -15,6 +15,14 @@
  */
 package dk.dma.epd.ship.service.voct;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
@@ -27,6 +35,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
@@ -108,11 +117,66 @@ public class VOCTManager extends VOCTManagerCommon {
 
     }
 
+    private void initializeFromSerializedFile(SARData sarData) {
+
+        if (sarData instanceof RapidResponseData) {
+            setSarType(SAR_TYPE.RAPID_RESPONSE);
+            RapidResponseData rapidResponseData = (RapidResponseData) sarData;
+            setSarData(sarOperation.startRapidResponseCalculations(rapidResponseData));
+
+        }
+
+        if (sarData instanceof DatumPointData) {
+            setSarType(SAR_TYPE.DATUM_POINT);
+            DatumPointData datumPointData = (DatumPointData) sarData;
+            setSarData(sarOperation.startDatumPointCalculations(datumPointData));
+        }
+
+        if (sarData instanceof DatumLineData) {
+            setSarType(SAR_TYPE.DATUM_LINE);
+            DatumLineData datumLinetData = (DatumLineData) sarData;
+            setSarData(sarOperation.startDatumLineCalculations(datumLinetData));
+        }
+
+        displaySar();
+    }
+
     public static VOCTManager loadVOCTManager() {
 
         // Where we load or serialize old VOCTS
-        return new VOCTManager();
+        VOCTManager voctManager = new VOCTManager();
+        try (FileInputStream fileIn = new FileInputStream(VOCT_FILE); ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
 
+            SARData sarDataLoaded = (SARData) objectIn.readObject();
+            voctManager.setLoadSarFromSerialize(true);
+            voctManager.initializeFromSerializedFile(sarDataLoaded);
+            
+            // RouteStore routeStore = (RouteStore) objectIn.readObject();
+            // manager.setRoutes(routeStore.getRoutes());
+            // manager.activeRoute = routeStore.getActiveRoute();
+            // manager.activeRouteIndex = routeStore.getActiveRouteIndex();
+
+        } catch (FileNotFoundException e) {
+            // Not an error
+        } catch (Exception e) {
+            LOG.error("Failed to load routes file: " + e.getMessage());
+            // Delete possible corrupted or old file
+            new File(VOCT_FILE).delete();
+        }
+
+        return voctManager;
+
+    }
+
+    @Override
+    public synchronized void saveToFile() {
+        System.out.println("SAVE TO FILE");
+        try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
+                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+            objectOut.writeObject(sarData);
+        } catch (IOException e) {
+            LOG.error("Failed to save VOCT data: " + e.getMessage());
+        }
     }
 
     @Override
@@ -230,6 +294,7 @@ public class VOCTManager extends VOCTManagerCommon {
             if (type == SAR_TYPE.RAPID_RESPONSE) {
                 data = new RapidResponseData(message.getSarDataRapidResponse());
                 setSarType(SAR_TYPE.RAPID_RESPONSE);
+                saveToFile();
             }
 
             if (type == SAR_TYPE.DATUM_POINT) {

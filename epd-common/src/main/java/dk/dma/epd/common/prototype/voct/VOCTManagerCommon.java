@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.voct;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -24,6 +25,7 @@ import org.joda.time.DateTime;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voct.SAROperation;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
@@ -50,10 +52,14 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
     protected boolean hasSar;
 
+    protected boolean loadSarFromSerialize;
+
     private CopyOnWriteArrayList<VOCTUpdateListener> listeners = new CopyOnWriteArrayList<>();
 
     protected SARData sarData;
     protected List<SARData> sarFutureData;
+
+    protected static final String VOCT_FILE = EPD.getInstance().getHomePath().resolve(".voct").toString();
 
     public enum VoctMsgStatus {
         ACCEPTED, REJECTED, NOTED, IGNORED, UNKNOWN, WITHDRAWN
@@ -139,14 +145,22 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         hasSar = false;
 
         notifyListeners(VOCTUpdateEvent.SAR_CANCEL);
+        
+        //Delete stored SAR
+        new File(VOCT_FILE).delete();
     }
 
     public void displaySar() {
-
+        saveToFile();
         // This is where we display SAR
 
         updateLayers();
         notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
+    }
+
+    protected void saveToFile() {
+        // TODO Auto-generated method stub
+
     }
 
     @Override
@@ -172,6 +186,10 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
     public void addListener(VOCTUpdateListener listener) {
         listeners.add(listener);
+
+        if (loadSarFromSerialize) {
+            listener.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
+        }
     }
 
     public void removeListener(VOCTUpdateListener listener) {
@@ -224,6 +242,21 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
     public void showSarInput() {
 
+    }
+
+    /**
+     * @return the loadSarFromSerialize
+     */
+    public boolean isLoadSarFromSerialize() {
+        return loadSarFromSerialize;
+    }
+
+    /**
+     * @param loadSarFromSerialize
+     *            the loadSarFromSerialize to set
+     */
+    public void setLoadSarFromSerialize(boolean loadSarFromSerialize) {
+        this.loadSarFromSerialize = loadSarFromSerialize;
     }
 
 }

@@ -74,8 +74,9 @@ public class SARComponentPanel extends OMComponentPanel implements
 
         if (obj instanceof VOCTManager) {
             voctManager = (VOCTManager) obj;
-            voctManager.addListener(this);
             sarPanel.setVoctManager(voctManager);
+            voctManager.addListener(this);
+            
         }
     }
 

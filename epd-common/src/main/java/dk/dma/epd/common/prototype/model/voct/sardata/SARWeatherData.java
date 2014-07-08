@@ -15,12 +15,15 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
+import java.io.Serializable;
+
 import org.joda.time.DateTime;
 
 import dk.dma.enav.model.voct.WeatherDataDTO;
 
-public class SARWeatherData {
+public class SARWeatherData implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private double TWCHeading;
     private double TWCknots;
 
@@ -29,8 +32,7 @@ public class SARWeatherData {
     private double downWind;
     private DateTime dateTime;
 
-    
-    public SARWeatherData(WeatherDataDTO data){
+    public SARWeatherData(WeatherDataDTO data) {
         this.TWCHeading = data.getTWCHeading();
         this.TWCknots = data.getTWCknots();
         this.LWknots = data.getLWknots();
@@ -38,9 +40,8 @@ public class SARWeatherData {
         this.downWind = data.getDownWind();
         this.dateTime = new DateTime(data.getDate());
     }
-    
-    public SARWeatherData(double tWCHeading, double tWCknots, double lWknots,
-            double lWHeading, DateTime dateTime) {
+
+    public SARWeatherData(double tWCHeading, double tWCknots, double lWknots, double lWHeading, DateTime dateTime) {
         TWCHeading = tWCHeading;
         TWCknots = tWCknots;
         LWknots = lWknots;
@@ -51,8 +52,6 @@ public class SARWeatherData {
 
     }
 
-    
-    
     /**
      * @return the dateTime
      */
@@ -60,16 +59,13 @@ public class SARWeatherData {
         return dateTime;
     }
 
-
-
     /**
-     * @param dateTime the dateTime to set
+     * @param dateTime
+     *            the dateTime to set
      */
     public void setDateTime(DateTime dateTime) {
         this.dateTime = dateTime;
     }
-
-
 
     /**
      * @return the tWCHeading
@@ -146,24 +142,20 @@ public class SARWeatherData {
         this.downWind = downWind;
     }
 
-    
-    public String generateHTML(){
-        
+    public String generateHTML() {
+
         StringBuilder str = new StringBuilder();
-        
+
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Total Water Current: " + TWCknots + " knots with heading "
-                + TWCHeading + "°");
-        str.append("<br>Leeway: " + LWknots + " knots with heading "
-                + LWHeading + "°</br>");
-        
+        str.append("Total Water Current: " + TWCknots + " knots with heading " + TWCHeading + "°");
+        str.append("<br>Leeway: " + LWknots + " knots with heading " + LWHeading + "°</br>");
+
         return str.toString();
     }
-    
-    
-    public WeatherDataDTO getDTO(){
+
+    public WeatherDataDTO getDTO() {
         return new WeatherDataDTO(TWCHeading, TWCknots, LWknots, LWHeading, downWind, dateTime.toDate());
     }
-    
+
 }

@@ -601,8 +601,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         Position C = data.getC();
         Position D = data.getD();
 
-        sarArea = new SarAreaGraphic(A, B, C, D);
-        graphics.add(sarArea);
+
 
         Position datumDownWind = data.getDatumDownWind();
         Position datumMin = data.getDatumMin();
@@ -616,6 +615,9 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         Position WTCPoint = data.getWtc();
 
         graphics.clear();
+        
+        sarArea = new SarAreaGraphic(A, B, C, D);
+        graphics.add(sarArea);
 
         sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
 
