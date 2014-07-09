@@ -139,7 +139,7 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
         if (arg0.getSource() == btnEffortAllocation) {
 
             // We have a SAR in progress
-            if (voctManager != null && voctManager.isHasSar()) {
+            if (voctManager != null && (voctManager.isHasSar() || voctManager.isLoadSarFromSerialize())) {
 
                 // Determine what type of SAR then retrieve the input data
                 if (effortAllocationWindow != null) {

@@ -198,8 +198,12 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
         if (loadSarFromSerialize) {
             listener.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
-            listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
-            listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
+
+            if (sarData.getEffortAllocationData().size() > 0) {
+
+                listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
+                listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
+            }
         }
     }
 

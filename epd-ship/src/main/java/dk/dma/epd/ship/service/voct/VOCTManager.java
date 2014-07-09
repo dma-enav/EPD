@@ -26,7 +26,6 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -65,7 +64,6 @@ public class VOCTManager extends VOCTManagerCommon {
     // private VOCTBroadcastService voctBroadcastService;
 
     VoctLayer voctLayer;
-
 
     public VOCTManager() {
         EPDShip.startThread(this, "VOCTManager");
@@ -112,8 +110,6 @@ public class VOCTManager extends VOCTManagerCommon {
 
     }
 
-
-
     public static VOCTManager loadVOCTManager() {
 
         // Where we load or serialize old VOCTS
@@ -123,7 +119,7 @@ public class VOCTManager extends VOCTManagerCommon {
             SARData sarDataLoaded = (SARData) objectIn.readObject();
             voctManager.setLoadSarFromSerialize(true);
             voctManager.initializeFromSerializedFile(sarDataLoaded);
-            
+
             // RouteStore routeStore = (RouteStore) objectIn.readObject();
             // manager.setRoutes(routeStore.getRoutes());
             // manager.activeRoute = routeStore.getActiveRoute();
@@ -186,11 +182,11 @@ public class VOCTManager extends VOCTManagerCommon {
         // Remove any old SAR data
         if (sarData != null) {
             if (sarData.getEffortAllocationData().size() > 0) {
-                if (sarData.getEffortAllocationData().get(0).getSearchPatternRoute() != null) {
+                if (sarData.getEffortAllocationData().get(0L).getSearchPatternRoute() != null) {
                     System.out.println("Removing existing routes");
 
                     int routeIndex = EPDShip.getInstance().getRouteManager()
-                            .getRouteIndex(sarData.getEffortAllocationData().get(0).getSearchPatternRoute());
+                            .getRouteIndex(sarData.getEffortAllocationData().get(0L).getSearchPatternRoute());
 
                     EPDShip.getInstance().getRouteManager().removeRoute(routeIndex);
 
@@ -299,7 +295,7 @@ public class VOCTManager extends VOCTManagerCommon {
 
                 }
 
-                data.addEffortAllocationData(effortAllocationData, 0);
+                data.addEffortAllocationData(0, effortAllocationData);
 
             }
 

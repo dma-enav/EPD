@@ -37,6 +37,7 @@ import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
@@ -378,6 +379,59 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             createEffectiveArea();
             this.setVisible(true);
         }
+
+        if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED) {
+            System.out.println("Draw Effort Allocation Areas");
+            drawEffortAllocationAreasFromSerialization();
+        }
+
+    }
+
+    private void drawEffortAllocationAreasFromSerialization() {
+
+        // Probability of Detection Area - updateable
+
+        // Remove all from graphics
+        for (int i = 0; i < effectiveSRUAreas.size(); i++) {
+
+            graphics.remove(effectiveSRUAreas.get(i));
+
+        }
+
+        SARData data = voctManager.getSarData();
+
+        for (int i = 0; i < data.getEffortAllocationData().size(); i++) {
+
+            EffortAllocationData effortAllocationArea = data.getEffortAllocationData().get(i);
+            EffortAllocationAreaGraphics effectiveArea;
+
+            if (!data.getEffortAllocationData().get(i).isNoRedraw()) {
+
+                effectiveArea = new EffortAllocationAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
+                        effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(),
+                        effortAllocationArea.getEffectiveAreaD(), i, "");
+
+//                effectiveArea.setVisible(EPDShore.getInstance().getSruManager().getSRUs().get(i).isVisible());
+
+                if (effectiveSRUAreas.size() > i) {
+                    effectiveSRUAreas.set(i, effectiveArea);
+                } else {
+                    effectiveSRUAreas.add(effectiveArea);
+                }
+
+            }
+
+        }
+
+        for (int i = 0; i < effectiveSRUAreas.size(); i++) {
+            System.out.println("Adding graphics");
+            graphics.add(effectiveSRUAreas.get(i));
+        }
+
+        // PoD for each SRU, initialized with an effective area? possibly a
+        // unique ID
+
+        doPrepare();
 
     }
 

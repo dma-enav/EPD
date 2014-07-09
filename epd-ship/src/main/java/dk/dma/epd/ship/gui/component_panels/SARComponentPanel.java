@@ -108,7 +108,7 @@ public class SARComponentPanel extends OMComponentPanel implements
                 sarPanel.effortAllocationComplete(voctManager.getSarData());
                 sarPanel.getBtnEffortAllocation().setEnabled(false);
 
-                if (voctManager.getSarData().getEffortAllocationData().get(0)
+                if (voctManager.getSarData().getEffortAllocationData().get(0L)
                         .getSearchPatternRoute() != null) {
 
                     sarPanel.getChckbxShowDynamicPattern().setEnabled(true);

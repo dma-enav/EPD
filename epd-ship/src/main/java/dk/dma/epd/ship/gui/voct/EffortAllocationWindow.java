@@ -36,10 +36,12 @@ import javax.swing.border.TitledBorder;
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationWindowCommon;
 import dk.dma.epd.common.prototype.model.voct.SweepWidthValues;
 import dk.dma.epd.common.prototype.model.voct.WeatherCorrectionFactors;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
+import dk.dma.epd.ship.EPDShip;
 
-public class EffortAllocationWindow extends EffortAllocationWindowCommon{
+public class EffortAllocationWindow extends EffortAllocationWindowCommon {
     private static final long serialVersionUID = 1L;
 
     private final JPanel initPanel = new JPanel();
@@ -49,7 +51,6 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
     private JTextField windspeedField;
     private JTextField waterElevationField;
     private JTextField probabilityOfDetectionVal;
-
 
     JComboBox<String> targetTypeDropdown;
     JSpinner hoursSearching;
@@ -68,7 +69,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
         setTitle("Effort Allocation");
         this.setModal(true);
         this.setResizable(false);
-        
+
         // setBounds(100, 100, 559, 733);
         setBounds(100, 100, 559, 575);
         getContentPane().setLayout(new BorderLayout());
@@ -76,35 +77,31 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
         buttomBar();
 
         initPanel();
-        
+
         this.setVisible(false);
     }
-    
+
     @Override
-    public void setVoctManager(VOCTManagerCommon voctManager){
+    public void setVoctManager(VOCTManagerCommon voctManager) {
         this.voctManager = voctManager;
     }
-    
 
     private void initPanel() {
         initPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(initPanel, BorderLayout.CENTER);
 
         initPanel.setLayout(null);
-   
+
         {
             JPanel panel = new JPanel();
-            panel.setBorder(new TitledBorder(UIManager
-                    .getBorder("TitledBorder.border"),
-                    "Calculate Effective Search Area", TitledBorder.LEADING,
-                    TitledBorder.TOP, null, null));
+            panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Calculate Effective Search Area",
+                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel.setBounds(10, 11, 523, 478);
             initPanel.add(panel);
             panel.setLayout(null);
 
             JPanel panel_1 = new JPanel();
-            panel_1.setBorder(new TitledBorder(null, "Description",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_1.setBorder(new TitledBorder(null, "Description", TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel_1.setBounds(10, 20, 503, 77);
             panel.add(panel_1);
             panel_1.setLayout(null);
@@ -117,8 +114,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
             txtField.setText("Probability of Detection is a statistical measurement for determining the success rate for location an object lost at sea. Recommended PoD is 78%");
 
             JPanel panel_2 = new JPanel();
-            panel_2.setBorder(new TitledBorder(null, "SRU Information",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_2.setBorder(new TitledBorder(null, "SRU Information", TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel_2.setBounds(10, 98, 503, 99);
             panel.add(panel_2);
             panel_2.setLayout(null);
@@ -145,8 +141,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
             panel_2.add(lblNewLabel);
 
             sruType = new JComboBox<String>();
-            sruType.setModel(new DefaultComboBoxModel<String>(new String[] {
-                    "Smaller vessel (40 feet)", "Ship (90 feet)" }));
+            sruType.setModel(new DefaultComboBoxModel<String>(new String[] { "Smaller vessel (40 feet)", "Ship (90 feet)" }));
             sruType.setBounds(129, 41, 148, 20);
             panel_2.add(sruType);
 
@@ -155,15 +150,13 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
             panel_2.add(lblFatigue);
 
             fatigueDropDown = new JComboBox<Double>();
-            fatigueDropDown.setModel(new DefaultComboBoxModel<Double>(
-                    new Double[] { 1.0, 0.9 }));
+            fatigueDropDown.setModel(new DefaultComboBoxModel<Double>(new Double[] { 1.0, 0.9 }));
             fatigueDropDown.setBounds(345, 19, 45, 20);
             panel_2.add(fatigueDropDown);
 
             JPanel panel_3 = new JPanel();
-            panel_3.setBorder(new TitledBorder(UIManager
-                    .getBorder("TitledBorder.border"), "SAR Information",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_3.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SAR Information", TitledBorder.LEADING,
+                    TitledBorder.TOP, null, null));
             panel_3.setBounds(10, 208, 503, 72);
             panel.add(panel_3);
             panel_3.setLayout(null);
@@ -181,8 +174,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
             // "Other targets" }));
 
             for (int i = 0; i < SweepWidthValues.getSweepWidthTypes().size(); i++) {
-                targetTypeDropdown.addItem(SweepWidthValues
-                        .getSweepWidthTypes().get(i));
+                targetTypeDropdown.addItem(SweepWidthValues.getSweepWidthTypes().get(i));
             }
 
             JLabel lblTimeSpentSearching = new JLabel("Time spent searching:");
@@ -190,8 +182,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
             panel_3.add(lblTimeSpentSearching);
 
             hoursSearching = new JSpinner();
-            hoursSearching.setModel(new SpinnerNumberModel(new Integer(1),
-                    null, null, new Integer(1)));
+            hoursSearching.setModel(new SpinnerNumberModel(new Integer(1), null, null, new Integer(1)));
             hoursSearching.setBounds(139, 44, 54, 20);
             panel_3.add(hoursSearching);
 
@@ -200,8 +191,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
             panel_3.add(lblHours);
 
             JPanel panel_4 = new JPanel();
-            panel_4.setBorder(new TitledBorder(null, "Weather information",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_4.setBorder(new TitledBorder(null, "Weather information", TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel_4.setBounds(10, 293, 503, 88);
             panel.add(panel_4);
             panel_4.setLayout(null);
@@ -229,21 +219,18 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
             panel_4.add(lblVisibilityNm);
 
             visibilityDropDown = new JComboBox<Integer>();
-            visibilityDropDown.setModel(new DefaultComboBoxModel<Integer>(
-                    new Integer[] { 1, 3, 5, 10, 15, 20 }));
+            visibilityDropDown.setModel(new DefaultComboBoxModel<Integer>(new Integer[] { 1, 3, 5, 10, 15, 20 }));
             visibilityDropDown.setBounds(276, 23, 45, 20);
             panel_4.add(visibilityDropDown);
 
             JPanel panel_5 = new JPanel();
-            panel_5.setBorder(new TitledBorder(UIManager
-                    .getBorder("TitledBorder.border"), "Additional Options",
+            panel_5.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Additional Options",
                     TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel_5.setBounds(10, 394, 503, 71);
             panel.add(panel_5);
             panel_5.setLayout(null);
 
-            JLabel lblDesiredProbabilityOf = new JLabel(
-                    "Desired Probability of Detection:");
+            JLabel lblDesiredProbabilityOf = new JLabel("Desired Probability of Detection:");
             lblDesiredProbabilityOf.setBounds(12, 24, 197, 14);
             panel_5.add(lblDesiredProbabilityOf);
 
@@ -265,26 +252,26 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
     }
 
     public void setValues() {
-//        VesselTarget ownship = EPDShip.getAisHandler().getOwnShip();
-//
-//        if (ownship != null) {
-//            if (ownship.getStaticData() != null) {
-//                shipName.setText(ownship.getStaticData().getName());
-//
-//                double length = ownship.getStaticData().getDimBow()
-//                        + ownship.getStaticData().getDimStern();
-//                // String width = Integer.toString(ownship.getStaticData()
-//                // .getDimPort()
-//                // + ownship.getStaticData().getDimStarboard()) + " M";
-//
-//                // Is the lenght indicated by the AIS longer than 89 feet then
-//                // it falls under Ship category
-//                if (Converter.metersToFeet(length) > 89) {
-//                    sruType.setSelectedIndex(1);
-//                }
-//
-//            }
-//        }
+        // VesselTarget ownship = EPDShip.getAisHandler().getOwnShip();
+        //
+        // if (ownship != null) {
+        // if (ownship.getStaticData() != null) {
+        // shipName.setText(ownship.getStaticData().getName());
+        //
+        // double length = ownship.getStaticData().getDimBow()
+        // + ownship.getStaticData().getDimStern();
+        // // String width = Integer.toString(ownship.getStaticData()
+        // // .getDimPort()
+        // // + ownship.getStaticData().getDimStarboard()) + " M";
+        //
+        // // Is the lenght indicated by the AIS longer than 89 feet then
+        // // it falls under Ship category
+        // if (Converter.metersToFeet(length) > 89) {
+        // sruType.setSelectedIndex(1);
+        // }
+        //
+        // }
+        // }
     }
 
     private void buttomBar() {
@@ -324,12 +311,13 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
     private boolean checkValues() {
 
         SARData sarData = voctManager.getSarData();
-        
+
         if (getSearchSpeed() == -9999) {
             return false;
         }
 
-        sarData.getFirstEffortAllocationData().setGroundSpeed(getSearchSpeed());
+        EffortAllocationData effortAllocationData = new EffortAllocationData();
+        effortAllocationData.setGroundSpeed(getSearchSpeed());
 
         // Wc = Wu x Fw x Fv x Ff
 
@@ -362,13 +350,11 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
 
         int fwRow = 0;
 
-        if (windSpeed >= 0 && windSpeed <= 15 || waterLevel >= 0
-                && waterLevel <= 3) {
+        if (windSpeed >= 0 && windSpeed <= 15 || waterLevel >= 0 && waterLevel <= 3) {
             fwRow = 0;
         }
 
-        if (windSpeed > 15 && windSpeed <= 25 || waterLevel > 3
-                && waterLevel <= 5) {
+        if (windSpeed > 15 && windSpeed <= 25 || waterLevel > 3 && waterLevel <= 5) {
             fwRow = 1;
         }
 
@@ -383,8 +369,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
         double fw;
 
         // PIW, raft or small boat
-        if (targetType >= 0 && targetType <= 10 || targetType >= 14
-                && targetType < 17) {
+        if (targetType >= 0 && targetType <= 10 || targetType >= 14 && targetType < 17) {
             fw = WeatherCorrectionFactors.getPIWAndSmallBoats().get(fwRow);
         } else {
             // Other object
@@ -395,7 +380,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
 
         double wc = wu * fw * ff;
 
-        sarData.getFirstEffortAllocationData().setW(wc);
+        effortAllocationData.setW(wc);
 
         System.out.println("The following Sweep Width is calculated:");
         System.out.println("Wc = Wu x Fw x Ff");
@@ -407,27 +392,26 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
             return false;
         }
 
-        sarData.getFirstEffortAllocationData().setPod(probabilityOfDetection);
+        effortAllocationData.setPod(probabilityOfDetection);
 
         int timeSearching = getSearchTimeHours();
-        
+
         if (timeSearching == -9999) {
             System.out.println("failed to get time searching spinner val");
             return false;
         }
-        sarData.getFirstEffortAllocationData().setSearchTime(timeSearching);
+        effortAllocationData.setSearchTime(timeSearching);
 
+        sarData.getEffortAllocationData().put((long) 0, effortAllocationData);
         return true;
     }
 
     private double SweepWidthSmallShipLookup(int searchObject, int visibility) {
-        return SweepWidthValues.getSmallerVessels().get(searchObject)
-                .get(visibility);
+        return SweepWidthValues.getSmallerVessels().get(searchObject).get(visibility);
     }
 
     private double SweepWidthLargeShipLookup(int searchObject, int visibility) {
-        return SweepWidthValues.getLargerVessels().get(searchObject)
-                .get(visibility);
+        return SweepWidthValues.getLargerVessels().get(searchObject).get(visibility);
     }
 
     private int getWindSpeed() {
@@ -488,7 +472,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
             return -9999;
         } else {
             try {
-                if (groundSpeed.contains(",")){
+                if (groundSpeed.contains(",")) {
                     groundSpeed = groundSpeed.replace(",", ".");
                 }
                 return Double.parseDouble(groundSpeed);
@@ -506,8 +490,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
 
         // Remove %
         try {
-            probabilityOfDetection = (String) probabilityOfDetection
-                    .subSequence(0, probabilityOfDetection.length() - 1);
+            probabilityOfDetection = (String) probabilityOfDetection.subSequence(0, probabilityOfDetection.length() - 1);
         } catch (Exception e) {
             // Invalid - ignore
         }
@@ -517,10 +500,10 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
             return -9999;
         } else {
             try {
-                if (probabilityOfDetection.contains(",")){
+                if (probabilityOfDetection.contains(",")) {
                     probabilityOfDetection = probabilityOfDetection.replace(",", ".");
                 }
-                
+
                 return Double.parseDouble(probabilityOfDetection) / 100;
             } catch (Exception e) {
                 displayMissingField("Probability of Detection");
@@ -531,7 +514,6 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon{
 
     private void displayMissingField(String fieldname) {
         // Missing or incorrect value in
-        JOptionPane.showMessageDialog(this, "Missing or incorrect value in "
-                + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Missing or incorrect value in " + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 }

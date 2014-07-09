@@ -438,11 +438,11 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED) {
 
-            EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0);
+            EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0L);
 
             effectiveArea = new EffortAllocationAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
                     effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(),
-                    effortAllocationArea.getEffectiveAreaD(), 0, "");
+                    effortAllocationArea.getEffectiveAreaD(), 0L, "");
             graphics.add(effectiveArea);
             editLocked = false;
         }
@@ -464,7 +464,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
             if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
 
-                EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0);
+                EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0L);
 
                 effectiveArea = new EffortAllocationAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
                         effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(),
@@ -670,10 +670,13 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         SARData data = voctManager.getSarData();
 
+        System.out.println("HOW MUCH EFFORT ALLOCATION " + data.getEffortAllocationData().size());
+
+        EffortAllocationData effortAllocationData = data.getEffortAllocationData().get(0L);
         // PoD for each SRU, initialized with an effective area? possibly a
         // unique ID
 
-        double effectiveAreaSize = voctManager.getSarData().getFirstEffortAllocationData().getEffectiveAreaSize();
+        double effectiveAreaSize = effortAllocationData.getEffectiveAreaSize();
 
         System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
 
@@ -687,7 +690,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         // startingPosition = ((RapidResponseData) data).getA();
         // }
 
-        effectiveArea = new EffortAllocationAreaGraphics(width, height, data, 0, "");
+        effectiveArea = new EffortAllocationAreaGraphics(width, height, data, 0L, "");
 
         graphics.add(effectiveArea);
 

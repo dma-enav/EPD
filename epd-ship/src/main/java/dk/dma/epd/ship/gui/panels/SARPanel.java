@@ -104,9 +104,9 @@ public class SARPanel extends SARPanelCommon {
         if (arg0.getSource() == chckbxShowDynamicPattern) {
 
             if (chckbxShowDynamicPattern.isSelected()) {
-                sarData.getEffortAllocationData().get(0).getSearchPatternRoute().switchToDynamic();
+                sarData.getEffortAllocationData().get(0L).getSearchPatternRoute().switchToDynamic();
             } else {
-                sarData.getEffortAllocationData().get(0).getSearchPatternRoute().switchToStatic();
+                sarData.getEffortAllocationData().get(0L).getSearchPatternRoute().switchToStatic();
             }
 
             EPDShip.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_CHANGED);

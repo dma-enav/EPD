@@ -16,7 +16,9 @@ package dk.dma.epd.common.prototype.model.voct.sardata;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 
@@ -33,7 +35,8 @@ public class SARData implements Serializable {
     private Position CSP;
     // EffortAllocationData effortAllocationData = new EffortAllocationData();
 
-    List<EffortAllocationData> effortAllocationData = new ArrayList<EffortAllocationData>();
+    Map<Long, EffortAllocationData> effortAllocationData = new HashMap<Long, EffortAllocationData>();
+    // List<EffortAllocationData> effortAllocationData = new ArrayList<EffortAllocationData>();
 
     private double x;
     private double y;
@@ -73,45 +76,11 @@ public class SARData implements Serializable {
         this.additionalInfo = additionalInfo;
     }
 
-    /**
-     * @return the effortAllocationData
-     */
-    public EffortAllocationData getFirstEffortAllocationData() {
 
-        if (effortAllocationData.size() == 0) {
-            EffortAllocationData data = new EffortAllocationData();
-            effortAllocationData.add(data);
-        }
 
-        return effortAllocationData.get(0);
-    }
+    public void addEffortAllocationData(long mmsi, EffortAllocationData data) {
+        effortAllocationData.put(mmsi, data);
 
-    /**
-     * @param effortAllocationData
-     *            the effortAllocationData to set
-     */
-    public void setFirstEffortAllocationData(EffortAllocationData effortAllocationData) {
-        this.effortAllocationData.add(0, effortAllocationData);
-    }
-
-    public void addEffortAllocationData(EffortAllocationData data, int i) {
-
-        // Does it already have the element? then replace it
-        if (effortAllocationData.size() > i) {
-            effortAllocationData.set(i, data);
-        } else {
-            effortAllocationData.add(data);
-        }
-
-        // for (int i = 0; i < effortAllocationData.size(); i++) {
-        //
-        // if (effortAllocationData.get(i) == data){
-        // return;
-        // }
-        //
-        // }
-        //
-        //
     }
 
     public void removeAllEffortAllocationData() {
@@ -121,7 +90,7 @@ public class SARData implements Serializable {
     /**
      * @return the effortAllocationData
      */
-    public List<EffortAllocationData> getEffortAllocationData() {
+    public Map<Long, EffortAllocationData> getEffortAllocationData() {
         return effortAllocationData;
     }
 
@@ -129,7 +98,7 @@ public class SARData implements Serializable {
      * @param effortAllocationData
      *            the effortAllocationData to set
      */
-    public void setEffortAllocationData(List<EffortAllocationData> effortAllocationData) {
+    public void setEffortAllocationData(Map<Long, EffortAllocationData> effortAllocationData) {
         this.effortAllocationData = effortAllocationData;
     }
 

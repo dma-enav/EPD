@@ -49,14 +49,16 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
     double deltaCorrection = 0.004;
 
     SARData sarData;
-    int id;
+    long id;
 
     public enum LineType {
         TOP, BOTTOM, LEFT, RIGHT
     }
 
-    public EffortAllocationAreaGraphics(Position A, Position B, Position C, Position D, int id, String labelName) {
+    public EffortAllocationAreaGraphics(Position A, Position B, Position C, Position D, long id, String labelName) {
         super();
+
+        this.id = id;
 
         verticalBearing = Calculator.bearing(A, C, Heading.RL);
         horizontalBearing = Calculator.bearing(A, B, Heading.RL);
@@ -72,10 +74,11 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
         System.out.println("Width is " + width);
         System.out.println("Height is : " + height);
-        
+
         totalSize = width * height;
 
-        effectiveArea = new EffortAllocationInternalGraphics(A, B, C, D, width, height, this, verticalBearing, horizontalBearing, labelName);
+        effectiveArea = new EffortAllocationInternalGraphics(A, B, C, D, width, height, this, verticalBearing, horizontalBearing,
+                labelName);
 
         topLine = new EffortAllocationLines(A, B, LineType.TOP, this);
         bottomLine = new EffortAllocationLines(C, D, LineType.BOTTOM, this);
@@ -92,7 +95,7 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
     }
 
-    public EffortAllocationAreaGraphics(Double width, Double height, SARData data, int id, String labelName) {
+    public EffortAllocationAreaGraphics(Double width, Double height, SARData data, long id, String labelName) {
         super();
 
         this.id = id;
@@ -220,7 +223,8 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
         sarData.getEffortAllocationData().get(id).setEffectiveAreaC(C);
         sarData.getEffortAllocationData().get(id).setEffectiveAreaD(D);
 
-        effectiveArea = new EffortAllocationInternalGraphics(A, B, C, D, width, height, this, verticalBearing, horizontalBearing, labelName);
+        effectiveArea = new EffortAllocationInternalGraphics(A, B, C, D, width, height, this, verticalBearing, horizontalBearing,
+                labelName);
 
         topLine = new EffortAllocationLines(A, B, LineType.TOP, this);
         bottomLine = new EffortAllocationLines(C, D, LineType.BOTTOM, this);

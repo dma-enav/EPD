@@ -133,14 +133,9 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
             effectiveAreas.remove(mmsi);
         }
 
-        System.out.println("uhm hi id is " + id);
-
         if (voctManager.getSarData().getEffortAllocationData().size() > id) {
-            System.out.println("yes");
 
             EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(id);
-
-            System.out.println("ehm okay");
 
             System.out.println("The effort allocation is : " + effortAllocationData);
             System.out.println(sruManager.getSRUs(id).getName());
