@@ -60,7 +60,7 @@ public class SRUTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(rowIndex);
+        SRU sru = sruManager.getSRUsAsList()[rowIndex];
         switch (columnIndex) {
         case 0: return Formatter.formatString(sru.getName());
         case 1: return sru.getType();

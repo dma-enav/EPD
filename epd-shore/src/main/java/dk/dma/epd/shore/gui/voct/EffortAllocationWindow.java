@@ -22,7 +22,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -106,6 +106,10 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon impleme
         initPanel();
 
         this.setVisible(false);
+        sruManager = EPDShore.getInstance().getSruManager();
+        sruManager.addListener(this);
+        voctManager = EPDShore.getInstance().getVoctManager();
+
     }
 
     public void setVisible(boolean visible) {
@@ -154,11 +158,11 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon impleme
     //
     // }
 
-    public void setVoctManager(VOCTManager voctManager) {
-        this.voctManager = voctManager;
-        sruManager = voctManager.getSruManager();
-        sruManager.addListener(this);
-    }
+    // public void setVoctManager(VOCTManager voctManager) {
+    // this.voctManager = voctManager;
+    // sruManager = voctManager.getSruManager();
+    // sruManager.addListener(this);
+    // }
 
     private void initPanel() {
         initPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -412,7 +416,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon impleme
 
         // sarData.removeAllEffortAllocationData();
 
-        List<SRU> sruList = sruManager.getSRUs();
+        Map<Long, SRU> sruList = sruManager.getSRUs();
 
         if (sruList.size() == 0) {
             return false;
@@ -430,15 +434,13 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon impleme
         for (int i = 0; i < sruList.size(); i++) {
 
             System.out.println("Calculation for " + i + (boolean) sruTable.getValueAt(i, 2));
-
+            SRU currentSRU = sruList.get(sruManager.getSRUsAsList()[i].getMmsi());
             if ((boolean) sruTable.getValueAt(i, 2)) {
-
-                SRU currentSRU = sruList.get(i);
 
                 EffortAllocationData data;
 
-                if (sarData.getEffortAllocationData().size() > i) {
-                    data = sarData.getEffortAllocationData().get(i);
+                if (sarData.getEffortAllocationData().containsKey(currentSRU.getMmsi())) {
+                    data = sarData.getEffortAllocationData().get(currentSRU.getMmsi());
 
                     // Delete the old route
                     if (data.getSearchPatternRoute() != null) {
@@ -526,7 +528,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon impleme
                 sarData.addEffortAllocationData(currentSRU.getMmsi(), data);
 
             } else {
-                sarData.getEffortAllocationData().get(i).setNoRedraw(true);
+                sarData.getEffortAllocationData().get(currentSRU.getMmsi()).setNoRedraw(true);
             }
         }
 

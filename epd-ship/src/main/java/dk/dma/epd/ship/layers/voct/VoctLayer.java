@@ -26,11 +26,11 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voct.SARAreaData;
-import dk.dma.epd.common.prototype.layers.voct.EffortAllocationInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics.LineType;
-import dk.dma.epd.common.prototype.layers.voct.SarAreaGraphic;
+import dk.dma.epd.common.prototype.layers.voct.EffortAllocationInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffortAllocationLines;
+import dk.dma.epd.common.prototype.layers.voct.SarAreaGraphic;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
@@ -430,7 +430,6 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         }
 
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {
-            System.out.println("Draw effort allocation");
             createEffectiveArea();
             this.setVisible(true);
             editLocked = false;
@@ -670,15 +669,11 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         SARData data = voctManager.getSarData();
 
-        System.out.println("HOW MUCH EFFORT ALLOCATION " + data.getEffortAllocationData().size());
-
         EffortAllocationData effortAllocationData = data.getEffortAllocationData().get(0L);
         // PoD for each SRU, initialized with an effective area? possibly a
         // unique ID
 
         double effectiveAreaSize = effortAllocationData.getEffectiveAreaSize();
-
-        System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
 
         // Effective Area: 10 nm2 Initialize by creating box
         double width = Math.sqrt(effectiveAreaSize);

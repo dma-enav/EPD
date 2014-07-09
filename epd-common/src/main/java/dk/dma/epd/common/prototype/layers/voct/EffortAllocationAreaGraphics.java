@@ -660,12 +660,13 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
     public void updateEffectiveAreaSize(SARData sarData) {
 
-        // System.out.println("Is the sar data null? ");
-        // System.out.println(sarData == null);
-        // System.out.println("Is the effective area null? ");
-        // System.out.println(sarData.getFirstEffortAllocationData()==null);
+        System.out.println("Is the sar data null? ");
+        System.out.println(sarData == null);
+
         //
-        if (sarData.getEffortAllocationData().size() > id) {
+        // SRU currentSRU = sruList.get(sruManager.getSRUsAsList()[i].getMmsi());
+
+        if (sarData.getEffortAllocationData().containsKey(id)) {
             sarData.getEffortAllocationData().get(id).setEffectiveAreaA(A);
             sarData.getEffortAllocationData().get(id).setEffectiveAreaB(B);
             sarData.getEffortAllocationData().get(id).setEffectiveAreaC(C);
@@ -674,4 +675,13 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
     }
 
+    /**
+     * @return the id
+     */
+    public long getId() {
+        return id;
+    }
+
+    
+    
 }

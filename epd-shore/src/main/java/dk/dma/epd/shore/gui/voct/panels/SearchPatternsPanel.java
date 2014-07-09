@@ -217,7 +217,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements Ac
     // SRU Button clicked
 
     @Override
-    public void buttonClicked(int sruID) {
+    public void buttonClicked(long sruID) {
 
         searchPatternDialog.resetValues(sruID);
         searchPatternDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);

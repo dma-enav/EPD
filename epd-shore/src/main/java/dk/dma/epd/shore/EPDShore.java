@@ -262,13 +262,11 @@ public final class EPDShore extends EPD {
         // Create vocthandler
         voctHandler = new VoctHandler();
         beanHandler.add(voctHandler);
-        
+
         // Create voct manager
         voctManager = new VOCTManager();
         voctManager.loadVOCTManager();
         beanHandler.add(voctManager);
-
-
 
         // Create embedded transponder frame
         transponderFrame = new TransponderFrame(getHomePath().resolve("transponder.xml").toString(), true, mainFrame);
@@ -544,10 +542,6 @@ public final class EPDShore extends EPD {
     @Override
     public RouteManager getRouteManager() {
         return (RouteManager) routeManager;
-    }
-
-    public SRUManager getSRUManager() {
-        return sruManager;
     }
 
     /**

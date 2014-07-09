@@ -23,7 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -310,10 +309,10 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
         // Send SAR
         if (arg0.getSource() == sendSAR) {
 
-            List<SRU> sruList = sruManager.getSRUs();
+            SRU[] sruList = sruManager.getSRUsAsList();
 
             // Which are we sending
-            for (int i = 0; i < sruList.size(); i++) {
+            for (int i = 0; i < sruList.length; i++) {
 
                 // Send
                 if ((boolean) sruTable.getValueAt(i, 0)) {
@@ -325,7 +324,7 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
 
                         EPDShore.getInstance()
                                 .getVoctHandler()
-                                .sendVOCTMessage(sruList.get(i).getMmsi(), voctManager.getSarData(), "OSC", "Please Join", i,
+                                .sendVOCTMessage(sruList[i].getMmsi(), voctManager.getSarData(), "OSC", "Please Join", i,
                                         (boolean) sruTable.getValueAt(i, 5), (boolean) sruTable.getValueAt(i, 6));
 
                     } catch (InterruptedException e) {

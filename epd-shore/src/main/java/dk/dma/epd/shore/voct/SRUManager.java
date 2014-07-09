@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -49,13 +49,13 @@ import dk.dma.epd.shore.voct.SRU.sru_status;
 
 public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRouteListener {
 
-    private List<SRU> srus = new LinkedList<SRU>();
-
     private VOCTManager voctManager;
     private VoctHandler voctHandler;
     private static final String SRU_FILE = EPD.getInstance().getHomePath().resolve(".srus").toString();
     private static final Logger LOG = LoggerFactory.getLogger(SRUManager.class);
 
+    // private List<SRU> srus = new LinkedList<SRU>();
+    private Map<Long, SRU> srus = new HashMap<Long, SRU>();
     private LinkedHashMap<Long, SRUCommunicationObject> sRUCommunication = new LinkedHashMap<Long, SRUCommunicationObject>();
     private VoctLayerTracking voctLayerTracking;
 
@@ -395,7 +395,7 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
     }
 
     public void toggleSRUVisiblity(int i, boolean visible) {
-        srus.get(i).setVisible(visible);
+        srus.get(getSRUsAsList()[i].getMmsi()).setVisible(visible);
         voctManager.toggleSRUVisibility(i, visible);
 
         notifyListeners(SRUUpdateEvent.SRU_VISIBILITY_CHANGED, i);
@@ -411,27 +411,35 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
     /**
      * @return the sru
      */
-    public List<SRU> getSRUs() {
+    public Map<Long, SRU> getSRUs() {
         return srus;
     }
 
     public void addSRU(SRU sru) {
         synchronized (srus) {
-            srus.add(sru);
+            srus.put(sru.getMmsi(), sru);
             notifyListeners(SRUUpdateEvent.SRU_ADDED, srus.size());
             // saveToFile();
         }
 
     }
 
+    public SRU[] getSRUsAsList() {
+        // (SRU[])
+        return srus.values().toArray(new SRU[0]);
+    }
+
     public void removeSRU(int i) {
         if (srus.size() >= i + 1) {
 
             synchronized (srus) {
-                SRU sru = srus.remove(i);
-                voctManager.removeEffortAllocationData(i);
-                if (sRUCommunication.containsKey(sru.getMmsi())) {
-                    sRUCommunication.remove(sru.getMmsi());
+
+                long sruMmsi = getSRUsAsList()[i].getMmsi();
+
+                voctManager.removeEffortAllocationData(sruMmsi);
+                srus.remove(sruMmsi);
+                if (sRUCommunication.containsKey(sruMmsi)) {
+                    sRUCommunication.remove(sruMmsi);
                 }
                 // maintainAvailableSRUs();
                 notifyListeners(SRUUpdateEvent.SRU_REMOVED, i);
@@ -447,8 +455,8 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
         return new ArrayList<SRUCommunicationObject>(sRUCommunication.values());
     }
 
-    public SRU getSRUs(int index) {
-        return getSRUs().get(index);
+    public SRU getSRUs(long mmsi) {
+        return getSRUs().get(mmsi);
     }
 
     @SuppressWarnings("unchecked")
@@ -459,7 +467,7 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
             FileInputStream fileIn = new FileInputStream(SRU_FILE);
             ObjectInputStream objectIn = new ObjectInputStream(fileIn);
 
-            manager.setSrus((List<SRU>) objectIn.readObject());
+            manager.setSrus((Map<Long, SRU>) objectIn.readObject());
             objectIn.close();
             fileIn.close();
 
@@ -478,7 +486,7 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
      * @param srus
      *            the srus to set
      */
-    public void setSrus(List<SRU> srus) {
+    public void setSrus(Map<Long, SRU> srus) {
         this.srus = srus;
     }
 

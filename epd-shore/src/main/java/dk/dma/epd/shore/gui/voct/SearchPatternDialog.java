@@ -90,7 +90,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
     String expandingSquareSearch = "Expanding Square Search is used when the search object is presumed to be located within a relatively small area. The search begins in the most likely position (Datum). This method requires accurate navigation.";
 
     
-    int currentID;
+    long currentID;
     
     /**
      * Create the dialog.
@@ -362,7 +362,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         this.voctManager = voctManager;
     }
 
-    public void resetValues(int id) {
+    public void resetValues(long id) {
         this.currentID = id;
         
         System.out.println("CURRENT ID: " + currentID);

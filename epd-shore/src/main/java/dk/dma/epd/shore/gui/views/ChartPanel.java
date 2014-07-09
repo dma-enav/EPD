@@ -355,7 +355,7 @@ public class ChartPanel extends ChartPanelCommon {
             voctLayer.setVisible(true);
             mapHandler.add(voctLayer);
             mapHandler.add(EPDShore.getInstance().getVoctManager());
-            mapHandler.add(EPDShore.getInstance().getSRUManager());
+            mapHandler.add(EPDShore.getInstance().getSruManager());
 
             // Add AIS Layer
             aisLayer = new AisLayer(EPD.getInstance().getSettings()
@@ -383,7 +383,7 @@ public class ChartPanel extends ChartPanelCommon {
             voctLayer.setVisible(true);
             mapHandler.add(voctLayer);
             mapHandler.add(EPDShore.getInstance().getVoctManager());
-            mapHandler.add(EPDShore.getInstance().getSRUManager());
+            mapHandler.add(EPDShore.getInstance().getSruManager());
             
             // Add AIS Layer
             aisLayer = new AisLayer(EPD.getInstance().getSettings()

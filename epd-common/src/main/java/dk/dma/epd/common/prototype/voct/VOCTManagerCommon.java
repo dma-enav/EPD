@@ -158,12 +158,16 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     public void displaySar() {
         saveToFile();
         // This is where we display SAR
-
+        
         updateLayers();
+
+        System.out.println("This display sar?");
         notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
+
+
     }
 
-    protected void saveToFile() {
+    public void saveToFile() {
         try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
                 ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
             objectOut.writeObject(sarData);
@@ -185,7 +189,6 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
     public void notifyListeners(VOCTUpdateEvent e) {
         for (VOCTUpdateListener listener : listeners) {
-            System.out.println("Our listeners are: " + listener.getClass());
             listener.voctUpdated(e);
         }
 
@@ -196,15 +199,15 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     public void addListener(VOCTUpdateListener listener) {
         listeners.add(listener);
 
-        if (loadSarFromSerialize) {
-            listener.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
-
-            if (sarData.getEffortAllocationData().size() > 0) {
-
-                listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
-                listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
-            }
-        }
+        // if (loadSarFromSerialize) {
+        // listener.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
+        //
+        // if (sarData.getEffortAllocationData().size() > 0) {
+        //
+        // listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
+        // listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
+        // }
+        // }
     }
 
     public void removeListener(VOCTUpdateListener listener) {
@@ -241,7 +244,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         saveToFile();
     }
 
-    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, int id) {
+    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, long id) {
 
     }
 

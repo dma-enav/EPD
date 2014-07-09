@@ -51,7 +51,7 @@ public class SearchPatternGenerator {
     }
 
     public SearchPatternRoute generateSearchPattern(searchPattern pattern,
-            SARData data, NavSettings settings, int i) {
+            SARData data, NavSettings settings, long i) {
 
         this.settings = settings;
 

@@ -109,7 +109,7 @@ public class VoctLayerCommon extends GeneralLayer implements MapMouseListener, V
 
     }
 
-    public void removeEffortAllocationArea(int i) {
+    public void removeEffortAllocationArea(long i) {
         // TODO Auto-generated method stub
 
     }

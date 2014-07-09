@@ -39,6 +39,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.voct.SARInput;
@@ -100,6 +101,21 @@ public class VOCTManager extends VOCTManagerCommon {
     }
 
     @Override
+    public void addListener(VOCTUpdateListener listener) {
+        super.addListener(listener);
+
+        if (loadSarFromSerialize) {
+            listener.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
+
+            if (sarData.getEffortAllocationData().size() > 0) {
+
+                listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
+                listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
+            }
+        }
+    }
+
+    @Override
     public void run() {
 
         // Maintanaince routines
@@ -149,7 +165,7 @@ public class VOCTManager extends VOCTManagerCommon {
     }
 
     @Override
-    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, int id) {
+    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, long id) {
 
         sarData.setCSP(CSP);
 

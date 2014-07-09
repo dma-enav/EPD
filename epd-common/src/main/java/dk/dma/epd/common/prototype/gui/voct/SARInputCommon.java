@@ -427,6 +427,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     System.out.println("Hiding");
 
                     // Display SAR command
+                    voctManager.setLoadSarFromSerialize(false);
                     voctManager.displaySar();
                     sarReady = false;
                 }
