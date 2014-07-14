@@ -1,25 +1,29 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.ship.service.voct;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
@@ -35,6 +39,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.voct.SARInput;
@@ -60,8 +65,6 @@ public class VOCTManager extends VOCTManagerCommon {
     // private VOCTBroadcastService voctBroadcastService;
 
     VoctLayer voctLayer;
-
-    private static final Logger LOG = LoggerFactory.getLogger(VOCTManagerCommon.class);
 
     public VOCTManager() {
         EPDShip.startThread(this, "VOCTManager");
@@ -98,6 +101,21 @@ public class VOCTManager extends VOCTManagerCommon {
     }
 
     @Override
+    public void addListener(VOCTUpdateListener listener) {
+        super.addListener(listener);
+
+        if (loadSarFromSerialize) {
+            listener.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
+
+            if (sarData.getEffortAllocationData().size() > 0) {
+
+                listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
+                listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
+            }
+        }
+    }
+
+    @Override
     public void run() {
 
         // Maintanaince routines
@@ -111,12 +129,43 @@ public class VOCTManager extends VOCTManagerCommon {
     public static VOCTManager loadVOCTManager() {
 
         // Where we load or serialize old VOCTS
-        return new VOCTManager();
+        VOCTManager voctManager = new VOCTManager();
+        try (FileInputStream fileIn = new FileInputStream(VOCT_FILE); ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
+
+            SARData sarDataLoaded = (SARData) objectIn.readObject();
+            voctManager.setLoadSarFromSerialize(true);
+            voctManager.initializeFromSerializedFile(sarDataLoaded);
+
+            // RouteStore routeStore = (RouteStore) objectIn.readObject();
+            // manager.setRoutes(routeStore.getRoutes());
+            // manager.activeRoute = routeStore.getActiveRoute();
+            // manager.activeRouteIndex = routeStore.getActiveRouteIndex();
+
+        } catch (FileNotFoundException e) {
+            // Not an error
+        } catch (Exception e) {
+            LOG.error("Failed to load routes file: " + e.getMessage());
+            // Delete possible corrupted or old file
+            new File(VOCT_FILE).delete();
+        }
+
+        return voctManager;
 
     }
 
     @Override
-    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, int id) {
+    public synchronized void saveToFile() {
+        System.out.println("SAVE TO FILE");
+        try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
+                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+            objectOut.writeObject(sarData);
+        } catch (IOException e) {
+            LOG.error("Failed to save VOCT data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, long id) {
 
         sarData.setCSP(CSP);
 
@@ -149,11 +198,11 @@ public class VOCTManager extends VOCTManagerCommon {
         // Remove any old SAR data
         if (sarData != null) {
             if (sarData.getEffortAllocationData().size() > 0) {
-                if (sarData.getEffortAllocationData().get(0).getSearchPatternRoute() != null) {
+                if (sarData.getEffortAllocationData().get(0L).getSearchPatternRoute() != null) {
                     System.out.println("Removing existing routes");
 
                     int routeIndex = EPDShip.getInstance().getRouteManager()
-                            .getRouteIndex(sarData.getEffortAllocationData().get(0).getSearchPatternRoute());
+                            .getRouteIndex(sarData.getEffortAllocationData().get(0L).getSearchPatternRoute());
 
                     EPDShip.getInstance().getRouteManager().removeRoute(routeIndex);
 
@@ -230,6 +279,7 @@ public class VOCTManager extends VOCTManagerCommon {
             if (type == SAR_TYPE.RAPID_RESPONSE) {
                 data = new RapidResponseData(message.getSarDataRapidResponse());
                 setSarType(SAR_TYPE.RAPID_RESPONSE);
+                saveToFile();
             }
 
             if (type == SAR_TYPE.DATUM_POINT) {
@@ -261,7 +311,7 @@ public class VOCTManager extends VOCTManagerCommon {
 
                 }
 
-                data.addEffortAllocationData(effortAllocationData, 0);
+                data.addEffortAllocationData(0, effortAllocationData);
 
             }
 

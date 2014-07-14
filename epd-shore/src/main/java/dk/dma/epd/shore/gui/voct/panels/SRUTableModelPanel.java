@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.shore.gui.voct.panels;
 
@@ -20,14 +19,11 @@ import javax.swing.table.AbstractTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
-
-
 
 /**
  * Table model for SRUManagerDialog
@@ -37,7 +33,7 @@ public class SRUTableModelPanel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(SRUTableModelPanel.class);
 
-    private static final String[] COLUMN_NAMES = {"Name", "Track Spacing", "Visible"};
+    private static final String[] COLUMN_NAMES = { "Name", "Track Spacing", "Visible" };
 
     private SRUManager sruManager;
     private VOCTManager voctManager;
@@ -60,19 +56,22 @@ public class SRUTableModelPanel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-//        return sruManager.getSRUCount();
-//        return 0;
+        // return sruManager.getSRUCount();
+        // return 0;
         return voctManager.getSarData().getEffortAllocationData().size();
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(rowIndex);
-        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(rowIndex);
+        SRU sru = sruManager.getSRUs().get(sruManager.getSRUsAsList()[rowIndex].getMmsi());
+        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(sru.getMmsi());
         switch (columnIndex) {
-        case 0: return Formatter.formatString(sru.getName());
-        case 1: return Formatter.formatDouble(effortAllocationData.getTrackSpacing(), 2)+ " nm";
-        case 2: return sru.isVisible();
+        case 0:
+            return Formatter.formatString(sru.getName());
+        case 1:
+            return Formatter.formatDouble(effortAllocationData.getTrackSpacing(), 2) + " nm";
+        case 2:
+            return sru.isVisible();
         default:
             LOG.error("Unknown column " + columnIndex);
             return new String("");
@@ -81,11 +80,11 @@ public class SRUTableModelPanel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        System.out.println("Set value at, aValue: " + aValue + " rowIndex: "+ rowIndex + " columIndex: " + columnIndex);
+        System.out.println("Set value at, aValue: " + aValue + " rowIndex: " + rowIndex + " columIndex: " + columnIndex);
         switch (columnIndex) {
         case 2:
-            
-            sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
+
+            sruManager.toggleSRUVisiblity(rowIndex, (Boolean) aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
             break;
         default:
@@ -95,7 +94,7 @@ public class SRUTableModelPanel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        //return (columnIndex == 2 && rowIndex != routeManager.getActiveRouteIndex());
+        // return (columnIndex == 2 && rowIndex != routeManager.getActiveRouteIndex());
         return columnIndex == 2;
     }
 

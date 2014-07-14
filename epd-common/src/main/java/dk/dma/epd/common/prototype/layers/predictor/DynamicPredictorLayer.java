@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.common.prototype.layers.predictor;
 
@@ -38,13 +37,25 @@ import dk.dma.epd.common.prototype.settings.layers.DynamicPredictorLayerSettings
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.observers.DynamicPredictorLayerSettingsListener;
 
-public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionListener, IDynamicPredictionsListener, DynamicPredictorLayerSettingsListener {
+/**
+ * Layer that displays dynamic predictor data.
+ * 
+ * @author Ole Bakman Borup & Janus Varmarken
+ * 
+ */
+public class DynamicPredictorLayer extends EPDLayerCommon implements
+        ProjectionListener, IDynamicPredictionsListener, DynamicPredictorLayerSettingsListener {
 
-    private final ConcurrentHashMap<Long, List<DynamicPredictionGraphic>> graphicMap = new ConcurrentHashMap<>();
-    
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory
+            .getLogger(DynamicPredictorLayer.class);
     
-    private static final Logger LOG = LoggerFactory.getLogger(DynamicPredictorLayer.class);
+    /**
+     * Maps the MMSI of a vessel to a list of graphics that visualize dynamic
+     * predictor data for the vessel.
+     */
+    private final ConcurrentHashMap<Long, List<DynamicPredictionGraphic>> graphicMap = new ConcurrentHashMap<>();
 
     public DynamicPredictorLayer(DynamicPredictorLayerSettings layerSettings) {
         super(Objects.requireNonNull(layerSettings));
@@ -54,69 +65,71 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionL
 
     @Override
     public void receivePredictions(DynamicPrediction dynamicPrediction) {
-        if (dynamicPrediction == null) {
-            /*
-             *  TODO as for now null means timeout. Later on in development, handler
-             *  must send something else but null to indicate timeout such that layer
-             *  may know exactly what dynamic prediction has timed out (e.g. if it
-             *  displays dynamic predictions for other vessels than just own ship)
-             */
-            graphics.clear();
-            return;
-        }
-        // clear old prediction graphics for the mmsi of the new prediction.
-        graphicMap.put(dynamicPrediction.getMmsi(), new ArrayList<DynamicPredictionGraphic>());
-        
+        // Clear old prediction graphics for the mmsi of the new prediction.
+        graphicMap.put(dynamicPrediction.getMmsi(),
+                new ArrayList<DynamicPredictionGraphic>());
+
         DynamicPredictorStateData state = dynamicPrediction.getHeaderData();
         LOG.info("Layer received dynamic prediction: " + state);
 
         float vesselWidth = state.getWidth();
         float vesselLength = state.getLength();
-        
-        for (DynamicPredictorPredictionData prediction : dynamicPrediction.getPredictionDataPoints()) {
+        // Create graphics for prediction points
+        float count = 0f;
+        for (DynamicPredictorPredictionData prediction : dynamicPrediction
+                .getPredictionDataPoints()) {
             LOG.info("Dynamic predictor data: " + prediction);
             // Position is the middle of the ship
             Position pos = prediction.getPosition();
             float heading = prediction.getHeading();
-            // Base distances on the assumption that pos marks the middle of ship
+            /*
+             * Base distances on the assumption that position marks the middle
+             * of ship
+             */
             float distBow = vesselLength / 2.0f;
             float distStern = distBow;
             float distPort = vesselWidth / 2.0f;
             float distStarboard = distPort;
-            
-            VesselPortrayalData portrayalData = new VesselPortrayalData(pos, heading, distBow, distStern, distPort, distStarboard);
+
+            VesselPortrayalData portrayalData = new VesselPortrayalData(pos,
+                    heading, distBow, distStern, distPort, distStarboard);
             DynamicPredictionGraphic dpg = new DynamicPredictionGraphic();
-            
+
             dpg.update(portrayalData);
-            // TODO move color selection such that own ship prediction can be portrayed in different color
-            dpg.setLinePaint(Color.GRAY);
-            dpg.setFillPaint(Color.GRAY);
+            // TODO move color selection such that own ship prediction can be
+            // portrayed in different color
+            float alpha = count / (dynamicPrediction.getPredictionDataPoints().size());
+            Color c = new Color(0.0f, 0.5f, 0.0f, 1.0f - alpha);
+            dpg.setLinePaint(c);
+            dpg.setFillPaint(c);
+            
             graphicMap.get(dynamicPrediction.getMmsi()).add(dpg);
+            count++;
         }
-               
+        // Repaint
         doPrepare();
     }
-    
+
+    @Override
+    public void receivePredictionTimeout(DynamicPrediction prediction) {
+        // Remove graphics for timed out prediction.
+        graphicMap.remove(prediction.getMmsi());
+        // Repaint
+        this.doPrepare();
+    }
+
     @Override
     public synchronized OMGraphicList prepare() {
         // clear old
         graphics.clear();
         // add current
-        for(Long key : this.graphicMap.keySet()) {
+        for (Long key : this.graphicMap.keySet()) {
             graphics.addAll(graphicMap.get(key));
         }
         // Super is in charge of calling project() on graphics field.
         return super.prepare();
     }
-    
-    /**
-     * TODO
-     * @return
-     */
-    protected void onDynamicPredictionGraphicAdded(DynamicPredictionGraphic dpg) {
-        
-    }
-    
+
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
@@ -124,6 +137,11 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements ProjectionL
             ((DynamicPredictorHandlerCommon) obj).addListener(this);
         }
     }
+
+    /*
+     * TODO remove dynamic predictor listener in findAndUndo (but remember to
+     * verify that this works with multiple mapframes on EPD shore)
+     */
 
     /*
      * Begin settings listener methods.

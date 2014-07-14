@@ -1,29 +1,35 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.common.prototype.voct;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voct.SAROperation;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
@@ -50,10 +56,15 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
     protected boolean hasSar;
 
+    protected boolean loadSarFromSerialize;
+
     private CopyOnWriteArrayList<VOCTUpdateListener> listeners = new CopyOnWriteArrayList<>();
 
     protected SARData sarData;
     protected List<SARData> sarFutureData;
+
+    protected static final String VOCT_FILE = EPD.getInstance().getHomePath().resolve(".voct").toString();
+    protected static final Logger LOG = LoggerFactory.getLogger(VOCTManagerCommon.class);
 
     public enum VoctMsgStatus {
         ACCEPTED, REJECTED, NOTED, IGNORED, UNKNOWN, WITHDRAWN
@@ -139,14 +150,30 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         hasSar = false;
 
         notifyListeners(VOCTUpdateEvent.SAR_CANCEL);
+
+        // Delete stored SAR
+        new File(VOCT_FILE).delete();
     }
 
     public void displaySar() {
-
+        saveToFile();
         // This is where we display SAR
-
+        
         updateLayers();
+
+        System.out.println("This display sar?");
         notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
+
+
+    }
+
+    public void saveToFile() {
+        try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
+                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+            objectOut.writeObject(sarData);
+        } catch (IOException e) {
+            LOG.error("Failed to save VOCT data: " + e.getMessage());
+        }
     }
 
     @Override
@@ -162,7 +189,6 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
     public void notifyListeners(VOCTUpdateEvent e) {
         for (VOCTUpdateListener listener : listeners) {
-            System.out.println("Our listeners are: " + listener.getClass());
             listener.voctUpdated(e);
         }
 
@@ -172,6 +198,16 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
     public void addListener(VOCTUpdateListener listener) {
         listeners.add(listener);
+
+        // if (loadSarFromSerialize) {
+        // listener.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
+        //
+        // if (sarData.getEffortAllocationData().size() > 0) {
+        //
+        // listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
+        // listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
+        // }
+        // }
     }
 
     public void removeListener(VOCTUpdateListener listener) {
@@ -191,17 +227,11 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
      */
     public void setSarData(SARData sarData) {
 
-        System.out.println("SAR data is not null!");
-        System.out.println(sarData != null);
         this.sarData = sarData;
 
         if (!(sarData instanceof DatumPointDataSARIS)) {
             sarFutureData = sarOperation.sarFutureCalculations(sarData);
         }
-        // else {
-        // this.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
-        // }
-
         notifyListeners(VOCTUpdateEvent.SAR_READY);
     }
 
@@ -209,12 +239,12 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
         sarOperation.calculateEffortAllocation(sarData);
 
-        System.out.println("Display");
         notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY);
 
+        saveToFile();
     }
 
-    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, int id) {
+    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, long id) {
 
     }
 
@@ -223,6 +253,48 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     }
 
     public void showSarInput() {
+
+    }
+
+    /**
+     * @return the loadSarFromSerialize
+     */
+    public boolean isLoadSarFromSerialize() {
+        return loadSarFromSerialize;
+    }
+
+    /**
+     * @param loadSarFromSerialize
+     *            the loadSarFromSerialize to set
+     */
+    public void setLoadSarFromSerialize(boolean loadSarFromSerialize) {
+        this.loadSarFromSerialize = loadSarFromSerialize;
+    }
+
+    protected void initializeFromSerializedFile(SARData sarData) {
+
+        if (sarData instanceof RapidResponseData) {
+            setSarType(SAR_TYPE.RAPID_RESPONSE);
+            RapidResponseData rapidResponseData = (RapidResponseData) sarData;
+            setSarData(sarOperation.startRapidResponseCalculations(rapidResponseData));
+
+        }
+
+        if (sarData instanceof DatumPointData) {
+            setSarType(SAR_TYPE.DATUM_POINT);
+            DatumPointData datumPointData = (DatumPointData) sarData;
+            setSarData(sarOperation.startDatumPointCalculations(datumPointData));
+
+        }
+
+        if (sarData instanceof DatumLineData) {
+            setSarType(SAR_TYPE.DATUM_LINE);
+            DatumLineData datumLinetData = (DatumLineData) sarData;
+            setSarData(sarOperation.startDatumLineCalculations(datumLinetData));
+
+        }
+
+        displaySar();
 
     }
 

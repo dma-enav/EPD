@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.shore.gui.voct;
 
@@ -34,8 +33,7 @@ import dk.dma.epd.shore.voct.VOCTManager;
 public class EffortAllocationWindowTabelModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory
-            .getLogger(EffortAllocationWindowTabelModel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EffortAllocationWindowTabelModel.class);
 
     private static final String[] COLUMN_NAMES = { "Name", "Type", "Calculate" };
 
@@ -44,8 +42,7 @@ public class EffortAllocationWindowTabelModel extends AbstractTableModel {
 
     private List<Boolean> calculate = new ArrayList<Boolean>();
 
-    public EffortAllocationWindowTabelModel(SRUManager sruManager,
-            VOCTManager voctManager) {
+    public EffortAllocationWindowTabelModel(SRUManager sruManager, VOCTManager voctManager) {
         super();
         this.sruManager = sruManager;
         this.voctManager = voctManager;
@@ -83,7 +80,7 @@ public class EffortAllocationWindowTabelModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(rowIndex);
+        SRU sru = sruManager.getSRUsAsList()[rowIndex];
 
         switch (columnIndex) {
         case 0:
@@ -100,17 +97,15 @@ public class EffortAllocationWindowTabelModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        System.out.println("Set value at, aValue: " + aValue + " rowIndex: "
-                + rowIndex + " columIndex: " + columnIndex);
+        System.out.println("Set value at, aValue: " + aValue + " rowIndex: " + rowIndex + " columIndex: " + columnIndex);
         // SRU sru = sruManager.getSRUs().get(rowIndex);
         switch (columnIndex) {
         case 2:
-            
-            if (voctManager.getSarData().getEffortAllocationData().size() > rowIndex){
-                calculate.set(rowIndex, (Boolean) aValue);    
+
+            if (voctManager.getSarData().getEffortAllocationData().size() > rowIndex) {
+                calculate.set(rowIndex, (Boolean) aValue);
             }
-            
-            
+
             // super.setValueAt((Boolean) aValue, rowIndex, columnIndex);
 
             // sru.setVisible((Boolean)aValue);

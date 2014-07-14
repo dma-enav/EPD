@@ -1,39 +1,44 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.shore.voct;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.swing.JDialog;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.views.JMenuWorkspaceBar;
 import dk.dma.epd.shore.gui.views.MapFrameType;
 import dk.dma.epd.shore.gui.voct.SARInput;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
@@ -42,16 +47,14 @@ import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.VoctHandler;
 
 /**
- * The VOCTManager is responsible for maintaining current VOCT Status and all
- * information relevant to the VOCT
+ * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
  * 
  * The VOCT Manager can be initiated through the cloud or manually by the user
  * 
  * 
  */
 
-public class VOCTManager extends VOCTManagerCommon implements
-        IRoutesUpdateListener {
+public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListener {
 
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
@@ -59,14 +62,11 @@ public class VOCTManager extends VOCTManagerCommon implements
     private RouteManager routeManager;
 
     private VoctHandler voctHandler;
-    // private SARData sarData;
-
     private SRUManager sruManager;
 
     List<VoctLayerCommon> voctLayers = new ArrayList<VoctLayerCommon>();
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(VOCTManagerCommon.class);
+    // protected SARData sarData;
 
     private long voctID = -1;
 
@@ -122,17 +122,26 @@ public class VOCTManager extends VOCTManagerCommon implements
 
     @Override
     protected void updateLayers() {
-
         if (voctLayers.size() == 0) {
-
-            EPDShore.getInstance().getMainFrame()
-                    .addSARWindow(MapFrameType.SAR_Planning);
+            EPDShore.getInstance().getMainFrame().addSARWindow(MapFrameType.SAR_Planning);
         }
 
-        System.out.println("Update layers " + sarOperation.getOperationType());
-
-        notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
     }
+
+    @Override
+    public void displaySar() {
+        super.displaySar();
+
+        if (loadSarFromSerialize) {
+
+            if (sarData.getEffortAllocationData().size() > 0) {
+
+                notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
+                notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
+            }
+        }
+
+    };
 
     @Override
     public void addListener(VOCTUpdateListener listener) {
@@ -154,23 +163,45 @@ public class VOCTManager extends VOCTManagerCommon implements
 
     }
 
-    public static VOCTManager loadVOCTManager() {
+    public void loadVOCTManager() {
 
         // Where we load or serialize old VOCTS
-        return new VOCTManager();
+
+        try (FileInputStream fileIn = new FileInputStream(VOCT_FILE); ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
+
+            SARData sarDataLoaded = (SARData) objectIn.readObject();
+            setLoadSarFromSerialize(true);
+            initializeFromSerializedFile(sarDataLoaded);
+            System.out.println("Loaded");
+
+        } catch (FileNotFoundException e) {
+            // Not an error
+        }
+        // catch (Exception e) {
+        // LOG.error("Failed to load VOCT file: " + e.getMessage());
+        // // Delete possible corrupted or old file
+        // // new File(VOCT_FILE).delete();
+        // }
+        catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        // return voctManager;
 
     }
 
     @Override
-    public void generateSearchPattern(
-            SearchPatternGenerator.searchPattern type, Position CSP, int id) {
+    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, long id) {
 
         updateEffectiveAreaLocation();
 
         sarData.setCSP(CSP);
 
-        SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
-                sarOperation);
+        SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
 
         SearchPatternRoute searchRoute = searchPatternGenerator
                 .generateSearchPattern(type, sarData, EPDShore.getInstance().getSettings()
@@ -179,20 +210,15 @@ public class VOCTManager extends VOCTManagerCommon implements
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
             System.out.println("Previous route found");
-            int routeIndex = EPDShore
-                    .getInstance()
-                    .getRouteManager()
-                    .getRouteIndex(
-                            sarData.getEffortAllocationData().get(id)
-                                    .getSearchPatternRoute());
+            int routeIndex = EPDShore.getInstance().getRouteManager()
+                    .getRouteIndex(sarData.getEffortAllocationData().get(id).getSearchPatternRoute());
 
             System.out.println("Route index of old is " + routeIndex);
 
             EPDShore.getInstance().getRouteManager().removeRoute(routeIndex);
         }
 
-        sarData.getEffortAllocationData().get(id)
-                .setSearchPatternRoute(searchRoute);
+        sarData.getEffortAllocationData().get(id).setSearchPatternRoute(searchRoute);
 
         EPDShore.getInstance().getRouteManager().addRoute(searchRoute);
 
@@ -201,7 +227,8 @@ public class VOCTManager extends VOCTManagerCommon implements
 
     @Override
     public void updateEffectiveAreaLocation() {
-        // voctLayer.updateEffectiveAreaLocation(sarData);
+
+        System.out.println("Update effective area location and is it null sar data " + sarData);
 
         voctLayers.get(0).updateEffectiveAreaLocation(sarData);
     }
@@ -209,9 +236,7 @@ public class VOCTManager extends VOCTManagerCommon implements
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof SRUManager) {
-
             sruManager = (SRUManager) obj;
-
         }
 
         if (obj instanceof SRUManagerDialog) {
@@ -244,20 +269,17 @@ public class VOCTManager extends VOCTManagerCommon implements
 
     }
 
-    public void removeEffortAllocationData(int i) {
+    public void removeEffortAllocationData(long i) {
 
         if (sarData != null) {
 
-            if (sarData.getEffortAllocationData().size() > i) {
+            // if (sarData.getEffortAllocationData().size() > i) {
+            if (sarData.getEffortAllocationData().containsKey(i)) {
 
-                if (sarData.getEffortAllocationData().get(i)
-                        .getSearchPatternRoute() != null) {
+                if (sarData.getEffortAllocationData().get(i).getSearchPatternRoute() != null) {
 
-                    routeManager.getRoutes().remove(
-                            sarData.getEffortAllocationData().get(i)
-                                    .getSearchPatternRoute());
-                    routeManager
-                            .notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
+                    routeManager.getRoutes().remove(sarData.getEffortAllocationData().get(i).getSearchPatternRoute());
+                    routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
                 }
 
                 sarData.getEffortAllocationData().remove(i);
@@ -283,15 +305,18 @@ public class VOCTManager extends VOCTManagerCommon implements
 
         if (sarData != null) {
 
-            for (int i = 0; i < sarData.getEffortAllocationData().size(); i++) {
-                if (!routeManager.getRoutes().contains(
-                        sarData.getEffortAllocationData().get(i)
-                                .getSearchPatternRoute())) {
+            for (Entry<Long, EffortAllocationData> entry : sarData.getEffortAllocationData().entrySet()) {
+                EffortAllocationData effortAllocationData = entry.getValue();
+
+                if (!routeManager.getRoutes().contains(effortAllocationData.getSearchPatternRoute())) {
+
                     System.out.println("Route removed");
-                    sarData.getEffortAllocationData().get(i)
-                            .setSearchPatternRoute(null);
+
+                    effortAllocationData.setSearchPatternRoute(null);
                 }
+
             }
+
         }
     }
 
@@ -305,16 +330,12 @@ public class VOCTManager extends VOCTManagerCommon implements
 
         // Close down SAR TRACKINg and SAR Planning
 
-        for (int i = 0; i < EPDShore.getInstance().getMainFrame()
-                .getMapWindows().size(); i++) {
+        for (int i = 0; i < EPDShore.getInstance().getMainFrame().getMapWindows().size(); i++) {
 
-            if (EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
-                    .getType() == MapFrameType.SAR_Tracking
-                    || EPDShore.getInstance().getMainFrame().getMapWindows()
-                            .get(i).getType() == MapFrameType.SAR_Planning) {
+            if (EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Tracking
+                    || EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Planning) {
                 // Resize windows
-                EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
-                        .dispose();
+                EPDShore.getInstance().getMainFrame().getMapWindows().get(i).dispose();
 
             }
         }
@@ -328,6 +349,8 @@ public class VOCTManager extends VOCTManagerCommon implements
         voctLayers.clear();
 
         voctHandler.sendCancelMessage(sruManager.cancelAllSRU());
+
+        ((JMenuWorkspaceBar) EPD.getInstance().getMainFrame().getTopMenu()).setSarBtnEnabled();
     }
 
     @Override
@@ -346,8 +369,7 @@ public class VOCTManager extends VOCTManagerCommon implements
             if (i == 0) {
                 voctLayers.get(0).showFutureData(sarData);
             } else {
-                voctLayers.get(0).showFutureData(
-                        sarFutureData.get((i / 30) - 1));
+                voctLayers.get(0).showFutureData(sarFutureData.get((i / 30) - 1));
             }
         }
 

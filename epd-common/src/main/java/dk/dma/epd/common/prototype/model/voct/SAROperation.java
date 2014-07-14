@@ -1,22 +1,22 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.common.prototype.model.voct;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.joda.time.DateTime;
 
@@ -28,6 +28,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
@@ -114,7 +115,7 @@ public class SAROperation {
             datumPoint(datumPointData);
         }
 
-        //        System.out.println("Did we get something calculated?");
+        // System.out.println("Did we get something calculated?");
 
         System.out.println("Different: ");
         for (int i = 0; i < datumPoints.size(); i++) {
@@ -1265,28 +1266,23 @@ public class SAROperation {
 
             Geo newA = Intersection.segmentsIntersect(ParseUtils.PositionToGeo(downWindGrowCenter),
                     ParseUtils.PositionToGeo(downWindLeft), ParseUtils.PositionToGeo(internalA), ParseUtils.PositionToGeo(AGrow));
-            
+
             Geo newB = Intersection.segmentsIntersect(ParseUtils.PositionToGeo(downWindGrowCenter),
                     ParseUtils.PositionToGeo(downWindRight), ParseUtils.PositionToGeo(internalB), ParseUtils.PositionToGeo(BGrow));
 
-            if (newA != null){
-                internalA = ParseUtils.GeoToPosition(newA);    
-                
-            }else{
+            if (newA != null) {
+                internalA = ParseUtils.GeoToPosition(newA);
+
+            } else {
                 System.out.println("ERROR Internal A");
             }
-            
-            
 
-            if (newB != null){
+            if (newB != null) {
                 internalB = ParseUtils.GeoToPosition(newB);
-                
-            }else{
+
+            } else {
                 System.out.println("ERROR Internal B");
             }
-            
-            
-
 
             data.setA(internalA);
             data.setB(internalB);
@@ -1828,15 +1824,15 @@ public class SAROperation {
 
     public void calculateEffortAllocation(SARData data) {
 
-        for (int i = 0; i < data.getEffortAllocationData().size(); i++) {
+        for (Entry<Long, EffortAllocationData> entry : data.getEffortAllocationData().entrySet()) {
+            EffortAllocationData effortAllocationData = entry.getValue();
 
-            double trackSpacing = findS(data.getEffortAllocationData().get(i).getW(), data.getEffortAllocationData().get(i)
-                    .getPod());
+            double trackSpacing = findS(effortAllocationData.getW(), effortAllocationData.getPod());
 
-            data.getEffortAllocationData().get(i).setTrackSpacing(trackSpacing);
+            effortAllocationData.setTrackSpacing(trackSpacing);
 
-            double groundSpeed = data.getEffortAllocationData().get(i).getGroundSpeed();
-            int timeSearching = data.getEffortAllocationData().get(i).getSearchTime();
+            double groundSpeed = effortAllocationData.getGroundSpeed();
+            int timeSearching = effortAllocationData.getSearchTime();
 
             System.out.println("Track Spacing is: " + trackSpacing);
             System.out.println("Ground speed is: " + groundSpeed);
@@ -1844,9 +1840,7 @@ public class SAROperation {
 
             double areaSize = trackSpacing * groundSpeed * timeSearching;
 
-            data.getEffortAllocationData().get(i).setEffectiveAreaSize(areaSize);
-
-            System.out.println("Area size: " + areaSize);
+            effortAllocationData.setEffectiveAreaSize(areaSize);
 
         }
 

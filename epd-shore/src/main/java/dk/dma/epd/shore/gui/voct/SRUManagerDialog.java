@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.shore.gui.voct;
 
@@ -65,14 +64,14 @@ import dk.dma.epd.shore.voct.SRUUpdateListener;
 /**
  * Route manager dialog
  */
-public class SRUManagerDialog extends InternalComponentFrame implements ActionListener,
-        ListSelectionListener, TableModelListener, MouseListener, SRUUpdateListener {
+public class SRUManagerDialog extends InternalComponentFrame implements ActionListener, ListSelectionListener, TableModelListener,
+        MouseListener, SRUUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
     protected SRUManager sruManager;
     private AisHandler aisHandler;
-    
+
     // private JButton propertiesBtn;
     // private JButton zoomToBtn;
     // private JButton reverseCopyBtn;
@@ -87,8 +86,7 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
     private JLabel closeBtn;
     private JLabel exportAllBtn;
     private JLabel copyBtn;
-    
-    
+
     private JLabel addNewSRUBtn;
 
     private JScrollPane sruScrollPane;
@@ -106,30 +104,22 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
     private Color backgroundColor = new Color(83, 83, 83);
     private MainFrame mainFrame;
 
-    Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(
-            65, 65, 65));
-    Border paddingBottom = BorderFactory.createMatteBorder(0, 0, 5, 0,
-            new Color(83, 83, 83));
-    Border notificationPadding = BorderFactory.createCompoundBorder(
-            paddingBottom, paddingLeft);
-    Border notificationsIndicatorImportant = BorderFactory.createMatteBorder(0,
-            0, 0, 10, new Color(206, 120, 120));
-    Border paddingLeftPressed = BorderFactory.createMatteBorder(0, 8, 0, 0,
-            new Color(45, 45, 45));
-    Border notificationPaddingPressed = BorderFactory.createCompoundBorder(
-            paddingBottom, paddingLeftPressed);
+    Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(65, 65, 65));
+    Border paddingBottom = BorderFactory.createMatteBorder(0, 0, 5, 0, new Color(83, 83, 83));
+    Border notificationPadding = BorderFactory.createCompoundBorder(paddingBottom, paddingLeft);
+    Border notificationsIndicatorImportant = BorderFactory.createMatteBorder(0, 0, 0, 10, new Color(206, 120, 120));
+    Border paddingLeftPressed = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(45, 45, 45));
+    Border notificationPaddingPressed = BorderFactory.createCompoundBorder(paddingBottom, paddingLeftPressed);
 
     public SRUManagerDialog(JFrame parent) {
         super("SRU Manager", false, true, false, false);
         this.parent = parent;
-        sruManager = EPDShore.getInstance().getSRUManager();
+        sruManager = EPDShore.getInstance().getSruManager();
         sruManager.addListener(this);
-        
-        
+
         // Strip off window looks
         setRootPaneCheckingEnabled(false);
-        ((javax.swing.plaf.basic.BasicInternalFrameUI) this.getUI())
-                .setNorthPane(null);
+        ((javax.swing.plaf.basic.BasicInternalFrameUI) this.getUI()).setNorthPane(null);
         this.setBorder(null);
 
         // Map tools
@@ -137,8 +127,7 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
         topBar.setPreferredSize(new Dimension(500, moveHandlerHeight));
         topBar.setOpaque(true);
         topBar.setBackground(Color.DARK_GRAY);
-        topBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(
-                30, 30, 30)));
+        topBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(30, 30, 30)));
 
         // Placeholder - for now
         topBar.add(new JLabel());
@@ -151,8 +140,7 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
         topBar.add(moveHandler);
 
         // The tools (minimize, maximize and close)
-        JPanel windowToolsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT,
-                0, 0));
+        JPanel windowToolsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         windowToolsPanel.setOpaque(false);
         windowToolsPanel.setPreferredSize(new Dimension(60, 50));
 
@@ -169,8 +157,7 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
         topBar.add(windowToolsPanel);
 
         contentPanel = new JPanel();
-        contentPanel.setPreferredSize(new Dimension(900,
-                600 - moveHandlerHeight));
+        contentPanel.setPreferredSize(new Dimension(900, 600 - moveHandlerHeight));
         contentPanel.setSize(new Dimension(900, 600 - moveHandlerHeight));
         contentPanel.setBackground(backgroundColor);
 
@@ -178,9 +165,7 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
         masterPanel.add(topBar, BorderLayout.NORTH);
         masterPanel.add(contentPanel, BorderLayout.CENTER);
 
-        masterPanel.setBorder(BorderFactory.createEtchedBorder(
-                EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45,
-                        45)));
+        masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45, 45)));
 
         getContentPane().add(masterPanel);
 
@@ -188,21 +173,17 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         setLocation(10, 10);
 
-        
         propertiesBtn = new JLabel("Properties");
         GuiStyler.styleButton(propertiesBtn);
-         propertiesBtn.addMouseListener(this);
-         
-         
+        propertiesBtn.addMouseListener(this);
+
         zoomToBtn = new JLabel("Zoom to");
         GuiStyler.styleButton(zoomToBtn);
         zoomToBtn.setEnabled(false);
-        
-        
+
         deleteBtn = new JLabel("Remove Selected");
         deleteBtn.setEnabled(false);
-        
-        
+
         GuiStyler.styleButton(deleteBtn);
         // exportBtn.addActionListener(this);
         exportAllBtn = new JLabel("Export All");
@@ -218,25 +199,21 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
         GuiStyler.styleButton(copyBtn);
         // copyBtn.addActionListener(this);
 
-        
         JLabel lblEffortAllocation = new JLabel("Effort Allocation");
         GuiStyler.styleButton(lblEffortAllocation);
         lblEffortAllocation.setEnabled(false);
-        
+
         addNewSRUBtn = new JLabel("Add new SRU");
         GuiStyler.styleButton(addNewSRUBtn);
-//        lblAddNewSru.setEnabled(false);
-        
-        
+        // lblAddNewSru.setEnabled(false);
+
         DefaultTableModel model = new DefaultTableModel(30, 3);
 
         sruTable = new JTable(model) {
             private static final long serialVersionUID = 1L;
 
-            public Component prepareRenderer(TableCellRenderer renderer,
-                    int Index_row, int Index_col) {
-                Component comp = super.prepareRenderer(renderer, Index_row,
-                        Index_col);
+            public Component prepareRenderer(TableCellRenderer renderer, int Index_row, int Index_col) {
+                Component comp = super.prepareRenderer(renderer, Index_row, Index_col);
                 if (Index_row % 2 == 0) {
                     comp.setBackground(new Color(49, 49, 49));
                 } else {
@@ -274,90 +251,110 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
         sruTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         sruScrollPane = new JScrollPane(sruTable);
-        sruScrollPane
-                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        sruScrollPane
-                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        sruScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        sruScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         sruTable.setFillsViewportHeight(true);
 
-        sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,
-                new Color(30, 30, 30)));
+        sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(30, 30, 30)));
 
         // TODO: Comment this line when using WindowBuilder
         sruTable.setModel(sruTableModel);
         for (int i = 0; i < 4; i++) {
-            
-            if (i == 0){
+
+            if (i == 0) {
                 sruTable.getColumnModel().getColumn(i).setPreferredWidth(75);
             }
-            if (i == 1){
+            if (i == 1) {
                 sruTable.getColumnModel().getColumn(i).setPreferredWidth(50);
             }
-            if (i == 2){
+            if (i == 2) {
                 sruTable.getColumnModel().getColumn(i).setPreferredWidth(50);
             }
-            if (i == 3){
+            if (i == 3) {
                 sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
             }
-            
+
         }
         sruSelectionModel = sruTable.getSelectionModel();
         sruSelectionModel.addListSelectionListener(this);
         sruTable.setSelectionModel(sruSelectionModel);
         sruTable.addMouseListener(this);
-        
-
 
         GroupLayout groupLayout = new GroupLayout(contentPanel);
-        groupLayout.setHorizontalGroup(
-            groupLayout.createParallelGroup(Alignment.TRAILING)
-                .addGroup(groupLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                        .addGroup(groupLayout.createSequentialGroup()
-                            .addComponent(sruScrollPane, GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                                .addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-                                    .addComponent(closeBtn, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(zoomToBtn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(propertiesBtn, GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
-                                    .addComponent(copyBtn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-                                    .addComponent(deleteBtn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(exportAllBtn, GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
-                                    .addComponent(importBtn, GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE))
-                                .addComponent(addNewSRUBtn, GroupLayout.PREFERRED_SIZE, 131, GroupLayout.PREFERRED_SIZE)))
-                        .addComponent(lblEffortAllocation, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 131, GroupLayout.PREFERRED_SIZE))
-                    .addContainerGap())
-        );
-        groupLayout.setVerticalGroup(
-            groupLayout.createParallelGroup(Alignment.LEADING)
-                .addGroup(groupLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                        .addGroup(groupLayout.createSequentialGroup()
-                            .addComponent(propertiesBtn)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(zoomToBtn)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(copyBtn)
-                            .addGap(26)
-                            .addComponent(deleteBtn)
-                            .addGap(47)
-                            .addComponent(exportAllBtn)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(importBtn)
-                            .addPreferredGap(ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
-                            .addComponent(addNewSRUBtn)
-                            .addGap(10))
-                        .addComponent(sruScrollPane, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE))
-                    .addGap(8)
-                    .addComponent(lblEffortAllocation)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(closeBtn)
-                    .addContainerGap())
-        );
+        groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+                .addGroup(
+                        groupLayout
+                                .createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(
+                                        groupLayout
+                                                .createParallelGroup(Alignment.LEADING)
+                                                .addGroup(
+                                                        groupLayout
+                                                                .createSequentialGroup()
+                                                                .addComponent(sruScrollPane, GroupLayout.DEFAULT_SIZE, 441,
+                                                                        Short.MAX_VALUE)
+                                                                .addPreferredGap(ComponentPlacement.RELATED)
+                                                                .addGroup(
+                                                                        groupLayout
+                                                                                .createParallelGroup(Alignment.LEADING)
+                                                                                .addGroup(
+                                                                                        groupLayout
+                                                                                                .createParallelGroup(
+                                                                                                        Alignment.LEADING, false)
+                                                                                                .addComponent(closeBtn,
+                                                                                                        Alignment.TRAILING,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        Short.MAX_VALUE)
+                                                                                                .addComponent(zoomToBtn,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        Short.MAX_VALUE)
+                                                                                                .addComponent(propertiesBtn,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        131, Short.MAX_VALUE)
+                                                                                                .addComponent(copyBtn,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        Short.MAX_VALUE))
+                                                                                .addGroup(
+                                                                                        groupLayout
+                                                                                                .createParallelGroup(
+                                                                                                        Alignment.LEADING, false)
+                                                                                                .addComponent(deleteBtn,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        Short.MAX_VALUE)
+                                                                                                .addComponent(exportAllBtn,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        131, Short.MAX_VALUE)
+                                                                                                .addComponent(importBtn,
+                                                                                                        GroupLayout.DEFAULT_SIZE,
+                                                                                                        131, Short.MAX_VALUE))
+                                                                                .addComponent(addNewSRUBtn,
+                                                                                        GroupLayout.PREFERRED_SIZE, 131,
+                                                                                        GroupLayout.PREFERRED_SIZE)))
+                                                .addComponent(lblEffortAllocation, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE,
+                                                        131, GroupLayout.PREFERRED_SIZE)).addContainerGap()));
+        groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.LEADING).addGroup(
+                groupLayout
+                        .createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(
+                                groupLayout
+                                        .createParallelGroup(Alignment.LEADING)
+                                        .addGroup(
+                                                groupLayout.createSequentialGroup().addComponent(propertiesBtn)
+                                                        .addPreferredGap(ComponentPlacement.RELATED).addComponent(zoomToBtn)
+                                                        .addPreferredGap(ComponentPlacement.RELATED).addComponent(copyBtn)
+                                                        .addGap(26).addComponent(deleteBtn).addGap(47).addComponent(exportAllBtn)
+                                                        .addPreferredGap(ComponentPlacement.RELATED).addComponent(importBtn)
+                                                        .addPreferredGap(ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
+                                                        .addComponent(addNewSRUBtn).addGap(10))
+                                        .addComponent(sruScrollPane, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 288,
+                                                Short.MAX_VALUE)).addGap(8).addComponent(lblEffortAllocation)
+                        .addPreferredGap(ComponentPlacement.RELATED).addComponent(closeBtn).addContainerGap()));
 
         contentPanel.setLayout(groupLayout);
 
@@ -368,7 +365,6 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
 
         addMouseListeners();
 
-        
     }
 
     private void updateButtons() {
@@ -407,35 +403,31 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
 
     private void zoomTo() {
 
-//        SRU selectedroute = sruManager.getSRUs(sruTable.getSelectedRow());
+        // SRU selectedroute = sruManager.getSRUs(sruTable.getSelectedRow());
 
-//        if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
-//            EPDShore.getMainFrame()
-//                    .getActiveMapWindow()
-//                    .getChartPanel()
-//                    .zoomToPoint(
-//                            selectedroute.getWaypoints().getFirst().getPos());
-//        } else if (EPDShore.getMainFrame().getMapWindows().size() > 0) {
-//            EPDShore.getMainFrame()
-//                    .getMapWindows()
-//                    .get(0)
-//                    .getChartPanel()
-//                    .zoomToPoint(
-//                            selectedroute.getWaypoints().getFirst().getPos());
-//        }
-        
-        
-        
+        // if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
+        // EPDShore.getMainFrame()
+        // .getActiveMapWindow()
+        // .getChartPanel()
+        // .zoomToPoint(
+        // selectedroute.getWaypoints().getFirst().getPos());
+        // } else if (EPDShore.getMainFrame().getMapWindows().size() > 0) {
+        // EPDShore.getMainFrame()
+        // .getMapWindows()
+        // .get(0)
+        // .getChartPanel()
+        // .zoomToPoint(
+        // selectedroute.getWaypoints().getFirst().getPos());
+        // }
+
     }
 
     private void copy() {
-//        if (routeTable.getSelectedRow() >= 0) {
-//            routeManager.routeCopy(routeTable.getSelectedRow());
-//            updateTable();
-//        }
+        // if (routeTable.getSelectedRow() >= 0) {
+        // routeManager.routeCopy(routeTable.getSelectedRow());
+        // updateTable();
+        // }
     }
-
-
 
     // private void metocProperties() {
     // int i = routeTable.getSelectedRow();
@@ -450,93 +442,91 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
     private void delete() {
 
         int i = sruTable.getSelectedRow();
-        
-        if (i >= 0){
-            sruManager.removeSRU(sruTable.getSelectedRow());    
+
+        if (i >= 0) {
+            sruManager.removeSRU(sruTable.getSelectedRow());
         }
-        
+
         sruTableModel.fireTableDataChanged();
-        
+
     }
 
     private void exportToFile(int routeId) {
-//        if (routeId < 0) {
-//            return;
-//        }
-//
-//        Route route = routeManager.getRoute(routeId);
-//
-//        JFileChooser fc = new JFileChooser(System.getProperty("user.dir")
-//                + "/routes/");
-//        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-//        fc.setMultiSelectionEnabled(false);
-//
-//        fc.addChoosableFileFilter(new FileNameExtensionFilter(
-//                "Simple route text format", "txt", "TXT"));
-//        fc.setAcceptAllFileFilterUsed(true);
-//        File f = new File(route.getName() + ".txt");
-//        fc.setSelectedFile(f);
-//
-//        if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-//            return;
-//        }
-//        File file = fc.getSelectedFile();
-//
-//        if (!fc.getSelectedFile().toString().contains(".txt")) {
-//            file = new File(fc.getSelectedFile().getPath() + ".txt");
-//        }
-//
-//        if (file.exists()) {
-//            if (JOptionPane.showConfirmDialog(this, "File exists. Overwrite?",
-//                    "Overwrite?", JOptionPane.YES_NO_OPTION) != 0) {
-//                exportToFile(routeId);
-//                return;
-//            }
-//        }
-//
-//        if (!RouteLoader.saveSimple(route, file)) {
-//            JOptionPane.showMessageDialog(EPDShore.getMainFrame(),
-//                    "Route save error", "Route not saved",
-//                    JOptionPane.ERROR_MESSAGE);
-//        }
+        // if (routeId < 0) {
+        // return;
+        // }
+        //
+        // Route route = routeManager.getRoute(routeId);
+        //
+        // JFileChooser fc = new JFileChooser(System.getProperty("user.dir")
+        // + "/routes/");
+        // fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        // fc.setMultiSelectionEnabled(false);
+        //
+        // fc.addChoosableFileFilter(new FileNameExtensionFilter(
+        // "Simple route text format", "txt", "TXT"));
+        // fc.setAcceptAllFileFilterUsed(true);
+        // File f = new File(route.getName() + ".txt");
+        // fc.setSelectedFile(f);
+        //
+        // if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+        // return;
+        // }
+        // File file = fc.getSelectedFile();
+        //
+        // if (!fc.getSelectedFile().toString().contains(".txt")) {
+        // file = new File(fc.getSelectedFile().getPath() + ".txt");
+        // }
+        //
+        // if (file.exists()) {
+        // if (JOptionPane.showConfirmDialog(this, "File exists. Overwrite?",
+        // "Overwrite?", JOptionPane.YES_NO_OPTION) != 0) {
+        // exportToFile(routeId);
+        // return;
+        // }
+        // }
+        //
+        // if (!RouteLoader.saveSimple(route, file)) {
+        // JOptionPane.showMessageDialog(EPDShore.getMainFrame(),
+        // "Route save error", "Route not saved",
+        // JOptionPane.ERROR_MESSAGE);
+        // }
 
     }
 
     private void importFromFile() {
-//        // Get filename from dialog
-//        JFileChooser fc = new JFileChooser(System.getProperty("user.dir")
-//                + "/routes");
-//        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-//        fc.setMultiSelectionEnabled(true);
-//        fc.addChoosableFileFilter(new FileNameExtensionFilter(
-//                "Simple route text format", "txt", "TXT"));
-//        fc.addChoosableFileFilter(new FileNameExtensionFilter(
-//                "ECDIS900 V3 route", "rou", "ROU"));
-//        fc.addChoosableFileFilter(new FileNameExtensionFilter(
-//                "Navisailor 3000 route", "rt3", "RT3"));
-//        fc.setAcceptAllFileFilterUsed(true);
-//
-//        if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-//            return;
-//        }
-//
-//        for (File file : fc.getSelectedFiles()) {
-//            try {
-//                routeManager.loadFromFile(file);
-//            } catch (RouteLoadException e) {
-//                JOptionPane.showMessageDialog(this, e.getMessage() + ": "
-//                        + file.getName(), "Route load error",
-//                        JOptionPane.ERROR_MESSAGE);
-//                return;
-//            }
-//        }
-//
-//        updateTable();
-//        routeSelectionModel.setSelectionInterval(routeTable.getRowCount() - 1,
-//                routeTable.getRowCount() - 1);
+        // // Get filename from dialog
+        // JFileChooser fc = new JFileChooser(System.getProperty("user.dir")
+        // + "/routes");
+        // fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        // fc.setMultiSelectionEnabled(true);
+        // fc.addChoosableFileFilter(new FileNameExtensionFilter(
+        // "Simple route text format", "txt", "TXT"));
+        // fc.addChoosableFileFilter(new FileNameExtensionFilter(
+        // "ECDIS900 V3 route", "rou", "ROU"));
+        // fc.addChoosableFileFilter(new FileNameExtensionFilter(
+        // "Navisailor 3000 route", "rt3", "RT3"));
+        // fc.setAcceptAllFileFilterUsed(true);
+        //
+        // if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+        // return;
+        // }
+        //
+        // for (File file : fc.getSelectedFiles()) {
+        // try {
+        // routeManager.loadFromFile(file);
+        // } catch (RouteLoadException e) {
+        // JOptionPane.showMessageDialog(this, e.getMessage() + ": "
+        // + file.getName(), "Route load error",
+        // JOptionPane.ERROR_MESSAGE);
+        // return;
+        // }
+        // }
+        //
+        // updateTable();
+        // routeSelectionModel.setSelectionInterval(routeTable.getRowCount() - 1,
+        // routeTable.getRowCount() - 1);
     }
-
-
 
     private void exportAllToFile() {
         for (int i = 0; i < sruTable.getRowCount(); i++) {
@@ -587,8 +577,7 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
                 importFromFile();
             }
         });
-        
-        
+
         addNewSRUBtn.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 addNewSRU();
@@ -596,34 +585,31 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
         });
     }
 
-    
-    public void properties(){
-        
+    public void properties() {
+
         int i = sruTable.getSelectedRow();
-        
-        if (i >=0){
-            SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager, i, aisHandler);
+
+        if (i >= 0) {
+            SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager, sruManager.getSRUsAsList()[i].getMmsi(), aisHandler);
             dialog.setVisible(true);
         }
-        
-//        SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager);
-        
-        
-        
-     // int i = routeTable.getSelectedRow();
+
+        // SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager);
+
+        // int i = routeTable.getSelectedRow();
         // if (i >= 0) {
         // RouteMetocDialog routeMetocDialog = new RouteMetocDialog((Window) parent,
         // routeManager, i);
         // routeMetocDialog.setVisible(true);
         // routeManager.notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
-        
+
     }
-    
-    private void addNewSRU(){
+
+    private void addNewSRU() {
         SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager, aisHandler);
         dialog.setVisible(true);
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -645,8 +631,8 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
     public void tableChanged(TableModelEvent e) {
         if (e.getColumn() == 2) {
             // Visibility has changed
-//            routeManager
-//                    .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+            // routeManager
+            // .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
         }
     }
 
@@ -674,8 +660,7 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
     public void findAndInit(Object obj) {
         if (obj instanceof MainFrame) {
             mainFrame = (MainFrame) obj;
-            ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this,
-                    mainFrame);
+            ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this, mainFrame);
             topBar.addMouseListener(mml);
             topBar.addMouseMotionListener(mml);
         }

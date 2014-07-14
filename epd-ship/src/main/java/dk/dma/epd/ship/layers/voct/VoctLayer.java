@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.ship.layers.voct;
 
@@ -27,11 +26,11 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voct.SARAreaData;
-import dk.dma.epd.common.prototype.layers.voct.EffortAllocationInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics.LineType;
-import dk.dma.epd.common.prototype.layers.voct.SarAreaGraphic;
+import dk.dma.epd.common.prototype.layers.voct.EffortAllocationInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffortAllocationLines;
+import dk.dma.epd.common.prototype.layers.voct.SarAreaGraphic;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
@@ -65,8 +64,6 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
     private SarGraphics sarGraphics;
 
     private MainFrame mainFrame;
-
-    
 
     boolean editLocked;
 
@@ -224,6 +221,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
             doPrepare();
             dragging = true;
+            updateEffectiveAreaLocation(voctManager.getSarData());
             return true;
 
         }
@@ -245,6 +243,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             // if (!(newPos == initialBoxRelativePosition)){
             selectedArea.moveRelative(newPos, voctManager.getSarData());
             // }
+
+            updateEffectiveAreaLocation(voctManager.getSarData());
 
             doPrepare();
             dragging = true;
@@ -435,6 +435,17 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             editLocked = false;
         }
 
+        if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED) {
+
+            EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0L);
+
+            effectiveArea = new EffortAllocationAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
+                    effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(),
+                    effortAllocationArea.getEffectiveAreaD(), 0L, "");
+            graphics.add(effectiveArea);
+            editLocked = false;
+        }
+
         if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {
             editLocked = true;
 
@@ -452,7 +463,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
             if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
 
-                EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0);
+                EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0L);
 
                 effectiveArea = new EffortAllocationAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
                         effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(),
@@ -601,9 +612,6 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         Position C = data.getC();
         Position D = data.getD();
 
-        sarArea = new SarAreaGraphic(A, B, C, D);
-        graphics.add(sarArea);
-
         Position datumDownWind = data.getDatumDownWind();
         Position datumMin = data.getDatumMin();
         Position datumMax = data.getDatumMax();
@@ -616,6 +624,9 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         Position WTCPoint = data.getWtc();
 
         graphics.clear();
+
+        sarArea = new SarAreaGraphic(A, B, C, D);
+        graphics.add(sarArea);
 
         sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
 
@@ -658,12 +669,11 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         SARData data = voctManager.getSarData();
 
+        EffortAllocationData effortAllocationData = data.getEffortAllocationData().get(0L);
         // PoD for each SRU, initialized with an effective area? possibly a
         // unique ID
 
-        double effectiveAreaSize = voctManager.getSarData().getFirstEffortAllocationData().getEffectiveAreaSize();
-
-        System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
+        double effectiveAreaSize = effortAllocationData.getEffectiveAreaSize();
 
         // Effective Area: 10 nm2 Initialize by creating box
         double width = Math.sqrt(effectiveAreaSize);
@@ -675,7 +685,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         // startingPosition = ((RapidResponseData) data).getA();
         // }
 
-        effectiveArea = new EffortAllocationAreaGraphics(width, height, data, 0, "");
+        effectiveArea = new EffortAllocationAreaGraphics(width, height, data, 0L, "");
 
         graphics.add(effectiveArea);
 
@@ -690,5 +700,6 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
     public void updateEffectiveAreaLocation(SARData sarData) {
         effectiveArea.updateEffectiveAreaSize(sarData);
+        voctManager.saveToFile();
     }
 }

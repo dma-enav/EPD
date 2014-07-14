@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.shore.layers.voct;
 
@@ -19,6 +18,7 @@ import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.omGraphics.OMGraphic;
@@ -28,20 +28,22 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voct.SARAreaData;
-import dk.dma.epd.common.prototype.layers.voct.EffortAllocationInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics.LineType;
-import dk.dma.epd.common.prototype.layers.voct.SarAreaGraphic;
+import dk.dma.epd.common.prototype.layers.voct.EffortAllocationInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffortAllocationLines;
+import dk.dma.epd.common.prototype.layers.voct.SarAreaGraphic;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.voct.SRU;
 
 public class VoctLayerPlanning extends VoctLayerCommon {
 
@@ -176,6 +178,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
             doPrepare();
             dragging = true;
+            updateEffectiveAreaLocation(voctManager.getSarData());
             return true;
 
         }
@@ -200,6 +203,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
             doPrepare();
             dragging = true;
+            updateEffectiveAreaLocation(voctManager.getSarData());
             return true;
 
         }
@@ -356,10 +360,9 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
 
-            System.out.println("SAR DISPLAY " + voctManager.getSarType());
-
             if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
                 drawRapidResponse();
+                System.out.println("Painting Rapid Response");
             }
             if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT) {
                 drawDatumPoint();
@@ -369,7 +372,6 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             }
 
             if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
-                System.out.println("SARIS DATUM POINT DETECTED");
                 drawSarisDatumPoint();
             }
             this.setVisible(true);
@@ -379,6 +381,80 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             createEffectiveArea();
             this.setVisible(true);
         }
+
+        if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED) {
+            System.out.println("Draw Effort Allocation Areas");
+            drawEffortAllocationAreasFromSerialization();
+        }
+
+    }
+
+    private void drawEffortAllocationAreasFromSerialization() {
+
+        // Probability of Detection Area - updateable
+
+        // Remove all from graphics
+        for (int i = 0; i < effectiveSRUAreas.size(); i++) {
+
+            graphics.remove(effectiveSRUAreas.get(i));
+
+        }
+
+        SARData data = voctManager.getSarData();
+
+        // for (int i = 0; i < sruManager.getSRUsAsList().length; i++) {
+
+        for (Entry<Long, SRU> entry : EPDShore.getInstance().getSruManager().getSRUs().entrySet()) {
+            SRU sru = entry.getValue();
+
+            if (data.getEffortAllocationData().containsKey(sru.getMmsi())) {
+
+                EffortAllocationData effortAllocationArea = data.getEffortAllocationData().get(sru.getMmsi());
+                EffortAllocationAreaGraphics effectiveArea;
+
+                // if (!effortAllocationArea.isNoRedraw()) {
+
+                effectiveArea = new EffortAllocationAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
+                        effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(),
+                        effortAllocationArea.getEffectiveAreaD(), sru.getMmsi(), sru.getName());
+
+                // TEMP
+                effectiveArea.setVisible(true);
+
+                boolean exists = false;
+                for (int i = 0; i < effectiveSRUAreas.size(); i++) {
+
+                    if (effectiveSRUAreas.get(i).getId() == sru.getMmsi()) {
+                        effectiveSRUAreas.set(i, effectiveArea);
+                        exists = true;
+                    }
+
+                }
+
+                if (!exists) {
+                    effectiveSRUAreas.add(effectiveArea);
+                    System.out.println("Add stuff");
+                } else {
+                    System.out.println("Why can\t I add?");
+                }
+
+                // }
+
+            }
+
+        }
+
+        System.out.println("Draw Serialized stuff? " + effectiveSRUAreas.size());
+
+        for (int i = 0; i < effectiveSRUAreas.size(); i++) {
+            System.out.println("Adding graphics");
+            graphics.add(effectiveSRUAreas.get(i));
+        }
+
+        // PoD for each SRU, initialized with an effective area? possibly a
+        // unique ID
+
+        doPrepare();
 
     }
 
@@ -518,16 +594,15 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
         }
 
-        // effectiveSRUAreas.clear();
-
         SARData data = voctManager.getSarData();
 
-        for (int i = 0; i < data.getEffortAllocationData().size(); i++) {
+        for (Entry<Long, EffortAllocationData> entry : data.getEffortAllocationData().entrySet()) {
+            EffortAllocationData effortAllocationData = entry.getValue();
 
             EffortAllocationAreaGraphics effectiveArea;
 
-            if (!data.getEffortAllocationData().get(i).isNoRedraw()) {
-                double effectiveAreaSize = data.getEffortAllocationData().get(i).getEffectiveAreaSize();
+            if (!effortAllocationData.isNoRedraw()) {
+                double effectiveAreaSize = effortAllocationData.getEffectiveAreaSize();
 
                 System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
 
@@ -535,17 +610,24 @@ public class VoctLayerPlanning extends VoctLayerCommon {
                 double width = Math.sqrt(effectiveAreaSize);
                 double height = Math.sqrt(effectiveAreaSize);
 
-                effectiveArea = new EffortAllocationAreaGraphics(width, height, data, i, EPDShore.getInstance().getSRUManager()
-                        .getSRUs(i).getName());
+                effectiveArea = new EffortAllocationAreaGraphics(width, height, data, entry.getKey(), EPDShore.getInstance()
+                        .getSruManager().getSRUs().get(entry.getKey()).getName());
 
-                effectiveArea.setVisible(voctManager.getSruManager().getSRUs().get(i).isVisible());
+                effectiveArea.setVisible(voctManager.getSruManager().getSRUs().get(entry.getKey()).isVisible());
 
-                if (effectiveSRUAreas.size() > i) {
-                    effectiveSRUAreas.set(i, effectiveArea);
-                } else {
-                    effectiveSRUAreas.add(effectiveArea);
+                boolean exists = false;
+                for (int i = 0; i < effectiveSRUAreas.size(); i++) {
+
+                    if (effectiveSRUAreas.get(i).getId() == entry.getKey()) {
+                        effectiveSRUAreas.set(i, effectiveArea);
+                        exists = true;
+                    }
+
                 }
 
+                if (!exists) {
+                    effectiveSRUAreas.add(effectiveArea);
+                }
             }
 
         }
@@ -566,6 +648,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         for (int i = 0; i < effectiveSRUAreas.size(); i++) {
             effectiveSRUAreas.get(i).updateEffectiveAreaSize(sarData);
         }
+        voctManager.saveToFile();
     }
 
     @Override
@@ -580,17 +663,21 @@ public class VoctLayerPlanning extends VoctLayerCommon {
     }
 
     @Override
-    public void removeEffortAllocationArea(int i) {
+    public void removeEffortAllocationArea(long id) {
 
-        if (effectiveSRUAreas.size() > i) {
+        for (int j = 0; j < effectiveSRUAreas.size(); j++) {
 
-            EffortAllocationAreaGraphics area = effectiveSRUAreas.get(i);
-            effectiveSRUAreas.remove(i);
+            if (effectiveSRUAreas.get(j).getId() == id) {
+                EffortAllocationAreaGraphics area = effectiveSRUAreas.get(j);
+                effectiveSRUAreas.remove(j);
 
-            graphics.remove(area);
+                graphics.remove(area);
 
-            doPrepare();
+                doPrepare();
+            }
+
         }
+
     }
 
     public void showFutureData(SARData sarData) {
@@ -654,5 +741,11 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         }
 
         doPrepare();
+    }
+
+    @Override
+    public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+
     }
 }

@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.shore.gui.voct;
 
@@ -24,7 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -311,10 +309,10 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
         // Send SAR
         if (arg0.getSource() == sendSAR) {
 
-            List<SRU> sruList = sruManager.getSRUs();
+            SRU[] sruList = sruManager.getSRUsAsList();
 
             // Which are we sending
-            for (int i = 0; i < sruList.size(); i++) {
+            for (int i = 0; i < sruList.length; i++) {
 
                 // Send
                 if ((boolean) sruTable.getValueAt(i, 0)) {
@@ -326,7 +324,7 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
 
                         EPDShore.getInstance()
                                 .getVoctHandler()
-                                .sendVOCTMessage(sruList.get(i).getMmsi(), voctManager.getSarData(), "OSC", "Please Join", i,
+                                .sendVOCTMessage(sruList[i].getMmsi(), voctManager.getSarData(), "OSC", "Please Join", i,
                                         (boolean) sruTable.getValueAt(i, 5), (boolean) sruTable.getValueAt(i, 6));
 
                     } catch (InterruptedException e) {

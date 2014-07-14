@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.ship.predictor;
 
@@ -22,6 +21,10 @@ import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
 import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandlerCommon;
 
 /**
+ * Extends {@link DynamicPredictorHandlerCommon} with functionality that allows
+ * for reception of dynamic predictor data from the own ship dynamic predictor
+ * sensor as well as broadcast of this data through the Maritime Cloud.
+ * 
  * @author Janus Varmarken
  */
 public class DynamicPredictorHandler extends DynamicPredictorHandlerCommon {
@@ -36,11 +39,10 @@ public class DynamicPredictorHandler extends DynamicPredictorHandlerCommon {
      * The most recent dynamic prediction for own ship.
      */
     private volatile DynamicPrediction latestOwnShipPrediction;
-    
-    public DynamicPredictorHandler() {
-        super();
-    }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void cloudConnected(final MaritimeCloudClient connection) {
         /*
@@ -54,13 +56,17 @@ public class DynamicPredictorHandler extends DynamicPredictorHandlerCommon {
                     @Override
                     public void run() {
                         /*
-                         *  Use a local reference to allow null check without a field lock.
+                         * Use a local reference to allow null check without a
+                         * field lock.
                          */
                         DynamicPrediction toBroadcast = DynamicPredictorHandler.this.latestOwnShipPrediction;
-                        if(toBroadcast == null) {
+                        // If no prediction or timed out prediction, we don't
+                        // broadcast
+                        if (toBroadcast == null
+                                || !DynamicPredictorHandler.this
+                                        .isDynamicPredictionValid(DynamicPredictorHandler.this.latestOwnShipPrediction)) {
                             return;
                         }
-                        System.out.println("BROADCASTING OWN SHIP DYNAMIC PREDICTION");
                         connection.broadcast(toBroadcast);
                     }
                 });
@@ -74,12 +80,11 @@ public class DynamicPredictorHandler extends DynamicPredictorHandlerCommon {
      * Updates this handler with a new dynamic prediction for own ship.
      * 
      * @param newPrediction
-     *            The dynamic prediction for own ship.
+     *            The new dynamic prediction for own ship.
      */
     public void ownShipDynamicPredictionChanged(DynamicPrediction newPrediction) {
         // Store in field for repeated broadcast to access.
         this.latestOwnShipPrediction = newPrediction;
-        // TODO log time stamp and update last prediction or store in DynamicPrediction?
         // Publish own ship prediction to local listeners.
         this.publishDynamicPrediction(newPrediction);
     }

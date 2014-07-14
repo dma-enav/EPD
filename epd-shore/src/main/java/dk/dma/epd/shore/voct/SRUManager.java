@@ -1,31 +1,41 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.shore.voct;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.MapHandlerChild;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
@@ -39,13 +49,13 @@ import dk.dma.epd.shore.voct.SRU.sru_status;
 
 public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRouteListener {
 
-    private List<SRU> srus = new LinkedList<SRU>();
-
     private VOCTManager voctManager;
     private VoctHandler voctHandler;
+    private static final String SRU_FILE = EPD.getInstance().getHomePath().resolve(".srus").toString();
+    private static final Logger LOG = LoggerFactory.getLogger(SRUManager.class);
 
-    // private EnavServiceHandler enavServiceHandler;
-
+    // private List<SRU> srus = new LinkedList<SRU>();
+    private Map<Long, SRU> srus = new HashMap<Long, SRU>();
     private LinkedHashMap<Long, SRUCommunicationObject> sRUCommunication = new LinkedHashMap<Long, SRUCommunicationObject>();
     private VoctLayerTracking voctLayerTracking;
 
@@ -65,7 +75,17 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
         }
 
         // Persist update VOCT info
-        // saveToFile();
+        saveToFile();
+    }
+
+    public synchronized void saveToFile() {
+        System.out.println("SAVE TO FILE");
+        try (FileOutputStream fileOut = new FileOutputStream(SRU_FILE);
+                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+            objectOut.writeObject(srus);
+        } catch (IOException e) {
+            LOG.error("Failed to save VOCT data: " + e.getMessage());
+        }
     }
 
     public void addListener(SRUUpdateListener listener) {
@@ -375,7 +395,7 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
     }
 
     public void toggleSRUVisiblity(int i, boolean visible) {
-        srus.get(i).setVisible(visible);
+        srus.get(getSRUsAsList()[i].getMmsi()).setVisible(visible);
         voctManager.toggleSRUVisibility(i, visible);
 
         notifyListeners(SRUUpdateEvent.SRU_VISIBILITY_CHANGED, i);
@@ -391,26 +411,35 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
     /**
      * @return the sru
      */
-    public List<SRU> getSRUs() {
+    public Map<Long, SRU> getSRUs() {
         return srus;
     }
 
     public void addSRU(SRU sru) {
         synchronized (srus) {
-            srus.add(sru);
+            srus.put(sru.getMmsi(), sru);
             notifyListeners(SRUUpdateEvent.SRU_ADDED, srus.size());
+            // saveToFile();
         }
 
+    }
+
+    public SRU[] getSRUsAsList() {
+        // (SRU[])
+        return srus.values().toArray(new SRU[0]);
     }
 
     public void removeSRU(int i) {
         if (srus.size() >= i + 1) {
 
             synchronized (srus) {
-                SRU sru = srus.remove(i);
-                voctManager.removeEffortAllocationData(i);
-                if (sRUCommunication.containsKey(sru.getMmsi())) {
-                    sRUCommunication.remove(sru.getMmsi());
+
+                long sruMmsi = getSRUsAsList()[i].getMmsi();
+
+                voctManager.removeEffortAllocationData(sruMmsi);
+                srus.remove(sruMmsi);
+                if (sRUCommunication.containsKey(sruMmsi)) {
+                    sRUCommunication.remove(sruMmsi);
                 }
                 // maintainAvailableSRUs();
                 notifyListeners(SRUUpdateEvent.SRU_REMOVED, i);
@@ -426,44 +455,40 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
         return new ArrayList<SRUCommunicationObject>(sRUCommunication.values());
     }
 
-    public SRU getSRUs(int index) {
-        return getSRUs().get(index);
+    public SRU getSRUs(long mmsi) {
+        return getSRUs().get(mmsi);
     }
 
+    @SuppressWarnings("unchecked")
     public static SRUManager loadSRUManager() {
         SRUManager manager = new SRUManager();
 
-        // try {
-        // FileInputStream fileIn = new FileInputStream(VOYAGESFILE);
-        // ObjectInputStream objectIn = new ObjectInputStream(fileIn);
-        // VoyageStore voyageStore = (VoyageStore) objectIn.readObject();
-        // objectIn.close();
-        // fileIn.close();
-        // manager.setVoyages(voyageStore.getVoyages());
-        //
-        // } catch (FileNotFoundException e) {
-        // // Not an error
-        // } catch (Exception e) {
-        // LOG.error("Failed to load routes file: " + e.getMessage());
-        // // Delete possible corrupted or old file
-        // new File(VOYAGESFILE).delete();
-        // }
+        try {
+            FileInputStream fileIn = new FileInputStream(SRU_FILE);
+            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+
+            manager.setSrus((Map<Long, SRU>) objectIn.readObject());
+            objectIn.close();
+            fileIn.close();
+
+        } catch (FileNotFoundException e) {
+            // Not an error
+        } catch (Exception e) {
+            LOG.error("Failed to load sru file: " + e.getMessage());
+            // Delete possible corrupted or old file
+            new File(SRU_FILE).delete();
+        }
 
         return manager;
     }
 
-    // public void handleSRUBroadcast(long mmsi, VOCTSARBroadCast r) {
-    //
-    // System.out.println("Recieved Broadcast");
-    //
-    // // Only react to mmsi that we invited
-    // if (sRUCommunication.containsKey(mmsi)) {
-    //
-    // sRUCommunication.get(mmsi).addBroadcastMessage(r);
-    //
-    // notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
-    // }
-    // }
+    /**
+     * @param srus
+     *            the srus to set
+     */
+    public void setSrus(Map<Long, SRU> srus) {
+        this.srus = srus;
+    }
 
     public void forceTrackingLayerRepaint() {
         voctLayerTracking.doPrepare();

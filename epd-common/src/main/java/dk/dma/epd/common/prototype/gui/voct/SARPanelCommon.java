@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.common.prototype.gui.voct;
 
@@ -130,7 +129,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         initGui();
         initSarOperation();
 
-//        this.setSize(500, 1000);
+        // this.setSize(500, 1000);
     }
 
     private void initGui() {
@@ -187,7 +186,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
         gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
         sarStartedPanel.setLayout(gridBagLayout);
-        
+
         lblSAR = new JLabel("Search And Rescue");
         lblSAR.setHorizontalAlignment(SwingConstants.CENTER);
         lblSAR.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -198,9 +197,6 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         gbc_lblSAR.gridx = 0;
         gbc_lblSAR.gridy = 0;
         sarStartedPanel.add(lblSAR, gbc_lblSAR);
-        
-        
-
 
         statusPanel = new JPanel();
         statusPanel.setBorder(new TitledBorder(null, "Status", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -563,8 +559,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         gbc_cancelSarPanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_cancelSarPanel.gridx = 0;
         gbc_cancelSarPanel.gridy = 10;
-        
-        
+
         sarStartedPanel.add(createCancelSarPanel(), gbc_cancelSarPanel);
 
     }
@@ -581,97 +576,6 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
-
-        // if (arg0.getSource() == btnStartSar
-        // || arg0.getSource() == btnReopenCalculations) {
-        //
-        // // Position startPos = Position.create(56, 0);
-        // //
-        // // Ellipsoid reference = Ellipsoid.WGS84;
-        // // double[] endBearing = new double[1];
-        // //
-        // // // Object starts at LKP, with TWCheading, drifting for currentWTC
-        // // // knots where will it end up
-        // // Position newPos = Calculator.calculateEndingGlobalCoordinates(
-        // // reference, startPos, 270,
-        // // 100, endBearing);
-        // //
-        // // System.out.println("Position Start = " + startPos);
-        // // System.out.println("Moving 1 meter at 270 degrees gives us " +
-        // // newPos);
-        // //
-        // // double bearingPos = startPos.rhumbLineBearingTo(newPos);
-        // //
-        // //
-        // //
-        // // System.out.println("Rhumb line gives us " + bearingPos);
-        // //
-        // // double calcPos = Calculator.bearing(startPos, newPos,
-        // // Heading.RL);
-        // //
-        // // System.out.println("Calculator bearing gives us " + calcPos);
-        //
-        // // Calculator.bearing(pos1, pos2, heading)
-        // // Calculator.calculateEndingGlobalCoordinates(ellipsoid, start,
-        // // startBearing, distance, endBearing)
-        //
-        // // searchPatternDialog.setVisible(true);
-        //
-        // if (voctManager != null) {
-        //
-        // voctManager.showSarInput();
-        //
-        // }
-        // return;
-        // }
-        //
-        // if (arg0.getSource() == btnEffortAllocation) {
-        //
-        // // We have a SAR in progress
-        // if (voctManager != null && voctManager.isHasSar()) {
-        //
-        // // Determine what type of SAR then retrieve the input data
-        // if (effortAllocationWindow != null) {
-        // effortAllocationWindow.setValues();
-        // effortAllocationWindow
-        // .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-        // effortAllocationWindow.setVisible(true);
-        // }
-        //
-        // }
-        // return;
-        // }
-        //
-        // if (arg0.getSource() == btnGenerateSearchPattern) {
-        //
-        // if (searchPatternDialog != null) {
-        //
-        // //Semi hack for optimziation
-        // voctManager.updateEffectiveAreaLocation();
-        //
-        //
-        // searchPatternDialog.setValues();
-        // searchPatternDialog
-        // .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-        // searchPatternDialog.setVisible(true);
-        // }
-        //
-        // return;
-        // }
-        //
-        // if (arg0.getSource() == chckbxShowDynamicPattern) {
-        //
-        // if (chckbxShowDynamicPattern.isSelected()) {
-        // sarData.getSearchPatternRoute().switchToDynamic();
-        // } else {
-        // sarData.getSearchPatternRoute().switchToStatic();
-        // }
-        //
-        // EPDShip.getRouteManager().notifyListeners(
-        // RoutesUpdateEvent.ROUTE_CHANGED);
-        //
-        // return;
-        // }
 
     }
 

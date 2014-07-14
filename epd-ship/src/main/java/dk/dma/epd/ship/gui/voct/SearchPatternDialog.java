@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.ship.gui.voct;
 
@@ -37,12 +36,15 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.gui.voct.SearchPatternDialogCommon;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.util.ParseUtils;
+import dk.dma.epd.ship.EPDShip;
 
-public class SearchPatternDialog extends SearchPatternDialogCommon{
+public class SearchPatternDialog extends SearchPatternDialogCommon {
     private static final long serialVersionUID = 1L;
-    
+
     private final JPanel contentPanel = new JPanel();
     private JTextField cssFirstLat;
     private JTextField cssSecondLat;
@@ -65,24 +67,20 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
     private JButton generateButton;
     private JButton cancelButton;
 
-    ImageIcon parallelsweepsearchIcon = scaleImage(new ImageIcon(SearchPatternDialogCommon.class
-            .getClassLoader()
-            .getResource("images/voct/parallelsweepsearch.png")));
+    ImageIcon parallelsweepsearchIcon = scaleImage(new ImageIcon(SearchPatternDialogCommon.class.getClassLoader().getResource(
+            "images/voct/parallelsweepsearch.png")));
 
-    ImageIcon creepingLineSearchIcon = scaleImage(new ImageIcon(SearchPatternDialogCommon.class
-            .getClassLoader().getResource("images/voct/creepinglinesearch.png")));
+    ImageIcon creepingLineSearchIcon = scaleImage(new ImageIcon(SearchPatternDialogCommon.class.getClassLoader().getResource(
+            "images/voct/creepinglinesearch.png")));
 
-    ImageIcon trackLineSearchReturnIcon = scaleImage(new ImageIcon(
-            SearchPatternDialogCommon.class.getClassLoader().getResource(
-                    "images/voct/tracklinesearchreturn.png")));
+    ImageIcon trackLineSearchReturnIcon = scaleImage(new ImageIcon(SearchPatternDialogCommon.class.getClassLoader().getResource(
+            "images/voct/tracklinesearchreturn.png")));
 
-    ImageIcon trackLineSearchNonReturnIcon = scaleImage(new ImageIcon(
-            SearchPatternDialogCommon.class.getClassLoader().getResource(
-                    "images/voct/tracklinesearchnonreturn.png")));
+    ImageIcon trackLineSearchNonReturnIcon = scaleImage(new ImageIcon(SearchPatternDialogCommon.class.getClassLoader().getResource(
+            "images/voct/tracklinesearchnonreturn.png")));
 
-    ImageIcon expandingSquareSearchIcon = scaleImage(new ImageIcon(
-            SearchPatternDialogCommon.class.getClassLoader().getResource(
-                    "images/voct/expandingsquaresearch.png")));
+    ImageIcon expandingSquareSearchIcon = scaleImage(new ImageIcon(SearchPatternDialogCommon.class.getClassLoader().getResource(
+            "images/voct/expandingsquaresearch.png")));
 
     String parallelSweepSearch = "Parallel Sweep Search is used when the search area is large, an even coverage is wanted, exact location of the object is unknown. eg. datum has low confidence";
     String creepingLineSearch = "Creeping Line Search is used when the search is long and narrow, the most likely position of the search object is presumed to be between two points, it is desirable with a fast coverage of the most likely area first";
@@ -90,7 +88,6 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
     String trackLineSearchNonReturn = "Track Line Search, non-return is used when a vessel (or person) is reported as missing and the only track is the presumed route. It gives a relative fast and thorough coverage of the missing objects presumed route and its adjacent areas The route begins and ends in the opposite end of the route";
     String expandingSquareSearch = "Expanding Square Search is used when the search object is presumed to be located within a relatively small area. The search begins in the most likely position (Datum). This method requires accurate navigation.";
 
-    
     /**
      * Create the dialog.
      */
@@ -104,9 +101,8 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         contentPanel.setLayout(null);
 
         JPanel cspPanel = new JPanel();
-        cspPanel.setBorder(new TitledBorder(null,
-                "Search Pattern Start Position", TitledBorder.LEADING,
-                TitledBorder.TOP, null, null));
+        cspPanel.setBorder(new TitledBorder(null, "Search Pattern Start Position", TitledBorder.LEADING, TitledBorder.TOP, null,
+                null));
         cspPanel.setBounds(10, 11, 522, 108);
         contentPanel.add(cspPanel);
         cspPanel.setLayout(null);
@@ -139,8 +135,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         {
             comboCSSLat = new JComboBox<String>();
             comboCSSLat.setBounds(210, 49, 30, 20);
-            comboCSSLat.setModel(new DefaultComboBoxModel<String>(new String[] {
-                    "N", "S" }));
+            comboCSSLat.setModel(new DefaultComboBoxModel<String>(new String[] { "N", "S" }));
             cspPanel.add(comboCSSLat);
         }
         {
@@ -153,8 +148,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         {
             comboCSSLon = new JComboBox<String>();
             comboCSSLon.setBounds(318, 49, 30, 20);
-            comboCSSLon.setModel(new DefaultComboBoxModel<String>(new String[] {
-                    "E", "W" }));
+            comboCSSLon.setModel(new DefaultComboBoxModel<String>(new String[] { "E", "W" }));
             cspPanel.add(comboCSSLon);
         }
         {
@@ -172,8 +166,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
             cspPanel.add(cssFirstLon);
         }
         {
-            JLabel lblToGenerateA = new JLabel(
-                    "To generate a search pattern you need to choose a starting point.");
+            JLabel lblToGenerateA = new JLabel("To generate a search pattern you need to choose a starting point.");
             lblToGenerateA.setBounds(10, 14, 398, 14);
             cspPanel.add(lblToGenerateA);
         }
@@ -185,17 +178,16 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         }
         {
             importCSPFromDropdown = new JComboBox<String>();
-            importCSPFromDropdown.setModel(new DefaultComboBoxModel<String>(
-                    new String[] { "Import From:", "Top Left", "Top Right",
-                            "Bottom Left", "Bottom Right" }));
+            importCSPFromDropdown.setModel(new DefaultComboBoxModel<String>(new String[] { "Import From:", "Top Left", "Top Right",
+                    "Bottom Left", "Bottom Right" }));
             importCSPFromDropdown.setBounds(385, 49, 127, 20);
             importCSPFromDropdown.addActionListener(this);
             cspPanel.add(importCSPFromDropdown);
         }
 
         JPanel typeSelectPanel = new JPanel();
-        typeSelectPanel.setBorder(new TitledBorder(null, "Search Pattern Type",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        typeSelectPanel
+                .setBorder(new TitledBorder(null, "Search Pattern Type", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         typeSelectPanel.setBounds(10, 123, 522, 283);
         contentPanel.add(typeSelectPanel);
         typeSelectPanel.setLayout(null);
@@ -206,11 +198,8 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         }
         {
             typeSelectionComboBox = new JComboBox<String>();
-            typeSelectionComboBox.setModel(new DefaultComboBoxModel<String>(
-                    new String[] { "Parallel Sweep Search",
-                            "Creeping Line Search", "Track Line Search",
-                            "Track Line Search, non-return",
-                            "Expanding Square Search" }));
+            typeSelectionComboBox.setModel(new DefaultComboBoxModel<String>(new String[] { "Parallel Sweep Search",
+                    "Creeping Line Search", "Track Line Search", "Track Line Search, non-return", "Expanding Square Search" }));
             typeSelectionComboBox.setBounds(144, 15, 152, 20);
             typeSelectionComboBox.addActionListener(this);
             typeSelectPanel.add(typeSelectionComboBox);
@@ -285,10 +274,8 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
             double commenceSearchStartLat = getCSSLat();
             double commenceSearchStartLon = getCSSLon();
 
-            if (commenceSearchStartLat != -9999
-                    && commenceSearchStartLon != -9999) {
-                commenceStartPosition = Position.create(commenceSearchStartLat,
-                        commenceSearchStartLon);
+            if (commenceSearchStartLat != -9999 && commenceSearchStartLon != -9999) {
+                commenceStartPosition = Position.create(commenceSearchStartLat, commenceSearchStartLon);
             } else {
                 // Failed to parse CSP
                 displayMissingField("Commence Start Position");
@@ -298,16 +285,14 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         }
 
         // Create the route
-        voctManager.generateSearchPattern(searchPatternType,
-                commenceStartPosition, 0);
+        voctManager.generateSearchPattern(searchPatternType, commenceStartPosition, 0);
 
         return true;
 
     }
 
     private double getCSSLat() {
-        String LKPLatitude = cssFirstLat.getText() + " "
-                + cssSecondLat.getText() + "." + cssThirdLat.getText()
+        String LKPLatitude = cssFirstLat.getText() + " " + cssSecondLat.getText() + "." + cssThirdLat.getText()
                 + comboCSSLat.getSelectedItem();
 
         try {
@@ -321,8 +306,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
     }
 
     private double getCSSLon() {
-        String LKPLongitude = cssFirstLon.getText() + " "
-                + cssSecondLon.getText() + "." + cssThirdLon.getText()
+        String LKPLongitude = cssFirstLon.getText() + " " + cssSecondLon.getText() + "." + cssThirdLon.getText()
                 + comboCSSLon.getSelectedItem();
 
         System.out.println(LKPLongitude);
@@ -348,8 +332,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
     private static ImageIcon scaleImage(ImageIcon icon) {
         // Scale it?
         Image img = icon.getImage();
-        Image newimg = img.getScaledInstance(281, 171,
-                java.awt.Image.SCALE_SMOOTH);
+        Image newimg = img.getScaledInstance(281, 171, java.awt.Image.SCALE_SMOOTH);
 
         ImageIcon newIcon = new ImageIcon(newimg);
 
@@ -439,8 +422,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         }
     }
 
-    
-    private void toggleInput(boolean enabled){
+    private void toggleInput(boolean enabled) {
         cssFirstLat.setEnabled(enabled);
         cssSecondLat.setEnabled(enabled);
         cssThirdLat.setEnabled(enabled);
@@ -452,39 +434,33 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         comboCSSLon.setEnabled(enabled);
         importCSPFromDropdown.setEnabled(enabled);
 
-
-        
     }
 
-    
     private void setValues(int position) {
         Position importedPosition = null;
 
-        System.out.println("is the data null " + voctManager.getSarData()
-                    .getFirstEffortAllocationData());
+        SARData sarData = voctManager.getSarData();
+        EffortAllocationData effortAllocationData = sarData.getEffortAllocationData().get(0L);
+
         switch (position) {
         case 0:
             return;
         case 1:
-            importedPosition = voctManager.getSarData()
-                    .getFirstEffortAllocationData().getEffectiveAreaA();
+            importedPosition = effortAllocationData.getEffectiveAreaA();
             break;
         case 2:
-            importedPosition = voctManager.getSarData()
-                    .getFirstEffortAllocationData().getEffectiveAreaB();
+            importedPosition = effortAllocationData.getEffectiveAreaB();
             break;
         case 3:
-            importedPosition = voctManager.getSarData()
-                    .getFirstEffortAllocationData().getEffectiveAreaC();
+            importedPosition = effortAllocationData.getEffectiveAreaC();
             break;
         case 4:
-            importedPosition = voctManager.getSarData()
-                    .getFirstEffortAllocationData().getEffectiveAreaD();
+            importedPosition = effortAllocationData.getEffectiveAreaD();
             break;
         }
 
         System.out.println("Imported pos: " + importedPosition);
-        
+
         String lat = importedPosition.getLatitudeAsString();
 
         System.out.println("Lat is" + lat);
@@ -507,8 +483,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         String firstValueLat = latValues.split(" ")[0].trim();
         String secondValueLat = firstSplit.split("\\.")[0].trim();
         String thirdValueLat = firstSplit.split("\\.")[1].trim();
-        String lastCharLat = lat.substring(lat.length() - 1, lat.length())
-                .trim();
+        String lastCharLat = lat.substring(lat.length() - 1, lat.length()).trim();
 
         cssFirstLat.setText(firstValueLat);
         cssSecondLat.setText(secondValueLat);
@@ -526,8 +501,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         String firstValueLon = lonValues.split(" ")[0].trim();
         String secondValueLon = lonValues.split(" ")[1].split("\\.")[0].trim();
         String thirdValueLon = lonValues.split(" ")[1].split("\\.")[1].trim();
-        String lastCharLon = lon.substring(lon.length() - 1, lon.length())
-                .trim();
+        String lastCharLon = lon.substring(lon.length() - 1, lon.length()).trim();
 
         cssFirstLon.setText(firstValueLon);
         cssSecondLon.setText(secondValueLon);
@@ -544,9 +518,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
 
     private void displayMissingField(String fieldname) {
         // Missing or incorrect value in
-        JOptionPane.showMessageDialog(this, "Missing or incorrect value in "
-                + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Missing or incorrect value in " + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 
 }
-

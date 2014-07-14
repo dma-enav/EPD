@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.shore.gui.voct;
 
@@ -23,7 +22,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -61,8 +60,8 @@ import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class EffortAllocationWindow extends EffortAllocationWindowCommon
-        implements ListSelectionListener, MouseListener, TableModelListener, SRUUpdateListener {
+public class EffortAllocationWindow extends EffortAllocationWindowCommon implements ListSelectionListener, MouseListener,
+        TableModelListener, SRUUpdateListener {
     private static final long serialVersionUID = 1L;
 
     private final JPanel initPanel = new JPanel();
@@ -107,6 +106,10 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
         initPanel();
 
         this.setVisible(false);
+        sruManager = EPDShore.getInstance().getSruManager();
+        sruManager.addListener(this);
+        voctManager = EPDShore.getInstance().getVoctManager();
+
     }
 
     public void setVisible(boolean visible) {
@@ -155,11 +158,11 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
     //
     // }
 
-    public void setVoctManager(VOCTManager voctManager) {
-        this.voctManager = voctManager;
-        sruManager = voctManager.getSruManager();
-        sruManager.addListener(this);
-    }
+    // public void setVoctManager(VOCTManager voctManager) {
+    // this.voctManager = voctManager;
+    // sruManager = voctManager.getSruManager();
+    // sruManager.addListener(this);
+    // }
 
     private void initPanel() {
         initPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -169,17 +172,14 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
         {
             JPanel panel = new JPanel();
-            panel.setBorder(new TitledBorder(UIManager
-                    .getBorder("TitledBorder.border"),
-                    "Calculate Effective Search Area", TitledBorder.LEADING,
-                    TitledBorder.TOP, null, null));
+            panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Calculate Effective Search Area",
+                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel.setBounds(10, 11, 523, 478);
             initPanel.add(panel);
             panel.setLayout(null);
 
             JPanel panel_2 = new JPanel();
-            panel_2.setBorder(new TitledBorder(null, "SRU Information",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_2.setBorder(new TitledBorder(null, "SRU Information", TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel_2.setBounds(10, 32, 503, 165);
             panel.add(panel_2);
             panel_2.setLayout(null);
@@ -193,10 +193,8 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
             sruTable = new JTable(model) {
                 private static final long serialVersionUID = 1L;
 
-                public Component prepareRenderer(TableCellRenderer renderer,
-                        int Index_row, int Index_col) {
-                    Component comp = super.prepareRenderer(renderer, Index_row,
-                            Index_col);
+                public Component prepareRenderer(TableCellRenderer renderer, int Index_row, int Index_col) {
+                    Component comp = super.prepareRenderer(renderer, Index_row, Index_col);
                     if (Index_row % 2 == 0) {
                         comp.setBackground(new Color(49, 49, 49));
                     } else {
@@ -227,9 +225,8 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
             sruTable.setFocusable(false);
             // routeTable.setAutoResizeMode(0);
 
-            sruTableModel = new EffortAllocationWindowTabelModel(EPDShore.getInstance()
-                    .getVoctManager().getSruManager(),
-                    EPDShore.getInstance().getVoctManager());
+            sruTableModel = new EffortAllocationWindowTabelModel(EPDShore.getInstance().getSruManager(), EPDShore.getInstance()
+                    .getVoctManager());
             sruTableModel.addTableModelListener(this);
 
             sruTable.setShowHorizontalLines(false);
@@ -241,14 +238,11 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
             sruScrollPane.setBounds(10, 50, 483, 104);
 
-            sruScrollPane
-                    .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-            sruScrollPane
-                    .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            sruScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            sruScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             sruTable.setFillsViewportHeight(true);
 
-            sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,
-                    new Color(30, 30, 30)));
+            sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(30, 30, 30)));
 
             // TODO: Comment this line when using WindowBuilder
             sruTable.setModel(sruTableModel);
@@ -273,16 +267,14 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
             panel_2.add(sruScrollPane);
 
-            noSRUs = new JLabel(
-                    "There are no SRUs added. Please add a SRU before doing Effort Allocation");
+            noSRUs = new JLabel("There are no SRUs added. Please add a SRU before doing Effort Allocation");
             noSRUs.setBounds(10, 23, 446, 14);
             noSRUs.setVisible(false);
             panel_2.add(noSRUs);
 
             JPanel panel_3 = new JPanel();
-            panel_3.setBorder(new TitledBorder(UIManager
-                    .getBorder("TitledBorder.border"), "SAR Information",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_3.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SAR Information", TitledBorder.LEADING,
+                    TitledBorder.TOP, null, null));
             panel_3.setBounds(10, 208, 503, 55);
             panel.add(panel_3);
             panel_3.setLayout(null);
@@ -300,13 +292,11 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
             // "Other targets" }));
 
             for (int i = 0; i < SweepWidthValues.getSweepWidthTypes().size(); i++) {
-                targetTypeDropdown.addItem(SweepWidthValues
-                        .getSweepWidthTypes().get(i));
+                targetTypeDropdown.addItem(SweepWidthValues.getSweepWidthTypes().get(i));
             }
 
             JPanel panel_4 = new JPanel();
-            panel_4.setBorder(new TitledBorder(null, "Weather information",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_4.setBorder(new TitledBorder(null, "Weather information", TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel_4.setBounds(10, 293, 503, 88);
             panel.add(panel_4);
             panel_4.setLayout(null);
@@ -336,15 +326,13 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
             // panel_4.add(visibilityDropDown);
 
             JPanel panel_5 = new JPanel();
-            panel_5.setBorder(new TitledBorder(UIManager
-                    .getBorder("TitledBorder.border"), "Additional Options",
+            panel_5.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Additional Options",
                     TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel_5.setBounds(10, 394, 503, 71);
             panel.add(panel_5);
             panel_5.setLayout(null);
 
-            JLabel lblDesiredProbabilityOf = new JLabel(
-                    "Desired Probability of Detection:");
+            JLabel lblDesiredProbabilityOf = new JLabel("Desired Probability of Detection:");
             lblDesiredProbabilityOf.setBounds(12, 24, 197, 14);
             panel_5.add(lblDesiredProbabilityOf);
 
@@ -428,7 +416,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
         // sarData.removeAllEffortAllocationData();
 
-        List<SRU> sruList = sruManager.getSRUs();
+        Map<Long, SRU> sruList = sruManager.getSRUs();
 
         if (sruList.size() == 0) {
             return false;
@@ -445,26 +433,20 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
         for (int i = 0; i < sruList.size(); i++) {
 
-            System.out.println("Calculation for " + i
-                    + (boolean) sruTable.getValueAt(i, 2));
-
+            System.out.println("Calculation for " + i + (boolean) sruTable.getValueAt(i, 2));
+            SRU currentSRU = sruList.get(sruManager.getSRUsAsList()[i].getMmsi());
             if ((boolean) sruTable.getValueAt(i, 2)) {
-
-                SRU currentSRU = sruList.get(i);
 
                 EffortAllocationData data;
 
-                if (sarData.getEffortAllocationData().size() > i) {
-                    data = sarData.getEffortAllocationData().get(i);
+                if (sarData.getEffortAllocationData().containsKey(currentSRU.getMmsi())) {
+                    data = sarData.getEffortAllocationData().get(currentSRU.getMmsi());
 
                     // Delete the old route
                     if (data.getSearchPatternRoute() != null) {
-                        System.out
-                                .println("Removing routes from old sar effort allocation data");
-                        EPDShore.getInstance().getRouteManager().getRoutes()
-                                .remove(data.getSearchPatternRoute());
-                        EPDShore.getInstance().getRouteManager().notifyListeners(
-                                RoutesUpdateEvent.ROUTE_REMOVED);
+                        System.out.println("Removing routes from old sar effort allocation data");
+                        EPDShore.getInstance().getRouteManager().getRoutes().remove(data.getSearchPatternRoute());
+                        EPDShore.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
                         data.setSearchPatternRoute(null);
                     }
 
@@ -492,13 +474,11 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
                 int fwRow = 0;
 
-                if (windSpeed >= 0 && windSpeed <= 15 || waterLevel >= 0
-                        && waterLevel <= 3) {
+                if (windSpeed >= 0 && windSpeed <= 15 || waterLevel >= 0 && waterLevel <= 3) {
                     fwRow = 0;
                 }
 
-                if (windSpeed > 15 && windSpeed <= 25 || waterLevel > 3
-                        && waterLevel <= 5) {
+                if (windSpeed > 15 && windSpeed <= 25 || waterLevel > 3 && waterLevel <= 5) {
                     fwRow = 1;
                 }
 
@@ -513,10 +493,8 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
                 double fw;
 
                 // PIW, raft or small boat
-                if (targetType >= 0 && targetType <= 10 || targetType >= 14
-                        && targetType < 17) {
-                    fw = WeatherCorrectionFactors.getPIWAndSmallBoats().get(
-                            fwRow);
+                if (targetType >= 0 && targetType <= 10 || targetType >= 14 && targetType < 17) {
+                    fw = WeatherCorrectionFactors.getPIWAndSmallBoats().get(fwRow);
                 } else {
                     // Other object
                     fw = WeatherCorrectionFactors.getOtherObjects().get(fwRow);
@@ -526,12 +504,10 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
                 if (currentSRU.getType() == SRU_TYPE.Smaller_Vessel) {
                     // Small type
-                    wu = SweepWidthSmallShipLookup(targetType,
-                            currentSRU.getVisibility());
+                    wu = SweepWidthSmallShipLookup(targetType, currentSRU.getVisibility());
                 } else {
                     if (currentSRU.getType() == SRU_TYPE.Ship) {
-                        wu = SweepWidthLargeShipLookup(targetType,
-                                currentSRU.getVisibility());
+                        wu = SweepWidthLargeShipLookup(targetType, currentSRU.getVisibility());
                     }
                 }
 
@@ -549,10 +525,10 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
                 data.setSearchTime(currentSRU.getSearchTime());
 
-                sarData.addEffortAllocationData(data, i);
+                sarData.addEffortAllocationData(currentSRU.getMmsi(), data);
 
             } else {
-                sarData.getEffortAllocationData().get(i).setNoRedraw(true);
+                sarData.getEffortAllocationData().get(currentSRU.getMmsi()).setNoRedraw(true);
             }
         }
 
@@ -560,13 +536,11 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
     }
 
     private double SweepWidthSmallShipLookup(int searchObject, int visibility) {
-        return SweepWidthValues.getSmallerVessels().get(searchObject)
-                .get(visibility);
+        return SweepWidthValues.getSmallerVessels().get(searchObject).get(visibility);
     }
 
     private double SweepWidthLargeShipLookup(int searchObject, int visibility) {
-        return SweepWidthValues.getLargerVessels().get(searchObject)
-                .get(visibility);
+        return SweepWidthValues.getLargerVessels().get(searchObject).get(visibility);
     }
 
     private int getWindSpeed() {
@@ -611,8 +585,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
         // Remove %
         try {
-            probabilityOfDetection = (String) probabilityOfDetection
-                    .subSequence(0, probabilityOfDetection.length() - 1);
+            probabilityOfDetection = (String) probabilityOfDetection.subSequence(0, probabilityOfDetection.length() - 1);
         } catch (Exception e) {
             // Invalid - ignore
         }
@@ -623,8 +596,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
         } else {
             try {
                 if (probabilityOfDetection.contains(",")) {
-                    probabilityOfDetection = probabilityOfDetection.replace(
-                            ",", ".");
+                    probabilityOfDetection = probabilityOfDetection.replace(",", ".");
                 }
 
                 return Double.parseDouble(probabilityOfDetection) / 100;
@@ -637,8 +609,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
     private void displayMissingField(String fieldname) {
         // Missing or incorrect value in
-        JOptionPane.showMessageDialog(this, "Missing or incorrect value in "
-                + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Missing or incorrect value in " + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override

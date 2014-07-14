@@ -1,26 +1,28 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
+
+import java.io.Serializable;
 
 import org.joda.time.DateTime;
 
 import dk.dma.enav.model.voct.WeatherDataDTO;
 
-public class SARWeatherData {
+public class SARWeatherData implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private double TWCHeading;
     private double TWCknots;
 
@@ -29,8 +31,7 @@ public class SARWeatherData {
     private double downWind;
     private DateTime dateTime;
 
-    
-    public SARWeatherData(WeatherDataDTO data){
+    public SARWeatherData(WeatherDataDTO data) {
         this.TWCHeading = data.getTWCHeading();
         this.TWCknots = data.getTWCknots();
         this.LWknots = data.getLWknots();
@@ -38,9 +39,8 @@ public class SARWeatherData {
         this.downWind = data.getDownWind();
         this.dateTime = new DateTime(data.getDate());
     }
-    
-    public SARWeatherData(double tWCHeading, double tWCknots, double lWknots,
-            double lWHeading, DateTime dateTime) {
+
+    public SARWeatherData(double tWCHeading, double tWCknots, double lWknots, double lWHeading, DateTime dateTime) {
         TWCHeading = tWCHeading;
         TWCknots = tWCknots;
         LWknots = lWknots;
@@ -51,8 +51,6 @@ public class SARWeatherData {
 
     }
 
-    
-    
     /**
      * @return the dateTime
      */
@@ -60,16 +58,13 @@ public class SARWeatherData {
         return dateTime;
     }
 
-
-
     /**
-     * @param dateTime the dateTime to set
+     * @param dateTime
+     *            the dateTime to set
      */
     public void setDateTime(DateTime dateTime) {
         this.dateTime = dateTime;
     }
-
-
 
     /**
      * @return the tWCHeading
@@ -146,24 +141,20 @@ public class SARWeatherData {
         this.downWind = downWind;
     }
 
-    
-    public String generateHTML(){
-        
+    public String generateHTML() {
+
         StringBuilder str = new StringBuilder();
-        
+
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Total Water Current: " + TWCknots + " knots with heading "
-                + TWCHeading + "°");
-        str.append("<br>Leeway: " + LWknots + " knots with heading "
-                + LWHeading + "°</br>");
-        
+        str.append("Total Water Current: " + TWCknots + " knots with heading " + TWCHeading + "°");
+        str.append("<br>Leeway: " + LWknots + " knots with heading " + LWHeading + "°</br>");
+
         return str.toString();
     }
-    
-    
-    public WeatherDataDTO getDTO(){
+
+    public WeatherDataDTO getDTO() {
         return new WeatherDataDTO(TWCHeading, TWCknots, LWknots, LWHeading, downWind, dateTime.toDate());
     }
-    
+
 }

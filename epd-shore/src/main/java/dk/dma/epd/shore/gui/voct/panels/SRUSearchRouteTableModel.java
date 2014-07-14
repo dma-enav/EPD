@@ -1,17 +1,16 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Authority.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package dk.dma.epd.shore.gui.voct.panels;
 
@@ -47,7 +46,7 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
     private SRUManager sruManager;
     private VOCTManager voctManager;
 
-    private Map<Integer, JButton> buttons = new HashMap<Integer, JButton>();
+    private Map<Long, JButton> buttons = new HashMap<Long, JButton>();
 
     private SRUSearchPAtternButtonHandler handler;
 
@@ -70,28 +69,26 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        // return sruManager.getSRUCount();
-        // return 0;
         return voctManager.getSarData().getEffortAllocationData().size();
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(rowIndex);
-        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(rowIndex);
+        SRU sru = sruManager.getSRUs().get(sruManager.getSRUsAsList()[rowIndex].getMmsi());
+        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(sru.getMmsi());
         switch (columnIndex) {
         case 0:
             return Formatter.formatString(sru.getName());
         case 1:
-            return getCellButton(rowIndex);
+            return getCellButton(sru.getMmsi());
         case 2:
-            // return sru.isVisible();
-            // return effortAllocationData.getSearchPatternRoute() !=
-            if (effortAllocationData.getSearchPatternRoute() != null) {
-                return effortAllocationData.getSearchPatternRoute().isVisible();
-            } else {
-                return false;
+            if (effortAllocationData != null) {
+
+                if (effortAllocationData.getSearchPatternRoute() != null) {
+                    return effortAllocationData.getSearchPatternRoute().isVisible();
+                }
             }
+            return false;
         case 3:
             // return false;
             if (effortAllocationData.getSearchPatternRoute() != null) {
@@ -164,13 +161,13 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-
+        SRU sru = sruManager.getSRUs().get(sruManager.getSRUsAsList()[rowIndex].getMmsi());
         if (columnIndex == 1) {
             return true;
         }
 
         if (columnIndex == 2 || columnIndex == 3) {
-            EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(rowIndex);
+            EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(sru.getMmsi());
 
             if (effortAllocationData.getSearchPatternRoute() != null) {
                 return true;
@@ -191,22 +188,22 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     }
 
-    private JButton getCellButton(int sruID) {
-        JButton button = buttons.get(sruID);
+    private JButton getCellButton(long l) {
+        JButton button = buttons.get(l);
         if (button == null) {
-            button = createButton(sruID);
-            buttons.put(sruID, button);
+            button = createButton(l);
+            buttons.put(l, button);
         }
         return button;
 
     }
 
-    private JButton createButton(final int sruID) {
+    private JButton createButton(final long l) {
         final JButton button = new JButton("Create");
 
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                handler.buttonClicked(sruID);
+                handler.buttonClicked(l);
             }
         });
 
@@ -225,13 +222,13 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
     // }
 
     public void fireTableDataChanged() {
-//        buttons.clear();
+        // buttons.clear();
         super.fireTableDataChanged();
 
     }
 
     public interface SRUSearchPAtternButtonHandler {
-        void buttonClicked(int e);
+        void buttonClicked(long e);
     }
 
 }
