@@ -27,6 +27,9 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +47,7 @@ import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
+import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
@@ -54,6 +58,8 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -65,10 +71,10 @@ import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.IntendedRouteHandler;
-import dk.dma.epd.shore.service.MaritimeCloudService;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
+import dk.dma.epd.shore.service.VoctHandler;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.EPDSettings;
 import dk.dma.epd.shore.settings.sensor.ExternalSensorsSettings;
@@ -97,14 +103,11 @@ public final class EPDShore extends EPD {
     private SRUManager sruManager;
     private VOCTManager voctManager;
 
-    private RouteManager routeManager;
     private VoyageManager voyageManager;
 
     // Maritime Cloud services
-    private MaritimeCloudService maritimeCloudService;
-    private StrategicRouteHandler strategicRouteHandler;
-    private RouteSuggestionHandler routeSuggestionHandler;
     private IntendedRouteHandlerCommon intendedRouteHandler;
+    private VoctHandler voctHandler;
 
     /**
      * Event dispatcher used to notify listeners of voyage changes.
@@ -125,7 +128,8 @@ public final class EPDShore extends EPD {
     /**
      * Constructor
      * 
-     * @param path the home path to use
+     * @param path
+     *            the home path to use
      */
     private EPDShore(String path) throws IOException {
         super();
@@ -135,9 +139,9 @@ public final class EPDShore extends EPD {
         } else {
             homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-shore"));
         }
-    
+
         new Bootstrap().run(this, new String[] { "epd-shore.properties", "settings.properties", "transponder.xml" }, new String[] {
-                "settings/workspaces", "routes", "shape/GSHHS_shp" });
+                "settings/workspaces", "routes", "shape/GSHHS_shp", "identities" });
 
         // Set up log4j logging
         LOG = LoggerFactory.getLogger(EPDShore.class);
@@ -206,7 +210,7 @@ public final class EPDShore extends EPD {
         beanHandler.add(monaLisaRouteExchange);
 
         // Create Maritime Cloud service
-        maritimeCloudService = new MaritimeCloudService(settings.getMaritimeCloudHttpSettings(), getSettings().getShoreIdentitySettings());
+        maritimeCloudService = new MaritimeCloudService(settings.getMaritimeCloudHttpSettings());
         beanHandler.add(maritimeCloudService);
         maritimeCloudService.start();
 
@@ -225,10 +229,18 @@ public final class EPDShore extends EPD {
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getMsiHandlerSettings());
         beanHandler.add(msiHandler);
-        
+
         // Create a chat service handler
         chatServiceHandler = new ChatServiceHandlerCommon();
         beanHandler.add(chatServiceHandler);
+
+        // Create identity handler
+        identityHandler = new IdentityHandler();
+        beanHandler.add(identityHandler);
+
+        // Create identity handler
+        voctHandler = new VoctHandler();
+        beanHandler.add(voctHandler);
 
         // Start sensors
         startSensors();
@@ -308,12 +320,19 @@ public final class EPDShore extends EPD {
         return homePath;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public RouteSuggestionHandler getRouteSuggestionHandler() {
-        return routeSuggestionHandler;
+        return (RouteSuggestionHandler) routeSuggestionHandler;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public StrategicRouteHandler getStrategicRouteHandler() {
-        return strategicRouteHandler;
+        return (StrategicRouteHandler) strategicRouteHandler;
     }
 
     /**
@@ -358,7 +377,7 @@ public final class EPDShore extends EPD {
 
         // Stop the system tray
         systemTray.shutdown();
-        
+
         // Stop sensors
         stopSensors();
 
@@ -388,7 +407,7 @@ public final class EPDShore extends EPD {
         // Create the notification center
         notificationCenter = new NotificationCenter(getMainFrame());
         beanHandler.add(notificationCenter);
-        
+
     }
 
     /**
@@ -438,11 +457,12 @@ public final class EPDShore extends EPD {
 
     /**
      * Returns a reference to the AIS handler
+     * 
      * @return a reference to the AIS handler
      */
     @Override
     public AisHandler getAisHandler() {
-        return (AisHandler)aisHandler;
+        return (AisHandler) aisHandler;
     }
 
     /**
@@ -481,9 +501,34 @@ public final class EPDShore extends EPD {
     }
 
     /**
-     * Returns the position of the shore station.
+     * Returns the MMSI of the shore center, or null if not defined
      * 
-     * @return the position of the shore station.
+     * @return the MMSI of the shore center
+     */
+    @Override
+    public Long getMmsi() {
+        String shoreID = getSettings().getShoreIdentitySettings().getShoreId();
+        if (shoreID == null || !StringUtils.isNumeric(shoreID) || !shoreID.startsWith(MaritimeCloudUtils.STCC_MMSI_PREFIX)) {
+            return null;
+        }
+        return Long.parseLong((String) shoreID.subSequence(0, 9));
+    }
+
+    /**
+     * Returns the maritime id of the shore center, or null if not defined
+     * 
+     * @return the maritime id of the shore center
+     */
+    @Override
+    public MaritimeId getMaritimeId() {
+        Long mmsi = getMmsi();
+        return (mmsi != null) ? new MmsiId(getMmsi().intValue()) : null;
+    }
+
+    /**
+     * Returns the current position of the shore center
+     * 
+     * @return the current position of the shore center
      */
     @Override
     public Position getPosition() {
@@ -491,8 +536,9 @@ public final class EPDShore extends EPD {
         return Position.create(pos.getLatitude(), pos.getLongitude());
     }
 
+    @Override
     public RouteManager getRouteManager() {
-        return routeManager;
+        return (RouteManager) routeManager;
     }
 
     public SRUManager getSRUManager() {
@@ -578,7 +624,8 @@ public final class EPDShore extends EPD {
             aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpOrUdpPort());
             break;
         case SERIAL:
-            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort());
+            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort(),
+                    sensorSettings.getAisSerialPortBaudRate());
             break;
         case FILE:
             aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(), sensorSettings);
@@ -624,7 +671,11 @@ public final class EPDShore extends EPD {
             LOG.warn("Restarting all eNav Service");
             maritimeCloudService.stop();
             maritimeCloudService.start();
+        } else if (type == Type.ENAV) {
+            // Update the intended route handler such that it can re apply its filter.
+//            this.intendedRouteHandler.updateSettings(this.settings.getEnavSettings());
         }
+
     }
 
     public StaticImages getStaticImages() {
@@ -667,6 +718,15 @@ public final class EPDShore extends EPD {
      */
     public VoyageEventDispatcher getVoyageEventDispatcher() {
         return voyageEventDispatcher;
+    }
+    
+    
+
+    /**
+     * @return the voctHandler
+     */
+    public VoctHandler getVoctHandler() {
+        return voctHandler;
     }
 
     /**

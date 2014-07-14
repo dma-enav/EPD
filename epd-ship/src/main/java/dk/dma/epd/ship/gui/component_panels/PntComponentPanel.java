@@ -32,7 +32,7 @@ import dk.dma.epd.ship.gui.panels.PntPanel;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 public class PntComponentPanel extends OMComponentPanel implements
-        IPntDataListener {
+        IPntDataListener, DockableComponentPanel {
 
     private static final long serialVersionUID = 1L;
     private PntHandler pntHandler;
@@ -122,5 +122,31 @@ public class PntComponentPanel extends OMComponentPanel implements
 
     }
     
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "GPS";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
+    }
 }

@@ -29,10 +29,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.fileselection.WorkspaceFileFilter;
 
@@ -42,7 +43,7 @@ import dk.dma.epd.shore.gui.fileselection.WorkspaceFileFilter;
  * @author David A. Camre (davidcamre@gmail.com
  * 
  */
-public class JMenuWorkspaceBar extends JMenuBar {
+public class JMenuWorkspaceBar extends JMenuBar implements VOCTUpdateListener {
 
     private static final long serialVersionUID = 1L;
     private JMenu maps;
@@ -50,6 +51,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
     private MainFrame mainFrame;
     private JMainDesktopPane desktop;
     private TransponderFrame transponderFrame;
+    private final JMenuItem newSar;
 
     /**
      * Constructor
@@ -59,6 +61,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
     public JMenuWorkspaceBar(final MainFrame mainFrame) {
         super();
 
+        EPDShore.getInstance().getVoctManager().addListener(this);
         this.mainFrame = mainFrame;
         this.desktop = mainFrame.getDesktop();
 
@@ -68,7 +71,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
         mapMenus = new HashMap<Integer, JMenu>();
 
         /*****************************************/
-        /** File menu                           **/
+        /** File menu **/
         /*****************************************/
 
         JMenu fm = new JMenu("File");
@@ -87,7 +90,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
         fm.add(mi);
 
         /*****************************************/
-        /** Maps menu                           **/
+        /** Maps menu **/
         /*****************************************/
 
         maps = new JMenu("Maps");
@@ -115,7 +118,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
         workspace.add(unlockAll);
 
         /*****************************************/
-        /** Notifications menu                  **/
+        /** Notifications menu **/
         /*****************************************/
 
         JMenu notifications = new JMenu("Notifications");
@@ -123,17 +126,6 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         JMenuItem notCenter = new JMenuItem("Notification Center");
         notifications.add(notCenter);
-        
-        // Add a "Send message" menu item
-        notifications.add(new JSeparator());
-        JMenuItem chatMenuItem = new JMenuItem("Send message...");
-        chatMenuItem.addActionListener(new ActionListener() {            
-            @Override public void actionPerformed(ActionEvent e) {
-                EPD.getInstance().getMainFrame().getChatServiceDialog().init();
-            }
-        });
-        notifications.add(chatMenuItem);
-        
 
         workspace.addSeparator();
 
@@ -144,34 +136,32 @@ public class JMenuWorkspaceBar extends JMenuBar {
         workspace.add(saveWorkspace);
 
         /*****************************************/
-        /** Search and Rescue menu              **/
+        /** Search and Rescue menu **/
         /*****************************************/
-        
+
         JMenu sarMenu = new JMenu("Search and Rescue");
         this.add(sarMenu);
-        
-        final JMenuItem newSar = new JMenuItem("Inititate SAR Operation");
+
+        newSar = new JMenuItem("Inititate SAR Operation");
         sarMenu.add(newSar);
-        
+
         JMenuItem sruList = new JMenuItem("View Search Rescue Units");
         sarMenu.add(sruList);
-        
+
         JMenuItem probabilityOfDetection = new JMenuItem("Effort Allocation");
         sarMenu.add(probabilityOfDetection);
 
-        
         /*****************************************/
-        /** Help menu                           **/
+        /** Help menu **/
         /*****************************************/
-        
+
         JMenu help = new JMenu("Help");
         this.add(help);
 
         JMenuItem aboutEpdShore = new JMenuItem(mainFrame.getAboutAction());
         help.add(aboutEpdShore);
-        
-        
-        //Action listeners
+
+        // Action listeners
         transponder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -265,38 +255,6 @@ public class JMenuWorkspaceBar extends JMenuBar {
             }
         });
 
-
-//        lockMaps.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                List<JMapFrame> mapWindows = mainFrame.getMapWindows();
-//                for (int i = 0; i < mapWindows.size(); i++) {
-//                    mapWindows.get(i).lockUnlockWindow();
-//                }
-//            }
-//        });
-
-
-        
-        //SAR
-        
-        newSar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-//                mainFrame.addSARWindow();
-                EPDShore.getInstance().getVoctManager().showSarInput();
-                newSar.setEnabled(false);
-            }
-        });
-
-        
-        sruList.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                mainFrame.getSruManagerDialog().setVisible(true);
-                System.out.println(mainFrame.getSruManagerDialog().isVisible());
-            }
-        });
-
-
-
         // lockMaps.addActionListener(new ActionListener() {
         // public void actionPerformed(ActionEvent e) {
         // List<JMapFrame> mapWindows = mainFrame.getMapWindows();
@@ -306,6 +264,31 @@ public class JMenuWorkspaceBar extends JMenuBar {
         // }
         // });
 
+        // SAR
+
+        newSar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // mainFrame.addSARWindow();
+                EPDShore.getInstance().getVoctManager().showSarInput();
+                newSar.setEnabled(false);
+            }
+        });
+
+        sruList.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                mainFrame.getSruManagerDialog().setVisible(true);
+                System.out.println(mainFrame.getSruManagerDialog().isVisible());
+            }
+        });
+
+        // lockMaps.addActionListener(new ActionListener() {
+        // public void actionPerformed(ActionEvent e) {
+        // List<JMapFrame> mapWindows = mainFrame.getMapWindows();
+        // for (int i = 0; i < mapWindows.size(); i++) {
+        // mapWindows.get(i).lockUnlockWindow();
+        // }
+        // }
+        // });
 
     }
 
@@ -403,10 +386,10 @@ public class JMenuWorkspaceBar extends JMenuBar {
      */
     public void removeMapMenu(final JMapFrame window) {
         JMenu menuItem = mapMenus.get(window.getId());
-        if (menuItem != null){
-            maps.remove(menuItem);    
+        if (menuItem != null) {
+            maps.remove(menuItem);
         }
-        
+
     }
 
     public void lockMapMenu(final JMapFrame window, boolean locked) {
@@ -507,6 +490,13 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
     public void setTransponderFrame(TransponderFrame transponderFrame) {
         this.transponderFrame = transponderFrame;
+    }
+
+    @Override
+    public void voctUpdated(VOCTUpdateEvent e) {
+        if (e == VOCTUpdateEvent.SAR_CANCEL) {
+            newSar.setEnabled(true);
+        }
     }
 
 }

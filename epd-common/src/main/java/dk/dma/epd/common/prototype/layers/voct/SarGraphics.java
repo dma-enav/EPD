@@ -24,134 +24,135 @@ import dk.dma.enav.model.geometry.Position;
 public class SarGraphics extends OMGraphicList {
     private static final long serialVersionUID = 1L;
 
-//    private NogoPolygon polygon;
-    
-    //private MsiTextBox msiTextBox;
-    
-    public SarGraphics(Position datum, double radius, Position A, Position B, Position C, Position D, Position LKP, List<Position> currents, List<Position> winds) {
+    // private NogoPolygon polygon;
+
+    // private MsiTextBox msiTextBox;
+
+    public SarGraphics(Position datum, double radius, Position LKP, List<Position> currents, List<Position> winds) {
         super();
-        
-//        this.polygon = polygon;
-        
+
+        // this.polygon = polygon;
+
         // Create location grahic
-        SarAreaGraphic sarArea = new SarAreaGraphic(A, B, C, D);
+
         SarCircleGraphic sarCircle = new SarCircleGraphic(datum, radius);
-        
-        
-        //currents is first
-        //winds is the last
+
+        // currents is first
+        // winds is the last
         System.out.println(currents.size());
-        
-        if (winds.size() == 00){
+
+        if (winds.size() == 00) {
             SarLinesGraphics sarLines = new SarLinesGraphics(LKP, currents.get(0), datum, true, "Datum");
             add(sarLines);
-        }else{
+        } else {
             for (int i = 0; i < winds.size(); i++) {
-                
+
                 SarLinesGraphics sarLines = null;
-                
-                //First one, connect from LKP
-                if (i == 0){
+
+                // First one, connect from LKP
+                if (i == 0) {
                     System.out.println("first");
                     sarLines = new SarLinesGraphics(LKP, currents.get(i), winds.get(i));
-                                   
-                        
-                }else{
+
+                } else {
                     System.out.println("next");
-                    sarLines = new SarLinesGraphics(winds.get(i-1), currents.get(i), winds.get(i));
+                    sarLines = new SarLinesGraphics(winds.get(i - 1), currents.get(i), winds.get(i));
                 }
-                
-                
-                add(sarLines); 
-                
-                
+
+                add(sarLines);
+
             }
-            
-//            SarLinesGraphics sarLines = new SarLinesGraphics(winds.get(winds.size()-1), currents.get(currents.size()-1), datum, false, "Datum");
-//            add(sarLines);
-            
+
+            // SarLinesGraphics sarLines = new SarLinesGraphics(winds.get(winds.size()-1), currents.get(currents.size()-1), datum,
+            // false, "Datum");
+            // add(sarLines);
+
             SarLinesGraphics sarLines2 = new SarLinesGraphics(LKP, datum, "Datum");
             add(sarLines2);
-            
+
         }
-        
-        
-        
-        
-        add(sarArea);
+
         add(sarCircle);
-        
+
     }
 
-
-    
-    public SarGraphics(Position datumDownWind, Position datumMin, Position datumMax, double radiusDownWind, double radiusMin, double radiusMax, Position LKP, Position current, Position A, Position B, Position C, Position D) {
+    /**
+     * Constructor used for Datum Point Graphics
+     * 
+     * @param datumDownWind
+     * @param datumMin
+     * @param datumMax
+     * @param radiusDownWind
+     * @param radiusMin
+     * @param radiusMax
+     * @param LKP
+     * @param current
+     */
+    public SarGraphics(Position datumDownWind, Position datumMin, Position datumMax, double radiusDownWind, double radiusMin,
+            double radiusMax, Position LKP, Position current) {
         super();
-        
-//        this.polygon = polygon;
-        
+
+        // this.polygon = polygon;
+
         // Create location grahic
-        
-        SarAreaGraphic sarArea = new SarAreaGraphic(A, B, C, D);
-        
-        
+
         SarCircleGraphic sarCircleDownWind = new SarCircleGraphic(datumDownWind, radiusDownWind);
         SarCircleGraphic sarCircleMin = new SarCircleGraphic(datumMin, radiusMin);
         SarCircleGraphic sarCircleMax = new SarCircleGraphic(datumMax, radiusMax);
 
-        
         SarLinesGraphics sarLinesDownWind = new SarLinesGraphics(LKP, current, datumDownWind, true, "Datum DW");
         SarLinesGraphics sarLinesMin = new SarLinesGraphics(LKP, current, datumMin, false, "Datum Min");
         SarLinesGraphics sarLinesMax = new SarLinesGraphics(LKP, current, datumMax, false, "Datum Max");
-        
-        add(sarArea);
-        
+
         add(sarCircleDownWind);
         add(sarCircleMin);
         add(sarCircleMax);
-        
+
         add(sarLinesDownWind);
         add(sarLinesMin);
         add(sarLinesMax);
     }
-    
-    
-    
-    
-    public SarGraphics(Position datumDownWind, Position datumMin, Position datumMax, double radiusDownWind, double radiusMin, double radiusMax, Position LKP, Position current, Position A, Position B, Position C, Position D, int dsp) {
+
+    public SarGraphics(Position A, Position B, Position C, Position D, Position center, String areaName) {
         super();
-        
-//        this.polygon = polygon;
-        
+
+        // this.polygon = polygon;
+
         // Create location grahic
-        
+
         SarAreaGraphic sarArea = new SarAreaGraphic(A, B, C, D);
-        
-        
+        add(sarArea);
+    }
+
+    public SarGraphics(Position datumDownWind, Position datumMin, Position datumMax, double radiusDownWind, double radiusMin,
+            double radiusMax, Position LKP, Position current, int dsp) {
+        super();
+
+        // this.polygon = polygon;
+
+        // Create location grahic
+
         SarCircleGraphic sarCircleDownWind = new SarCircleGraphic(datumDownWind, radiusDownWind);
         SarCircleGraphic sarCircleMin = new SarCircleGraphic(datumMin, radiusMin);
         SarCircleGraphic sarCircleMax = new SarCircleGraphic(datumMax, radiusMax);
 
-        
         SarLinesGraphics sarLinesDownWind = new SarLinesGraphics(LKP, current, datumDownWind, true, "Datum DW", dsp);
         SarLinesGraphics sarLinesMin = new SarLinesGraphics(LKP, current, datumMin, false, "Datum Min", dsp);
         SarLinesGraphics sarLinesMax = new SarLinesGraphics(LKP, current, datumMax, false, "Datum Max", dsp);
-        
-        add(sarArea);
-        
+
         add(sarCircleDownWind);
         add(sarCircleMin);
         add(sarCircleMax);
-        
+
         add(sarLinesDownWind);
         add(sarLinesMin);
         add(sarLinesMax);
     }
-    
-    public SarGraphics(Position A, Position B, Position C, Position D){
-        
+
+    public SarGraphics(Position A, Position B, Position C, Position D) {
+
         SarAreaGraphic sarArea = new SarAreaGraphic(A, B, C, D);
         add(sarArea);
     }
-    
+
 }

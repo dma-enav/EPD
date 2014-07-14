@@ -15,21 +15,32 @@
  */
 package dk.dma.epd.ship.gui.route;
 
+import static java.awt.GridBagConstraints.NORTH;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.VERTICAL;
+
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionEvent;
@@ -41,6 +52,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.route.RouteMetocDialog;
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
@@ -50,320 +62,184 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.route.RouteManager;
 
+/**
+ * Main panel of the route manager dialog
+ */
 public class RouteManagerPanel extends JPanel implements ActionListener,
-ListSelectionListener, TableModelListener, MouseListener {
+    ListSelectionListener, TableModelListener {
 
-    
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory
             .getLogger(RouteManagerPanel.class);
 
-    private JButton propertiesBtn;
-    private JButton zoomToBtn;
-    private JButton reverseCopyBtn;
-    private JButton deleteBtn;
-    private JButton exportBtn;
-    private JButton importBtn;
-    private JButton closeBtn;
-    private JButton activateBtn;
+    private JButton propertiesBtn = new JButton("Properties");
+    private JButton activateBtn = new JButton("Activate");
+    private JButton zoomToBtn = new JButton("Zoom to");
+    private JButton copyBtn = new JButton("Copy");
+    private JButton reverseCopyBtn = new JButton("Reverse copy");
+    private JButton deleteBtn = new JButton("Delete");
+    private JButton exportBtn = new JButton("Export");
+    private JButton exportAllBtn = new JButton("Export All");
+    private JButton importBtn = new JButton("Import");
+    private JButton metocBtn = new JButton("METOC");
+    private JButton closeBtn = new JButton("Close");
+    
+    private JButton[] buttons = {
+            propertiesBtn, activateBtn, zoomToBtn, copyBtn, reverseCopyBtn,
+            deleteBtn, exportBtn, exportAllBtn, importBtn, metocBtn, closeBtn };
 
-    private JScrollPane routeScrollPane;
-    private JTable routeTable;
+    private JTable routeTable = new JTable();
+    private JScrollPane routeScrollPane = new JScrollPane(routeTable);
     private RoutesTableModel routesTableModel;
-    private ListSelectionModel routeSelectionModel;
-
-    private JButton exportAllBtn;
-
-    private JButton metocBtn;
-
-    private JButton copyBtn;
     
     private RouteManager routeManager;
     private RouteManagerDialog routeManagerDialog;
     
-    public RouteManagerPanel(RouteManager routeManager, RouteManagerDialog routeManagerDialog){
-        this.routeManager = routeManager;
+    private volatile File lastPath;
+
+    /**
+     * Constructor
+     * 
+     * @param routeManagerDialog
+     */
+    public RouteManagerPanel(RouteManagerDialog routeManagerDialog){
+        this.routeManager = EPDShip.getInstance().getRouteManager();
         this.routeManagerDialog = routeManagerDialog;
         
-        propertiesBtn = new JButton("Properties");
-        propertiesBtn.addActionListener(this);
-        activateBtn = new JButton("Activate");
-        activateBtn.addActionListener(this);
-        zoomToBtn = new JButton("Zoom to");
-        zoomToBtn.addActionListener(this);
-        reverseCopyBtn = new JButton("Reverse copy");
-        reverseCopyBtn.addActionListener(this);
-        deleteBtn = new JButton("Delete");
-        deleteBtn.addActionListener(this);
-        exportBtn = new JButton("Export");
-        exportBtn.addActionListener(this);
-        exportAllBtn = new JButton("Export All");
-        exportAllBtn.addActionListener(this);
-        importBtn = new JButton("Import");
-        importBtn.addActionListener(this);
-        closeBtn = new JButton("Close");
-        closeBtn.addActionListener(this);
-        metocBtn = new JButton("METOC");
-        metocBtn.addActionListener(this);
-        copyBtn = new JButton("Copy");
-        copyBtn.addActionListener(this);
-
-        routeTable = new JTable();
         routesTableModel = new RoutesTableModel(routeManager);
         routesTableModel.addTableModelListener(this);
-        routeTable.setShowHorizontalLines(false);
-        routeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        routeScrollPane = new JScrollPane(routeTable);
-        routeScrollPane
-                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        routeScrollPane
-                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        routeTable.setFillsViewportHeight(true);
-        // TODO: Comment this line when using WindowBuilder
         routeTable.setModel(routesTableModel);
-        for (int i = 0; i < 3; i++) {
-            if (i == 2) {
-                routeTable.getColumnModel().getColumn(i).setPreferredWidth(50);
-            } else {
-                routeTable.getColumnModel().getColumn(i).setPreferredWidth(175);
-            }
-        }
-        routeSelectionModel = routeTable.getSelectionModel();
-        routeSelectionModel.addListSelectionListener(this);
-        routeTable.setSelectionModel(routeSelectionModel);
-        routeTable.addMouseListener(this);
+        routeTable.getColumnModel().getColumn(0).setPreferredWidth(175);
+        routeTable.getColumnModel().getColumn(1).setPreferredWidth(175);
+        routeTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+
+        routeTable.setShowHorizontalLines(false);
+        routeTable.setFillsViewportHeight(true);
+        routeTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        routeTable.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    properties();
+                }
+            }});
         
+        routeScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        routeScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        
+        routeTable.getSelectionModel().addListSelectionListener(this);
+    
+        for (JButton btn : buttons) {
+            btn.addActionListener(this);
+        }
         
         initGUI();
-        
 
         updateTable();
         updateButtons();
-        
-        
-        
     }
     
     
-    
-    private void initGUI(){
-        GroupLayout gl_routePanel = new GroupLayout(this);
-        gl_routePanel
-                .setHorizontalGroup(gl_routePanel
-                        .createParallelGroup(Alignment.TRAILING)
-                        .addGroup(
-                                gl_routePanel
-                                        .createSequentialGroup()
-                                        .addContainerGap()
-                                        .addComponent(routeScrollPane,
-                                                GroupLayout.DEFAULT_SIZE, 427,
-                                                Short.MAX_VALUE)
-                                        .addPreferredGap(
-                                                ComponentPlacement.RELATED)
-                                        .addGroup(
-                                                gl_routePanel
-                                                        .createParallelGroup(
-                                                                Alignment.LEADING)
-                                                        .addGroup(
-                                                                gl_routePanel
-                                                                        .createParallelGroup(
-                                                                                Alignment.LEADING,
-                                                                                false)
-                                                                        .addComponent(
-                                                                                closeBtn,
-                                                                                Alignment.TRAILING,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                Short.MAX_VALUE)
-                                                                        .addComponent(
-                                                                                zoomToBtn,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                Short.MAX_VALUE)
-                                                                        .addComponent(
-                                                                                activateBtn,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                Short.MAX_VALUE)
-                                                                        .addComponent(
-                                                                                propertiesBtn,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                131,
-                                                                                Short.MAX_VALUE)
-                                                                        .addComponent(
-                                                                                copyBtn,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                Short.MAX_VALUE))
-                                                        .addGroup(
-                                                                gl_routePanel
-                                                                        .createParallelGroup(
-                                                                                Alignment.LEADING,
-                                                                                false)
-                                                                        .addComponent(
-                                                                                exportBtn,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                Short.MAX_VALUE)
-                                                                        .addComponent(
-                                                                                deleteBtn,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                Short.MAX_VALUE)
-                                                                        .addComponent(
-                                                                                reverseCopyBtn,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                Short.MAX_VALUE)
-                                                                        .addComponent(
-                                                                                metocBtn,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                131,
-                                                                                Short.MAX_VALUE)
-                                                                        .addComponent(
-                                                                                exportAllBtn,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                131,
-                                                                                Short.MAX_VALUE)
-                                                                        .addComponent(
-                                                                                importBtn,
-                                                                                GroupLayout.DEFAULT_SIZE,
-                                                                                131,
-                                                                                Short.MAX_VALUE)))
-                                        .addContainerGap()));
-        gl_routePanel
-                .setVerticalGroup(gl_routePanel
-                        .createParallelGroup(Alignment.LEADING)
-                        .addGroup(
-                                gl_routePanel
-                                        .createSequentialGroup()
-                                        .addContainerGap()
-                                        .addGroup(
-                                                gl_routePanel
-                                                        .createParallelGroup(
-                                                                Alignment.LEADING)
-                                                        .addGroup(
-                                                                gl_routePanel
-                                                                        .createSequentialGroup()
-                                                                        .addComponent(
-                                                                                propertiesBtn)
-                                                                        .addPreferredGap(
-                                                                                ComponentPlacement.RELATED)
-                                                                        .addComponent(
-                                                                                activateBtn)
-                                                                        .addPreferredGap(
-                                                                                ComponentPlacement.RELATED)
-                                                                        .addComponent(
-                                                                                zoomToBtn)
-                                                                        .addPreferredGap(
-                                                                                ComponentPlacement.RELATED)
-                                                                        .addComponent(
-                                                                                copyBtn)
-                                                                        .addPreferredGap(
-                                                                                ComponentPlacement.RELATED)
-                                                                        .addComponent(
-                                                                                reverseCopyBtn)
-                                                                        .addPreferredGap(
-                                                                                ComponentPlacement.RELATED)
-                                                                        .addComponent(
-                                                                                deleteBtn)
-                                                                        .addPreferredGap(
-                                                                                ComponentPlacement.RELATED)
-                                                                        .addComponent(
-                                                                                exportBtn)
-                                                                        .addGap(7)
-                                                                        .addComponent(
-                                                                                metocBtn)
-                                                                        .addPreferredGap(
-                                                                                ComponentPlacement.RELATED)
-                                                                        .addComponent(
-                                                                                exportAllBtn)
-                                                                        .addPreferredGap(
-                                                                                ComponentPlacement.RELATED)
-                                                                        .addComponent(
-                                                                                importBtn))
-                                                        .addComponent(
-                                                                routeScrollPane,
-                                                                Alignment.TRAILING,
-                                                                GroupLayout.DEFAULT_SIZE,
-                                                                289,
-                                                                Short.MAX_VALUE))
-                                        .addGap(28).addComponent(closeBtn)
-                                        .addContainerGap()));
+    /**
+     * Builds the GUI
+     */
+    private void initGUI() {
+        
+        setLayout(new GridBagLayout());
 
-        this.setLayout(gl_routePanel);
-
+        JPanel btnPanel = new JPanel(new GridBagLayout());
         
+        add(routeScrollPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, NORTH, BOTH, new Insets(5, 5, 5, 5), 0, 0));        
+        add(btnPanel, new GridBagConstraints(1, 0, 1, 1, 0.0, 1.0, NORTH, VERTICAL, new Insets(5, 5, 5, 5), 0, 0));
         
+        // All all buttons bar the close button
+        for (int x = 0; x < buttons.length - 1; x++) {
+            btnPanel.add(buttons[x], new GridBagConstraints(0, x, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(0, 0, 3, 0), 0, 0));                    
+        }
         
+        // Add a filler
+        btnPanel.add(new JLabel(" "), new GridBagConstraints(0, buttons.length - 1, 1, 1, 0.0, 1.0, NORTH, VERTICAL, new Insets(0, 0, 0, 0), 0, 0));                    
         
+        // Add the close button
+        closeBtn.setMinimumSize(new Dimension(100, 20));
+        btnPanel.add(closeBtn, new GridBagConstraints(0, buttons.length, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));                    
         
         int selectRow = routeManager.getActiveRouteIndex();
         if (selectRow < 0 && routeManager.getRouteCount() > 0) {
             selectRow = 0;
         }
         if (selectRow >= 0) {
-            routeSelectionModel.setSelectionInterval(selectRow, selectRow);
+            routeTable.getSelectionModel().setSelectionInterval(selectRow, selectRow);
         }
     }
     
+    /**
+     * returns a reference to the close button
+     * @return the close button
+     */
+    public JButton getCloseButton() {
+        return closeBtn;
+    }
     
+    /**
+     * Returns the list of selected routes
+     * @return the list of selected routes
+     */
+    public List<Route> getSelectedRoutes() {
+        List<Route> result = new ArrayList<>();
+        for (int row : routeTable.getSelectedRows()) {
+            if (row >= 0 && row < routeManager.getRouteCount()) {
+                result.add(routeManager.getRoute(row));
+            }
+        }
+        return result;
+    }
     
-    
-    
-    
-    
-    
-    
-    
-
+    /**
+     * Updates the buttons states depending on the current selection
+     */
     private void updateButtons() {
         boolean routeSelected = routeTable.getSelectedRow() >= 0;
-        boolean activeSelected = routeManager.isActiveRoute(routeTable
-                .getSelectedRow());
-
-        // LOG.info("---------------------------------------");
-        // LOG.info("routeSelected: " + routeSelected);
-        // LOG.info("routeTable.getSelectedRow(): " +
-        // routeTable.getSelectedRow());
-        // LOG.info("activeSelected: " + activeSelected);
-        // LOG.info("routeManager.isRouteActive(): " +
-        // routeManager.isRouteActive());
-        // LOG.info("activeRoute: " + routeManager.getActiveRouteIndex());
-        // LOG.info("\n\n");
-
-        activateBtn.setEnabled(routeSelected);
-        activateBtn.setText(activeSelected ? "Deactivate" : "Activate");
-
-        if (routeSelected) {
-            if (routeManager.isRouteActive()) {
-                activateBtn.setEnabled(activeSelected);
-            } else {
-                activateBtn.setEnabled(true);
+        boolean singleSelected = routeTable.getSelectedRows().length == 1;
+        boolean activeSelected = false;
+        for (int row : routeTable.getSelectedRows()) {
+            if (routeManager.isActiveRoute(row)) {
+                activeSelected = true;
             }
         }
 
-        propertiesBtn.setEnabled(routeSelected);
-        zoomToBtn.setEnabled(routeSelected);
-        reverseCopyBtn.setEnabled(routeSelected);
-        copyBtn.setEnabled(routeSelected);
+        activateBtn.setText(activeSelected ? "Deactivate" : "Activate");
+        if (routeManager.isRouteActive()) {
+            activateBtn.setEnabled(activeSelected && singleSelected);
+        } else {
+            activateBtn.setEnabled(singleSelected);
+        }
+
+        propertiesBtn.setEnabled(singleSelected);
+        zoomToBtn.setEnabled(singleSelected);
+        reverseCopyBtn.setEnabled(singleSelected);
+        copyBtn.setEnabled(singleSelected);
         deleteBtn.setEnabled(routeSelected && !activeSelected);
-        metocBtn.setEnabled(routeSelected);
-        exportBtn.setEnabled(routeSelected);
+        metocBtn.setEnabled(singleSelected);
+        exportBtn.setEnabled(singleSelected);
     }
 
+    /**
+     * Called when the underlying set of routes has been changed
+     */
     public void updateTable() {
-        int selectedRow = routeTable.getSelectedRow();
+        // Record the old selection
+        Set<Route> selection = new HashSet<>(getSelectedRoutes());
+        
         // Update routeTable
         routesTableModel.fireTableDataChanged();
-        // routeTable.doLayout();
-        updateButtons();
-        if (selectedRow >= 0 && selectedRow < routeTable.getRowCount()) {
-            routeSelectionModel.setSelectionInterval(selectedRow, selectedRow);
+
+        // Restore old selection
+        for (int row = 0; row < routeTable.getRowCount(); row++) {
+            Route route = routeManager.getRoute(row);
+            if (selection.contains(route)) {
+                routeTable.addRowSelectionInterval(row, row);
+            }
         }
     }
 
@@ -385,13 +261,10 @@ ListSelectionListener, TableModelListener, MouseListener {
     }
 
     private void zoomTo() {
-
-        // TODO ChartPanel should implement a method that given a route does the
-        // following
-        // TODO disable auto follow
-        // TODO find minx, miny and maxx, maxy
-        // TODO center and scale map to include whole route
-        //
+        if (getSelectedRoutes().size() == 1 && EPD.getInstance().getMainFrame().getActiveChartPanel() != null) {
+            EPD.getInstance().getMainFrame().getActiveChartPanel()
+                .zoomToWaypoints(getSelectedRoutes().get(0).getWaypoints());
+        }
     }
 
     private void copy() {
@@ -414,7 +287,6 @@ ListSelectionListener, TableModelListener, MouseListener {
             RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(
                     routeManagerDialog, 
                     EPDShip.getInstance().getMainFrame().getChartPanel(),
-                    routeManager, 
                     i);
             routePropertiesDialog.setVisible(true);
         }
@@ -432,9 +304,15 @@ ListSelectionListener, TableModelListener, MouseListener {
     }
 
     private void delete() {
-        if (routeTable.getSelectedRow() >= 0) {
-            routeManager.removeRoute(routeTable.getSelectedRow());
-            updateTable();
+        int row = routeTable.getSelectedRow();
+        for (Route route : getSelectedRoutes()) {
+            routeManager.removeRoute(route);
+        }
+        row = Math.min(row, routeTable.getRowCount() - 1);
+        if (row == -1) {
+            routeTable.clearSelection();
+        } else {
+            routeTable.getSelectionModel().setSelectionInterval(row, row);
         }
     }
 
@@ -448,9 +326,10 @@ ListSelectionListener, TableModelListener, MouseListener {
         }
 
         Route route = routeManager.getRoute(routeId);
-
-        JFileChooser fc = new JFileChooser(System.getProperty("user.dir")
-                + "/routes/");
+        
+        String path = lastPath != null ? lastPath.getAbsolutePath() : EPDShip.getInstance().getHomePath().resolve("routes")
+                .toString();        
+        JFileChooser fc = new JFileChooser(path);
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setMultiSelectionEnabled(false);
 
@@ -487,8 +366,9 @@ ListSelectionListener, TableModelListener, MouseListener {
 
     private void importFromFile() {
         // Get filename from dialog
-        JFileChooser fc = new JFileChooser(EPDShip.getInstance().getHomePath()
-                .resolve("routes").toString());
+        String path = lastPath != null ? lastPath.getAbsolutePath() : EPDShip.getInstance().getHomePath().resolve("routes")
+                .toString();        
+        JFileChooser fc = new JFileChooser(path);
 
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setMultiSelectionEnabled(true);
@@ -498,6 +378,8 @@ ListSelectionListener, TableModelListener, MouseListener {
                 "ECDIS900 V3 route", "rou", "ROU"));
         fc.addChoosableFileFilter(new FileNameExtensionFilter(
                 "Navisailor 3000 route", "rt3", "RT3"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter(
+                "Google KML", "kml", "KML"));
         fc.setAcceptAllFileFilterUsed(true);
 
         if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
@@ -513,10 +395,11 @@ ListSelectionListener, TableModelListener, MouseListener {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            lastPath = file;
         }
 
         updateTable();
-        routeSelectionModel.setSelectionInterval(routeTable.getRowCount() - 1,
+        routeTable.getSelectionModel().setSelectionInterval(routeTable.getRowCount() - 1,
                 routeTable.getRowCount() - 1);
     }
 
@@ -526,6 +409,9 @@ ListSelectionListener, TableModelListener, MouseListener {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == closeBtn) {
@@ -553,53 +439,22 @@ ListSelectionListener, TableModelListener, MouseListener {
         }
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2) {
-            properties();
-        }
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        // ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-
-        // int firstIndex = e.getFirstIndex();
-        // int lastIndex = e.getLastIndex();
-        // boolean isAdjusting = e.getValueIsAdjusting();
-        // LOG.info("Event for indexes " + firstIndex + " - " + lastIndex +
-        // "; isAdjusting is " + isAdjusting + "; selected indexes:");
-
         updateButtons();
-
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void tableChanged(TableModelEvent e) {
         if (e.getColumn() == 2) {
             // Visibility has changed
-            routeManager
-                    .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+            routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
         }
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
     }
 }

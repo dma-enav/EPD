@@ -181,8 +181,9 @@ public abstract class ObservedSettings<OBSERVER> {
      */
     public static <T extends ObservedSettings<?>> T loadFromFile(
             Class<T> typeToLoad, File file) {
-        if (!file.exists())
+        if (!file.exists()) {
             return null;
+        }
         try {
             InputStream is = new FileInputStream(file);
             Yaml yaml = new Yaml();
@@ -201,4 +202,9 @@ public abstract class ObservedSettings<OBSERVER> {
     protected void onSaveFailure(IOException error) {
         // TODO add logging or similar.
     }
+    
+//    private <T> void invokeIfApplicable(Class<T> type, Object observer, Method m) {
+//        // 1 typecheck type + observer
+//        // 2 invoke method if typecheck succeeds
+//    }
 }

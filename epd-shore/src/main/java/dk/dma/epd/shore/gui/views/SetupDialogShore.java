@@ -20,6 +20,7 @@ import javax.swing.JTabbedPane;
 
 
 
+
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.settingtabs.ShoreAisSettingsPanel;

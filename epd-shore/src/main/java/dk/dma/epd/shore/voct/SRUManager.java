@@ -17,27 +17,34 @@ package dk.dma.epd.shore.voct;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.CLOUD_STATUS;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
-import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
+import dk.dma.epd.common.prototype.model.route.IntendedRoute;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
+import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
+import dk.dma.epd.shore.service.IntendedRouteHandler;
+import dk.dma.epd.shore.service.VoctHandler;
 import dk.dma.epd.shore.voct.SRU.sru_status;
 
-public class SRUManager extends MapHandlerChild implements Runnable {
+public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRouteListener {
 
     private List<SRU> srus = new LinkedList<SRU>();
 
     private VOCTManager voctManager;
-//    private EnavServiceHandler enavServiceHandler;
+    private VoctHandler voctHandler;
+
+    // private EnavServiceHandler enavServiceHandler;
 
     private LinkedHashMap<Long, SRUCommunicationObject> sRUCommunication = new LinkedHashMap<Long, SRUCommunicationObject>();
     private VoctLayerTracking voctLayerTracking;
@@ -73,53 +80,52 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     public void run() {
 
         // Maintanaince routines
-        while (true) {
-            EPDShore.sleep(1000);
-            updateSRUsStatus();
-            // maintainAvailableSRUs();
-            // Maintain list of available SRUs
-        }
+
+        // while (true) {
+        // EPDShore.sleep(1000);
+        // updateSRUsStatus();
+        // maintainAvailableSRUs();
+        // Maintain list of available SRUs
+        // }
 
     }
 
-    private void updateSRUsStatus() {
+    public void updateSRUsStatus() {
 
-//        for (int i = 0; i < enavServiceHandler.getVoctMessageList().size(); i++) {
-//
-//            long mmsi = Long.parseLong(enavServiceHandler.getVoctMessageList()
-//                    .get(i).getId().toString().split("//")[1]);
-//
-//            // System.out.println("Is mmsi " + mmsi + " a SRU?");
-//            for (int j = 0; j < srus.size(); j++) {
-//                // System.out.println("Comparing " + srus.get(j).getMmsi() +
-//                // " with " + mmsi);
-//                if (srus.get(j).getMmsi() == mmsi) {
-//                    // System.out.println("Yes " + srus.get(j).getMmsi() +
-//                    // " found");
-//
-//                    // System.out.println("SRU Name: " + srus.get(j).getName()
-//                    // + " : " + srus.get(j).getStatus());
-//
-//                    // Change the status
-//                    if (srus.get(j).getStatus() != sru_status.ACCEPTED
-//                            && srus.get(j).getStatus() != sru_status.AVAILABLE
-//                            && srus.get(j).getStatus() != sru_status.INVITED) {
-//                        System.out.println("Updating status WHY");
-//                        srus.get(j).setStatus(sru_status.AVAILABLE);
-//                    }
-//
-//                    // && (srus.get(i).getStatus() == sru_status.ACCEPTED
-//                    // || srus.get(i).getStatus() == sru_status.AVAILABLE ||
-//                    // srus
-//                    // .get(i).getStatus() == sru_status.INVITED)) {
-//
-//                    // System.out.println("Adding SRU to list");
-//                    // availableSRUs.add(srus.get(i));
-//
-//                }
-//            }
-//
-//        }
+        for (int i = 0; i < voctHandler.getVoctMessageList().size(); i++) {
+
+            long mmsi = Long.parseLong(voctHandler.getVoctMessageList().get(i).getId().toString().split("//")[1]);
+
+            // System.out.println("Is mmsi " + mmsi + " a SRU?");
+            for (int j = 0; j < srus.size(); j++) {
+                // System.out.println("Comparing " + srus.get(j).getMmsi() +
+                // " with " + mmsi);
+                if (srus.get(j).getMmsi() == mmsi) {
+                    // System.out.println("Yes " + srus.get(j).getMmsi() +
+                    // " found");
+
+                    // System.out.println("SRU Name: " + srus.get(j).getName()
+                    // + " : " + srus.get(j).getStatus());
+
+                    // Change the status
+                    if (srus.get(j).getStatus() != sru_status.ACCEPTED && srus.get(j).getStatus() != sru_status.AVAILABLE
+                            && srus.get(j).getStatus() != sru_status.INVITED) {
+                        // System.out.println("Updating status WHY");
+                        srus.get(j).setStatus(sru_status.AVAILABLE);
+                    }
+
+                    // && (srus.get(i).getStatus() == sru_status.ACCEPTED
+                    // || srus.get(i).getStatus() == sru_status.AVAILABLE ||
+                    // srus
+                    // .get(i).getStatus() == sru_status.INVITED)) {
+
+                    // System.out.println("Adding SRU to list");
+                    // availableSRUs.add(srus.get(i));
+
+                }
+            }
+
+        }
 
     }
 
@@ -129,6 +135,29 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         srus.get(i).setStatus(status);
         updateSRUsStatus();
         notifyListeners(SRUUpdateEvent.SRU_STATUS_CHANGED, i);
+    }
+
+    public void sruSRUStatus(long mmsi, VoctMsgStatus status) {
+
+        for (int i = 0; i < srus.size(); i++) {
+            if (srus.get(i).getMmsi() == mmsi) {
+                srus.get(i).setVoctMsgStatus(status);
+                updateSRUsStatus();
+                notifyListeners(SRUUpdateEvent.SRU_STATUS_CHANGED, i);
+            }
+        }
+    }
+
+    public void sruSRUStatus(long mmsi, CloudMessageStatus status) {
+
+        for (int i = 0; i < srus.size(); i++) {
+            if (srus.get(i).getMmsi() == mmsi) {
+                srus.get(i).setCloudStatus(status);
+                srus.get(i).setVoctMsgStatus(VoctMsgStatus.UNKNOWN);
+                updateSRUsStatus();
+                notifyListeners(SRUUpdateEvent.SRU_STATUS_CHANGED, i);
+            }
+        }
     }
 
     // private synchronized void maintainAvailableSRUs() {
@@ -148,8 +177,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         return sRUCommunication.size();
     }
 
-    
-    public void handleSRUReply(long mmsi, CLOUD_STATUS msgStatus) {
+    public void handleSRUReply(long mmsi, VoctMsgStatus msgStatus) {
 
         System.out.println("Handling SRU Reply!");
 
@@ -162,7 +190,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                 // Select the SRU we got the message from
                 sru = srus.get(i);
                 sruID = i;
-                System.out.println("SRU SElected");
+                System.out.println("SRU Selected");
                 break;
             }
         }
@@ -171,19 +199,18 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         // Make sure we got the message from a SRU on our list.
         if (sru != null) {
-            CLOUD_STATUS status = msgStatus;
+            VoctMsgStatus status = msgStatus;
 
             switch (status) {
             // If its been accepted we create an entry in the hashmap, should we
             // overwrite the old one?
             // Remove old one, put new one
-            case RECIEVED_ACCEPTED:
+            case ACCEPTED:
                 sru.setStatus(sru_status.ACCEPTED);
                 if (sRUCommunication.containsKey(mmsi)) {
                     sRUCommunication.remove(mmsi);
                 }
-                sRUCommunication.put(mmsi,
-                        new SRUCommunicationObject(sru));
+                sRUCommunication.put(mmsi, new SRUCommunicationObject(sru));
 
                 // Notify voctmanager to paint efffort allocation area for SRU i
                 voctLayerTracking.drawEffectiveArea(sru.getMmsi(), sruID);
@@ -193,12 +220,14 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                 // for (int i = 0; i < srus.size(); i++) {
                 // System.out.println(srus.get(i).getStatus());
                 // }
-                
+
+                // voctManager.
+
                 notifyListeners(SRUUpdateEvent.SRU_ACCEPT, mmsi);
                 break;
 
             // If theres an old entry, remove it
-            case RECIEVED_REJECTED:
+            case REJECTED:
                 sru.setStatus(sru_status.DECLINED);
                 if (sRUCommunication.containsKey(mmsi)) {
                     sRUCommunication.remove(mmsi);
@@ -208,8 +237,18 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                 voctLayerTracking.removeEffectiveArea(sru.getMmsi(), sruID);
 
                 notifyListeners(SRUUpdateEvent.SRU_REJECT, mmsi);
-                
+
                 break;
+            case WITHDRAWN:
+                sru.setStatus(sru_status.DECLINED);
+                if (sRUCommunication.containsKey(mmsi)) {
+                    sRUCommunication.remove(mmsi);
+                }
+
+                // Remove if we previously had one
+                voctLayerTracking.removeEffectiveArea(sru.getMmsi(), sruID);
+
+                notifyListeners(SRUUpdateEvent.SRU_REJECT, mmsi);
             default:
                 sru.setStatus(sru_status.UNKNOWN);
 
@@ -218,16 +257,34 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         }
 
-        
-
-//        if (!EPDShore.getInstance().getEnavServiceHandler().isListeningToVoct()) {
-//            System.out.println("Starting voct listening");
-//            EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
-//        }
+        // if (!EPDShore.getInstance().getEnavServiceHandler().isListeningToVoct()) {
+        // System.out.println("Starting voct listening");
+        // EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
+        // }
 
     }
-    
-    public void handleSRUReply(VOCTCommunicationReplyRapidResponse reply) {
+
+    public List<Long> cancelAllSRU() {
+        Set<Long> availableSRUMMSI = sRUCommunication.keySet();
+
+        List<Long> srusList = new ArrayList<Long>();
+        for (Iterator<Long> it = sRUCommunication.keySet().iterator(); it.hasNext();) {
+            srusList.add(it.next());
+        }
+
+        for (int i = 0; i < srus.size(); i++) {
+
+            if (availableSRUMMSI.contains(srus.get(i).getMmsi())) {
+                srus.get(i).setStatus(sru_status.UNKNOWN);
+            }
+
+        }
+        sRUCommunication.clear();
+        return srusList;
+
+    }
+
+    public void handleSRUReply(VOCTCommunicationReply reply) {
 
         System.out.println("Handling SRU Reply!");
 
@@ -249,19 +306,19 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         // Make sure we got the message from a SRU on our list.
         if (sru != null) {
-            CLOUD_STATUS status = reply.getStatus();
+            // SRU_STATUS status = reply.getStatus();
+            VoctMsgStatus status = VoctMsgStatus.ACCEPTED;
 
             switch (status) {
             // If its been accepted we create an entry in the hashmap, should we
             // overwrite the old one?
             // Remove old one, put new one
-            case RECIEVED_ACCEPTED:
+            case ACCEPTED:
                 sru.setStatus(sru_status.ACCEPTED);
                 if (sRUCommunication.containsKey(reply.getMmsi())) {
                     sRUCommunication.remove(reply.getMmsi());
                 }
-                sRUCommunication.put(reply.getMmsi(),
-                        new SRUCommunicationObject(sru));
+                sRUCommunication.put(reply.getMmsi(), new SRUCommunicationObject(sru));
 
                 // Notify voctmanager to paint efffort allocation area for SRU i
                 voctLayerTracking.drawEffectiveArea(sru.getMmsi(), sruID);
@@ -271,12 +328,12 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                 // for (int i = 0; i < srus.size(); i++) {
                 // System.out.println(srus.get(i).getStatus());
                 // }
-                
+
                 notifyListeners(SRUUpdateEvent.SRU_ACCEPT, reply.getMmsi());
                 break;
 
             // If theres an old entry, remove it
-            case RECIEVED_REJECTED:
+            case REJECTED:
                 sru.setStatus(sru_status.DECLINED);
                 if (sRUCommunication.containsKey(reply.getMmsi())) {
                     sRUCommunication.remove(reply.getMmsi());
@@ -286,7 +343,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                 voctLayerTracking.removeEffectiveArea(sru.getMmsi(), sruID);
 
                 notifyListeners(SRUUpdateEvent.SRU_REJECT, reply.getMmsi());
-                
+
                 break;
             default:
                 sru.setStatus(sru_status.UNKNOWN);
@@ -296,12 +353,10 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         }
 
-        
-
-//        if (!EPDShore.getInstance().getEnavServiceHandler().isListeningToVoct()) {
-//            System.out.println("Starting voct listening");
-//            EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
-//        }
+        // if (!EPDShore.getInstance().getEnavServiceHandler().isListeningToVoct()) {
+        // System.out.println("Starting voct listening");
+        // EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
+        // }
 
     }
 
@@ -311,9 +366,12 @@ public class SRUManager extends MapHandlerChild implements Runnable {
             voctManager = (VOCTManager) obj;
         }
 
-//        if (obj instanceof EnavServiceHandler) {
-//            enavServiceHandler = (EnavServiceHandler) obj;
-//        }
+        if (obj instanceof VoctHandler) {
+            voctHandler = (VoctHandler) obj;
+        }
+        if (obj instanceof IntendedRouteHandler) {
+            ((IntendedRouteHandler) obj).addListener(this);
+        }
     }
 
     public void toggleSRUVisiblity(int i, boolean visible) {
@@ -365,7 +423,6 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     }
 
     public ArrayList<SRUCommunicationObject> getSRUCommunicationList() {
-        // sRUCommunication.
         return new ArrayList<SRUCommunicationObject>(sRUCommunication.values());
     }
 
@@ -395,26 +452,30 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         return manager;
     }
 
-    public void handleSRUBroadcast(long mmsi, VOCTSARBroadCast r) {
-        
-        System.out.println("Recieved Broadcast");
-        
-        //Only react to mmsi that we invited
-        if (sRUCommunication.containsKey(mmsi)) {
-            
-            sRUCommunication.get(mmsi).addBroadcastMessage(r);
-            
-            notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
-        }
-    }
+    // public void handleSRUBroadcast(long mmsi, VOCTSARBroadCast r) {
+    //
+    // System.out.println("Recieved Broadcast");
+    //
+    // // Only react to mmsi that we invited
+    // if (sRUCommunication.containsKey(mmsi)) {
+    //
+    // sRUCommunication.get(mmsi).addBroadcastMessage(r);
+    //
+    // notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
+    // }
+    // }
 
-    public void forceTrackingLayerRepaint(){
+    public void forceTrackingLayerRepaint() {
         voctLayerTracking.doPrepare();
     }
 
-    public void handleSRUReply(VOCTCommunicationReplyDatumPoint l) {
-        // TODO Auto-generated method stub
-        
+    @Override
+    public void intendedRouteEvent(IntendedRoute intendedRoute) {
+        long mmsi = intendedRoute.getMmsi();
+
+        if (sRUCommunication.containsKey(mmsi)) {
+            sRUCommunication.get(mmsi).setLastMessageRecieved(intendedRoute.getReceived());
+        }
+        notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
     }
-    
 }

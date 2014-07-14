@@ -20,7 +20,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 import java.beans.beancontext.BeanContextServicesSupport;
 import java.util.ArrayList;
@@ -32,16 +31,16 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
+import com.bbn.openmap.proj.coords.LatLonPoint;
+
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
-import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
-import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.settings.Workspace;
 import dk.dma.epd.shore.settings.gui.GUISettings;
 import dk.dma.epd.shore.util.ThreadedMapCreator;
@@ -73,13 +72,14 @@ public class MainFrame extends MainFrameCommon {
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog(this);
     private SRUManagerDialog sruManagerDialog = new SRUManagerDialog(this);
-    private SendStrategicRouteDialog sendVoyageDialog = new SendStrategicRouteDialog();
 
     private StatusArea statusArea = new StatusArea(this);
     private JMapFrame activeMapWindow;
     private long selectedMMSI = -1;
 
     private boolean sarCreated;
+
+    private BottomPanelStatusDialog bottomStatusDialog;
 
     /**
      * Constructor
@@ -135,19 +135,16 @@ public class MainFrame extends MainFrameCommon {
         desktop.getManager().setStatusArea(statusArea);
         desktop.getManager().setToolbar(toolbar);
         desktop.getManager().setRouteManager(routeManagerDialog);
-        desktop.getManager().setSendVoyageDialog(sendVoyageDialog);
         desktop.getManager().setSRUManagerDialog(sruManagerDialog);
 
         desktop.add(statusArea, true);
         desktop.add(toolbar, true);
-        desktop.add(sendVoyageDialog, true);
 
         beanHandler.add(bottomPanel);
         beanHandler.add(sendRouteDialog);
-        beanHandler.add(sendVoyageDialog);
 
-        chatServiceDialog = new ChatServiceDialog(this);
-        
+        bottomStatusDialog = new BottomPanelStatusDialog();
+
         // Add self to bean handler
         beanHandler.add(this);
 
@@ -171,22 +168,24 @@ public class MainFrame extends MainFrameCommon {
         // Do nothing. EPDShore uses MapFrames for the various maps
     }
 
+    public BottomPanelStatusDialog getBottomPanelStatusDialog() {
+        return this.bottomStatusDialog;
+    }
+
     /**
      * Returns the chart panel of the active map window
+     * 
      * @return the chart panel of the active map window
      */
     public ChartPanel getActiveChartPanel() {
         if (getActiveMapWindow() != null) {
-            return getActiveMapWindow()
-                .getChartPanel();
+            return getActiveMapWindow().getChartPanel();
         } else if (getMapWindows().size() > 0) {
-            return getMapWindows()
-                .get(0)
-                .getChartPanel();
+            return getMapWindows().get(0).getChartPanel();
         }
         return null;
     }
-    
+
     public synchronized void increaseWindowCount() {
         windowCount++;
     }
@@ -221,7 +220,7 @@ public class MainFrame extends MainFrameCommon {
     /**
      * Add a new mapWindow with specific parameters
      */
-    public void addMapWindow(boolean workspace, boolean locked, boolean alwaysInFront, Point2D center, float scale, String title,
+    public void addMapWindow(boolean workspace, boolean locked, boolean alwaysInFront, LatLonPoint center, float scale, String title,
             Dimension size, Point location, Boolean maximized) {
 
         ThreadedMapCreator windowCreator = new ThreadedMapCreator(this, workspace, locked, alwaysInFront, center, scale, title,
@@ -384,7 +383,9 @@ public class MainFrame extends MainFrameCommon {
     public synchronized void setSelectedMMSI(long selectedMMSI) {
         this.selectedMMSI = selectedMMSI;
         for (int i = 0; i < mapWindows.size(); i++) {
-            mapWindows.get(i).getChartPanel().getAisLayer().setSelectedTarget(selectedMMSI, true);
+            if (mapWindows.get(i).getChartPanel().getAisLayer() != null) {
+                mapWindows.get(i).getChartPanel().getAisLayer().setSelectedTarget(selectedMMSI, true);
+            }
         }
     }
 
@@ -405,35 +406,33 @@ public class MainFrame extends MainFrameCommon {
     @Override
     public Action getAboutAction() {
         Action aboutEpdShore = new AbstractAction("About EPD-shore", new ImageIcon(EPD.getInstance().getAppIcon(16))) {
-            
+
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 final ImageIcon icon = new ImageIcon(EPD.getInstance().getAppIcon(45));
-                
+
                 final StringBuilder aboutText = new StringBuilder();
-                aboutText.append("The E-navigation Prototype Display Shore (EPD-shore) is developed by the Danish Maritime Authority (www.dma.dk).\n");
-                aboutText.append("The user manual is available from service.e-navigation.net\n\n");
+                aboutText
+                        .append("The E-navigation Prototype Display Shore (EPD-shore) is developed by the Danish Maritime Authority (www.dma.dk).\n");
+                aboutText.append("The user manual is available from e-navigation.net\n\n");
                 aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
                 aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
                 aboutText.append("Build date: " + VersionInfo.getBuildDate() + "\n");
                 aboutText.append("Home path: " + EPD.getInstance().getHomePath());
-                
-                JOptionPane
-                .showMessageDialog(
-                        MainFrame.this,
-                        aboutText.toString(),
-                        "About the EPD-shore", JOptionPane.OK_OPTION, icon);
+
+                JOptionPane.showMessageDialog(MainFrame.this, aboutText.toString(), "About the EPD-shore", JOptionPane.OK_OPTION,
+                        icon);
             }
         };
         return aboutEpdShore;
     }
 
     /*******************************/
-    /** Getters and setters       **/
+    /** Getters and setters **/
     /*******************************/
-    
+
     public int getWindowCount() {
         return windowCount;
     }
@@ -485,7 +484,7 @@ public class MainFrame extends MainFrameCommon {
     public JMenuWorkspaceBar getJMenuBar() {
         return topMenu;
     }
-    
+
     public boolean isMsiLayerEnabled() {
         return msiLayerEnabled;
     }
@@ -498,15 +497,27 @@ public class MainFrame extends MainFrameCommon {
         return sendRouteDialog;
     }
 
-    public SendStrategicRouteDialog getSendVoyageDialog() {
-        return sendVoyageDialog;
-    }
-
     public JMenuWorkspaceBar getTopMenu() {
         return topMenu;
     }
 
     public SRUManagerDialog getSruManagerDialog() {
         return sruManagerDialog;
+    }
+
+    public void removeSARWindows() {
+
+        for (int i = 0; i < this.getMapWindows().size(); i++) {
+            if (this.getMapWindows().get(i).getType() == MapFrameType.SAR_Planning) {
+                this.getMapWindows().remove(i);
+            }
+        }
+        
+        
+        for (int i = 0; i < this.getMapWindows().size(); i++) {
+            if (this.getMapWindows().get(i).getType() == MapFrameType.SAR_Tracking) {
+                this.getMapWindows().remove(i);
+            }
+        }
     }
 }

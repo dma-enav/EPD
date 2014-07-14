@@ -15,19 +15,29 @@
  */
 package dk.dma.epd.shore.layers.voyage;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.EAST;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.NORTH;
+import static java.awt.GridBagConstraints.WEST;
 
-import javax.swing.BorderFactory;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.border.EtchedBorder;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.border.TitledBorder;
 
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
@@ -36,41 +46,37 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
-import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
-import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.voyage.Voyage;
 
-public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
+/**
+ * This panel contains information about the ship and voyage plan. It also contains the Send Voyage functionality.
+ */
+public class VoyagePlanInfoPanel extends JPanel implements ActionListener {
 
-    
     private static final long serialVersionUID = 1L;
-    private JLabel moveHandler;
-    private JPanel masterPanel;
-    private JPanel notificationPanel;
-    private static int moveHandlerHeight = 18;
+
     private Voyage voyage;
     private AisHandler aisHandler;
-
-    private JLabel lblShipName;
-    private JLabel lblCallSign;
-    JLabel lblRouteName;
-    JLabel lblCogSog;
-    JLabel lblTd;
-    JLabel lblETA;
-    
-    
-
-    JLabel ZoomToShipBtn;
-    JLabel closeBtn;
-    JLabel OpenShipDetailstextBtn;
-    JLabel OpenVpDetalsBtn;
-    JLabel HideOtherVoyagesBtn;
-    
     ChartPanel chartPanel;
-    
     VoyageHandlingLayer voyageHandlingLayer;
-    
+
+    JLabel lblShipName = new JLabel(" ");
+    JLabel lblCallSign = new JLabel(" ");
+    JLabel lblRouteName = new JLabel(" ");
+    JLabel lblCog = new JLabel(" ");
+    JLabel lblSog = new JLabel(" ");
+    JLabel lblTd = new JLabel(" ");
+    JLabel lblETA = new JLabel(" ");
+    JTextArea txtMessage = new JTextArea();
+
+    JButton ZoomToShipBtn = new JButton("Zoom to ship in center");
+    JButton OpenShipDetailstextBtn = new JButton("Open ship details");
+    JButton OpenVpDetalsBtn = new JButton("Open voyage plan details");
+    JButton HideOtherVoyagesBtn = new JButton("Hide other voyages");
+    JButton chatBtn = new JButton("Chat with ship");
+    JButton sendBtn = new JButton("Send Voyage");
+
     /**
      * Create the panel.
      * 
@@ -80,170 +86,153 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
         super();
 
         this.voyageHandlingLayer = voyageHandlingLayer;
-        
-        // setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED,
-                new Color(30, 30, 30), new Color(45, 45, 45)));
-        // textLabel = new JLabel();
-        // add(textLabel);
-        // setVisible(false);
-        // textLabel.setFont(new Font("Arial", Font.PLAIN, 11));
-        // textLabel.setBackground(new Color(83, 83, 83));
-        // textLabel.setForeground(new Color(237, 237, 237));
-        setBackground(new Color(83, 83, 83));
-        setLayout(null);
 
-        // Create the top movehandler (for dragging)
-        moveHandler = new JLabel("Voyage Plan Info", SwingConstants.CENTER);
-        moveHandler.setForeground(new Color(200, 200, 200));
-        moveHandler.setOpaque(true);
-        moveHandler.setBackground(Color.DARK_GRAY);
-        moveHandler.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0,
-                new Color(30, 30, 30)));
-        moveHandler.setFont(new Font("Arial", Font.BOLD, 9));
-        moveHandler.setPreferredSize(new Dimension(208, moveHandlerHeight));
+        setOpaque(false);
+        setLayout(new GridBagLayout());
+        Insets insets5 = new Insets(2, 5, 2, 5);
 
-        // Create the grid for the notifications
-        notificationPanel = new JPanel();
-        notificationPanel
-                .setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
-        notificationPanel.setBackground(new Color(83, 83, 83));
+        // *******************
+        // *** Ship panel
+        // *******************
+        JPanel shipPanel = new JPanel(new GridBagLayout());
+        shipPanel.setOpaque(false);
+        shipPanel.setBorder(new TitledBorder("Ship"));
+        add(shipPanel, 
+                new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(2, 5, 5, 0), 0, 0));
 
-        notificationPanel.setSize(208, 300 - moveHandlerHeight);
-        notificationPanel.setPreferredSize(new Dimension(208,
-                300 - moveHandlerHeight));
+        shipPanel.add(new JLabel("Name:"), 
+                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        shipPanel.add(lblShipName, 
+                new GridBagConstraints(1, 0, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        // Create the masterpanel for aligning
-        masterPanel = new JPanel(new BorderLayout());
-        masterPanel.setBounds(0, 0, 208, 300);
-        masterPanel.add(moveHandler, BorderLayout.NORTH);
-        masterPanel.add(notificationPanel, BorderLayout.SOUTH);
-        notificationPanel.setLayout(null);
+        shipPanel.add(new JLabel("Call sign:"), 
+                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        shipPanel.add(lblCallSign, 
+                new GridBagConstraints(1, 1, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        lblShipName = new JLabel("");
-        lblShipName.setHorizontalAlignment(SwingConstants.CENTER);
-        lblShipName.setBounds(0, 7, 204, 14);
+        shipPanel.add(new JLabel("COG:"), 
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        shipPanel.add(lblCog, 
+                new GridBagConstraints(1, 2, 1, 1, 0.5, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        shipPanel.add(new JLabel("SOG:"), 
+                new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        shipPanel.add(lblSog, 
+                new GridBagConstraints(3, 2, 1, 1, 0.5, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        GuiStyler.styleText(lblShipName);
+        // *******************
+        // *** Route panel
+        // *******************
+        JPanel routePanel = new JPanel(new GridBagLayout());
+        routePanel.setOpaque(false);
+        routePanel.setBorder(new TitledBorder("Route"));
+        add(routePanel, 
+                new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(2, 5, 5, 0), 0, 0));
 
-        notificationPanel.add(lblShipName);
+        routePanel.add(
+                new JLabel("Name:"), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routePanel.add(lblRouteName, 
+                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        lblCallSign = new JLabel("()");
-        lblCallSign.setHorizontalAlignment(SwingConstants.CENTER);
-        lblCallSign.setBounds(0, 21, 204, 14);
-        GuiStyler.styleText(lblCallSign);
-        notificationPanel.add(lblCallSign);
+        routePanel.add(
+                new JLabel("TD:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routePanel.add(lblTd, 
+                new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        lblRouteName = new JLabel("Route Name");
-        lblRouteName.setBounds(10, 32, 188, 14);
-        GuiStyler.styleText(lblRouteName);
-        notificationPanel.add(lblRouteName);
+        routePanel.add(new JLabel("ETA:"), 
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routePanel.add(lblETA, 
+                new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        lblCogSog = new JLabel("COG: xxx, SOG: xxx");
-        lblCogSog.setBounds(10, 46, 188, 14);
-        GuiStyler.styleText(lblCogSog);
-        notificationPanel.add(lblCogSog);
+        // *******************
+        // *** Action panel
+        // *******************
+        JPanel actionPanel = new JPanel(new GridBagLayout());
+        actionPanel.setOpaque(false);
+        actionPanel.setBorder(new TitledBorder("Actions"));
+        add(actionPanel, 
+                new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(2, 5, 5, 0), 0, 0));
 
-        lblTd = new JLabel("TD:  xxxxxx");
-        lblTd.setBounds(10, 60, 188, 14);
-        GuiStyler.styleText(lblTd);
-        notificationPanel.add(lblTd);
+        ZoomToShipBtn.addActionListener(this);
+        OpenShipDetailstextBtn.addActionListener(this);
+        OpenVpDetalsBtn.addActionListener(this);
+        HideOtherVoyagesBtn.addActionListener(this);
+        chatBtn.addActionListener(this);
 
-        lblETA = new JLabel("ETA");
-        lblETA.setBounds(10, 74, 184, 14);
-        GuiStyler.styleText(lblETA);
-        notificationPanel.add(lblETA);
+        ZoomToShipBtn.setFocusable(false);
+        OpenShipDetailstextBtn.setFocusable(false);
+        OpenVpDetalsBtn.setFocusable(false);
+        HideOtherVoyagesBtn.setFocusable(false);
+        chatBtn.setFocusable(false);
 
-        ZoomToShipBtn = new JLabel("Zoom to ship in center");
-        ZoomToShipBtn.setHorizontalAlignment(SwingConstants.CENTER);
-        ZoomToShipBtn.setBounds(34, 102, 140, 25);
-        ZoomToShipBtn.addMouseListener(this);
-        GuiStyler.styleButton(ZoomToShipBtn);
-        notificationPanel.add(ZoomToShipBtn);
+        actionPanel.add(ZoomToShipBtn, 
+                new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        actionPanel.add(OpenShipDetailstextBtn, 
+                new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        actionPanel.add(OpenVpDetalsBtn, 
+                new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        actionPanel.add(HideOtherVoyagesBtn, 
+                new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        actionPanel.add(chatBtn, 
+                new GridBagConstraints(0, 4, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
-        OpenShipDetailstextBtn = new JLabel("Open ship details");
-        OpenShipDetailstextBtn.setHorizontalAlignment(SwingConstants.CENTER);
-        OpenShipDetailstextBtn.setBounds(34, 134, 140, 25);
-        GuiStyler.styleButton(OpenShipDetailstextBtn);
-        OpenShipDetailstextBtn.addMouseListener(this);
+        // *******************
+        // *** Send voyage Panel
+        // *******************
+        JPanel finishNegotitationPanel = new JPanel(new GridBagLayout());
+        finishNegotitationPanel.setOpaque(false);
+        finishNegotitationPanel.setBorder(new TitledBorder("Finish Negotitation Handling"));
 
-        notificationPanel.add(OpenShipDetailstextBtn);
+        add(finishNegotitationPanel, 
+                new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, insets5, 0, 0));
 
-        OpenVpDetalsBtn = new JLabel("Open VP details");
-        OpenVpDetalsBtn.setHorizontalAlignment(SwingConstants.CENTER);
-        OpenVpDetalsBtn.setBounds(34, 166, 140, 25);
-        GuiStyler.styleButton(OpenVpDetalsBtn);
-        notificationPanel.add(OpenVpDetalsBtn);
-        OpenVpDetalsBtn.addMouseListener(this);
+        sendBtn.addActionListener(this);
+        sendBtn.requestFocus();
+        txtMessage.setLineWrap(true);
+        JScrollPane changeScrollPane = new JScrollPane(txtMessage);
+        changeScrollPane.setMinimumSize(new Dimension(180, 60));
+        changeScrollPane.setPreferredSize(new Dimension(180, 60));
 
-        HideOtherVoyagesBtn = new JLabel("Hide other voyages");
-        HideOtherVoyagesBtn.setHorizontalAlignment(SwingConstants.CENTER);
-        HideOtherVoyagesBtn.setBounds(34, 198, 140, 25);
-        GuiStyler.styleButton(HideOtherVoyagesBtn);
-        HideOtherVoyagesBtn.addMouseListener(this);
+        finishNegotitationPanel.add(new JLabel("Changes:"), 
+                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        finishNegotitationPanel.add(changeScrollPane, 
+                new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        finishNegotitationPanel.add(sendBtn, 
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, EAST, NONE, insets5, 0, 0));
 
-        notificationPanel.add(HideOtherVoyagesBtn);
-
-        closeBtn = new JLabel("Close");
-        closeBtn.setHorizontalAlignment(SwingConstants.CENTER);
-        closeBtn.setBounds(127, 246, 71, 25);
-        GuiStyler.styleButton(closeBtn);
-        notificationPanel.add(closeBtn);
-
-        masterPanel.setBorder(BorderFactory.createEtchedBorder(
-                EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45,
-                        45)));
-        add(masterPanel);
-        
-        
-        closeBtn.addMouseListener(this);
-
-
-
-    }
-
-
-    public void setParent(JMapFrame parent) {
-//        this.parent = parent;
-
-        EmbeddedInfoPanelMoveMouseListener mml = new EmbeddedInfoPanelMoveMouseListener(
-                this, parent);
-        moveHandler.addMouseListener(mml);
-        moveHandler.addMouseMotionListener(mml);
-
+        // Filler
+        add(new JLabel(" "), 
+                new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0, NORTH, BOTH, new Insets(2, 5, 2, 0), 0, 0));
     }
 
     public void setAisHandler(AisHandler aisHandler) {
         this.aisHandler = aisHandler;
-
         checkAisData();
     }
-    
-    public void setChartPanel(ChartPanel chartPanel){
+
+    public void setChartPanel(ChartPanel chartPanel) {
         this.chartPanel = chartPanel;
     }
 
-    
-    
-    
     public void setVoyage(Voyage voyage) {
         this.voyage = voyage;
-        
-        
-        lblShipName.setText("MMSI: " + voyage.getMmsi());
+
+        lblShipName.setText("" + voyage.getMmsi());
         lblCallSign.setText("N/A");
 
         lblRouteName.setText(voyage.getRoute().getName());
 
-        lblCogSog.setText("COG: N/A, SOG: N/A");
-        lblTd.setText("TD: " + Formatter.formatShortDateTime(voyage.getRoute().getEtas()
-                .get(0)));
-        lblETA.setText("ETA: " + Formatter.formatShortDateTime(voyage.getRoute()
-                .getEtas().get(voyage.getRoute().getEtas().size() - 1)));
-        
+        lblCog.setText("N/A");
+        lblSog.setText("N/A");
+        lblTd.setText(Formatter.formatShortDateTime(voyage.getRoute().getEtas().get(0)));
+        lblETA.setText(Formatter.formatShortDateTime(voyage.getRoute().getEtas().get(voyage.getRoute().getEtas().size() - 1)));
+
         checkAisData();
     }
 
+    public MaritimeId getVoyageMaritimeId() {
+        return new MmsiId((int)voyage.getMmsi());
+    }
+    
     private void checkAisData() {
         if (aisHandler != null && voyage != null) {
 
@@ -251,84 +240,63 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
             if (vesselTarget != null && vesselTarget.getStaticData() != null) {
                 VesselStaticData staticData = vesselTarget.getStaticData();
 
-                lblShipName.setText(staticData.getName());
-                lblCallSign.setText("(" + staticData.getCallsign().trim() + ")");
-                lblCogSog.setText("COG: "
-                        + vesselTarget.getPositionData().getCog()
-                        + ", SOG: "
-                        + Formatter.formatCurrentSpeed((double)vesselTarget.getPositionData().getSog()));
+                lblShipName.setText(staticData.getTrimmedName());
+                lblCallSign.setText(staticData.getTrimmedCallsign());
+                lblCog.setText(Formatter.formatDegrees((double) vesselTarget.getPositionData().getCog(), 0));
+                lblSog.setText(Formatter.formatCurrentSpeed((double) vesselTarget.getPositionData().getSog()));
 
             }
 
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void mouseClicked(MouseEvent arg0) {
-    }
+    public void actionPerformed(ActionEvent ae) {
 
-    @Override
-    public void mouseEntered(MouseEvent arg0) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent arg0) {
-    }
-
-    @Override
-    public void mousePressed(MouseEvent arg0) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent arg0) {
-        if (arg0.getSource() == closeBtn && closeBtn.isEnabled()) {
-            this.setVisible(false);
+        if (ae.getSource() == sendBtn) {
+            voyageHandlingLayer.sendVoyage(txtMessage.getText());
         }
 
-        if (arg0.getSource() == ZoomToShipBtn && ZoomToShipBtn.isEnabled()) {
+        if (ae.getSource() == ZoomToShipBtn) {
             VesselTarget vesselTarget = aisHandler.getVesselTarget(voyage.getMmsi());
-            if (vesselTarget != null){
+            if (vesselTarget != null) {
                 chartPanel.goToPosition(vesselTarget.getPositionData().getPos());
             }
         }
-        
-        if (arg0.getSource() == OpenShipDetailstextBtn && OpenShipDetailstextBtn.isEnabled()) {
-            
-            EPD.getInstance().getNotificationCenter()
-                .selectNotification(NotificationType.STRATEGIC_ROUTE, voyage.getId());
-            
-        }
- 
-        if (arg0.getSource() == OpenVpDetalsBtn && OpenVpDetalsBtn.isEnabled()) {
-            //Display the route
-            
-            System.out.println(voyage.getId());
-            
-            RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
-                    EPDShore.getInstance().getMainFrame(), 
-                    chartPanel,
-                    voyage.getRoute(), 
-                    voyageHandlingLayer);
-            routePropertiesDialog.setVisible(true);
-            
-        }
-        
-        if (arg0.getSource() == HideOtherVoyagesBtn && HideOtherVoyagesBtn.isEnabled()) {
-            
-//            HideOtherVoyagesBtn.
-            
-            
-            //If it\s visibile then toggle switched to 
-            if (chartPanel.getVoyageLayer().isVisible()){
-                HideOtherVoyagesBtn.setText("Show other voyages");
-            }else{
-                HideOtherVoyagesBtn.setText("Hide other voyages");
-            }
-            
-            chartPanel.getVoyageLayer().setVisible(!chartPanel.getVoyageLayer().isVisible());
-            //Toggle voyage layer
-            
+
+        if (ae.getSource() == OpenShipDetailstextBtn) {
+
+            EPD.getInstance().getNotificationCenter().openNotification(NotificationType.STRATEGIC_ROUTE, voyage.getId(), false);
         }
 
+        if (ae.getSource() == OpenVpDetalsBtn) {
+
+            RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(EPDShore.getInstance().getMainFrame(),
+                    chartPanel, voyage.getRoute(), voyageHandlingLayer);
+            routePropertiesDialog.setVisible(true);
+
+        }
+
+        if (ae.getSource() == HideOtherVoyagesBtn) {
+
+            // If it's visible then toggle switched to
+            if (chartPanel.getVoyageLayer().isVisible()) {
+                HideOtherVoyagesBtn.setText("Show other voyages");
+            } else {
+                HideOtherVoyagesBtn.setText("Hide other voyages");
+            }
+
+            chartPanel.getVoyageLayer().setVisible(!chartPanel.getVoyageLayer().isVisible());
+        }
+        
+        if (ae.getSource() == chatBtn) {
+            EPD.getInstance().getNotificationCenter().openNotification(
+                    NotificationType.MESSAGES, 
+                    new MmsiId((int)voyage.getMmsi()), 
+                    false);
+        }
     }
 }

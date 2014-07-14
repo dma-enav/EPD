@@ -35,4 +35,8 @@ public class ButtonsPanelCommon extends JPanel{
         return null;
     }
     
+    public JButton getAdditionalInfoButton(){
+        return null;
+    }
+    
 }

@@ -15,16 +15,17 @@
  */
 package dk.dma.epd.shore.gui.notification;
 
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.notification.Notification;
-import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.shore.service.RouteSuggestionData;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.notification.RouteSuggestionNotificationCommon;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.util.NameUtils;
 
 /**
- * An route suggestion implementation of the {@linkplain NotificationPanel} class
+ * A shore specific route suggestion implementation of the {@linkplain Notification} class
  */
-public class RouteSuggestionNotification extends Notification<RouteSuggestionData, Long>{
+public class RouteSuggestionNotification extends RouteSuggestionNotificationCommon {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,33 +36,33 @@ public class RouteSuggestionNotification extends Notification<RouteSuggestionDat
      * @param routeData the strategic route data
      */
     public RouteSuggestionNotification(RouteSuggestionData routeData) {
-        super(routeData, routeData.getId(), NotificationType.TACTICAL_ROUTE);
+        super(routeData);
         
-        title = String.format("Route suggestion '%s' is %s", 
-                routeData.getOutgoingMsg().getRoute().getName(),
-                routeData.getStatus().getDescShort());
+        String shipName = NameUtils.getName((int)routeData.getMmsi());
         
-        description = String.format("Route suggestion '%s' for %s is %s", 
-                routeData.getOutgoingMsg().getRoute().getName(),
-                routeData.getMmsi(),
-                routeData.getStatus().getDescLong());
-        
-        severity = NotificationSeverity.MESSAGE;
-        read = acknowledged = routeData.isAcknowleged();
-        date = routeData.getOutgoingMsg().getSent();
-        location = Position.create(
-                    routeData.getOutgoingMsg().getRoute().getWaypoints().get(0).getLatitude(), 
-                    routeData.getOutgoingMsg().getRoute().getWaypoints().get(0).getLongitude());
-    }    
-
-    
-    /**
-     * Sets the acknowledged flag and updates the underlying route suggestion
-     * @param acknowledged the new acknowledged state
-     */
-    @Override 
-    public void setAcknowledged(boolean acknowledged) {
-        super.setAcknowledged(acknowledged);
-        get().setAcknowleged(acknowledged);
+        if (routeData.getReply() == null) {
+            // Original route suggestion from shore
+            description = String.format(
+                    "Route suggestion '%s' for %s", 
+                    routeData.getMessage().getRoute().getName(),
+                    shipName);
+            severity = NotificationSeverity.MESSAGE;
+            date = routeData.getMessage().getSentDate();
+            
+        } else {
+            // Reply to shore
+            description = String.format(
+                    "Route suggestion '%s' from %s is %s", 
+                    routeData.getMessage().getRoute().getName(),
+                    shipName,
+                    routeData.getStatus().toString());
+            if (routeData.isAcknowleged()) {
+                severity = NotificationSeverity.MESSAGE;
+            } else {
+                severity = NotificationSeverity.WARNING;
+                addAlerts(new NotificationAlert(AlertType.POPUP));
+            }
+            date = routeData.getReply().getSentDate();            
+        }
     }
 }

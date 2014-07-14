@@ -22,6 +22,7 @@ import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -43,6 +45,7 @@ import javax.swing.event.DocumentListener;
 import org.joda.time.DateTime;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.model.voct.SARISXMLParser;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
@@ -73,14 +76,17 @@ public class SARInputCommon extends JDialog implements ActionListener,
             SARInputCommon.class.getClassLoader().getResource(
                     "images/voct/generic.png")));
 
-    private ImageIcon datumPointIcon = scaleImage(new ImageIcon(SARInputCommon.class
-            .getClassLoader().getResource("images/voct/datumpoint.png")));
+    private ImageIcon datumPointIcon = scaleImage(new ImageIcon(
+            SARInputCommon.class.getClassLoader().getResource(
+                    "images/voct/datumpoint.png")));
 
-    private ImageIcon datumLineIcon = scaleImage(new ImageIcon(SARInputCommon.class
-            .getClassLoader().getResource("images/voct/datumline.png")));
+    private ImageIcon datumLineIcon = scaleImage(new ImageIcon(
+            SARInputCommon.class.getClassLoader().getResource(
+                    "images/voct/datumline.png")));
 
-    private ImageIcon backtrackIcon = scaleImage(new ImageIcon(SARInputCommon.class
-            .getClassLoader().getResource("images/voct/generic.png")));
+    private ImageIcon backtrackIcon = scaleImage(new ImageIcon(
+            SARInputCommon.class.getClassLoader().getResource(
+                    "images/voct/generic.png")));
 
     private JPanel masterPanel;
 
@@ -97,9 +103,12 @@ public class SARInputCommon extends JDialog implements ActionListener,
     private DatumLineInputPanel datumLineInputPanel;
 
     private VOCTManagerCommon voctManager;
-    
+
     private boolean sarReady;
-    
+    private JLabel lblOrImportSar;
+
+    private JButton btnImport;
+
     /**
      * 
      * Create the dialog.
@@ -108,9 +117,9 @@ public class SARInputCommon extends JDialog implements ActionListener,
      */
     public SARInputCommon(VOCTManagerCommon voctManager) {
         this.voctManager = voctManager;
-        
+
         voctManager.addListener(this);
-        
+
         setTitle("SAR Operation");
         this.setModal(true);
         this.setResizable(false);
@@ -133,6 +142,16 @@ public class SARInputCommon extends JDialog implements ActionListener,
         initPanel();
         inputPanel();
         calculationsPanel();
+
+        // CardLayout cl = (CardLayout) (masterPanel.getLayout());
+        // backButton.setEnabled(true);
+        //
+        // inititateSarType();
+        //
+        // System.out.println("Setting panel to " + currentCard);
+        //
+        // // The type select determines which panel we show
+        // cl.show(masterPanel, currentCard);
     }
 
     private void calculationsPanel() {
@@ -154,6 +173,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
         JScrollPane rapidResponseScrollPanel = new JScrollPane(
                 rapidResponseDatumPointInputPanel);
+        rapidResponseScrollPanel.getVerticalScrollBar().setUnitIncrement(16);
         rapidResponseScrollPanel.setPreferredSize(new Dimension(559, 363));
         masterPanel.add(rapidResponseScrollPanel, INPUTSARRAPIDRESPONSEDATUM);
 
@@ -161,7 +181,8 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
         JScrollPane datumLineScrollPanel = new JScrollPane(datumLineInputPanel);
         datumLineScrollPanel.setPreferredSize(new Dimension(559, 363));
-
+        datumLineScrollPanel.getVerticalScrollBar().setUnitIncrement(16);
+        
         masterPanel.add(datumLineScrollPanel, INPUTPANELDATUMLINE);
 
     }
@@ -207,6 +228,16 @@ public class SARInputCommon extends JDialog implements ActionListener,
         descriptiveImage.setBounds(20, 131, 493, 200);
         panel.add(descriptiveImage);
         descriptiveImage.setIcon(rapidResponseIcon);
+
+        lblOrImportSar = new JLabel("Or import SAR from external file:");
+        lblOrImportSar.setBounds(238, 24, 176, 14);
+        panel.add(lblOrImportSar);
+
+        btnImport = new JButton("Import");
+        btnImport.setBounds(408, 20, 89, 23);
+        panel.add(btnImport);
+
+        btnImport.addActionListener(this);
 
     }
 
@@ -266,6 +297,54 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
         }
 
+        if (arg0.getSource() == btnImport) {
+            // Import started
+
+            // Open a file menu select for xml files
+
+            // Create SARIS parser for returned object
+
+            JFileChooser fileChooser = new JFileChooser(new File("."));
+            fileChooser.addChoosableFileFilter(new MyFilter());
+            fileChooser.setAcceptAllFileFilterUsed(true);
+            fileChooser.showOpenDialog(null);
+
+            if (fileChooser.getSelectedFile() != null) {
+
+                String fileChoosen = fileChooser.getSelectedFile()
+                        .getAbsolutePath();
+
+                try {
+
+                    // SARISXMLParser parser = new
+                    // SARISXMLParser("E://Sarex 04 Juni.xml");
+                    SARISXMLParser parser = new SARISXMLParser(fileChoosen);
+
+                    voctManager.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
+                    voctManager.setSarData(parser.getSarData());
+                    calculationsText.setText("SARIS PARSE SUCCESSFULL");
+                    backButton.setEnabled(true);
+                    nextButton.setText("Finish");
+                    nextButton.setEnabled(true);
+
+                    CardLayout cl = (CardLayout) (masterPanel.getLayout());
+                    cl.show(masterPanel, CALCULATIONSPANEL);
+                    currentCard = CALCULATIONSPANEL;
+
+                    // Move to final page where we show the info
+                } catch (Exception e) {
+                    calculationsText.setText("SARIS Parse failed on file "
+                            + fileChoosen);
+                    backButton.setEnabled(true);
+                    nextButton.setEnabled(false);
+                    voctManager.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
+                    CardLayout cl = (CardLayout) (masterPanel.getLayout());
+                    cl.show(masterPanel, CALCULATIONSPANEL);
+                    currentCard = CALCULATIONSPANEL;
+                }
+            }
+        }
+
         if (arg0.getSource() == nextButton) {
             // Get the current card and action depends on that
 
@@ -298,8 +377,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
                             .generateHTML());
                     backButton.setEnabled(true);
                     nextButton.setText("Finish");
-                    
-                    
+
                     cl.show(masterPanel, CALCULATIONSPANEL);
                     currentCard = CALCULATIONSPANEL;
                 } else {
@@ -335,11 +413,15 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     // To be implemented
                 }
 
-                
-                if (sarReady){
-                    
+                if (type == SAR_TYPE.SARIS_DATUM_POINT) {
+                    // To be implemented
+                    currentCard = SELECTSARTYPE;
+                }
+
+                if (sarReady) {
+
                     this.setVisible(false);
-                    
+
                     // Set the dialog back to input screen for reentering
                     cl.show(masterPanel, currentCard);
 
@@ -349,10 +431,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     voctManager.displaySar();
                     sarReady = false;
                 }
-                
 
-
-                
                 return;
             }
 
@@ -388,6 +467,11 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     currentCard = INPUTPANELDATUMLINE;
                 }
 
+                if (type == SAR_TYPE.SARIS_DATUM_POINT) {
+                    // To be implemented
+                    currentCard = SELECTSARTYPE;
+                }
+
                 cl.show(masterPanel, currentCard);
                 backButton.setEnabled(true);
                 nextButton.setText("Next");
@@ -399,7 +483,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
         if (arg0.getSource() == cancelButton) {
             this.setVisible(false);
-            voctManager.cancelSarOperation();
+            // voctManager.cancelSarOperation();
             return;
         }
 
@@ -460,9 +544,10 @@ public class SARInputCommon extends JDialog implements ActionListener,
             return false;
         case NONE:
             return false;
+        default:
+            return false;
         }
 
-        return false;
     }
 
     private boolean validateDatumLine() {
@@ -535,11 +620,10 @@ public class SARInputCommon extends JDialog implements ActionListener,
         // Time and date will be automatically sorted
 
         List<SurfaceDriftPanel> weatherList = datumLineInputPanel
-        .getSurfaceDriftPanelList();
-        
-        
+                .getSurfaceDriftPanelList();
+
         List<SARWeatherData> sarWeatherDataPoints = new ArrayList<SARWeatherData>();
-        
+
         for (int i = 0; i < weatherList.size(); i++) {
             // Get weather
             SurfaceDriftPanel weatherPanel = weatherList.get(i);
@@ -572,16 +656,15 @@ public class SARInputCommon extends JDialog implements ActionListener,
                 return false;
             }
 
-            
-            DateTime dateTime = new DateTime(weatherPanel.getDateTime().getTime());
-            
+            DateTime dateTime = new DateTime(weatherPanel.getDateTime()
+                    .getTime());
+
             SARWeatherData sarWeatherData = new SARWeatherData(twcHeading,
                     TWCKnots, leewayKnots, leewayHeading, dateTime);
 
-
             sarWeatherDataPoints.add(sarWeatherData);
         }
-        
+
         double xError = datumLineInputPanel.getInitialPositionError();
 
         if (xError == -9999) {
@@ -678,11 +761,10 @@ public class SARInputCommon extends JDialog implements ActionListener,
         // Time and date will be automatically sorted
 
         List<SurfaceDriftPanel> weatherList = rapidResponseDatumPointInputPanel
-        .getSurfaceDriftPanelList();
-        
-        
+                .getSurfaceDriftPanelList();
+
         List<SARWeatherData> sarWeatherDataPoints = new ArrayList<SARWeatherData>();
-        
+
         for (int i = 0; i < weatherList.size(); i++) {
             // Get weather
             SurfaceDriftPanel weatherPanel = weatherList.get(i);
@@ -715,16 +797,14 @@ public class SARInputCommon extends JDialog implements ActionListener,
                 return false;
             }
 
-            
-            DateTime dateTime = new DateTime(weatherPanel.getDateTime().getTime());
-            
+            DateTime dateTime = new DateTime(weatherPanel.getDateTime()
+                    .getTime());
+
             SARWeatherData sarWeatherData = new SARWeatherData(twcHeading,
                     TWCKnots, leewayKnots, leewayHeading, dateTime);
 
-
             sarWeatherDataPoints.add(sarWeatherData);
         }
-      
 
         double xError = rapidResponseDatumPointInputPanel
                 .getInitialPositionError();
@@ -806,15 +886,27 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
-        
+
         System.out.println(e);
         System.out.println(currentCard);
-        if ( e == VOCTUpdateEvent.SAR_READY){
+        if (e == VOCTUpdateEvent.SAR_READY) {
             sarReady = true;
-        }else{
+        } else {
             sarReady = false;
         }
-        
+
     }
 
+    class MyFilter extends javax.swing.filechooser.FileFilter {
+        public boolean accept(File file) {
+            String filename = file.getName();
+            return filename.endsWith(".xml");
+        }
+
+        @Override
+        public String getDescription() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+    }
 }

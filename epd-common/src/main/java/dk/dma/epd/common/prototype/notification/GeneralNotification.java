@@ -49,5 +49,4 @@ public class GeneralNotification extends Notification<Object, Object> {
     public GeneralNotification() {
         this(null, System.currentTimeMillis(), NotificationType.NOTIFICATION);
     }
-
 }

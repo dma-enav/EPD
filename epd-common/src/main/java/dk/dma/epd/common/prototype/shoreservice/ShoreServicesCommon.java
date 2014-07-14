@@ -61,6 +61,8 @@ import dk.frv.enav.common.xml.msi.request.MsiPollRequest;
 import dk.frv.enav.common.xml.msi.response.MsiResponse;
 import dk.frv.enav.common.xml.nogo.request.NogoRequest;
 import dk.frv.enav.common.xml.nogo.response.NogoResponse;
+import dk.frv.enav.common.xml.nogoslices.request.NogoRequestSlices;
+import dk.frv.enav.common.xml.nogoslices.response.NogoResponseSlices;
 import dk.frv.enav.common.xml.risk.request.RiskRequest;
 import dk.frv.enav.common.xml.risk.response.RiskList;
 import dk.frv.enav.common.xml.risk.response.RiskResponse;
@@ -152,6 +154,9 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
     public NogoResponse nogoPoll(double draught, Position northWestPoint, Position southEastPoint, Date startDate, Date endDate)
             throws ShoreServiceException {
+
+        // nogoPoll(draught, northWestPoint, southEastPoint, startDate, endDate, 2);
+
         // Create request
         NogoRequest nogoRequest = new NogoRequest();
 
@@ -169,7 +174,38 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
         NogoResponse nogoResponse = (NogoResponse) makeRequest("/api/xml/nogo", "dk.frv.enav.common.xml.nogo.request",
                 "dk.frv.enav.common.xml.nogo.response", nogoRequest);
+
         return nogoResponse;
+    }
+
+    public NogoResponseSlices nogoPoll(double draught, Position northWestPoint, Position southEastPoint, Date startDate,
+            Date endDate, int slices) throws ShoreServiceException {
+
+        // System.out.println("Nogo response slice test");
+
+        NogoRequestSlices nogoRequest = new NogoRequestSlices();
+        // System.out.println("Request created");
+
+        // Set request parameters
+        nogoRequest.setDraught(draught);
+        nogoRequest.setNorthWestPointLat(northWestPoint.getLatitude());
+        nogoRequest.setNorthWestPointLon(northWestPoint.getLongitude());
+        nogoRequest.setSouthEastPointLat(southEastPoint.getLatitude());
+        nogoRequest.setSouthEastPointLon(southEastPoint.getLongitude());
+        nogoRequest.setStartDate(startDate);
+        nogoRequest.setEndDate(endDate);
+        nogoRequest.setSlices(slices);
+
+        // Add request parameters
+        addRequestParameters(nogoRequest);
+
+        // System.out.println("Adding parameters");
+
+        NogoResponseSlices nogoResponse = (NogoResponseSlices) makeRequest("/api/xml/slicesnogo",
+                "dk.frv.enav.common.xml.nogoslices.request", "dk.frv.enav.common.xml.nogoslices.response", nogoRequest);
+
+        return nogoResponse;
+
     }
 
     public MsiResponse msiPoll(int lastMessage) throws ShoreServiceException {
@@ -229,7 +265,9 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
     /**
      * Allow subclasses to adjust the shore service request
-     * @param request the request to adjust
+     * 
+     * @param request
+     *            the request to adjust
      */
     protected void addRequestParameters(ShoreServiceRequest request) {
     }
@@ -321,33 +359,9 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             m.marshal(monaLisaRoute, st);
             xml = st.toString();
 
-            xml = xml.replace("<ns2:RouteRequest xmlns:ns2=\"http://www.sspa.se/optiroute\"",
-                    "<RouteRequest xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
-            xml = xml.replace("xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">",
-                    "xmlns=\"http://www.sspa.se/optiroute\">");
-
-            xml = xml.replace("ns2:", "");
-            xml = xml.replace(":ns2", "");
-            xml = xml.replace(":ns2", "");
-
-            xml = xml.replace("waypoints>", "fi:waypoints>");
-            xml = xml.replace("waypoint>", "fi:waypoint>");
-
-            xml = xml.replace("wpt-id", "fi:wpt-id");
-            xml = xml.replace("ETA", "fi:ETA");
-            xml = xml.replace("wpt-name", "fi:wpt-name");
-            xml = xml.replace("position", "fi:position");
-            xml = xml.replace("latitude", "fi:latitude");
-            xml = xml.replace("longitude", "fi:longitude");
-
-            // fix later maybe?
-
-             if (showInput) {
-             new XMLDialog(xml, "Sent XML");
-             }
-
-            // System.out.println("Sending the following:");
-            // System.out.println(xml);
+            if (showInput) {
+                new XMLDialog(xml, "Sent XML");
+            }
 
             // Create HTTP request
             RouteHttp routeHttp = new RouteHttp(monaLisaConnSettings);
@@ -356,7 +370,6 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             // Set content
             routeHttp.setRequestBody(xml);
 
-            // routeHttp.set
             // Make request
             try {
                 routeHttp.makeRequest();
@@ -373,17 +386,15 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             return new SSPAResponse(null, e.getMessage());
         }
 
-         if (showOutput) {
-         new XMLDialog(xmlReturnRoute, "Returned XML");
-         }
+        if (showOutput) {
+            new XMLDialog(xmlReturnRoute, "Returned XML");
+        }
 
-        if (xmlReturnRoute.contains("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")) {
-            String errorMessage = xmlReturnRoute.split("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")[1]
-                    .split("</ErrorResponse>")[0];
+        String responseMessage = xmlReturnRoute.split("<ResponseMessage>")[1].split("</ResponseMessage>")[0];
 
-            errorMessage = errorMessage.trim();
-            return new SSPAResponse(null, errorMessage);
-
+        // This means there was an error inside the server
+        if (responseMessage.length() > 0) {
+            return new SSPAResponse(null, responseMessage);
         } else {
             if (xmlReturnRoute != null) {
                 if (xmlReturnRoute.length() > 300000) {
@@ -391,21 +402,9 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
                     return new SSPAResponse(null, "Failed to receive a route in the area, buffer timedout");
                 }
 
-                xmlReturnRoute = xmlReturnRoute
-                        .replace(
-                                "<RouteResponse xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\" xmlns=\"http://www.sspa.se/optiroute\">",
-                                "<RouteResponse xmlns=\"http://www.sspa.se/optiroute\" xmlns:ns2=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">");
-
-                xmlReturnRoute=                xmlReturnRoute.replace("fi", "ns2");
-
-                // System.out.println(xmlReturnRoute);
-
                 Unmarshaller u;
                 JAXBContext jc;
                 RouteresponseType routeResponse = null;
-
-                // xmlReturnRoute = xmlReturnRoute.replace("RouteResponse",
-                // "routeresponseType");
 
                 StringReader sr = new StringReader(xmlReturnRoute);
 
@@ -423,7 +422,6 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
             }
         }
-        // return new SSPAResponse(null, "null error");
         return null;
     }
 

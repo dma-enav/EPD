@@ -65,6 +65,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
     private JPanel searchAreaPanel;
 
     protected ButtonsPanelCommon buttonsPanel;
+    protected EndSarPanelCommon endSARPanel;
 
     private JLabel lblTimeOfLast;
     private JLabel lkpDate;
@@ -120,12 +121,16 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
     private JLabel lblSearchAreaProgression;
     private JSlider slider;
 
+    protected JButton btnCancelSar;
+
     public SARPanelCommon() {
 
         setLayout(new CardLayout());
 
         initGui();
         initSarOperation();
+
+//        this.setSize(500, 1000);
     }
 
     private void initGui() {
@@ -167,6 +172,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         noSar.add(btnStartSar, gbc_btnStartSar);
 
         btnStartSar.addActionListener(this);
+
     }
 
     private void initSarOperation() {
@@ -179,8 +185,9 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         gridBagLayout.columnWidths = new int[] { 100, 0 };
         gridBagLayout.rowHeights = new int[] { 20, 16, 16, 16, 16, 16, 0, 16, 0, 0, 10 };
         gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-        gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
+        gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
         sarStartedPanel.setLayout(gridBagLayout);
+        
         lblSAR = new JLabel("Search And Rescue");
         lblSAR.setHorizontalAlignment(SwingConstants.CENTER);
         lblSAR.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -191,12 +198,16 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         gbc_lblSAR.gridx = 0;
         gbc_lblSAR.gridy = 0;
         sarStartedPanel.add(lblSAR, gbc_lblSAR);
+        
+        
+
 
         statusPanel = new JPanel();
         statusPanel.setBorder(new TitledBorder(null, "Status", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         GridBagConstraints gbc_statusPanel = new GridBagConstraints();
+        gbc_statusPanel.anchor = GridBagConstraints.NORTH;
         gbc_statusPanel.insets = new Insets(0, 0, 5, 0);
-        gbc_statusPanel.fill = GridBagConstraints.BOTH;
+        gbc_statusPanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_statusPanel.gridx = 0;
         gbc_statusPanel.gridy = 1;
         sarStartedPanel.add(statusPanel, gbc_statusPanel);
@@ -226,8 +237,9 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         timeAndDatePanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Date and Time",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
         GridBagConstraints gbc_timeAndDatePanel = new GridBagConstraints();
+        gbc_timeAndDatePanel.anchor = GridBagConstraints.NORTH;
         gbc_timeAndDatePanel.insets = new Insets(0, 0, 5, 0);
-        gbc_timeAndDatePanel.fill = GridBagConstraints.BOTH;
+        gbc_timeAndDatePanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_timeAndDatePanel.gridx = 0;
         gbc_timeAndDatePanel.gridy = 2;
         sarStartedPanel.add(timeAndDatePanel, gbc_timeAndDatePanel);
@@ -289,8 +301,9 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         weatherPanel.setBorder(new TitledBorder(null, "Last Surface Drifts dw continuation", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
         GridBagConstraints gbc_weatherPanel = new GridBagConstraints();
+        gbc_weatherPanel.anchor = GridBagConstraints.NORTH;
         gbc_weatherPanel.insets = new Insets(0, 0, 5, 0);
-        gbc_weatherPanel.fill = GridBagConstraints.BOTH;
+        gbc_weatherPanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_weatherPanel.gridx = 0;
         gbc_weatherPanel.gridy = 3;
         sarStartedPanel.add(weatherPanel, gbc_weatherPanel);
@@ -336,8 +349,9 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         datumPanel.setLayout(new CardLayout());
 
         GridBagConstraints gbc_datumPanel = new GridBagConstraints();
+        gbc_datumPanel.anchor = GridBagConstraints.NORTH;
         gbc_datumPanel.insets = new Insets(0, 0, 5, 0);
-        gbc_datumPanel.fill = GridBagConstraints.BOTH;
+        gbc_datumPanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_datumPanel.gridx = 0;
         gbc_datumPanel.gridy = 4;
         sarStartedPanel.add(datumPanel, gbc_datumPanel);
@@ -352,8 +366,9 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         searchAreaPanel.setBorder(new TitledBorder(null, "Positions of the Search Area", TitledBorder.LEADING, TitledBorder.TOP,
                 null, null));
         GridBagConstraints gbc_searchAreaPanel = new GridBagConstraints();
+        gbc_searchAreaPanel.anchor = GridBagConstraints.NORTH;
         gbc_searchAreaPanel.insets = new Insets(0, 0, 5, 0);
-        gbc_searchAreaPanel.fill = GridBagConstraints.BOTH;
+        gbc_searchAreaPanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_searchAreaPanel.gridx = 0;
         gbc_searchAreaPanel.gridy = 5;
         sarStartedPanel.add(searchAreaPanel, gbc_searchAreaPanel);
@@ -485,7 +500,8 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
 
         timeSliderPanel = new JPanel();
         GridBagConstraints gbc_timeSliderPanel = new GridBagConstraints();
-        gbc_timeSliderPanel.fill = GridBagConstraints.BOTH;
+        gbc_timeSliderPanel.anchor = GridBagConstraints.NORTH;
+        gbc_timeSliderPanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_timeSliderPanel.insets = new Insets(0, 0, 5, 0);
         gbc_timeSliderPanel.gridx = 0;
         gbc_timeSliderPanel.gridy = 6;
@@ -520,24 +536,36 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         timeSliderPanel.add(slider, gbc_slider);
 
         GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
+        gbc_buttonPanel.anchor = GridBagConstraints.NORTH;
         gbc_buttonPanel.insets = new Insets(0, 0, 5, 0);
-        gbc_buttonPanel.fill = GridBagConstraints.BOTH;
+        gbc_buttonPanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_buttonPanel.gridx = 0;
         gbc_buttonPanel.gridy = 7;
         sarStartedPanel.add(createButtonPanel(), gbc_buttonPanel);
 
         GridBagConstraints gbc_effortAllocationPanel = new GridBagConstraints();
+        gbc_effortAllocationPanel.anchor = GridBagConstraints.NORTH;
         gbc_effortAllocationPanel.insets = new Insets(0, 0, 5, 0);
-        gbc_effortAllocationPanel.fill = GridBagConstraints.BOTH;
+        gbc_effortAllocationPanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_effortAllocationPanel.gridx = 0;
         gbc_effortAllocationPanel.gridy = 8;
         sarStartedPanel.add(createEffortAllocationPanel(), gbc_effortAllocationPanel);
 
         GridBagConstraints gbc_searchPatternsPanel = new GridBagConstraints();
-        gbc_searchPatternsPanel.fill = GridBagConstraints.BOTH;
+        gbc_searchPatternsPanel.anchor = GridBagConstraints.NORTH;
+        gbc_searchPatternsPanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_searchPatternsPanel.gridx = 0;
         gbc_searchPatternsPanel.gridy = 9;
         sarStartedPanel.add(createSearchPatternsPanel(), gbc_searchPatternsPanel);
+
+        GridBagConstraints gbc_cancelSarPanel = new GridBagConstraints();
+        gbc_cancelSarPanel.anchor = GridBagConstraints.NORTH;
+        gbc_cancelSarPanel.fill = GridBagConstraints.HORIZONTAL;
+        gbc_cancelSarPanel.gridx = 0;
+        gbc_cancelSarPanel.gridy = 10;
+        
+        
+        sarStartedPanel.add(createCancelSarPanel(), gbc_cancelSarPanel);
 
     }
 
@@ -811,6 +839,12 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         return buttonsPanel;
     }
 
+    protected JPanel createCancelSarPanel() {
+        endSARPanel = new EndSarPanelCommon();
+        btnCancelSar = endSARPanel.getBtnEndSAR();
+        return endSARPanel;
+    }
+
     protected void setTitle(String title) {
         lblSAR.setText(title);
     }
@@ -826,7 +860,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
             int timeSlot = (int) source.getValue();
 
             voctManager.showSARFuture(timeSlot);
-            
+
         }
     }
 }

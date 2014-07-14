@@ -34,6 +34,8 @@ public class S57LayerSettings implements Serializable {
         Properties props = new Properties();
         props.put("enc.viewGroupSettings", s52mapSettings);
 
+      
+        
         File propFile = new File(settings);
 
         try {
@@ -49,6 +51,7 @@ public class S57LayerSettings implements Serializable {
         Properties props = new Properties();
         try {
             props.load(new FileInputStream(settings));
+            
             s52mapSettings = props.getProperty("enc.viewGroupSettings",
                     s52mapSettings);
         } catch (FileNotFoundException e) {
@@ -72,8 +75,8 @@ public class S57LayerSettings implements Serializable {
      *            the s52mapSettings to set
      */
     public void setS52mapSettings(String result) {
-        System.out.println(result.equals(s52mapSettings));
-        System.out.println("Settings changed");
+//        System.out.println(result.equals(s52mapSettings));
+//        System.out.println("Settings changed");
 
         this.s52mapSettings = result;
     }

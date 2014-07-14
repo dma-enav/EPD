@@ -31,7 +31,7 @@ import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
 
-public class DatumPointData extends SARData{
+public class DatumPointData extends SARData {
 
     private static final long serialVersionUID = 1L;
 

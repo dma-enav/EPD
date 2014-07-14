@@ -46,7 +46,8 @@ public class NmeaUdpSensor extends NmeaSensor {
             while (!isStopped()) {
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 serverSocket.receive(receivePacket);
-                handleLine(new String(receivePacket.getData(), 0, receivePacket.getLength(), Charsets.US_ASCII));
+                String sentence = new String(receivePacket.getData(), 0, receivePacket.getLength(), Charsets.US_ASCII);
+                handleLine(sentence);
             }            
         } catch (IOException e) {
             LOG.error("Failed to listen on UDP socket", e);

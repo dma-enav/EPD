@@ -60,14 +60,13 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 
-import org.jdesktop.swingx.JXLabel;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.text.Formatter;
 
 /**
  * Defines a pop-up notification panel which displays a message 
@@ -187,6 +186,21 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         
         // Add the notification at the top
         notificationList.add(notificationPanel, 0);
+        
+        // Remove all non-alert notifications of the same type with the same id
+        List<Component> toBeDeleted = new ArrayList<>();
+        for (int x = 1; x < notificationList.getComponents().length; x++) {
+            NotificationPopUpPanel<?> np = (NotificationPopUpPanel<?>)notificationList.getComponents()[x];
+            if (np.getNotification().getType().equals(notification.getType()) &&
+                    np.getNotification().getId().equals(notification.getId()) &&
+                    np.getNotification().getSeverity() != NotificationSeverity.ALERT) {
+                toBeDeleted.add(np);
+            }
+        }
+        for (Component component : toBeDeleted) {
+            notificationList.remove(component);
+        }
+        
         notificationList.validate();
         
         adjustBounds();
@@ -317,7 +331,7 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         PopUpNotification notif = new PopUpNotification(frame.getLayeredPane(), location);
         GeneralNotification n = new GeneralNotification();
         n.setTitle("Peder was here");
-        n.setDescription("This is a\nmultiline test");
+        n.setDescription("This is a\nmultiline test\nwith a lot of text that should not cause the field to expand\nDone.");
         n.setSeverity(NotificationSeverity.ALERT);
         n.setLocation(Position.create(53.0, 12.2));
         notif.addNotification(null, n);
@@ -396,8 +410,8 @@ class NotificationPopUpPanel<N extends Notification<?, ?>> extends JPanel implem
         titleLbl.setFont(titleLbl.getFont().deriveFont(11f).deriveFont(Font.BOLD));
         add(titleLbl, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
 
-        JXLabel descLbl = new JXLabel(notification.getDescription());
-        descLbl.setLineWrap(true);
+        String descHtlm = String.format("<html>%s</html>", Formatter.formatHtml(notification.getDescription()));
+        JLabel descLbl = new JLabel(descHtlm);
         descLbl.setFont(descLbl.getFont().deriveFont(9f));
         descLbl.setVerticalAlignment(JLabel.TOP);
         add(descLbl, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, NORTHWEST, BOTH, insets1, 0, 0));
@@ -409,8 +423,10 @@ class NotificationPopUpPanel<N extends Notification<?, ?>> extends JPanel implem
         showBtn = createButton("Show");
         btnPanel.add(showBtn, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, NORTHWEST, HORIZONTAL, insets1, 0, 0));
         
-        dismissBtn = createButton("Dismiss");
-        btnPanel.add(dismissBtn, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, NORTHWEST, HORIZONTAL, insets1, 0, 0));
+        if (notification.canAcknowledge()) {
+            dismissBtn = createButton("Dismiss");
+            btnPanel.add(dismissBtn, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, NORTHWEST, HORIZONTAL, insets1, 0, 0));
+        }
         
         if (notification.getLocation() != null) {
             gotoBtn = createButton("Goto");
@@ -454,7 +470,7 @@ class NotificationPopUpPanel<N extends Notification<?, ?>> extends JPanel implem
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == showBtn) {
             EPD.getInstance().getNotificationCenter()
-                .selectNotification(notification.getType(), notification.getId());
+                .openNotification(notification.getType(), notification.getId(), false);
             EPD.getInstance().getNotificationCenter().setVisible(true);
             
         } else if (ae.getSource() == dismissBtn) {
@@ -468,15 +484,28 @@ class NotificationPopUpPanel<N extends Notification<?, ?>> extends JPanel implem
     }
     
     /**
-     * Checks if the notification has been deleted or acknowledged,
+     * Checks if the notification has been deleted, read or acknowledged,
      * in which case, this panel should be removed from the pop-up.
+     * <p>
+     * Rules:
+     * <ul>
+     *   <li>If deleted, the notification should always be removed</li>
+     *   <li>For non-alerts, remove the notification if it is read or acknowledged.</li>
+     *   <li>For alerts, remove the notification if it is acknowledged.</li>
+     * </ul>
      */
     public boolean shouldBeRemoved() {
         // The notification we are holding in this panel may not be the current
         // version of the notification panel.
         // Check the state of a fresh version of the notification
         Notification<?, ?> not = panel.getNotificationById(notification.getId());
-        return not == null || not.isAcknowledged();
+        if (not == null) {
+            return true;
+        } else if (not.getSeverity() == NotificationSeverity.ALERT) {
+            return not.isAcknowledged();
+        }
+        // Non-alerts
+        return not.isAcknowledged() || not.isRead();
     }
 
     /**

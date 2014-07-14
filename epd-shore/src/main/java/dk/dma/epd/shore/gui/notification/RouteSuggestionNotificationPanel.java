@@ -18,7 +18,6 @@ package dk.dma.epd.shore.gui.notification;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,18 +25,19 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.graphics.GraphicsUtil;
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.service.RouteSuggestionData;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
 
 /**
@@ -49,36 +49,36 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     private static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionNotificationPanel.class);
     
     private static final String[] NAMES = {
-        "", "ID", "MMSI", "Route Name", "Status" };
+        "", "MMSI", "Route Name", "Date", "Status" };
     
     protected JButton resendBtn;
 
     /**
      * Constructor
      */
-    public RouteSuggestionNotificationPanel() {
-        super();
+    public RouteSuggestionNotificationPanel(NotificationCenterCommon notificationCenter) {
+        super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
-        table.getColumnModel().getColumn(1).setPreferredWidth(60);
-        table.getColumnModel().getColumn(2).setPreferredWidth(50);
-        table.getColumnModel().getColumn(3).setPreferredWidth(90);
-        splitPane.setDividerLocation(400);
+        table.getColumnModel().getColumn(1).setPreferredWidth(50);
+        table.getColumnModel().getColumn(2).setPreferredWidth(80);
+        table.getColumnModel().getColumn(3).setPreferredWidth(70);
+        splitPane.setDividerLocation(350);
         setCellAlignment(1, JLabel.RIGHT);
-        setCellAlignment(2, JLabel.RIGHT);
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    protected JPanel initButtonPanel() {
-        JPanel btnPanel = super.initButtonPanel();
+    protected ButtonPanel initButtonPanel() {
+        ButtonPanel btnPanel = super.initButtonPanel();
 
         resendBtn = new JButton(
                 "Resend", 
                 EPDShore.res().getCachedImageIcon("images/notificationcenter/arrow-circle-315.png"));
         btnPanel.add(resendBtn);
+        btnPanel.add(chatBtn);
         
         resendBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
@@ -136,10 +136,10 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
                 case 0: return !notification.isRead() 
                                 ? ICON_UNREAD 
                                 : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
-                case 1: return notification.getId();
-                case 2: return "" + notification.get().getMmsi();
-                case 3: return notification.get().getOutgoingMsg().getRoute().getName();
-                case 4: return notification.get().getStatus().getDescShort();
+                case 1: return "" + notification.get().getMmsi();
+                case 2: return notification.get().getMessage().getRoute().getName();
+                case 3: return Formatter.formatShortDateTimeNoTz(notification.getDate());
+                case 4: return notification.get().getStatus().toString();
                 default:
                 }
                 return null; 
@@ -164,9 +164,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
             RouteSuggestionHandler routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
             RouteSuggestionData routeSuggestion = notification.get();
             // NB: routeSuggestionHandler.setRouteSuggestionAcknowledged() will automatically trigger a table refresh
-            routeSuggestionHandler.setRouteSuggestionAcknowledged(
-                    routeSuggestion.getMmsi(),
-                    routeSuggestion.getId());
+            routeSuggestionHandler.setRouteSuggestionAcknowledged(routeSuggestion.getId());
             selectFirstUnacknowledgedRow();
             notifyListeners();
         }    
@@ -182,9 +180,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
             RouteSuggestionHandler routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
             RouteSuggestionData routeSuggestion = notification.get();
             // NB: routeSuggestionHandler.removeSuggestion() will automatically trigger a table refresh
-            routeSuggestionHandler.removeSuggestion(
-                    routeSuggestion.getMmsi(),  
-                    routeSuggestion.getId());
+            routeSuggestionHandler.removeSuggestion(routeSuggestion.getId());
             setSelectedRow(row - 1);
             notifyListeners();
         }
@@ -201,9 +197,8 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
             try {
                 routeSuggestionHandler.sendRouteSuggestion(
                         routeSuggestion.getMmsi(), 
-                        routeSuggestion.getOutgoingMsg().getRoute(), 
-                        routeSuggestion.getOutgoingMsg().getSender(), 
-                        routeSuggestion.getOutgoingMsg().getMessage());
+                        routeSuggestion.getMessage().getRoute(), 
+                        routeSuggestion.getMessage().getMessage());
                 
             } catch (Exception ex) {
                 LOG.error("Error re-sending route suggestion", ex);
@@ -227,7 +222,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         }
         
         List<RouteSuggestionNotification> notifications = new ArrayList<>();
-        for (RouteSuggestionData routeSuggestion : routeSuggestionHandler.getRouteSuggestions().values()) {
+        for (RouteSuggestionData routeSuggestion : routeSuggestionHandler.getSortedRouteSuggestions()) {
             RouteSuggestionNotification notification = new RouteSuggestionNotification(routeSuggestion);
             
             // Restore the "read" flag
@@ -278,23 +273,40 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         html.append("<table>");
         append(html, "ID", routeSuggestion.getId());
         append(html, "MMSI", routeSuggestion.getMmsi());
-        append(html, "Route Name", routeSuggestion.getOutgoingMsg().getRoute().getName());
-        append(html, "Sent Date", Formatter.formatShortDateTime(routeSuggestion.getOutgoingMsg().getSent()));
-        append(html, "Sender", routeSuggestion.getOutgoingMsg().getSender());
-        append(html, "Message", routeSuggestion.getOutgoingMsg().getMessage());
-        append(html, "Status", routeSuggestion.getStatus().getDescLong());
+        append(html, "Route Name", routeSuggestion.getMessage().getRoute().getName());
+        append(html, "Sent Date", Formatter.formatShortDateTime(routeSuggestion.getMessage().getSentDate()));
+        append(html, "Message", Formatter.formatHtml(routeSuggestion.getMessage().getMessage()));
+        append(html, "Status", getStatus(routeSuggestion));
         if (routeSuggestion.getReply() != null) {
-            append(html, "Reply Sent", Formatter.formatShortDateTime(new Date(routeSuggestion.getReply().getSendDate())));
-            append(html, "Message", routeSuggestion.getReply().getMessage());
+            append(html, "Reply Sent", Formatter.formatShortDateTime(routeSuggestion.getReply().getSentDate()));
+            append(html, "Reply Message", Formatter.formatHtml(routeSuggestion.getReply().getMessage()));
         } else {
             append(html, "Reply Sent", "No reply received yet");
-            append(html, "Message", "No reply received yet");
+            append(html, "Reply Message", "No reply received yet");
         }        
         html.append("</table>");
         html.append("</html>");
         contentLbl.setText(html.toString());
     }
 
+    /**
+     * Formats the status of the route suggestion as HTML
+     * by including the Maritime Cloud message status.
+     * 
+     * @param routeSuggestion the route suggestion
+     * @return the status
+     */
+    private String getStatus(RouteSuggestionData routeSuggestion) {
+        StringBuilder status = new StringBuilder();
+        status.append(String.format("<span style='color:%s'>%s</span>",
+                GraphicsUtil.toHtmlColor(routeSuggestion.getStatus().getColor()),
+                routeSuggestion.getStatus().toString()));
+        if (routeSuggestion.getReply() == null && routeSuggestion.getMessage().getCloudMessageStatus() != null) {
+            status.append("&nbsp;<small>(" + routeSuggestion.getMessage().getCloudMessageStatus().getTitle() + ")</small>");
+        }
+        return status.toString();
+    }
+    
     /**
      * If non-empty, appends a table row with the given title and value
      * @param html the html to append to

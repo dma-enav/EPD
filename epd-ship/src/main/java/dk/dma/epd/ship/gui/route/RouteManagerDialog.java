@@ -19,13 +19,11 @@ import java.awt.BorderLayout;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.route.RouteManager;
 
 /**
  * Route manager dialog
@@ -34,42 +32,76 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
 
     private static final long serialVersionUID = 1L;
 
-    protected RouteManager routeManager;
-    
-    private JTabbedPane tabbedPane;
     private  RouteManagerPanel routePanel;
-    private RouteExchangeManagerPanel routeExchangePanel;
 
+    /**
+     * Constructor
+     * @param parent the parent frame
+     */
     public RouteManagerDialog(JFrame parent) {
         super(parent, "Route Manager", false);
-        routeManager = EPDShip.getInstance().getRouteManager();
 
         setSize(600, 430);
-//        this.setResizable(false);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
-        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        getContentPane().add(tabbedPane, BorderLayout.NORTH);
 
-
-
-        routePanel = new RouteManagerPanel(routeManager, this);
-        routeExchangePanel = new RouteExchangeManagerPanel(routeManager, this);
+        // Add the route panel
+        routePanel = new RouteManagerPanel(this);
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(routePanel, BorderLayout.CENTER);
         
+        EPD.getInstance().getRouteManager().addListener(this);
         
-        tabbedPane.addTab("Routes", null, routePanel, null);
-        tabbedPane.addTab("RouteExchange Routes", null, routeExchangePanel, null);
+        getRootPane().setDefaultButton(routePanel.getCloseButton());
+    
+        setOpacity((float) 0.95);
+
 
         
-        routeManager.addListener(this);
-        
-
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         routePanel.updateTable();
-        routeExchangePanel.updateTable();
     }
+    
+    @Override
+    public void setVisible(boolean visible){
+        super.setVisible(visible);
 
+        setOpacity((float) 0.95);
+        
+//        
+//        getRootPane ().setOpaque (false);
+//        
+//        getContentPane ().setBackground(new Color (48, 48, 48, 200));
+        
+        
+//        routePanel.getRootPane ().setOpaque (false);
+//        routePanel.setBackground(new Color (48, 48, 48, 200));
+    
+        
+    
+    }
+    
+    @Override
+    public void setLocation(int x, int y){
+        super.setLocation(x, y);
+//        this.repaint();
+//        getRootPane ().setOpaque (false);
+//        getContentPane ().setBackground(new Color (48, 48, 48, 200));
+        
+//        System.out.println("Set location yo");
+
+//
+//        if (routePanel != null){
+//            routePanel.getRootPane ().setOpaque (false);
+//            routePanel.setBackground(new Color (48, 48, 48, 200));
+//        }
+        
+    }
+    
 }

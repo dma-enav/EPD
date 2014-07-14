@@ -15,28 +15,39 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.MapHandlerChild;
 
+import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.net.MaritimeCloudClient;
-import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon.IMaritimeCloudListener;
+import net.maritimecloud.net.service.ServiceEndpoint;
+import net.maritimecloud.net.service.ServiceInvocationFuture;
+import net.maritimecloud.net.service.spi.ServiceMessage;
+import net.maritimecloud.util.function.BiConsumer;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService.IMaritimeCloudListener;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 
 
 /**
  * Abstract base for all e-Navigation services.
  * <p>
- * The base implementation will hook up to the {@linkplain MaritimeCloudServiceCommon}
+ * The base implementation will hook up to the {@linkplain MaritimeCloudService}
  * and register as a listener
  */
 public abstract class EnavServiceHandlerCommon extends MapHandlerChild implements IMaritimeCloudListener {
+   
+    private static final Logger LOG = LoggerFactory.getLogger(EnavServiceHandlerCommon.class);
     
-    protected MaritimeCloudServiceCommon maritimeCloudService;
+    protected MaritimeCloudService maritimeCloudService;
     private ScheduledExecutorService scheduler;
     private final int schedulerPoolSize;
 
@@ -56,10 +67,10 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     }
     
     /**
-     * Returns a reference to the {@linkplain MaritimeCloudServiceCommon}
-     * @return a reference to the {@linkplain MaritimeCloudServiceCommon}
+     * Returns a reference to the {@linkplain MaritimeCloudService}
+     * @return a reference to the {@linkplain MaritimeCloudService}
      */
-    public synchronized MaritimeCloudServiceCommon getMaritimeCloudService() {
+    public synchronized MaritimeCloudService getMaritimeCloudService() {
         return maritimeCloudService;
     }
     
@@ -96,8 +107,8 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         
-        if (obj instanceof MaritimeCloudServiceCommon) {
-            maritimeCloudService = (MaritimeCloudServiceCommon)obj;
+        if (obj instanceof MaritimeCloudService) {
+            maritimeCloudService = (MaritimeCloudService)obj;
             maritimeCloudService.addListener(this);
         }
     }
@@ -108,7 +119,7 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     @Override
     public void findAndUndo(Object obj) {        
         
-        if (obj instanceof MaritimeCloudServiceCommon) {
+        if (obj instanceof MaritimeCloudService) {
             maritimeCloudService.removeListener(this);
             maritimeCloudService = null;
         }
@@ -202,15 +213,173 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     
     
     /****************************************/
+    /** Maritime Cloud messaging           **/
+    /****************************************/    
+
+    /**
+     * Sends the {@code message} to the service endpoint with the given {@code id} in the {@code serviceList}.
+     * <p>
+     * If the service endpoint is not found, this method will do nothing
+     *  
+     * @param serviceList the list of service endpoints
+     * @param id the maritime id of the service endpoint
+     * @param message the message to send
+     * @param statusListener if not {@code null}, the listener will be updated with the message status
+     * @return if the message was submitted to an endpoint
+     */
+    protected <M extends ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(List<ServiceEndpoint<M, R>> serviceList, MaritimeId id, M message, 
+            ICloudMessageListener<M, R> statusListener) {
+        
+        // Look up the service endpoint
+        ServiceEndpoint<M, R> endpoint = MaritimeCloudUtils.findServiceWithId(serviceList, id);
+
+        if (endpoint != null) {
+            // Send the message
+            return sendMaritimeCloudMessage(endpoint, message, statusListener);
+            
+        } else {
+            LOG.error("No Maritime Cloud service endpoint. Message skipped: " + message);
+            return false;
+        }
+        
+    }
+    
+    /**
+     * Sends the {@code message} to the give service {@code endpoint}.
+     *  
+     * @param endpoint the service endpoints
+     * @param message the message to send
+     * @param statusListener if not {@code null}, the listener will be updated with the message status
+     * @return if the message was submitted to an endpoint
+     */
+    protected <M extends ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(ServiceEndpoint<M, R> endpoint, final M message, final ICloudMessageListener<M, R> statusListener) {
+        
+        if (endpoint == null) {
+            return false;
+        }
+        
+        // Send the message
+        ServiceInvocationFuture<R> f = endpoint.invoke(message);
+        registerStatusListener(f, message, statusListener);
+        
+        LOG.info("Sent Maritime Cloud message: " +  message);
+        return true;
+    }
+
+    /**
+     * Sends the {@code message} to the service with the given id.
+     *  
+     * @param id the service id
+     * @param message the message to send
+     * @param statusListener if not {@code null}, the listener will be updated with the message status
+     * @return if the message was submitted to an endpoint
+     */
+    protected <M extends ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(MaritimeId id, final M message, final ICloudMessageListener<M, R> statusListener) {
+        
+        if (id == null) {
+            return false;
+        }
+        
+        // Send the message
+        ServiceInvocationFuture<R> f = getMaritimeCloudConnection().serviceInvoke(id, message);
+        registerStatusListener(f, message, statusListener);
+        
+        LOG.info("Sent Maritime Cloud message: " +  message);
+        return true;
+    }
+
+    /**
+     * Registers a status listener on the service invocation future
+     * 
+     * @param f the the service invocation future
+     * @param message the message 
+     * @param statusListener the status listener
+     */
+    private <M, R>  void registerStatusListener(ServiceInvocationFuture<R> f, final M message, final ICloudMessageListener<M, R> statusListener) {
+        if (statusListener != null) {
+            
+            // Register a consumer that will be called when the recipient has completed the request
+            f.handle(new BiConsumer<R, Throwable>() {
+                @Override
+                public void accept(R reply, Throwable r) {
+                    statusListener.messageHandled(message, reply);
+                }
+            });
+            
+            // Register a consumer that will be called when the Maritime Cloud has received the message
+            f.receivedByCloud().handle(new BiConsumer<Object, Throwable>() {
+                @Override
+                public void accept(Object l, Throwable r) {
+                    statusListener.messageReceivedByCloud(message);
+                }
+            }); 
+        }
+    }
+    
+    /****************************************/
     /** Helper classes                     **/
     /****************************************/
+    
+    /**
+     * Defines the statuses of a cloud message. Since some of the
+     * status can arrive out of order from the cloud, introduce an
+     * order to the statuses and a method for combining them.
+     */
+    public enum CloudMessageStatus {
+        NOT_SENT(0, "Not sent - check network status"),
+        SENT(1, "Sent"),
+        SENT_FAILED(2, "Failed to send message"),
+        RECEIVED_BY_CLOUD(3, "Sent and received by cloud"),
+        RECEIVED_BY_CLIENT(4, "Sent and received by client"),
+        HANDLED_BY_CLIENT(5, "Sent and acknowledged by client");
+        
+        String title;
+        int order;
+        
+        private CloudMessageStatus(int order, String title) {
+            this.title = title;
+            this.order = order;
+        }
+        
+        public String getTitle() { return title; }
+        
+        /**
+         * Ensures that we do not "downgrade" a status when the updates 
+         * arrives out-of-order
+         * @param other the cloud message status to combine with
+         * @return the combined cloud message status
+         */
+        public CloudMessageStatus combine(CloudMessageStatus other) {
+            return (other == null || order >= other.order) ? this : other;
+        }
+    }
+    
+    /**
+     * Can be implemented by status listeners passed along to the 
+     * {@linkplain #sendMaritimeCloudMessage()} function 
+     */
+    public interface ICloudMessageListener<M, R> {
+        
+        /**
+         * Called when the message is received by the cloud
+         * @param message the maritime cloud message
+         */
+        void messageReceivedByCloud(M message);
+        
+        /**
+         * Called when the message has been handled by the client
+         * @param message the maritime cloud message
+         * @param reply the reply
+         */
+        void messageHandled(M message, R reply);
+    }
     
     /**
      * Simple wrapper of the {@linkplain Runnable} interface
      * that only executes the wrapped runnable if there
      * is a live connection to the maritime cloud.
      */
-    class ConnectedRunnableWrapper implements Runnable {
+    public class ConnectedRunnableWrapper implements Runnable {
         
         Runnable runnable;
         

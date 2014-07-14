@@ -22,7 +22,7 @@ package dk.dma.epd.common.prototype.model.route;
 public class PartialRouteFilter {
 
     public static final PartialRouteFilter DEFAULT = 
-            new PartialRouteFilter(FilterType.METERS, 10000, 20000);
+            new PartialRouteFilter(FilterType.METERS, 18520, 111120);
     
     /**
      * Defines the filter type, either time in minutes, distance in meters or number of way points

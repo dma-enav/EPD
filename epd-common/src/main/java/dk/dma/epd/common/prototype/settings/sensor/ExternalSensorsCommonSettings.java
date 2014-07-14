@@ -134,6 +134,7 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
     private String aisHostOrSerialPort = "localhost";
     private String aisFilename = "";
     private int aisTcpOrUdpPort = 4001;
+    private int aisSerialPortBaudRate = 38400;
 
     private SensorConnectionType gpsConnectionType = SensorConnectionType.NONE;
     private String gpsHostOrSerialPort = "COM3";
@@ -278,6 +279,32 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
         }
     }
 
+    public int getAisSerialPortBaudRate() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.aisSerialPortBaudRate;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+    
+    public void setAisSerialPortBaudRate(final int aisSerialPortBaudRate) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.aisSerialPortBaudRate == aisSerialPortBaudRate) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was a change, update and notify observers.
+            this.aisSerialPortBaudRate = aisSerialPortBaudRate;
+            for (OBSERVER obs : this.observers) {
+                obs.aisSerialPortBaudRateChanged(aisSerialPortBaudRate);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+    
     public SensorConnectionType getGpsConnectionType() {
         try {
             this.settingLock.readLock().lock();
@@ -650,6 +677,12 @@ public class ExternalSensorsCommonSettings<OBSERVER extends ExternalSensorsCommo
         this.setAisTcpOrUdpPort(port);
     }
 
+    @Override
+    public void aisSerialPortBaudRateChanged(int aisSerialPortBaudRate) {
+        // Obey to change in observed instance.
+        this.setAisSerialPortBaudRate(aisSerialPortBaudRate);
+    }
+    
     @Override
     public void gpsConnectionTypeChanged(SensorConnectionType connType) {
         // Obey to change in observed instance.

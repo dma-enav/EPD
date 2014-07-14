@@ -15,7 +15,7 @@
  */
 package dk.dma.epd.common.prototype.gui.menuitems;
 
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+import dk.dma.epd.common.prototype.EPD;
 
 /**
  * Used to hide routes.
@@ -23,7 +23,7 @@ import dk.dma.epd.common.prototype.route.RouteManagerCommon;
  * If the {@code routeIndex} equals {@code ALL_INACTIVE_ROUTES} then all inactive routes
  * are hidden. Otherwise, the route with the given index is hidden.
  */
-public class RouteHide extends RouteMenuItem<RouteManagerCommon> {
+public class RouteHide extends RouteMenuItem {
     
     private static final long serialVersionUID = 1L;
     public static final int ALL_INACTIVE_ROUTES = -1;
@@ -36,9 +36,9 @@ public class RouteHide extends RouteMenuItem<RouteManagerCommon> {
     @Override
     public void doAction() {
         if (routeIndex == ALL_INACTIVE_ROUTES) {
-            routeManager.hideInactiveRoutes();
+            EPD.getInstance().getRouteManager().hideInactiveRoutes();
         } else {
-            routeManager.hideRoute(routeIndex);
+            EPD.getInstance().getRouteManager().hideRoute(routeIndex);
         }
     }
 }

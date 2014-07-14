@@ -26,6 +26,7 @@ import dk.dma.epd.common.prototype.settings.handlers.MSIHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.handlers.RouteManagerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.DynamicPredictorLayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
@@ -169,6 +170,11 @@ public abstract class Settings {
     protected final String voyageLayerSettingsFile = "voyage-layer_settings.yaml";
     
     /**
+     * Filename for the file with dynamic predictor layer settings.
+     */
+    protected final String dynamicPredictorLayerSettingsFile = "dynamic-predictor-layer_settings.yaml";
+    
+    /**
      * The primary/global AIS layer settings.
      * If more AIS layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
      */
@@ -217,6 +223,12 @@ public abstract class Settings {
      * Connection parameters used when connecting to MonaLisa services.
      */
     protected NetworkSettings<NetworkSettingsListener> monaLisaHttpSettings;
+    
+    /**
+     * The primary/global dynamic predictor layer settings.
+     * If more dynamic predictor layers are to coexist, each with individual settings, these local settings instances may register as observers of this instance in order to "obey" to changes to global settings.
+     */
+    protected DynamicPredictorLayerSettings primaryDynamicPredictorLayerSettings;
     
     /**
      * Connection parameters used when connecting to Maritime Cloud services.
@@ -303,6 +315,15 @@ public abstract class Settings {
      */
     public IntendedRouteLayerCommonSettings<IntendedRouteLayerCommonSettingsListener> getPrimaryIntendedRouteLayerSettings() {
         return this.primaryIntendedRouteLayerSettings;
+    }
+    
+    /**
+     * Gets the primary (global) dynamic predictor layer settings.
+     * If more dynamic predictor layers are to coexist, each with individual settings, these local settings instances may register as observers of the returned instance in order to "obey" to changes to global settings.
+     * @return The primary (global) dynamic predictor layer settings.
+     */
+    public DynamicPredictorLayerSettings getPrimaryDynamicPredictorLayerSettings() {
+        return this.primaryDynamicPredictorLayerSettings;
     }
     
     /**
@@ -490,10 +511,17 @@ public abstract class Settings {
         
         /*
          * Load Voyage layer settings.
-         * If ship/shore specific AIS handler settings are added later, move this to subclass.
+         * If ship/shore specific voyage layer settings are added later, move this to subclass.
          */
         VoyageLayerCommonSettings<VoyageLayerCommonSettingsListener> voyage = ObservedSettings.loadFromFile(VoyageLayerCommonSettings.class, resolve(voyageLayerSettingsFile).toFile());
         this.voyageLayerSettings = voyage != null ? voyage : new VoyageLayerCommonSettings<>();
+        
+        /*
+         * Load Dynamic Predictor Layer settings.
+         * If ship/shore specific dynamic predictor layer settings are added later, move this to subclasses.
+         */
+        DynamicPredictorLayerSettings dplSettings = ObservedSettings.loadFromFile(DynamicPredictorLayerSettings.class, resolve(dynamicPredictorLayerSettingsFile).toFile());
+        this.primaryDynamicPredictorLayerSettings = dplSettings != null ? dplSettings : new DynamicPredictorLayerSettings();
     }
 
     /**
@@ -520,6 +548,7 @@ public abstract class Settings {
         this.getPrimaryWMSLayerSettings().saveToYamlFile(resolve(wmsLayerSettingsFile).toFile());
         this.getRouteManagerSettings().saveToYamlFile(resolve(routeManagerSettingsFile).toFile());
         this.getVoyageLayerSettings().saveToYamlFile(resolve(voyageLayerSettingsFile).toFile());
+        this.getPrimaryDynamicPredictorLayerSettings().saveToYamlFile(resolve(dynamicPredictorLayerSettingsFile).toFile());
         
         // Save S57 settings
         this.getS57LayerSettings().saveSettings(resolve(s57LayerSettingsFile).toString());

@@ -20,11 +20,13 @@ import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
 import dk.dma.epd.common.prototype.gui.voct.ButtonsPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.SARPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.SearchPatternsPanelCommon;
+import dk.dma.epd.common.prototype.gui.voct.VOCTAdditionalInfoDialog;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.ship.EPDShip;
@@ -38,7 +40,10 @@ import dk.dma.epd.ship.gui.voct.SearchPatternDialog;
  * Active waypoint panel in sensor panel
  */
 public class SARPanel extends SARPanelCommon {
+
     public SARPanel() {
+        super();
+        btnCancelSar.addActionListener(this);
     }
 
     private static final long serialVersionUID = 1L;
@@ -47,15 +52,16 @@ public class SARPanel extends SARPanelCommon {
     private JCheckBox chckbxShowDynamicPattern;
     private JButton btnReopenCalculations;
     private JButton btnEffortAllocation;
+    private JButton btnAdditionalInfo;
 
     protected EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
     protected SearchPatternDialog searchPatternDialog = new SearchPatternDialog();
+    protected VOCTAdditionalInfoDialog additionalInfoDialog = new VOCTAdditionalInfoDialog(EPDShip.getInstance().getMainFrame());
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
-        if (arg0.getSource() == btnStartSar
-                || arg0.getSource() == btnReopenCalculations) {
+        if (arg0.getSource() == btnStartSar || arg0.getSource() == btnReopenCalculations) {
 
             if (voctManager != null) {
 
@@ -73,8 +79,7 @@ public class SARPanel extends SARPanelCommon {
                 // Determine what type of SAR then retrieve the input data
                 if (effortAllocationWindow != null) {
                     effortAllocationWindow.setValues();
-                    effortAllocationWindow
-                            .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                    effortAllocationWindow.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
                     effortAllocationWindow.setVisible(true);
                 }
 
@@ -90,8 +95,7 @@ public class SARPanel extends SARPanelCommon {
                 voctManager.updateEffectiveAreaLocation();
 
                 searchPatternDialog.resetValues();
-                searchPatternDialog
-                        .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                searchPatternDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
                 searchPatternDialog.setVisible(true);
             }
 
@@ -101,19 +105,34 @@ public class SARPanel extends SARPanelCommon {
         if (arg0.getSource() == chckbxShowDynamicPattern) {
 
             if (chckbxShowDynamicPattern.isSelected()) {
-                sarData.getEffortAllocationData().get(0)
-                        .getSearchPatternRoute().switchToDynamic();
+                sarData.getEffortAllocationData().get(0).getSearchPatternRoute().switchToDynamic();
             } else {
-                sarData.getEffortAllocationData().get(0)
-                        .getSearchPatternRoute().switchToStatic();
+                sarData.getEffortAllocationData().get(0).getSearchPatternRoute().switchToStatic();
             }
 
-            EPDShip.getInstance().getRouteManager()
-                    .notifyListeners(RoutesUpdateEvent.ROUTE_CHANGED);
+            EPDShip.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_CHANGED);
 
             return;
         }
 
+        if (arg0.getSource() == btnCancelSar) {
+
+            int n = JOptionPane.showConfirmDialog(EPDShip.getInstance().getMainFrame(),
+                    "Are you sure you wish to end the SAR operation\n"
+                            + "This will terminiate your involvement in the SAR operation", "End SAR?", JOptionPane.YES_NO_OPTION);
+
+            if (n == JOptionPane.YES_OPTION) {
+                voctManager.cancelSarOperation();
+            }
+
+            return;
+        }
+
+        if (arg0.getSource() == btnAdditionalInfo) {
+
+            additionalInfoDialog.setVisible(true);
+            return;
+        }
     }
 
     /**
@@ -130,13 +149,11 @@ public class SARPanel extends SARPanelCommon {
     @Override
     protected SearchPatternsPanelCommon createSearchPatternsPanel() {
         searchPatternPanel = new SearchPatternsPanel();
-        btnGenerateSearchPattern = ((SearchPatternsPanel) searchPatternPanel)
-                .getBtnGenerateSearchPattern();
+        btnGenerateSearchPattern = ((SearchPatternsPanel) searchPatternPanel).getBtnGenerateSearchPattern();
 
         btnGenerateSearchPattern.addActionListener(this);
 
-        chckbxShowDynamicPattern = ((SearchPatternsPanel) searchPatternPanel)
-                .getChckbxShowDynamicPattern();
+        chckbxShowDynamicPattern = ((SearchPatternsPanel) searchPatternPanel).getChckbxShowDynamicPattern();
 
         chckbxShowDynamicPattern.addActionListener(this);
 
@@ -157,6 +174,8 @@ public class SARPanel extends SARPanelCommon {
         btnReopenCalculations.addActionListener(this);
         btnEffortAllocation = buttonsPanel.getBtnEffortAllocation();
         btnEffortAllocation.addActionListener(this);
+        btnAdditionalInfo = buttonsPanel.getAdditionalInfoButton();
+        btnAdditionalInfo.addActionListener(this);
 
         return buttonsPanel;
     }

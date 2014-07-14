@@ -49,13 +49,14 @@ import dk.dma.epd.ship.gui.TopPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
+import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
  * AIS layer. Showing AIS targets.
  */
 @ThreadSafe
-public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener {
+public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener, IOwnShipListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -149,11 +150,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             aisPanel.receiveHighlight(vessel.getMmsi(), vessel.getPositionData().getCog(), rhumbLineDistance, rhumbLineBearing,
                     vessel.getPositionData().getSog());
         }
-        if (vessel.getStaticData() != null && ownShipHandler.isPositionDefined()) {
-            aisPanel.dynamicNogoAvailable(true);
-        } else {
-            aisPanel.dynamicNogoAvailable(false);
-        }
+
 
         doPrepare();
 
@@ -214,6 +211,9 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
         if (obj instanceof TopPanel) {
             topPanel = (TopPanel) obj;
+        }
+        if (obj instanceof OwnShipHandler) {
+            ((OwnShipHandler)obj).addListener(this);
         }
     }
 
@@ -306,5 +306,20 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     @Override
     public MapMenu getMapMenu() {
         return (MapMenu) super.getMapMenu();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override 
+    public void ownShipUpdated(OwnShipHandler ownShipHandler) { 
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override 
+    public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
+        clearAisTargetGraphics();
     }
 }

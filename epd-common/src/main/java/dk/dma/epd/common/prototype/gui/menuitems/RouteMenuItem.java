@@ -18,17 +18,15 @@ package dk.dma.epd.common.prototype.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
 /**
  * Common super class for route-related menu items
  */
-public abstract class RouteMenuItem<RM extends RouteManagerCommon> extends JMenuItem implements IMapMenuAction {
+public abstract class RouteMenuItem extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
 
     protected int routeIndex;
-    protected RM routeManager;
     
     /**
      * Sets the current route index
@@ -36,13 +34,5 @@ public abstract class RouteMenuItem<RM extends RouteManagerCommon> extends JMenu
      */
     public void setRouteIndex(int routeIndex) {
         this.routeIndex = routeIndex;
-    }
-    
-    /**
-     * Sets the current route manager
-     * @param routeManager the current route manager
-     */
-    public void setRouteManager(RM routeManager) {
-        this.routeManager = routeManager;
     }
 }

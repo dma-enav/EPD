@@ -18,6 +18,7 @@ package dk.dma.epd.common.prototype.ais;
 import java.io.Serializable;
 
 import net.jcip.annotations.ThreadSafe;
+import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage24;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.ShipTypeCargo;
@@ -120,12 +121,20 @@ public class VesselStaticData implements Serializable {
         return callsign;
     }
 
+    public String getTrimmedCallsign() {
+        return AisMessage.trimText(getCallsign());
+    }
+
     public synchronized void setCallsign(String callsign) {
         this.callsign = callsign;
     }
 
     public synchronized String getName() {
         return name;
+    }
+    
+    public String getTrimmedName() {
+        return AisMessage.trimText(getName());
     }
 
     public synchronized void setName(String name) {
@@ -198,6 +207,10 @@ public class VesselStaticData implements Serializable {
 
     public synchronized String getDestination() {
         return destination;
+    }
+
+    public String getTrimmedDestination() {
+        return AisMessage.trimText(getDestination());
     }
 
     public synchronized void setDestination(String destination) {

@@ -127,7 +127,7 @@ public class EPDSettings extends Settings implements Serializable {
          */
         RouteManagerCommonSettings<RouteManagerCommonSettingsListener> routeMgr = ObservedSettings.loadFromFile(RouteManagerCommonSettings.class, resolve(routeManagerSettingsFile).toFile());
         this.routeManagerSettings = routeMgr != null ? routeMgr : new RouteManagerCommonSettings<>();
-
+        
         workspaceFile = guiSettings.getWorkspace();
 
         if (workspaceFile != null) {
@@ -225,7 +225,8 @@ public class EPDSettings extends Settings implements Serializable {
     }
     
     /**
-     * Loads the given properties file. Deprecated: Only intended for use during {@link Workspace} initialization.
+     * Loads the given properties file.
+     * @deprecated Only intended for use during {@link Workspace} initialization.
      * @param props the properties to load the file into
      * @param file the properties file to load
      * @return success or failure
@@ -250,7 +251,8 @@ public class EPDSettings extends Settings implements Serializable {
     }
     
     /**
-     * Saves the properties to the given file. Deprecated: Only intended for use during {@link Workspace} serialization.
+     * Saves the properties to the given file.
+     * @deprecated Only intended for use during {@link Workspace} serialization.
      * @param props the properties to save
      * @param file the file to save the properties to
      * @return success or failure

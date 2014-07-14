@@ -19,12 +19,14 @@ import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.ship.EPDShip;
 
 public class SendToSTCC extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
     private Route route;
+    private Long transactionId;
 
 
     public SendToSTCC(String text) {
@@ -34,14 +36,24 @@ public class SendToSTCC extends JMenuItem implements IMapMenuAction {
 
     @Override
     public void doAction() {
-        EPDShip.getInstance().getStrategicRouteHandler().sendStrategicRouteToSTCC(route, null);
-        // TODO: In the future, use:
-        //EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setSelectedRoute(route);
-        //EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setVisible(true);
+        // Check if a transaction is ongoing
+        if (transactionId != null) {
+            // If so, show the strategic route notification
+            EPDShip.getInstance().getNotificationCenter()
+                .openNotification(NotificationType.STRATEGIC_ROUTE, transactionId, false);
+        } else {
+            // No transaction, show the SendStrategicRouteDialog
+            EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setSelectedRoute(route);
+            EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setVisible(true);
+        }
     }
     
 
     public void setRoute(Route route) {
         this.route = route;
+    }
+    
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
     }
 }

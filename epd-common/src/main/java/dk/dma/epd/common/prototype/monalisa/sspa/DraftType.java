@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "draftType", namespace = "http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange", propOrder = {
+@XmlType(name = "draftType", namespace = "http://www.sspa.se/voyage-optimizer", propOrder = {
         "forward", "aft" })
 public class DraftType {
 

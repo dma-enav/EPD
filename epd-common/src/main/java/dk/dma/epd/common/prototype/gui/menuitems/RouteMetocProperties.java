@@ -18,9 +18,8 @@ package dk.dma.epd.common.prototype.gui.menuitems;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.route.RouteMetocDialog;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteMetocProperties extends RouteMenuItem<RouteManagerCommon> {
+public class RouteMetocProperties extends RouteMenuItem {
     
    private static final long serialVersionUID = 1L;
 
@@ -31,8 +30,11 @@ public class RouteMetocProperties extends RouteMenuItem<RouteManagerCommon> {
     
     @Override
     public void doAction() {
-        RouteMetocDialog routeMetocDialog = new RouteMetocDialog(EPD.getInstance().getMainFrame(), routeManager, routeIndex);
+        RouteMetocDialog routeMetocDialog = new RouteMetocDialog(
+                EPD.getInstance().getMainFrame(), 
+                EPD.getInstance().getRouteManager(), 
+                routeIndex);
         routeMetocDialog.setVisible(true);
-        routeManager.notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
+        EPD.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
     }
 }

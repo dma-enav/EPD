@@ -18,6 +18,7 @@ package dk.dma.epd.common.prototype.ais;
 import java.util.Date;
 
 import net.jcip.annotations.ThreadSafe;
+import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisMessage21;
 import dk.dma.enav.model.geometry.Position;
 
@@ -122,6 +123,10 @@ public class AtoNTarget extends AisTarget {
         this.atonType = atonType;
     }
 
+    public String getTrimmedName() {
+        return AisMessage.trimText(getName());
+    }
+    
     public synchronized String getName() {
         return name;
     }

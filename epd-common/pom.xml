@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>dk.dma.epd</groupId>
 		<artifactId>epd-parent</artifactId>
-		<version>0.1-SNAPSHOT</version>
+		<version>3.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -17,6 +17,11 @@
 		<!-- We use this look up resources on the classpath, should be replace 
 			by Classpath from Guava 14 when it is released -->
 		<dependency>
+			<groupId>dk.dma.enav</groupId>
+			<artifactId>enav-model</artifactId>
+			<version>0.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>3.1.3.RELEASE</version>
@@ -24,17 +29,17 @@
 		<dependency>
 			<groupId>dk.frv.dk</groupId>
 			<artifactId>enavshore-xml</artifactId>
-			<version>1.0</version>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>dk.dma.ais.lib</groupId>
 			<artifactId>ais-lib-communication</artifactId>
-			<version>2.0-SNAPSHOT</version>
+			<version>2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>dk.dma.ais.virtualnet</groupId>
 			<artifactId>ais-virtualnet-transponder</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>dk.dma.3rdparty</groupId>
@@ -86,14 +91,11 @@
 			<artifactId>commons-httpclient</artifactId>
 			<version>3.1</version>
 		</dependency>
-        <dependency>
-            <groupId>net.maritimecloud</groupId>
-            <artifactId>maritimecloud-client</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
-        
-        
-		
+		<dependency>
+			<groupId>net.maritimecloud</groupId>
+			<artifactId>maritimecloud-client</artifactId>
+			<version>0.1.5</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -117,7 +119,12 @@
 		<dependency>
 			<groupId>pl.project13.maven</groupId>
 			<artifactId>git-commit-id-plugin</artifactId>
-			<version>2.1.5</version>
+			<version>2.1.9</version>
+		</dependency>
+		<dependency>
+			<groupId>de.micromata.jak</groupId>
+			<artifactId>JavaAPIforKml</artifactId>
+			<version>2.2.0</version>
 		</dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -131,7 +138,7 @@
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
-				<version>2.1.5</version>
+				<version>2.1.9</version>
 				<executions>
 					<execution>
 						<goals>

@@ -21,7 +21,6 @@ import javax.swing.border.EtchedBorder;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
@@ -29,9 +28,10 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.gui.panels.OwnShipPanel;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
+
 import javax.swing.JScrollPane;
 
-public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataListener {
+public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataListener, DockableComponentPanel {
 
     /**
      * 
@@ -73,8 +73,8 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
             ownMmsi = ownShipHandler.getMmsi();
 
             if (staticData != null) {
-                ownName = AisMessage.trimText(staticData.getName());
-                ownCallsign = AisMessage.trimText(staticData.getCallsign());
+                ownName = staticData.getTrimmedName();
+                ownCallsign = staticData.getTrimmedCallsign();
             }
 
         }
@@ -95,4 +95,31 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
         }
     }
 
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "Own Ship";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
+    }
 }

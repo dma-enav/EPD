@@ -56,7 +56,7 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
         super();
         this.yamlEmitter = new Yaml(new MapCommonSettingsRepresenter());
     }
-    
+
     @Override
     public MapCommonSettings<OBSERVER> copy() {
         return (MapCommonSettings<OBSERVER>) super.copy();
@@ -195,11 +195,13 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
     }
 
     /**
-     * <b>NOT INTENDED FOR USE - use {@link #getCenter()} instead</b> This
-     * method targets the SnakeYAML library used for serialization of settings.
-     * SnakeYAML could not serialize a {@link LatLonPoint} correctly, so it is
-     * serialized using two simple values instead, namely the latitude and the
-     * longitude of the map center.
+     * <b>NOT INTENDED FOR USE - use {@link #getCenter()} instead</b>.
+     * 
+     * @deprecated This method targets the SnakeYAML library used for
+     *             serialization of settings. SnakeYAML could not serialize a
+     *             {@link LatLonPoint} correctly, so it is serialized using two
+     *             simple values instead, namely the latitude and the longitude
+     *             of the map center.
      * 
      * @return The latitude of the map center setting.
      */
@@ -215,11 +217,13 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
 
     /**
      * <b>NOT INTENDED FOR USE - use {@link #setCenter(LatLonPoint)}
-     * instead</b>. This method targets the SnakeYAML library used for
-     * serialization of settings. SnakeYAML could not serialize a
-     * {@link LatLonPoint} correctly, so it is serialized using two simple
-     * values instead, namely the latitude and the longitude of the map center.
+     * instead</b>.
      * 
+     * @deprecated This method targets the SnakeYAML library used for
+     *             serialization of settings. SnakeYAML could not serialize a
+     *             {@link LatLonPoint} correctly, so it is serialized using two
+     *             simple values instead, namely the latitude and the longitude
+     *             of the map center.
      * @param lat
      *            The new latitude of the map center setting.
      */
@@ -231,12 +235,13 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
     }
 
     /**
-     * <b>NOT INTENDED FOR USE - use {@link #getCenter()} instead</b> This
-     * method targets the SnakeYAML library used for serialization of settings.
-     * SnakeYAML could not serialize a {@link LatLonPoint} correctly, so it is
-     * serialized using two simple values instead, namely the latitude and the
-     * longitude of the map center.
+     * <b>NOT INTENDED FOR USE - use {@link #getCenter()} instead</b>.
      * 
+     * @deprecated This method targets the SnakeYAML library used for
+     *             serialization of settings. SnakeYAML could not serialize a
+     *             {@link LatLonPoint} correctly, so it is serialized using two
+     *             simple values instead, namely the latitude and the longitude
+     *             of the map center.
      * @return The longitude of the map center setting.
      */
     @Deprecated
@@ -251,11 +256,12 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
 
     /**
      * <b>NOT INTENDED FOR USE - use {@link #setCenter(LatLonPoint)} instead</b>
-     * This method targets the SnakeYAML library used for serialization of
-     * settings. SnakeYAML could not serialize a {@link LatLonPoint} correctly,
-     * so it is serialized using two simple values instead, namely the latitude
-     * and the longitude of the map center.
      * 
+     * @deprecated This method targets the SnakeYAML library used for
+     *             serialization of settings. SnakeYAML could not serialize a
+     *             {@link LatLonPoint} correctly, so it is serialized using two
+     *             simple values instead, namely the latitude and the longitude
+     *             of the map center.
      * @param lon
      *            The new longitude of the map center setting.
      */
@@ -266,28 +272,11 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
         this.settingLock.writeLock().unlock();
     }
 
-    protected static class MapCommonSettingsRepresenter extends Representer {
-        @Override
-        protected NodeTuple representJavaBeanProperty(Object javaBean,
-                Property property, Object propertyValue, Tag customTag) {
-            if (javaBean instanceof MapCommonSettings
-                    && property.getName().equals("center")) {
-                /*
-                 * Do not attempt to serialize center as LatLonPoint as its
-                 * inner properties are never dumped.
-                 */
-                return null;
-            }
-            return super.representJavaBeanProperty(javaBean, property,
-                    propertyValue, customTag);
-        }
-    }
-
     /*
      * Begin: Listener methods that are only used if this instance observes
      * another instance of this class.
      */
-    
+
     @Override
     public void mapCenterChanged(LatLonPoint newCenter) {
         // Obey to change in observed instance.
@@ -305,9 +294,26 @@ public class MapCommonSettings<OBSERVER extends MapCommonSettingsListener>
         // Obey to change in observed instance.
         this.setMinMapScale(newMinScale);
     }
-    
+
     /*
      * End: Listener methods that are only used if this instance observes
      * another instance of this class.
      */
+
+    protected static class MapCommonSettingsRepresenter extends Representer {
+        @Override
+        protected NodeTuple representJavaBeanProperty(Object javaBean,
+                Property property, Object propertyValue, Tag customTag) {
+            if (javaBean instanceof MapCommonSettings
+                    && property.getName().equals("center")) {
+                /*
+                 * Do not attempt to serialize center as LatLonPoint as its
+                 * inner properties are never dumped.
+                 */
+                return null;
+            }
+            return super.representJavaBeanProperty(javaBean, property,
+                    propertyValue, customTag);
+        }
+    }
 }

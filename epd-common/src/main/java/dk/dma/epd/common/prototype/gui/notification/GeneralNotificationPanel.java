@@ -19,8 +19,8 @@ import javax.swing.ImageIcon;
 
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
-import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
 
 /**
@@ -37,8 +37,8 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
     /**
      * Constructor
      */
-    public GeneralNotificationPanel() {
-        super();
+    public GeneralNotificationPanel(NotificationCenterCommon notificationCenter) {
+        super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setMaxWidth(18);
@@ -86,7 +86,7 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
                 case 1: return notification.getSeverity() == NotificationSeverity.ALERT
                                 ? ICON_ALERT
                                 : (notification.getSeverity() == NotificationSeverity.WARNING ? ICON_WARNING : null);
-                case 2: return Formatter.formatShortDateTime(notification.getDate());
+                case 2: return Formatter.formatShortDateTimeNoTz(notification.getDate());
                 case 3: return notification.getTitle();
                 default:
                 }
@@ -101,6 +101,15 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
     @Override
     protected NotificationDetailPanel<GeneralNotification> initNotificationDetailPanel() {
         return new GeneralNotificationDetailPanel();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doRefreshNotifications() {
+        refreshTableData();
+//        notifyListeners();
     }
     
 }

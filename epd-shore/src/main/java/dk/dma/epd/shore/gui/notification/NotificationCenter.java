@@ -19,23 +19,13 @@ import java.awt.Window;
 
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.notification.Notification;
-import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.service.RouteSuggestionHandler;
-import dk.dma.epd.shore.service.StrategicRouteHandler;
-import dk.dma.epd.shore.service.RouteSuggestionHandler.RouteSuggestionListener;
-import dk.dma.epd.shore.service.StrategicRouteHandler.StrategicRouteListener;
 
 /**
  * Shore-specific notification center implementation
  */
-public class NotificationCenter extends NotificationCenterCommon implements 
-    RouteSuggestionListener, 
-    StrategicRouteListener {
+public class NotificationCenter extends NotificationCenterCommon {
 
     private static final long serialVersionUID = 1L;
-    
-    private RouteSuggestionHandler routeSuggestionHandler;
-    private StrategicRouteHandler strategicRouteHandler;
     
     private StrategicRouteNotificationPanel strategicRoutePanel;
     private RouteSuggestionNotificationPanel routeSuggestionPanel;
@@ -46,12 +36,7 @@ public class NotificationCenter extends NotificationCenterCommon implements
      * @param window the parent window
      */
     public NotificationCenter(Window window) {
-        super(window);
-        
-        routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
-        routeSuggestionHandler.addRouteSuggestionListener(this);
-        strategicRouteHandler = EPDShore.getInstance().getStrategicRouteHandler();
-        strategicRouteHandler.addStrategicRouteListener(this);
+        super(window);        
     }
 
     /**
@@ -62,8 +47,8 @@ public class NotificationCenter extends NotificationCenterCommon implements
         super.registerPanels();
         
         // Add the shore specific panels
-        routeSuggestionPanel = new RouteSuggestionNotificationPanel();
-        strategicRoutePanel = new StrategicRouteNotificationPanel();
+        routeSuggestionPanel = new RouteSuggestionNotificationPanel(this);
+        strategicRoutePanel = new StrategicRouteNotificationPanel(this);
         panels.add(routeSuggestionPanel);
         panels.add(strategicRoutePanel);
     }

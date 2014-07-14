@@ -21,9 +21,9 @@ import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
-import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 
 public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
@@ -46,66 +46,59 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
         setText(text);
     }
 
-    
-    
     /**
-     * @param aisHandler the aisHandler to set
+     * @param aisHandler
+     *            the aisHandler to set
      */
     public void setAisHandler(AisHandlerCommon aisHandler) {
         this.aisHandler = aisHandler;
     }
 
     /**
-     * @param strategicRouteHandler the strategicRouteHandler to set
+     * @param strategicRouteHandler
+     *            the strategicRouteHandler to set
      */
-    public void setStrategicRouteHandler(StrategicRouteHandler strategicRouteHandler) {
+    public void setStrategicRouteHandler(
+            StrategicRouteHandler strategicRouteHandler) {
         this.strategicRouteHandler = strategicRouteHandler;
     }
 
     @Override
     public void doAction() {
         handleNegotiation();
-        
-        
+
     }
-    
-    private void handleNegotiation(){
-        
-        if (strategicRouteHandler.getStrategicNegotiationData().containsKey(transactionid)){
-            
-        System.out.println("Handling it!");
-        
-        StrategicRouteNegotiationData message = strategicRouteHandler.getStrategicNegotiationData().get(transactionid);
-        
 
-        String shipName = "" + message.getMmsi();
-        
-        VesselTarget vesselTarget = aisHandler.getVesselTarget(message.getMmsi());
-        if (vesselTarget.getStaticData() != null) {
-            shipName = vesselTarget.getStaticData().getName();
+    private void handleNegotiation() {
+
+        if (strategicRouteHandler.getStrategicNegotiationData().containsKey(
+                transactionid)) {
+
+            StrategicRouteNegotiationData routeData = strategicRouteHandler
+                    .getStrategicNegotiationData().get(transactionid);
+
+            String shipName = "" + routeData.getMmsi();
+
+            VesselTarget vesselTarget = aisHandler.getVesselTarget(routeData
+                    .getMmsi());
+            if (vesselTarget != null) {
+                if (vesselTarget.getStaticData() != null) {
+                    shipName = vesselTarget.getStaticData().getTrimmedName();
+                }
+            }
+
+            // Get latest route
+            Route route = routeData.getLatestRoute();
+
+            Voyage voyage = new Voyage(routeData.getMmsi(), route,
+                    routeData.getId());
+
+            Route originalRoute = routeData.getOriginalRoute();
+
+            EPDShore.getInstance()
+                    .getMainFrame()
+                    .addStrategicRouteExchangeHandlingWindow(originalRoute,
+                            shipName, voyage, true);
         }
-
-        // Get latest route
-        Route route = null;
-        
-        //The one we sent out was accepted
-        if (message.getRouteMessage().size() > message.getRouteReply().size()){
-          route = new Route(message.getRouteMessage()
-          .get(message.getRouteMessage().size() - 1)
-          .getRoute());
-        }else{
-            route = new Route(message.getRouteReply()
-                    .get(message.getRouteReply().size() - 1)
-                    .getRoute());  
-        }
-
-        Voyage voyage = new Voyage(message.getMmsi(), route,
-                message.getId());
-
-        Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
-        
-        EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
-                shipName, voyage, true);
-    }
     }
 }

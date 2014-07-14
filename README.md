@@ -22,11 +22,26 @@ Runnable jar files are located here
 
     distribution/EPD-Ship-Singlejar/target/epd-ship-dist-X.Y-SNAPSHOT.jar
     distribution/EPD-Shore-Singlejar/target/epd-shore-dist-X.Y-SNAPSHOT.jar
+    
+To run from command line
+
+    java -jar distribution/EPD-Ship-Singlejar/target/epd-ship-dist-X.Y-SNAPSHOT.jar
 
 Folders with settings files are created in the home folder
 
     <home folder>/.epd-ship
     <home folder>/.epd-shore
+
+## Creating Windows EXE files ##
+
+Windows execulateables can be created by using the followig Maven profile
+
+    mvn clean install -Pexe
+
+The executables will be located in here
+
+    distribution/EPD-Ship-Singlejar/target/epd-ship.exe
+    distribution/EPD-Shore-Singlejar/target/epd-shore.exe
 
 ## Eclipse development ##
 
@@ -40,15 +55,6 @@ The virtual transponder can provide a live anonymized AIS feed. The following se
 
 Host:port: `ais.e-navigation.net:8002` 
 Username/password: `anon/anon`
-
-## Contribution ##
-
-Fork the project and make pull requests. 
-
-Try to use the component architecture as much as possible. Implement components and 
-hook up to other components with the `findAndInit` method rather than hard-wiring.
-Try to follow the coding standards already used in the project and document within
-the code with Javadoc comments. For more extensive documentation use the Wiki.
 
 ## Quick start ##
 
@@ -85,7 +91,7 @@ the code with Javadoc comments. For more extensive documentation use the Wiki.
 
 ## ENC layer ##
 
-EPD-ship does not come with an ENC layer but with the possibility to add one as 
+EPD does not come with an ENC layer but with the possibility to add one as 
 a plugin. Currently the only known OpenMap ENC layer is a commercial one
 from the danish company [Navicon](http://www.navicon.dk).
 
@@ -103,18 +109,31 @@ To use Navicon ENC layer with EPD-ship please follow the steps below
 
 1. Run installer in `native`.
 
+1. Place the `lib` folder in `<home folder>/.epd-ship`
+
 1. Create the folder: `<home folder>/.epd-ship/navion`
 
-1. Place the folders `lib`, `native` and `data` in the newly created folder.
+1. Place the folders `native` and `data` in the newly created folder.
+
+1. In on a 32-bit system. Remove `native/keylock.dll` and rename `native/keylock32.dll` -> `native/keylock.dll`
 
 1. Copy `<home folder>/.epd-ship/enc_navicon.properties` to `<home folder>/.epd-ship/enc.properties`.
  
-1. Edit `<home folder>/.epd-ship/enc.properties` and set S-57/S-63 settings.
+1. Edit `<home folder>/.epd-ship/enc.properties` and set charts location in `enc.s57PathLocation`.
 
 1. Run application
 
 1. Enter Setup -> Map and enable ENC. Restart.
 
+## Utilities ##
+
+The module `epd-util` contains some utlities to use with EPD. 
+
+### Route from AIS generation ###
+
+A route file can be generated given an AIS file given MMSI number. Example:
+
+    java -jar epd-util/target/epd-util-0.1-SNAPSHOT.jar aistoroute -in ~/tmp/aisdump.txt -out ~/tmp/route.txt -mmsi 304913000
 
 ## Attribution
 

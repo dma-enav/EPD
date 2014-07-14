@@ -35,9 +35,9 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Route" type="{http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange}routeType"/>
- *         &lt;element name="CurrentShipData" type="{http://www.sspa.se/optiroute}CurrentShipDataType"/>
- *         &lt;element name="nogoareas" type="{http://www.sspa.se/optiroute}NoGoAreasType" minOccurs="0"/>
+ *         &lt;element name="Route" type="{http://www.sspa.se/voyage-optimizer}routeType"/>
+ *         &lt;element name="ShipData" type="{http://www.sspa.se/voyage-optimizer}CurrentShipDataType"/>
+ *         &lt;element name="nogoareas" type="{http://www.sspa.se/voyage-optimizer}NoGoAreasType" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -57,7 +57,7 @@ public class RouterequestType {
 
     @XmlElement(name = "Route", required = true)
     protected RouteType route;
-    @XmlElement(name = "CurrentShipData", required = true)
+    @XmlElement(name = "ShipData", required = true)
     protected CurrentShipDataType currentShipData;
     protected NoGoAreasType nogoareas;
 

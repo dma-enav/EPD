@@ -15,14 +15,23 @@
  */
 package dk.dma.epd.ship.gui.panels;
 
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.SwingConstants;
+
+import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
 /**
  * GPS panel in sensor panel
@@ -31,27 +40,200 @@ public class NoGoPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
+    private JLabel nogoTitleLabelSlider = new JLabel("NoGo");
+    private JLabel statusTitleLabelSlider = new JLabel("Status");
+    private JLabel statusLabelSlider = new JLabel("N/A");
+    private final JLabel validToTxtLabelSlider = new JLabel("N/A");
+    private final JLabel validFromTxtLabelSlider = new JLabel("N/A");
+    private final JLabel draughtTxtLabelSlider = new JLabel("N/A");
+    private final JLabel additionalTxtTitleLabelSlider = new JLabel("N/A");
+    private final JLabel validFromLabelTitleSlider = new JLabel("Valid From");
+    private final JLabel validToLabelTitleSlider = new JLabel("Valid to");
+    private final JLabel draughtLabelTitleSlider = new JLabel("Depth Contour");
+    private final JLabel additionalTxtTitleLabel2Slider = new JLabel("N/A");
+
     private JLabel nogoTitleLabel = new JLabel("NoGo");
     private JLabel statusTitleLabel = new JLabel("Status");
     private JLabel statusLabel = new JLabel("N/A");
-    private final JLabel statLabel2 = new JLabel("N/A");
-    private final JLabel statLabel1 = new JLabel("N/A");
-    private final JLabel statLabel3 = new JLabel("N/A");
-    private final JLabel statLabel4 = new JLabel("N/A");
-    private final JLabel lblNewLabel = new JLabel("Valid From");
-    private final JLabel lblNewLabel_1 = new JLabel("Valid to");
-    private final JLabel lblNewLabel_2 = new JLabel("Draught");
-    private final JLabel statLabel5 = new JLabel("N/A");
+    private final JLabel validToTxtLabel = new JLabel("N/A");
+    private final JLabel validFromTxtLabel = new JLabel("N/A");
+    private final JLabel draughtTxtLabel = new JLabel("N/A");
+    private final JLabel additionalTxtTitleLabel = new JLabel("N/A");
+    private final JLabel validFromLabelTitle = new JLabel("Valid From");
+    private final JLabel validToLabelTitle = new JLabel("Valid to");
+    private final JLabel draughtLabelTitle = new JLabel("Depth Contour");
+    private final JLabel additionalTxtTitleLabel2 = new JLabel("N/A");
+
+    private JPanel singleNoGoPanel;
+    private JPanel multipleNoGoPanel;
+
+    private JSlider slider;
+
+    private DecimalFormat df = new DecimalFormat("#.#");
+    SimpleDateFormat sdf = new SimpleDateFormat("dd MMM , HH:mm");
 
     public NoGoPanel() {
+
+        FlowLayout flowLayout = (FlowLayout) getLayout();
+        flowLayout.setAlignment(FlowLayout.LEFT);
+
+        singleNoGoPanel = new JPanel();
+        multipleNoGoPanel = new JPanel();
+
+        createSingleRequestPanel();
+        createSliderRequestPanel();
+
+        activateSinglePanel();
+        // activateSliderPanel();
+        // this.add(singleNoGoPanel);
+        // this.add(multipleNoGoPanel);
+    }
+
+    public void activateSliderPanel() {
+        this.remove(singleNoGoPanel);
+        this.add(multipleNoGoPanel);
+    }
+
+    public void activateSinglePanel() {
+        this.add(singleNoGoPanel);
+        this.remove(multipleNoGoPanel);
+    }
+
+    private void createSliderRequestPanel() {
         GridBagLayout gridBagLayout = new GridBagLayout();
-        gridBagLayout.columnWidths = new int[] { 10, 10 };
-        gridBagLayout.rowHeights = new int[] { 20, 16, 15, 0, 0, 0, 0,
-                10 };
-        gridBagLayout.columnWeights = new double[] { 1.0, 1.0 };
-        gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                0.0, Double.MIN_VALUE };
-        setLayout(gridBagLayout);
+        gridBagLayout.columnWidths = new int[] { 125, 90 };
+        gridBagLayout.rowHeights = new int[] { 20, 16, 15, 0, 0, 0, 0, 0, 30 };
+        gridBagLayout.columnWeights = new double[] { 0.0, 1.0 };
+        gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+        multipleNoGoPanel.setLayout(gridBagLayout);
+        nogoTitleLabelSlider.setHorizontalAlignment(SwingConstants.CENTER);
+        nogoTitleLabelSlider.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        GridBagConstraints gbc_nogoTitleLabel = new GridBagConstraints();
+        gbc_nogoTitleLabel.anchor = GridBagConstraints.NORTH;
+        gbc_nogoTitleLabel.fill = GridBagConstraints.HORIZONTAL;
+        gbc_nogoTitleLabel.insets = new Insets(0, 0, 5, 0);
+        gbc_nogoTitleLabel.gridwidth = 2;
+        gbc_nogoTitleLabel.gridx = 0;
+        gbc_nogoTitleLabel.gridy = 0;
+        multipleNoGoPanel.add(nogoTitleLabelSlider, gbc_nogoTitleLabel);
+
+        statusTitleLabelSlider.setHorizontalAlignment(SwingConstants.LEFT);
+        statusTitleLabelSlider.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        GridBagConstraints gbc_statusTitleLabel = new GridBagConstraints();
+        gbc_statusTitleLabel.anchor = GridBagConstraints.NORTHWEST;
+        gbc_statusTitleLabel.insets = new Insets(0, 0, 5, 5);
+        gbc_statusTitleLabel.gridx = 0;
+        gbc_statusTitleLabel.gridy = 1;
+        multipleNoGoPanel.add(statusTitleLabelSlider, gbc_statusTitleLabel);
+
+        statusLabelSlider.setHorizontalAlignment(SwingConstants.CENTER);
+        statusLabelSlider.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        GridBagConstraints gbc_statusLabel = new GridBagConstraints();
+        gbc_statusLabel.anchor = GridBagConstraints.NORTHWEST;
+        gbc_statusLabel.insets = new Insets(0, 0, 5, 0);
+        gbc_statusLabel.gridx = 1;
+        gbc_statusLabel.gridy = 1;
+        multipleNoGoPanel.add(statusLabelSlider, gbc_statusLabel);
+
+        validFromLabelTitleSlider.setHorizontalAlignment(SwingConstants.LEFT);
+        validFromLabelTitleSlider.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        GridBagConstraints gbc_validFromLabelTitle = new GridBagConstraints();
+        gbc_validFromLabelTitle.anchor = GridBagConstraints.WEST;
+        gbc_validFromLabelTitle.insets = new Insets(0, 0, 5, 5);
+        gbc_validFromLabelTitle.gridx = 0;
+        gbc_validFromLabelTitle.gridy = 2;
+        multipleNoGoPanel.add(validFromLabelTitleSlider, gbc_validFromLabelTitle);
+
+        validFromTxtLabelSlider.setHorizontalAlignment(SwingConstants.LEFT);
+        validFromTxtLabelSlider.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        GridBagConstraints gbc_statLabel1 = new GridBagConstraints();
+        gbc_statLabel1.anchor = GridBagConstraints.NORTHWEST;
+        gbc_statLabel1.insets = new Insets(0, 0, 5, 0);
+        gbc_statLabel1.gridx = 1;
+        gbc_statLabel1.gridy = 2;
+        multipleNoGoPanel.add(validFromTxtLabelSlider, gbc_statLabel1);
+
+        GridBagConstraints gbc_validToLabelTitle = new GridBagConstraints();
+        gbc_validToLabelTitle.anchor = GridBagConstraints.WEST;
+        gbc_validToLabelTitle.insets = new Insets(0, 0, 5, 5);
+        gbc_validToLabelTitle.gridx = 0;
+        gbc_validToLabelTitle.gridy = 3;
+        multipleNoGoPanel.add(validToLabelTitleSlider, gbc_validToLabelTitle);
+        validToLabelTitleSlider.setHorizontalAlignment(SwingConstants.LEFT);
+        validToLabelTitleSlider.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+        validToTxtLabelSlider.setHorizontalAlignment(SwingConstants.LEFT);
+        validToTxtLabelSlider.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        GridBagConstraints gbc_statLabel2 = new GridBagConstraints();
+        gbc_statLabel2.anchor = GridBagConstraints.NORTHWEST;
+        gbc_statLabel2.insets = new Insets(0, 0, 5, 0);
+        gbc_statLabel2.gridx = 1;
+        gbc_statLabel2.gridy = 3;
+        multipleNoGoPanel.add(validToTxtLabelSlider, gbc_statLabel2);
+
+        GridBagConstraints gbc_draughtLabelTitle = new GridBagConstraints();
+        gbc_draughtLabelTitle.anchor = GridBagConstraints.WEST;
+        gbc_draughtLabelTitle.insets = new Insets(0, 0, 5, 5);
+        gbc_draughtLabelTitle.gridx = 0;
+        gbc_draughtLabelTitle.gridy = 4;
+        multipleNoGoPanel.add(draughtLabelTitleSlider, gbc_draughtLabelTitle);
+        draughtLabelTitleSlider.setHorizontalAlignment(SwingConstants.LEFT);
+        draughtLabelTitleSlider.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+        draughtTxtLabelSlider.setHorizontalAlignment(SwingConstants.LEFT);
+        draughtTxtLabelSlider.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        GridBagConstraints gbc_statLabel3 = new GridBagConstraints();
+        gbc_statLabel3.anchor = GridBagConstraints.NORTHWEST;
+        gbc_statLabel3.insets = new Insets(0, 0, 5, 0);
+        gbc_statLabel3.gridx = 1;
+        gbc_statLabel3.gridy = 4;
+        multipleNoGoPanel.add(draughtTxtLabelSlider, gbc_statLabel3);
+
+        additionalTxtTitleLabelSlider.setHorizontalAlignment(SwingConstants.LEFT);
+        additionalTxtTitleLabelSlider.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        GridBagConstraints gbc_additionalTxtTitleLabel = new GridBagConstraints();
+        gbc_additionalTxtTitleLabel.gridwidth = 2;
+        gbc_additionalTxtTitleLabel.insets = new Insets(0, 0, 5, 0);
+        gbc_additionalTxtTitleLabel.anchor = GridBagConstraints.NORTH;
+        gbc_additionalTxtTitleLabel.gridx = 0;
+        gbc_additionalTxtTitleLabel.gridy = 5;
+        multipleNoGoPanel.add(additionalTxtTitleLabelSlider, gbc_additionalTxtTitleLabel);
+
+        additionalTxtTitleLabel2Slider.setHorizontalAlignment(SwingConstants.LEFT);
+        additionalTxtTitleLabel2Slider.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        GridBagConstraints gbc_additionalTxtTitleLabel2 = new GridBagConstraints();
+        gbc_additionalTxtTitleLabel2.anchor = GridBagConstraints.NORTH;
+        gbc_additionalTxtTitleLabel2.insets = new Insets(0, 0, 5, 0);
+        gbc_additionalTxtTitleLabel2.gridwidth = 2;
+        gbc_additionalTxtTitleLabel2.gridx = 0;
+        gbc_additionalTxtTitleLabel2.gridy = 6;
+        multipleNoGoPanel.add(additionalTxtTitleLabel2Slider, gbc_additionalTxtTitleLabel2);
+
+        slider = new JSlider(JSlider.HORIZONTAL, 1, 10, 1);
+        slider.setSnapToTicks(true);
+        slider.setPaintTicks(false);
+        slider.setPaintLabels(false);
+        slider.setMajorTickSpacing(1);
+        slider.setMinorTickSpacing(1);
+        // slider.addChangeListener(this);
+        slider.setEnabled(false);
+        //
+        GridBagConstraints gbc_label = new GridBagConstraints();
+        gbc_label.insets = new Insets(0, 0, 5, 0);
+        gbc_label.gridwidth = 2;
+        gbc_label.gridx = 0;
+        gbc_label.gridy = 7;
+        multipleNoGoPanel.add(slider, gbc_label);
+
+    }
+
+    private void createSingleRequestPanel() {
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        gridBagLayout.columnWidths = new int[] { 125, 90 };
+        gridBagLayout.rowHeights = new int[] { 20, 16, 15, 0, 0, 0, 0, 0, 10 };
+        gridBagLayout.columnWeights = new double[] { 0.0, 1.0 };
+        gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+        singleNoGoPanel.setLayout(gridBagLayout);
         nogoTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         nogoTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         GridBagConstraints gbc_nogoTitleLabel = new GridBagConstraints();
@@ -61,7 +243,7 @@ public class NoGoPanel extends JPanel {
         gbc_nogoTitleLabel.gridwidth = 2;
         gbc_nogoTitleLabel.gridx = 0;
         gbc_nogoTitleLabel.gridy = 0;
-        add(nogoTitleLabel, gbc_nogoTitleLabel);
+        singleNoGoPanel.add(nogoTitleLabel, gbc_nogoTitleLabel);
 
         statusTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
         statusTitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -70,7 +252,7 @@ public class NoGoPanel extends JPanel {
         gbc_statusTitleLabel.insets = new Insets(0, 0, 5, 5);
         gbc_statusTitleLabel.gridx = 0;
         gbc_statusTitleLabel.gridy = 1;
-        add(statusTitleLabel, gbc_statusTitleLabel);
+        singleNoGoPanel.add(statusTitleLabel, gbc_statusTitleLabel);
 
         statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
         statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -79,111 +261,381 @@ public class NoGoPanel extends JPanel {
         gbc_statusLabel.insets = new Insets(0, 0, 5, 0);
         gbc_statusLabel.gridx = 1;
         gbc_statusLabel.gridy = 1;
-        add(statusLabel, gbc_statusLabel);
+        singleNoGoPanel.add(statusLabel, gbc_statusLabel);
 
-        lblNewLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        lblNewLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-        gbc_lblNewLabel.anchor = GridBagConstraints.WEST;
-        gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
-        gbc_lblNewLabel.gridx = 0;
-        gbc_lblNewLabel.gridy = 2;
-        add(lblNewLabel, gbc_lblNewLabel);
+        validFromLabelTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        validFromLabelTitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        GridBagConstraints gbc_validFromLabelTitle = new GridBagConstraints();
+        gbc_validFromLabelTitle.anchor = GridBagConstraints.WEST;
+        gbc_validFromLabelTitle.insets = new Insets(0, 0, 5, 5);
+        gbc_validFromLabelTitle.gridx = 0;
+        gbc_validFromLabelTitle.gridy = 2;
+        singleNoGoPanel.add(validFromLabelTitle, gbc_validFromLabelTitle);
 
-        statLabel1.setHorizontalAlignment(SwingConstants.LEFT);
-        statLabel1.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        validFromTxtLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        validFromTxtLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         GridBagConstraints gbc_statLabel1 = new GridBagConstraints();
         gbc_statLabel1.anchor = GridBagConstraints.NORTHWEST;
         gbc_statLabel1.insets = new Insets(0, 0, 5, 0);
         gbc_statLabel1.gridx = 1;
         gbc_statLabel1.gridy = 2;
-        add(statLabel1, gbc_statLabel1);
+        singleNoGoPanel.add(validFromTxtLabel, gbc_statLabel1);
 
-        GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
-        gbc_lblNewLabel_1.anchor = GridBagConstraints.WEST;
-        gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 5);
-        gbc_lblNewLabel_1.gridx = 0;
-        gbc_lblNewLabel_1.gridy = 3;
-        add(lblNewLabel_1, gbc_lblNewLabel_1);
-        lblNewLabel_1.setHorizontalAlignment(SwingConstants.LEFT);
-        lblNewLabel_1.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        GridBagConstraints gbc_validToLabelTitle = new GridBagConstraints();
+        gbc_validToLabelTitle.anchor = GridBagConstraints.WEST;
+        gbc_validToLabelTitle.insets = new Insets(0, 0, 5, 5);
+        gbc_validToLabelTitle.gridx = 0;
+        gbc_validToLabelTitle.gridy = 3;
+        singleNoGoPanel.add(validToLabelTitle, gbc_validToLabelTitle);
+        validToLabelTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        validToLabelTitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
-        statLabel2.setHorizontalAlignment(SwingConstants.LEFT);
-        statLabel2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        validToTxtLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        validToTxtLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         GridBagConstraints gbc_statLabel2 = new GridBagConstraints();
         gbc_statLabel2.anchor = GridBagConstraints.NORTHWEST;
         gbc_statLabel2.insets = new Insets(0, 0, 5, 0);
         gbc_statLabel2.gridx = 1;
         gbc_statLabel2.gridy = 3;
-        add(statLabel2, gbc_statLabel2);
+        singleNoGoPanel.add(validToTxtLabel, gbc_statLabel2);
 
-        GridBagConstraints gbc_lblNewLabel_2 = new GridBagConstraints();
-        gbc_lblNewLabel_2.anchor = GridBagConstraints.WEST;
-        gbc_lblNewLabel_2.insets = new Insets(0, 0, 5, 5);
-        gbc_lblNewLabel_2.gridx = 0;
-        gbc_lblNewLabel_2.gridy = 4;
-        add(lblNewLabel_2, gbc_lblNewLabel_2);
-        lblNewLabel_2.setHorizontalAlignment(SwingConstants.LEFT);
-        lblNewLabel_2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        
+        GridBagConstraints gbc_draughtLabelTitle = new GridBagConstraints();
+        gbc_draughtLabelTitle.anchor = GridBagConstraints.WEST;
+        gbc_draughtLabelTitle.insets = new Insets(0, 0, 5, 5);
+        gbc_draughtLabelTitle.gridx = 0;
+        gbc_draughtLabelTitle.gridy = 4;
+        singleNoGoPanel.add(draughtLabelTitle, gbc_draughtLabelTitle);
+        draughtLabelTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        draughtLabelTitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
-        statLabel3.setHorizontalAlignment(SwingConstants.LEFT);
-        statLabel3.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        draughtTxtLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        draughtTxtLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         GridBagConstraints gbc_statLabel3 = new GridBagConstraints();
         gbc_statLabel3.anchor = GridBagConstraints.NORTHWEST;
         gbc_statLabel3.insets = new Insets(0, 0, 5, 0);
         gbc_statLabel3.gridx = 1;
         gbc_statLabel3.gridy = 4;
-        add(statLabel3, gbc_statLabel3);
+        singleNoGoPanel.add(draughtTxtLabel, gbc_statLabel3);
 
-        statLabel4.setHorizontalAlignment(SwingConstants.LEFT);
-        statLabel4.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        GridBagConstraints gbc_statLabel4 = new GridBagConstraints();
-        gbc_statLabel4.gridwidth = 2;
-        gbc_statLabel4.insets = new Insets(0, 0, 5, 0);
-        gbc_statLabel4.anchor = GridBagConstraints.NORTH;
-        gbc_statLabel4.gridx = 0;
-        gbc_statLabel4.gridy = 5;
-        add(statLabel4, gbc_statLabel4);
+        additionalTxtTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        additionalTxtTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        GridBagConstraints gbc_additionalTxtTitleLabel = new GridBagConstraints();
+        gbc_additionalTxtTitleLabel.gridwidth = 2;
+        gbc_additionalTxtTitleLabel.insets = new Insets(0, 0, 5, 0);
+        gbc_additionalTxtTitleLabel.anchor = GridBagConstraints.NORTH;
+        gbc_additionalTxtTitleLabel.gridx = 0;
+        gbc_additionalTxtTitleLabel.gridy = 5;
+        singleNoGoPanel.add(additionalTxtTitleLabel, gbc_additionalTxtTitleLabel);
 
-        statLabel5.setHorizontalAlignment(SwingConstants.LEFT);
-        statLabel5.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        GridBagConstraints gbc_statLabel5 = new GridBagConstraints();
-        gbc_statLabel5.gridwidth = 2;
-        gbc_statLabel5.gridx = 0;
-        gbc_statLabel5.gridy = 6;
-        add(statLabel5, gbc_statLabel5);
+        additionalTxtTitleLabel2.setHorizontalAlignment(SwingConstants.LEFT);
+        additionalTxtTitleLabel2.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        GridBagConstraints gbc_additionalTxtTitleLabel2 = new GridBagConstraints();
+        gbc_additionalTxtTitleLabel2.anchor = GridBagConstraints.NORTH;
+        gbc_additionalTxtTitleLabel2.gridwidth = 2;
+        gbc_additionalTxtTitleLabel2.gridx = 0;
+        gbc_additionalTxtTitleLabel2.gridy = 6;
+        singleNoGoPanel.add(additionalTxtTitleLabel2, gbc_additionalTxtTitleLabel2);
     }
 
-    public JLabel getStatusTitleLabel() {
-        return statusTitleLabel;
+    public void initLabels() {
+
+        statusLabel.setText("Inactive");
+        statusLabelSlider.setText("Inactive");
+
+        statusLabel.setEnabled(false);
+        statusLabelSlider.setEnabled(false);
+
+        // Valid from
+        validFromTxtLabel.setEnabled(false);
+        validFromTxtLabelSlider.setEnabled(false);
+
+        // Valid to
+        validToTxtLabel.setEnabled(false);
+        validToTxtLabelSlider.setEnabled(false);
+
+        // Draught
+        draughtTxtLabel.setEnabled(false);
+        draughtTxtLabelSlider.setEnabled(false);
+
+        // Additional txt
+        additionalTxtTitleLabel.setEnabled(false);
+        additionalTxtTitleLabelSlider.setEnabled(false);
+
+        additionalTxtTitleLabel2.setEnabled(false);
+        additionalTxtTitleLabel2Slider.setEnabled(false);
+
+        additionalTxtTitleLabel.setText("");
+        additionalTxtTitleLabelSlider.setText("");
+
+        additionalTxtTitleLabel2.setText("");
+        additionalTxtTitleLabel2Slider.setText("");
     }
 
-    public JLabel getStatusLabel() {
-        return statusLabel;
+    public void newRequestSingle() {
+        statusLabel.setEnabled(true);
+        validFromTxtLabel.setEnabled(true);
+        validToTxtLabel.setEnabled(true);
+        draughtTxtLabel.setEnabled(true);
+        additionalTxtTitleLabel.setEnabled(true);
+        additionalTxtTitleLabel2.setEnabled(true);
+
+        statusLabel.setText("Connecting...");
+        statusLabel.setForeground(Color.GREEN);
+        validFromTxtLabel.setText("N/A");
+        validToTxtLabel.setText("N/A");
+        draughtTxtLabel.setText("N/A");
+
+        additionalTxtTitleLabel.setText("Requesting NoGo");
+        additionalTxtTitleLabel2.setText("Please standby");
     }
 
-    public JLabel getStatLabel2() {
-        return statLabel2;
+    public void newRequestMultiple() {
+        statusLabelSlider.setEnabled(true);
+        validFromTxtLabelSlider.setEnabled(true);
+        validToTxtLabelSlider.setEnabled(true);
+        draughtTxtLabelSlider.setEnabled(true);
+        additionalTxtTitleLabelSlider.setEnabled(true);
+        additionalTxtTitleLabel2Slider.setEnabled(true);
+
+        statusLabelSlider.setText("Connecting...");
+        statusLabelSlider.setForeground(Color.GREEN);
+        validFromTxtLabelSlider.setText("N/A");
+        validToTxtLabelSlider.setText("N/A");
+        draughtTxtLabelSlider.setText("N/A");
+
+        additionalTxtTitleLabelSlider.setText("Requesting NoGo");
+        additionalTxtTitleLabel2Slider.setText("Please standby");
+        slider.setEnabled(false);
+        slider.setValue(0);
     }
 
-    public JLabel getStatLabel1() {
-        return statLabel1;
+    public void singleRequestFailed() {
+        statusLabel.setText("Failed");
+        statusLabel.setForeground(Color.RED);
+        additionalTxtTitleLabel.setText("An error occured retrieving NoGo");
+        additionalTxtTitleLabel2.setText("Try again in a few minutes");
+
+        validFromTxtLabel.setEnabled(false);
+        validToTxtLabel.setEnabled(false);
+        draughtTxtLabel.setEnabled(false);
     }
 
-    public JLabel getStatLabel3() {
-        return statLabel3;
+    public void multipleRequestFailed() {
+        statusLabelSlider.setText("Failed");
+        statusLabelSlider.setForeground(Color.RED);
+        additionalTxtTitleLabelSlider.setText("An error occured retrieving NoGo");
+        additionalTxtTitleLabel2Slider.setText("Try again in a few minutes");
+
+        validFromTxtLabelSlider.setEnabled(false);
+        validToTxtLabelSlider.setEnabled(false);
+        draughtTxtLabelSlider.setEnabled(false);
     }
 
-    public JLabel getStatLabel4() {
-        return statLabel4;
+    public void noConnectionSingle() {
+        statusLabel.setText("Failed");
+        statusLabel.setForeground(Color.RED);
+        additionalTxtTitleLabel.setText("No network connection");
+        additionalTxtTitleLabel2.setText("Reestablish network and try again");
+
+        validFromTxtLabel.setEnabled(false);
+        validToTxtLabel.setEnabled(false);
+        draughtTxtLabel.setEnabled(false);
     }
 
-    public JLabel getStatLabel5() {
-        return statLabel5;
+    public void noConnectionMultiple() {
+        statusLabelSlider.setText("Failed");
+        statusLabelSlider.setForeground(Color.RED);
+        additionalTxtTitleLabelSlider.setText("No network connection");
+        additionalTxtTitleLabel2Slider.setText("Reestablish network and try again");
+
+        validFromTxtLabelSlider.setEnabled(false);
+        validToTxtLabelSlider.setEnabled(false);
+        draughtTxtLabelSlider.setEnabled(false);
     }
 
-    
-    
-    
+    public void requestCompletedSingle(int errorCodeOwn, List<NogoPolygon> polygonsOwn, Date validFrom, Date validTo, Double draught) {
+        draught = -draught;
+
+        // int draughtInt = (int) Math.round(draught);
+
+        String validFromStr = "";
+        String validToStr = "";
+
+        if (validFrom != null) {
+            validFromStr = sdf.format(validFrom);
+            validToStr = sdf.format(validTo);
+        }
+
+        if (errorCodeOwn == 17) {
+            statusLabel.setText("Failed");
+            statusLabel.setForeground(Color.RED);
+            additionalTxtTitleLabel.setText("No data for region");
+
+            validFromTxtLabel.setEnabled(false);
+            validToTxtLabel.setEnabled(false);
+            draughtTxtLabel.setEnabled(false);
+
+            additionalTxtTitleLabel2.setText("");
+            return;
+        }
+
+        if (errorCodeOwn == 18) {
+            statusLabel.setText("Limited");
+            statusLabel.setForeground(Color.ORANGE);
+            additionalTxtTitleLabel.setText("No tide data available for region");
+            additionalTxtTitleLabel2.setText("");
+            validFromTxtLabel.setText("N/A");
+            validToTxtLabel.setText("N/A");
+            draughtTxtLabel.setText(df.format(draught) + " meters");
+            return;
+        }
+        if (polygonsOwn.size() == 0) {
+            statusLabel.setText("Success");
+            statusLabel.setForeground(Color.GREEN);
+            validFromTxtLabel.setText(validFromStr);
+            validToTxtLabel.setText(validToStr);
+            draughtTxtLabel.setText(df.format(draught) + " meters");
+            additionalTxtTitleLabel.setText("Entire region is Go");
+            additionalTxtTitleLabel2.setText("");
+
+            validFromTxtLabel.setEnabled(true);
+            validToTxtLabel.setEnabled(true);
+            draughtTxtLabel.setEnabled(true);
+            return;
+
+        }
+        if (errorCodeOwn == 0) {
+            statusLabel.setText("Success");
+            statusLabel.setForeground(Color.GREEN);
+            validFromTxtLabel.setText(validFromStr);
+            validToTxtLabel.setText(validToStr);
+
+            draughtTxtLabel.setText(df.format(draught) + " meters");
+            additionalTxtTitleLabel.setText("");
+            additionalTxtTitleLabel2.setText("");
+
+            validFromTxtLabel.setEnabled(true);
+            validToTxtLabel.setEnabled(true);
+            draughtTxtLabel.setEnabled(true);
+            return;
+        }
+
+    }
+
+    public void requestCompletedMultiple(int errorCodeOwn, List<NogoPolygon> polygonsOwn, Date validFrom, Date validTo,
+            Double draught, int id) {
+
+        if (id == 0) {
+
+            draught = -draught;
+
+            // int draughtInt = (int) Math.round(draught);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM , HH:mm");
+
+            String validFromStr = "";
+            String validToStr = "";
+
+            if (validFrom != null) {
+                validFromStr = sdf.format(validFrom);
+                validToStr = sdf.format(validTo);
+            }
+
+            if (errorCodeOwn == 17) {
+                statusLabelSlider.setText("Failed");
+                statusLabelSlider.setForeground(Color.RED);
+                additionalTxtTitleLabelSlider.setText("No data for region");
+
+                validFromTxtLabelSlider.setEnabled(false);
+                validToTxtLabelSlider.setEnabled(false);
+                draughtTxtLabelSlider.setEnabled(false);
+
+                additionalTxtTitleLabel2Slider.setText("");
+                return;
+            }
+
+            if (errorCodeOwn == 18) {
+                statusLabelSlider.setText("Limited");
+                statusLabelSlider.setForeground(Color.ORANGE);
+                additionalTxtTitleLabelSlider.setText("No tide data available for region");
+                additionalTxtTitleLabel2Slider.setText("");
+                validFromTxtLabelSlider.setText("N/A");
+                validToTxtLabelSlider.setText("N/A");
+                draughtTxtLabelSlider.setText(df.format(draught) + " meters");
+                return;
+            }
+            if (polygonsOwn.size() == 0) {
+                statusLabelSlider.setText("Success");
+                statusLabelSlider.setForeground(Color.GREEN);
+                validFromTxtLabelSlider.setText(validFromStr);
+                validToTxtLabelSlider.setText(validToStr);
+                draughtTxtLabelSlider.setText(df.format(draught) + " meters");
+                additionalTxtTitleLabelSlider.setText("Entire region is Go");
+                additionalTxtTitleLabel2Slider.setText("");
+
+                validFromTxtLabelSlider.setEnabled(true);
+                validToTxtLabelSlider.setEnabled(true);
+                draughtTxtLabelSlider.setEnabled(true);
+                return;
+
+            }
+            if (errorCodeOwn == 0) {
+                statusLabelSlider.setText("Success");
+                statusLabelSlider.setForeground(Color.GREEN);
+                validFromTxtLabelSlider.setText(validFromStr);
+                validToTxtLabelSlider.setText(validToStr);
+
+                draughtTxtLabelSlider.setText(df.format(draught) + " meters");
+                additionalTxtTitleLabelSlider.setText("");
+                additionalTxtTitleLabel2Slider.setText("");
+
+                validFromTxtLabelSlider.setEnabled(true);
+                validToTxtLabelSlider.setEnabled(true);
+                draughtTxtLabelSlider.setEnabled(true);
+                return;
+            }
+        }
+    }
+
+    public void initializeSlider(int count) {
+
+        // slider = new JSlider(JSlider.HORIZONTAL, 0, 10, 0);
+        slider.setMaximum(count);
+
+        // slider.addChangeListener(this);
+
+    }
+
+    public void setCompletedRequests(int completed, int total) {
+        additionalTxtTitleLabel2Slider.setText("Completed: " + completed + " / " + total);
+
+        if (completed == total) {
+            slider.setEnabled(true);
+            slider.setValue(0);
+        } else {
+            slider.setEnabled(false);
+        }
+    }
+
+    /**
+     * @return the slider
+     */
+    public JSlider getSlider() {
+        return slider;
+    }
+
+    public void setToAndFromSliderOptions(Date validFrom, Date validTo) {
+
+        String validFromStr = "";
+        String validToStr = "";
+
+        if (validFrom != null) {
+            validFromStr = sdf.format(validFrom);
+            validToStr = sdf.format(validTo);
+        }
+
+        validFromTxtLabelSlider.setText(validFromStr);
+        validToTxtLabelSlider.setText(validToStr);
+    }
+
 }

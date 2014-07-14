@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -48,7 +49,7 @@ import dk.dma.epd.common.prototype.gui.notification.NotificationPanel.Notificati
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 
@@ -63,7 +64,7 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
     
     private ShoreServicesCommon shoreServices;
     private AisHandlerCommon aisHandler;
-    private MaritimeCloudServiceCommon maritimeCloudService;
+    private MaritimeCloudService maritimeCloudService;
 
     private StatusLabel aisStatus = new StatusLabel("AIS");
     private StatusLabel shoreServiceStatus = new StatusLabel("Shore services");
@@ -118,8 +119,13 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
             NotificationLabel label = new NotificationLabel(panel) {
                 private static final long serialVersionUID = 1L;
                 @Override public void labelClicked(NotificationType type) {
-                    notifcationCenter.setActiveType(type);
-                    notifcationCenter.setVisible(true);
+                    if (notifcationCenter.isVisible() && 
+                            notifcationCenter.isMaximized() && 
+                            notifcationCenter.getActiveType() == type) {
+                        notifcationCenter.setVisible(false);
+                    } else {
+                        notifcationCenter.openNotificationCenter(type, true);
+                    }
                 }
             };
             notificationPanel.add(label);
@@ -167,8 +173,8 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         } else if (obj instanceof ShoreServicesCommon) {
             shoreServices = (ShoreServicesCommon) obj;
             statusComponents.add(shoreServices);
-        } else if (obj instanceof MaritimeCloudServiceCommon) {
-            maritimeCloudService = (MaritimeCloudServiceCommon) obj;
+        } else if (obj instanceof MaritimeCloudService) {
+            maritimeCloudService = (MaritimeCloudService) obj;
             statusComponents.add(maritimeCloudService);
         } else if (obj instanceof NotificationCenterCommon) {
             addNotificationCenter((NotificationCenterCommon) obj);
@@ -230,11 +236,6 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
      */
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (e.getSource() instanceof StatusLabel) {
-            BottomPanelStatusDialog statusDialog = new BottomPanelStatusDialog();
-            statusDialog.showStatus(statusComponents);
-            statusDialog.setVisible(true);
-        }
     }
 
     /**
@@ -242,6 +243,7 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
      */
     @Override
     public void mouseEntered(MouseEvent e) {
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
     /**
@@ -249,6 +251,7 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
      */
     @Override
     public void mouseExited(MouseEvent e) {
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**

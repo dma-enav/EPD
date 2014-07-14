@@ -54,9 +54,8 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
 
     private void displayMissingField(String fieldname) {
         // Missing or incorrect value in
-        JOptionPane.showMessageDialog(this, "Missing or incorrect value in\n"
-                + fieldname + " in surface drift Point " + id, "Input Error",
-                JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Missing or incorrect value in\n" + fieldname + " in surface drift Point " + id,
+                "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public double getTWCKnots() {
@@ -114,7 +113,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
                 } else {
                     value = twcField;
                 }
-                
+
                 if (value.contains(",")) {
                     value = value.replace(",", ".");
                 }
@@ -163,8 +162,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         // surfaceDriftSpinner
         Date date = surfaceDriftPicker.getDate();
 
-        JSpinner.DateEditor editor = (JSpinner.DateEditor) surfaceDriftSpinner
-                .getEditor();
+        JSpinner.DateEditor editor = (JSpinner.DateEditor) surfaceDriftSpinner.getEditor();
         // System.out.println("DepartureTime was changed to "
         // + departureSpinner.getValue());
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -185,8 +183,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
 
         this.id = number + 1;
 
-        setBorder(new TitledBorder(null, "Point " + id, TitledBorder.LEADING,
-                TitledBorder.TOP, null, null));
+        setBorder(new TitledBorder(null, "Point " + id, TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
         // int offset = 56 + (474 * number);
         int offset = 56 + (110 * number);
@@ -206,15 +203,13 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         add(lblsurfaceDriftTime);
 
         Date date3 = new Date();
-        SpinnerDateModel currentTimeModel3 = new SpinnerDateModel(date3, null,
-                null, Calendar.HOUR_OF_DAY);
+        SpinnerDateModel currentTimeModel3 = new SpinnerDateModel(date3, null, null, Calendar.HOUR_OF_DAY);
 
         surfaceDriftSpinner = new JSpinner(currentTimeModel3);
 
         surfaceDriftSpinner.setLocation(268, 22);
         surfaceDriftSpinner.setSize(54, 20);
-        JSpinner.DateEditor dateEditorSurfaceDrift = new JSpinner.DateEditor(
-                surfaceDriftSpinner, "HH:mm");
+        JSpinner.DateEditor dateEditorSurfaceDrift = new JSpinner.DateEditor(surfaceDriftSpinner, "HH:mm");
         surfaceDriftSpinner.setEditor(dateEditorSurfaceDrift);
 
         add(surfaceDriftSpinner);
@@ -228,14 +223,12 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         add(twcField);
         twcField.setColumns(10);
 
-        JLabel lblTwcVectorHeading = new JLabel(
-                "TWC Vector, Heading or Degrees:");
+        JLabel lblTwcVectorHeading = new JLabel("TWC Vector, Heading or Degrees:");
         lblTwcVectorHeading.setBounds(203, 50, 173, 14);
         add(lblTwcVectorHeading);
 
         twcHeadingDropdown = new JComboBox<String>();
-        twcHeadingDropdown.setModel(new DefaultComboBoxModel<String>(
-                new String[] { "N", "NE", "NW", "S", "SW", "SE", "E", "W" }));
+        twcHeadingDropdown.setModel(new DefaultComboBoxModel<String>(new String[] { "N", "NE", "NW", "S", "SW", "SE", "E", "W" }));
         twcHeadingDropdown.setBounds(372, 47, 39, 20);
         add(twcHeadingDropdown);
         twcHeadingDropdown.addActionListener(this);
@@ -260,8 +253,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         add(lblLwVectorHeading);
 
         lwHeadingDropdown = new JComboBox<String>();
-        lwHeadingDropdown.setModel(new DefaultComboBoxModel<String>(
-                new String[] { "N", "NE", "NW", "S", "SW", "SE", "E", "W" }));
+        lwHeadingDropdown.setModel(new DefaultComboBoxModel<String>(new String[] { "N", "NE", "NW", "S", "SW", "SE", "E", "W" }));
         lwHeadingDropdown.setBounds(372, 75, 39, 20);
         add(lwHeadingDropdown);
         lwHeadingDropdown.addActionListener(this);
@@ -271,12 +263,14 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         leewayHeadingField.setColumns(10);
         leewayHeadingField.setBounds(415, 75, 39, 20);
         add(leewayHeadingField);
-        
-        
-        
+
+        initSetValues();
+
+    }
+
+    private void initSetValues() {
         twcField.setText("1");
         leewayField.setText("12");
-
     }
 
     @Override

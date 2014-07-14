@@ -18,12 +18,11 @@ package dk.dma.epd.common.prototype.gui.menuitems;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
 /**
  * Opens the route properties dialog
  */
-public class RouteProperties extends RouteMenuItem<RouteManagerCommon> {
+public class RouteProperties extends RouteMenuItem {
     
     private static final long serialVersionUID = 1L;
 
@@ -47,7 +46,6 @@ public class RouteProperties extends RouteMenuItem<RouteManagerCommon> {
                 new RoutePropertiesDialogCommon(
                         EPD.getInstance().getMainFrame(), 
                         chartPanel,
-                        routeManager, 
                         routeIndex);
         routePropertiesDialog.setVisible(true);
     }

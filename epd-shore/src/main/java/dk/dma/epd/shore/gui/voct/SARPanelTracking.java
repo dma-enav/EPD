@@ -55,13 +55,13 @@ import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
-        ActionListener, ListSelectionListener, TableModelListener,
-        MouseListener, SRUUpdateListener {
+public class SARPanelTracking extends JPanel implements VOCTUpdateListener, ActionListener, ListSelectionListener,
+        TableModelListener, MouseListener, SRUUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
     private VOCTManager voctManager;
+    // private VoctHandler voctHandler;
 
     protected JButton btnStartSar;
 
@@ -84,7 +84,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         super();
 
         setVoctManager(EPDShore.getInstance().getVoctManager());
-
+        // voctHandler = EPDShore.getInstance().getVoctHandler();
         voctManager.addListener(this);
 
         initGUI();
@@ -107,11 +107,9 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
 
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 100, 0 };
-        gridBagLayout.rowHeights = new int[] { 20, 16, 16, 16, 16, 16, 16, 0,
-                0, 10 };
+        gridBagLayout.rowHeights = new int[] { 20, 16, 16, 16, 16, 16, 16, 0, 0, 10 };
         gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-        gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-                1.0, 1.0, 1.0, Double.MIN_VALUE };
+        gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
         setLayout(gridBagLayout);
         lblSAR = new JLabel("Search And Rescue - Tracking");
         lblSAR.setHorizontalAlignment(SwingConstants.CENTER);
@@ -125,8 +123,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         add(lblSAR, gbc_lblSAR);
 
         statusPanel = new JPanel();
-        statusPanel.setBorder(new TitledBorder(UIManager
-                .getBorder("TitledBorder.border"), "Vessels currently tracked",
+        statusPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Vessels currently tracked",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
         GridBagConstraints gbc_statusPanel = new GridBagConstraints();
         gbc_statusPanel.insets = new Insets(0, 0, 5, 0);
@@ -142,8 +139,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         statusPanel.setLayout(gbl_statusPanel);
 
         buttonPanel = new JPanel();
-        buttonPanel.setBorder(new TitledBorder(UIManager
-                .getBorder("TitledBorder.border"), "", TitledBorder.LEADING,
+        buttonPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
         GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
         gbc_buttonPanel.insets = new Insets(0, 0, 5, 0);
@@ -153,13 +149,13 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         add(buttonPanel, gbc_buttonPanel);
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-//        btnSendSar = new JButton("Send SAR");
-//        buttonPanel.add(btnSendSar);
+        // btnSendSar = new JButton("Send SAR");
+        // buttonPanel.add(btnSendSar);
 
         btnManageSarTracking = new JButton("Manage SAR Tracking");
         buttonPanel.add(btnManageSarTracking);
 
-//        btnSendSar.addActionListener(this);
+        // btnSendSar.addActionListener(this);
         btnManageSarTracking.addActionListener(this);
 
         DefaultTableModel model = new DefaultTableModel(30, 3);
@@ -167,10 +163,8 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         sruTable = new JTable(model) {
             private static final long serialVersionUID = 1L;
 
-            public Component prepareRenderer(TableCellRenderer renderer,
-                    int Index_row, int Index_col) {
-                Component comp = super.prepareRenderer(renderer, Index_row,
-                        Index_col);
+            public Component prepareRenderer(TableCellRenderer renderer, int Index_row, int Index_col) {
+                Component comp = super.prepareRenderer(renderer, Index_row, Index_col);
                 if (Index_row % 2 == 0) {
                     comp.setBackground(new Color(49, 49, 49));
                 } else {
@@ -201,39 +195,39 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         sruTable.setFocusable(false);
         // routeTable.setAutoResizeMode(0);
 
-        sruTableModel = new SARTrackingTableModel(EPDShore.getInstance().getVoctManager()
-                .getSruManager(), EPDShore.getInstance().getVoctManager());
+        sruTableModel = new SARTrackingTableModel(EPDShore.getInstance().getVoctManager().getSruManager(), EPDShore.getInstance()
+                .getVoctManager());
         sruTableModel.addTableModelListener(this);
 
         sruTable.setShowHorizontalLines(false);
         sruTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         sruScrollPane = new JScrollPane(sruTable);
-        sruScrollPane
-                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        sruScrollPane
-                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        sruScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        sruScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         sruTable.setFillsViewportHeight(true);
 
-        sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,
-                new Color(30, 30, 30)));
+        sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(30, 30, 30)));
 
         // TODO: Comment this line when using WindowBuilder
         sruTable.setModel(sruTableModel);
-        // for (int i = 0; i < 2; i++) {
-        //
-        // if (i == 0){
-        // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-        // }
-        // if (i == 1){
-        // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-        // }
-        // if (i == 2){
-        // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-        // }
-        //
-        //
-        // }
+
+        for (int i = 0; i < 4; i++) {
+
+            if (i == 0) {
+                sruTable.getColumnModel().getColumn(i).setPreferredWidth(30);
+            }
+            if (i == 1) {
+                sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+            }
+            if (i == 2) {
+                sruTable.getColumnModel().getColumn(i).setPreferredWidth(35);
+            }
+            if (i == 3) {
+                sruTable.getColumnModel().getColumn(i).setPreferredWidth(10);
+            }
+
+        }
         sruSelectionModel = sruTable.getSelectionModel();
         sruSelectionModel.addListSelectionListener(this);
         sruTable.setSelectionModel(sruSelectionModel);
@@ -242,10 +236,8 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         GridBagLayout gbl_searchPatternsPanel = new GridBagLayout();
         gbl_searchPatternsPanel.columnWidths = new int[] { 153, 0 };
         gbl_searchPatternsPanel.rowHeights = new int[] { 75, 0 };
-        gbl_searchPatternsPanel.columnWeights = new double[] { 1.0,
-                Double.MIN_VALUE };
-        gbl_searchPatternsPanel.rowWeights = new double[] { 1.0,
-                Double.MIN_VALUE };
+        gbl_searchPatternsPanel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+        gbl_searchPatternsPanel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
         statusPanel.setLayout(gbl_searchPatternsPanel);
 
         GridBagConstraints gbc_sruScrollPane = new GridBagConstraints();
@@ -280,36 +272,41 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
-//        if (arg0.getSource() == btnSendSar) {
-//            voctManager.updateEffectiveAreaLocation();
-//
-//            try {
-//                EPDShore.getEnavServiceHandler().sendVOCTMessage(0,
-//                        voctManager.getSarData(), "OSC", "Please Join", 0,
-//                        true, true);
-//            } catch (InterruptedException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            } catch (ExecutionException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            } catch (TimeoutException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//
-//        }
+        // if (arg0.getSource() == btnSendSar) {
+        // voctManager.updateEffectiveAreaLocation();
+        //
+        // try {
+        // EPDShore.getEnavServiceHandler().sendVOCTMessage(0,
+        // voctManager.getSarData(), "OSC", "Please Join", 0,
+        // true, true);
+        // } catch (InterruptedException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // } catch (ExecutionException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // } catch (TimeoutException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        //
+        // }
 
         if (arg0.getSource() == btnManageSarTracking) {
 
             // We have a SAR in progress
             if (voctManager != null && voctManager.isHasSar()) {
 
+                // if (voctHandler != null && voctHandler.isConnected()) {
+                //
+                // voctHandler.fetchVOCTMessageList();
+                // }
+
                 // Determine what type of SAR then retrieve the input data
                 if (voctCommsWindow != null) {
+
                     voctCommsWindow.setValues();
-                    voctCommsWindow
-                            .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                    voctCommsWindow.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
                     voctCommsWindow.setVisible(true);
                 }
 
@@ -436,8 +433,9 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
 
     @Override
     public void sruUpdated(SRUUpdateEvent e, long mmsi) {
-        
-        if (e == SRUUpdateEvent.SRU_ACCEPT || e == SRUUpdateEvent.SRU_REJECT|| e == SRUUpdateEvent.SRU_STATUS_CHANGED || e == SRUUpdateEvent.BROADCAST_MESSAGE){
+
+        if (e == SRUUpdateEvent.SRU_ACCEPT || e == SRUUpdateEvent.SRU_REJECT || e == SRUUpdateEvent.SRU_STATUS_CHANGED
+                || e == SRUUpdateEvent.BROADCAST_MESSAGE) {
             sruTableModel.fireTableDataChanged();
         }
     }

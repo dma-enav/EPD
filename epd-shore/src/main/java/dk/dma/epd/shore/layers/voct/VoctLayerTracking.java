@@ -21,11 +21,13 @@ import com.bbn.openmap.MapBean;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
+import dk.dma.enav.model.voct.SARAreaData;
+import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
@@ -35,13 +37,12 @@ import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class VoctLayerTracking extends VoctLayerCommon implements
-        SRUUpdateListener {
+public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListener {
     private static final long serialVersionUID = 1L;
     private OMGraphicList graphics = new OMGraphicList();
 
-    private HashMap<Long, EffectiveSRUAreaGraphics> effectiveAreas = new HashMap<>();
-    private HashMap<Long, SRUObject> sruVessels = new HashMap<>();
+    private HashMap<Long, EffortAllocationAreaGraphics> effectiveAreas = new HashMap<>();
+    // private HashMap<Long, SRUObject> sruVessels = new HashMap<>();
     private SRUManager sruManager;
 
     @Override
@@ -84,6 +85,9 @@ public class VoctLayerTracking extends VoctLayerCommon implements
             if (voctManager.getSarType() == SAR_TYPE.DATUM_LINE) {
                 drawDatumLine();
             }
+            if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
+                drawSarisDatumPoint();
+            }
 
             this.setVisible(true);
         }
@@ -93,6 +97,26 @@ public class VoctLayerTracking extends VoctLayerCommon implements
 
         }
 
+    }
+
+    private void drawSarisDatumPoint() {
+
+        graphics.clear();
+
+        DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
+
+        for (int i = 0; i < data.getSarisTarget().size(); i++) {
+
+            SARAreaData sarArea = data.getSarAreaData().get(i);
+
+            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(), sarArea.getB(), sarArea.getC(), sarArea.getD(),
+                    sarArea.getCentre(), data.getSarisTarget().get(i).getName());
+
+            graphics.add(sarAreaGraphic);
+        }
+
+        doPrepare();
+        this.setVisible(true);
     }
 
     public void removeEffectiveArea(long mmsi, int id) {
@@ -105,7 +129,7 @@ public class VoctLayerTracking extends VoctLayerCommon implements
 
         if (effectiveAreas.containsKey(mmsi)) {
             System.out.println("Removing existing");
-            EffectiveSRUAreaGraphics area = effectiveAreas.get(mmsi);
+            EffortAllocationAreaGraphics area = effectiveAreas.get(mmsi);
             graphics.remove(area);
             effectiveAreas.remove(mmsi);
         }
@@ -115,21 +139,16 @@ public class VoctLayerTracking extends VoctLayerCommon implements
         if (voctManager.getSarData().getEffortAllocationData().size() > id) {
             System.out.println("yes");
 
-            EffortAllocationData effortAllocationData = voctManager
-                    .getSarData().getEffortAllocationData().get(id);
+            EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(id);
 
             System.out.println("ehm okay");
 
-            System.out.println("The effort allocation is : "
-                    + effortAllocationData);
+            System.out.println("The effort allocation is : " + effortAllocationData);
             System.out.println(sruManager.getSRUs(id).getName());
 
-            EffectiveSRUAreaGraphics area = new EffectiveSRUAreaGraphics(
-                    effortAllocationData.getEffectiveAreaA(),
-                    effortAllocationData.getEffectiveAreaB(),
-                    effortAllocationData.getEffectiveAreaC(),
-                    effortAllocationData.getEffectiveAreaD(), id, sruManager
-                            .getSRUs(id).getName());
+            EffortAllocationAreaGraphics area = new EffortAllocationAreaGraphics(effortAllocationData.getEffectiveAreaA(),
+                    effortAllocationData.getEffectiveAreaB(), effortAllocationData.getEffectiveAreaC(),
+                    effortAllocationData.getEffectiveAreaD(), id, sruManager.getSRUs(id).getName());
 
             effectiveAreas.put(mmsi, area);
 
@@ -213,61 +232,61 @@ public class VoctLayerTracking extends VoctLayerCommon implements
     @Override
     public void sruUpdated(SRUUpdateEvent e, long mmsi) {
 
-        if (e == SRUUpdateEvent.SRU_ACCEPT) {
-            // A SRU has accepted - create the object - possibly overwrite
-            // existing
+        // if (e == SRUUpdateEvent.SRU_ACCEPT) {
+        // // A SRU has accepted - create the object - possibly overwrite
+        // // existing
+        //
+        // // Retrieve and remove the old
+        // if (sruVessels.containsKey(mmsi)) {
+        // graphics.remove(sruVessels.get(mmsi));
+        // sruVessels.remove(mmsi);
+        // }
+        //
+        // SRUObject sruObject = new SRUObject(sruManager
+        // .getsRUCommunication().get(mmsi));
+        // sruVessels.put(mmsi, sruObject);
+        // graphics.add(sruObject);
+        //
+        // doPrepare();
+        //
+        // }
 
-            // Retrieve and remove the old
-            if (sruVessels.containsKey(mmsi)) {
-                graphics.remove(sruVessels.get(mmsi));
-                sruVessels.remove(mmsi);
-            }
-
-            SRUObject sruObject = new SRUObject(sruManager
-                    .getsRUCommunication().get(mmsi));
-            sruVessels.put(mmsi, sruObject);
-            graphics.add(sruObject);
-
-            doPrepare();
-
-        }
-
-        if (e == SRUUpdateEvent.SRU_REJECT) {
-            // A SRU has rejected - remove the object if it exist
-            // Retrieve and remove the old
-            if (sruVessels.containsKey(mmsi)) {
-                graphics.remove(sruVessels.get(mmsi));
-                sruVessels.remove(mmsi);
-
-                doPrepare();
-            }
-
-        }
-
-        if (e == SRUUpdateEvent.BROADCAST_MESSAGE) {
-            // SRU Broadcast - a new SRU broadcast message has been recieved,
-            // update stuff
-
-            if (sruVessels.containsKey(mmsi)) {
-
-                sruVessels.get(mmsi).updateSRU();
-
-                doPrepare();
-            }
-
-        }
-
-        if (e == SRUUpdateEvent.SRU_REMOVED) {
-            // SRU Broadcast - a new SRU broadcast message has been recieved,
-            // update stuff
-
-            if (sruVessels.containsKey(mmsi)) {
-                graphics.remove(sruVessels.get(mmsi));
-                sruVessels.remove(mmsi);
-                doPrepare();
-            }
-
-        }
+        // if (e == SRUUpdateEvent.SRU_REJECT) {
+        // // A SRU has rejected - remove the object if it exist
+        // // Retrieve and remove the old
+        // if (sruVessels.containsKey(mmsi)) {
+        // graphics.remove(sruVessels.get(mmsi));
+        // sruVessels.remove(mmsi);
+        //
+        // doPrepare();
+        // }
+        //
+        // }
+        //
+        // if (e == SRUUpdateEvent.BROADCAST_MESSAGE) {
+        // // SRU Broadcast - a new SRU broadcast message has been recieved,
+        // // update stuff
+        //
+        // if (sruVessels.containsKey(mmsi)) {
+        //
+        // sruVessels.get(mmsi).updateSRU();
+        //
+        // doPrepare();
+        // }
+        //
+        // }
+        //
+        // if (e == SRUUpdateEvent.SRU_REMOVED) {
+        // // SRU Broadcast - a new SRU broadcast message has been recieved,
+        // // update stuff
+        //
+        // if (sruVessels.containsKey(mmsi)) {
+        // graphics.remove(sruVessels.get(mmsi));
+        // sruVessels.remove(mmsi);
+        // doPrepare();
+        // }
+        //
+        // }
     }
 
 }

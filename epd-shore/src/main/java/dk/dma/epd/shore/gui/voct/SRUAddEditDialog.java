@@ -37,7 +37,6 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -90,8 +89,12 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
         this.sruManager = sruManager;
         this.aisHandler = aisHandler;
 
-        if (this.aisHandler.getShipList().size() == 0) {
+        if (aisHandler == null || this.aisHandler.getShipList().size() == 0) {
             btnSelectFromAis.setEnabled(false);
+
+        }else{
+
+            btnSelectFromAis.setEnabled(true);
         }
     }
 
@@ -279,8 +282,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
         //
         if (selectedSRU != null) {
             if (selectedSRU.getStaticData() != null) {
-                shipName.setText(AisMessage.trimText(selectedSRU
-                        .getStaticData().getName()));
+                shipName.setText(selectedSRU.getStaticData().getTrimmedName());
 
                 double length = selectedSRU.getStaticData().getDimBow()
                         + selectedSRU.getStaticData().getDimStern();

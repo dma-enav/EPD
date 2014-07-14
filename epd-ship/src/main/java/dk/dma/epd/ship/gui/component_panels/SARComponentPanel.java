@@ -32,7 +32,7 @@ import dk.dma.epd.ship.service.voct.VOCTManager;
 
 public class SARComponentPanel extends OMComponentPanel implements
  Runnable, ProjectionListener, IMapCoordListener,
-        VOCTUpdateListener {
+        VOCTUpdateListener, DockableComponentPanel {
 
     private static final long serialVersionUID = 1L;
     private final SARPanel sarPanel;
@@ -133,4 +133,31 @@ public class SARComponentPanel extends OMComponentPanel implements
         
     }
 
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "SAR";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return false;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
+    }
 }

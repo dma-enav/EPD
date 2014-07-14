@@ -39,8 +39,9 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 public abstract class InfoPanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
-    private JLabel textLabel;
+    protected JLabel textLabel;
     private JLabel imageLabel;
+    private double mouseDist;
 
     /**
      * Constructor
@@ -59,7 +60,8 @@ public abstract class InfoPanel extends JPanel {
         textLabel.setFont(new Font("Arial", Font.PLAIN, 11));
         textLabel.setBackground(new Color(83, 83, 83));
         textLabel.setForeground(new Color(237, 237, 237));
-        setBackground(new Color(83, 83, 83));
+//        setBackground(new Color(83, 83, 83));
+        setBackground(new Color(83,83,83,200));
     }
 
     /**
@@ -87,7 +89,6 @@ public abstract class InfoPanel extends JPanel {
         validate();
         Dimension d = textLabel.getSize();
         this.setSize(d.width + 6, d.height + 4);
-        setVisible(true);
     }
 
     /**
@@ -107,7 +108,6 @@ public abstract class InfoPanel extends JPanel {
         validate();
         Dimension d = imageLabel.getSize();
         this.setSize(d.width, d.height);
-        setVisible(true);
     }
 
     /**
@@ -119,7 +119,22 @@ public abstract class InfoPanel extends JPanel {
         resizeAndShow();
     }
 
-    
+    /**
+     * Returns the distance from the current cursor position to the graphics associated with the info panel
+     * @return the distance from the current cursor position to the graphics associated with the info panel
+     */
+    public double getMouseDist() {
+        return mouseDist;
+    }
+
+    /**
+     * Sets the distance from the current cursor position to the graphics associated with the info panel
+     * @param mouseDist the distance from the current cursor position to the graphics associated with the info panel
+     */
+    public void setMouseDist(double mouseDist) {
+        this.mouseDist = mouseDist;
+    }
+
     /**
      * Defines a binding between {@linkplain OMGraphic} classes and {@code InfoPanel}
      */

@@ -59,7 +59,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.DefaultFormatter;
+import javax.swing.text.DateFormatter;
+
+import net.maritimecloud.core.id.MmsiId;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXDatePicker;
@@ -72,6 +74,7 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
@@ -101,6 +104,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
     private JComboBox<String> mmsiListComboBox = new JComboBox<>();
     private JComboBox<String> nameComboBox = new JComboBox<>();
     private JLabel callsignLbl = new JLabel("N/A");
+    private JButton chatBtn = new JButton("Chat", EPD.res().getCachedImageIcon("images/notifications/balloon.png"));
     
     // Route panel
     private JComboBox<String> routeListComboBox = new JComboBox<>();
@@ -113,7 +117,6 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
     private JButton zoomBtn = new JButton("Zoom To", EPDShore.res().getCachedImageIcon("images/buttons/zoom.png"));
     
     // Sender panel
-    private JTextField senderTxtField = new JTextField("DMA Shore");
     private JTextArea messageTxtField = new JTextArea("Route Suggestion");
 
     // Send panel
@@ -174,19 +177,26 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         targetPanel.add(new JLabel("MMSI:"), 
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         targetPanel.add(mmsiListComboBox, 
-                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(1, 0, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
         nameComboBox.addActionListener(this);
         targetPanel.add(new JLabel("Name:"), 
                 new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         targetPanel.add(nameComboBox, 
-                new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(1, 1, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
+        chatBtn.setEnabled(false);
+        chatBtn.addActionListener(this);
         targetPanel.add(new JLabel("Call Sign:"), 
                 new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         targetPanel.add(callsignLbl, 
                 new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        targetPanel.add(chatBtn, 
+                new GridBagConstraints(2, 2, 1, 1, 1.0, 0.0, EAST, NONE, insets5, 0, 0));
         
+        statusLbl.setVisible(false);
+        targetPanel.add(statusLbl, 
+                new GridBagConstraints(0, 3, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
         // *******************
         // *** Route panel 
@@ -237,45 +247,30 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         
         
         // *******************
-        // *** Sender panel 
-        // *******************
-        JPanel senderPanel = new JPanel(new GridBagLayout());
-        senderPanel.setBorder(new TitledBorder("Sender"));
-        content.add(senderPanel, 
-                new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, WEST, BOTH, insets5, 0, 0));
-        
-        senderPanel.add(new JLabel("Sender:"), 
-                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        senderPanel.add(senderTxtField, 
-                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-        
-        messageTxtField.setLineWrap(true);
-        JScrollPane scrollPane = new JScrollPane(messageTxtField);
-        scrollPane.setMinimumSize(new Dimension(180, 40));
-        scrollPane.setPreferredSize(new Dimension(180, 40));
-        senderPanel.add(new JLabel("Message:"), 
-                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, NORTHWEST, NONE, insets5, 0, 0));
-        senderPanel.add(scrollPane, 
-                new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, WEST, BOTH, insets5, 0, 0));
-        
-
-        // *******************
         // *** Send panel 
         // *******************
         JPanel sendPanel = new JPanel(new GridBagLayout());
         sendPanel.setBorder(new TitledBorder("Send"));
         content.add(sendPanel, 
-                new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, CENTER, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, CENTER, BOTH, insets5, 0, 0));
         
-        sendPanel.add(statusLbl, 
-                new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        messageTxtField.setLineWrap(true);
+        JScrollPane scrollPane = new JScrollPane(messageTxtField);
+        scrollPane.setMinimumSize(new Dimension(180, 40));
+        scrollPane.setPreferredSize(new Dimension(180, 40));
+        
+        sendPanel.add(new JLabel("Message:"), 
+                new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, NORTHWEST, NONE, insets5, 0, 0));
+        sendPanel.add(scrollPane, 
+                new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0, WEST, BOTH, insets5, 0, 0));
+        
         
         sendBtn.addActionListener(this);
         cancelBtn.addActionListener(this);
         sendPanel.add(sendBtn, 
-                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         sendPanel.add(cancelBtn, 
-                new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, EAST, NONE, insets5, 0, 0));
+                new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, EAST, NONE, insets5, 0, 0));
     }
 
 
@@ -289,7 +284,10 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         picker.addPropertyChangeListener("date", this);
         
         DateEditor editor = new JSpinner.DateEditor(spinner, "HH:mm");
-        ((DefaultFormatter)editor.getTextField().getFormatter()).setCommitsOnValidEdit(true);
+        DateFormatter formatter = (DateFormatter)editor.getTextField().getFormatter();
+        formatter.setAllowsInvalid(false);
+        formatter.setOverwriteMode(true);
+        formatter.setCommitsOnValidEdit(true);
         spinner.setEditor(editor);
         spinner.addChangeListener(new SpinnerChangeListener());
     }
@@ -325,7 +323,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
 
             VesselTarget selectedShip = aisHandler.getVesselTarget(mmsi.longValue());
             if (selectedShip != null && selectedShip.getStaticData() != null) {
-                nameComboBox.addItem(selectedShip.getStaticData().getName());
+                nameComboBox.addItem(selectedShip.getStaticData().getTrimmedName());
             } else {
                 nameComboBox.addItem("N/A");
             }
@@ -374,17 +372,38 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
             routeSelectionChanged();
         
         } else if (ae.getSource() == zoomBtn && route.getWaypoints() != null) {
-            EPD.getInstance().getMainFrame()
-                .zoomToPosition(route.getWaypoints().getFirst().getPos());
+            if (EPD.getInstance().getMainFrame().getActiveChartPanel() != null) {
+                EPD.getInstance().getMainFrame().getActiveChartPanel()
+                    .zoomToWaypoints(route.getWaypoints());
+            }
         
         } else if (ae.getSource() == sendBtn) {
             sendRoute();
+        
+        } else if (ae.getSource() == chatBtn) {
+            chat();
         
         } else if (ae.getSource() == cancelBtn || ae.getSource() == getRootPane()) {
             this.setVisible(false);
         }
     }
 
+    /**
+     * Display information about the maritime identity
+     */
+    private void chat() {
+        if (mmsi == -1) {
+            try {
+                mmsi = Long.valueOf((String) mmsiListComboBox.getSelectedItem());
+            } catch (Exception e) {
+                LOG.error("Failed to set mmsi " + mmsi, e);
+            }
+        }
+        EPD.getInstance().getNotificationCenter()
+            .openNotification(NotificationType.MESSAGES, new MmsiId((int)mmsi), false);
+    }    
+    
+    
     /** 
      * Called when one of the arrival and departure pickers changes value
      * @param evt the event
@@ -482,9 +501,17 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
                 } else {
                     callsignLbl.setText("N/A");
                 }
+                statusLbl.setVisible(false);
             } else {
                 statusLbl.setText("The ship is not visible on AIS");
+                statusLbl.setVisible(true);
             }
+
+            chatBtn.setEnabled(mmsi != -1 && 
+                    EPD.getInstance().getChatServiceHandler().availableForChat((int)mmsi));
+            
+        } else {
+            chatBtn.setEnabled(false);
         }
     }
 
@@ -514,7 +541,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         
         try {
             routeSuggestionHandler.sendRouteSuggestion(mmsi,
-                    route.getFullRouteData(), senderTxtField.getText(),
+                    route.getFullRouteData(), 
                     messageTxtField.getText());
             messageTxtField.setText("");
         } catch (Exception e) {
@@ -620,6 +647,8 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
             sendBtn.setEnabled(true);
         }
 
+        chatBtn.setEnabled(mmsi != -1 && 
+                EPD.getInstance().getChatServiceHandler().availableForChat((int)mmsi));
     }
     
     /**

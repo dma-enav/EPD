@@ -19,22 +19,17 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
-import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
-import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.notification.Notification;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
-import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.notification.StrategicRouteNotificationCommon;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
-import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
 /**
- * An strategic route implementation of the {@linkplain NotificationPanel} class
+ * A shore-specific strategic route implementation of the {@linkplain StrategicRouteNotificationCommon} class
  */
-public class StrategicRouteNotification extends Notification<StrategicRouteNegotiationData, Long>{
+public class StrategicRouteNotification extends StrategicRouteNotificationCommon {
 
     private static final long serialVersionUID = 1L;
-
 
     /**
      * Constructor
@@ -42,14 +37,12 @@ public class StrategicRouteNotification extends Notification<StrategicRouteNegot
      * @param routeData the strategic route data
      */
     public StrategicRouteNotification(StrategicRouteNegotiationData routeData) {
-        super(routeData, routeData.getId(), NotificationType.STRATEGIC_ROUTE);
-
+        super(routeData);
+        
         title = description = String.format(
-                    "Route request from %s with status %s", 
-                    getVesselName(), 
-                    routeData.getStatus());
-        acknowledged = read = routeData.isHandled();
-        date = routeData.getRouteMessage().get(0).getSent();
+                "Route request from %s with status %s", 
+                getCallerlName(), 
+                routeData.getStatus());        
         
         if (acknowledged) {
             severity = NotificationSeverity.MESSAGE;
@@ -84,13 +77,13 @@ public class StrategicRouteNotification extends Notification<StrategicRouteNegot
     }
     
     /**
-     * Returns the name of the vessel associated with the route
-     * @return the name of the vessel associated with the route
+     * {@inheritDoc}
      */
-    public String getVesselName() {
+    @Override
+    public String getCallerlName() {
         VesselStaticData staticData = getVesselStaticData();
         if (staticData != null) {
-            return staticData.getName().trim();
+            return staticData.getTrimmedName();
         }
         return String.valueOf(get().getMmsi());
     }
@@ -102,27 +95,8 @@ public class StrategicRouteNotification extends Notification<StrategicRouteNegot
     public String getVesselCallsign() {
         VesselStaticData staticData = getVesselStaticData();
         if (staticData != null) {
-            return staticData.getCallsign();
+            return staticData.getTrimmedCallsign();
         }
         return "N/A";
-    }
-    
-    /**
-     * Returns a copy of the original route
-     * @return a copy of the original route
-     */
-    public Route getOriginalRoute() {
-        return new Route(get().getRouteMessage().get(0).getRoute());
-    }
-    
-    /**
-     * Returns a copy of the latest route
-     * @return a copy of the latest route
-     */
-    public Route getLatestRoute() {
-        StrategicRouteRequestMessage lastMessage = 
-                get().getRouteMessage().get(get().getRouteMessage().size() - 1);
-        
-        return new Route(lastMessage.getRoute());
     }
 }

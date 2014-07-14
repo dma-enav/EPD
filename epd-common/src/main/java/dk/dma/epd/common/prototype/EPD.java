@@ -29,6 +29,7 @@ import java.util.Properties;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import net.maritimecloud.core.id.MaritimeId;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
@@ -36,9 +37,15 @@ import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
+import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
+import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
+import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
 import dk.dma.epd.common.prototype.settings.Settings;
 
 /**
@@ -55,11 +62,17 @@ public abstract class EPD implements ISettingsListener {
     protected volatile Path homePath;
     
     // Common services
+    protected RouteManagerCommon routeManager;
+    protected MaritimeCloudService maritimeCloudService;
     protected ChatServiceHandlerCommon chatServiceHandler;
     protected AisHandlerCommon aisHandler;
     protected MsiHandler msiHandler;
     protected NotificationCenterCommon notificationCenter;
-    
+    protected StrategicRouteHandlerCommon strategicRouteHandler;
+    protected RouteSuggestionHandlerCommon routeSuggestionHandler;
+    protected IdentityHandler identityHandler;
+    protected VoctHandlerCommon voctHandler;
+
     /**
      * Constructor
      */
@@ -203,11 +216,31 @@ public abstract class EPD implements ISettingsListener {
     }
 
     /**
-     * Return the msiHandker
+     * Return the msiHandler
      * @return - MsiHandler
      */
     public MsiHandler getMsiHandler() {
         return msiHandler;
+    }
+    
+    public RouteManagerCommon getRouteManager() {
+        return routeManager;
+    }
+    
+    public StrategicRouteHandlerCommon getStrategicRouteHandler() {
+        return strategicRouteHandler;
+    }
+    
+    public RouteSuggestionHandlerCommon getRouteSuggestionHandler() {
+        return routeSuggestionHandler;
+    }
+    
+    public MaritimeCloudService getMaritimeCloudService() {
+        return maritimeCloudService;
+    }
+    
+    public IdentityHandler getIdentityHandler(){
+        return identityHandler;
     }
     
     /**
@@ -223,6 +256,18 @@ public abstract class EPD implements ISettingsListener {
      * @return the current position of the EPD system
      */
     public abstract Position getPosition();
+    
+    /**
+     * Returns the MMSI of the EPD system
+     * @return the MMSI of the EPD system
+     */
+    public abstract Long getMmsi();
+
+    /**
+     * Returns the maritime id of the EPD system
+     * @return the maritime id of the EPD system
+     */
+    public abstract MaritimeId getMaritimeId();
     
     /**
      * Returns the default shore mouse mode service list
@@ -328,4 +373,13 @@ public abstract class EPD implements ISettingsListener {
         // Caps-lock not on, return default home path
         return defaultHomePath;  
     }
+
+    /**
+     * @return the voctHandler
+     */
+    public VoctHandlerCommon getVoctHandler() {
+        return voctHandler;
+    }
+    
+    
 }

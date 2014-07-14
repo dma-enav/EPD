@@ -79,8 +79,8 @@ public class RouteWaypointGraphic extends OMGraphicList {
         super();
         this.routeWaypoint = routeWaypoint;
         this.color = color;
-        this.width = width;
-        this.height = height;
+        this.width = (int) (width * scale);
+        this.height = (int) (height * scale);
         this.dotted = dotted;
         this.circle = new WaypointCircle(route, routeIndex, wpIndex);
         this.scale = scale;
@@ -122,7 +122,8 @@ public class RouteWaypointGraphic extends OMGraphicList {
         circle.setHeight(height);
 
         if (dotted) {
-            Stroke stroke = new BasicStroke(3.0f, // Width
+            Stroke stroke = new BasicStroke(
+                    3.0f * scale, // Width
                     BasicStroke.CAP_SQUARE, // End cap
                     BasicStroke.JOIN_MITER, // Join style
                     10.0f, // Miter limit
@@ -130,7 +131,7 @@ public class RouteWaypointGraphic extends OMGraphicList {
                     0.0f);
             circle.setStroke(stroke);
         } else {
-            circle.setStroke(new BasicStroke(3));
+            circle.setStroke(new BasicStroke(3f * scale));
         }
 
         add(circle);

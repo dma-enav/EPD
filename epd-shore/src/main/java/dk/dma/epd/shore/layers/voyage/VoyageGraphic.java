@@ -52,7 +52,6 @@ public class VoyageGraphic extends OMGraphicList {
         this.voyageIndex = voyageIndex;
 
         voyageStroke = new BasicStroke(12.0f, // Width
-//        stroke = new BasicStroke(5.0f, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
                 12.0f, // Miter limit
@@ -78,7 +77,6 @@ public class VoyageGraphic extends OMGraphicList {
 
     public void initGraphics() {
         routeWaypoints = voyage.getRoute().getWaypoints();
-//        int i = 0;
         for (RouteWaypoint routeWaypoint : routeWaypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg routeLeg = routeWaypoint.getOutLeg();
@@ -87,13 +85,6 @@ public class VoyageGraphic extends OMGraphicList {
                 add(voyageLegGraphic);
                 routeLegs.add(0, voyageLegGraphic);
             }
-
-            
-            //No waypoint circles?
-//            VoyageWaypointGraphic voyageWaypointGraphic = new VoyageWaypointGraphic(
-//                    route, routeIndex, i, routeWaypoint, this.color, 5, 5);
-//            add(0, voyageWaypointGraphic);
-//            i++;
         }
     }
 

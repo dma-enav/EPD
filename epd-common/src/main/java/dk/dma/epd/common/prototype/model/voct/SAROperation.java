@@ -114,7 +114,7 @@ public class SAROperation {
             datumPoint(datumPointData);
         }
 
-        System.out.println("Did we get something calculated?");
+        //        System.out.println("Did we get something calculated?");
 
         System.out.println("Different: ");
         for (int i = 0; i < datumPoints.size(); i++) {
@@ -650,13 +650,6 @@ public class SAROperation {
         // Top punkt på dst2, på kanten af cirklen
         Position CDCenter = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
 
-        
-        
-        
-        
-        
-        
-        
         // Create a line going from dst2 center thats perpendicule to angle between dst1 and dst2
         angleEndPosition = Calculator.findPosition(dst2Center, angleToDSt1Dst2Plus90, lengthMax);
 
@@ -687,9 +680,6 @@ public class SAROperation {
         // Top punkt på dst2, på kanten af cirklen
         Position A2B2Center = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
 
-        
-        
-        
         // Top point A:
         // Top Left of DST1 will be:
         // Go from center to opposite of dst1 to dst2
@@ -713,14 +703,12 @@ public class SAROperation {
         // Top Middle
         Position ADCenter = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
 
-        
-        
         // Create line going from topLeftIntersect, going right, towards the top line
         angleEndPosition = Calculator.findPosition(ADCenter, angleToDSt1Dst2Minus90, lengthMax);
 
         // Find how this line intersects with the line parallel with dst1 to dst2 line
-        Position angleEndPosition2 = Calculator.findPosition(ABCenter,
-                Calculator.bearing(A2B2Center, ABCenter, Heading.RL), lengthMax);
+        Position angleEndPosition2 = Calculator.findPosition(ABCenter, Calculator.bearing(A2B2Center, ABCenter, Heading.RL),
+                lengthMax);
 
         a1 = new Geo(ADCenter.getLatitude(), ADCenter.getLongitude());
         a2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
@@ -741,8 +729,7 @@ public class SAROperation {
         angleEndPosition = Calculator.findPosition(ADCenter, angleToDSt1Dst2Plus90, lengthMax);
         //
         // //Find how this line intersects with the line parallel with dst1 to dst2 line
-        angleEndPosition2 = Calculator.findPosition(C2D2Center,
-                Calculator.bearing(C2D2Center, CDCenter, Heading.RL), lengthMax);
+        angleEndPosition2 = Calculator.findPosition(C2D2Center, Calculator.bearing(C2D2Center, CDCenter, Heading.RL), lengthMax);
 
         a1 = new Geo(ADCenter.getLatitude(), ADCenter.getLongitude());
         a2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
@@ -753,30 +740,13 @@ public class SAROperation {
         intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
         //
         Position finalD = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
-        
-        
-        
-        
-        
-        
 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-//        DST2 and DST3
+        // DST2 and DST3
         double bearingDst2Dst3 = Calculator.bearing(dst2Center, dst3Center, Heading.RL);
 
         // Vinkelret 90 grader til venstre for vinklen mellem dst1 og dst2 center
         double angleToDSt2Dst3Minus90 = Calculator.turn90Minus(bearingDst2Dst3);
         double angleToDSt2Dst3Plus90 = Calculator.turn90Plus(bearingDst2Dst3);
-
-
 
         // Create a line going from dst2 center thats perpendicule to angle between dst2 and dst3
         angleEndPosition = Calculator.findPosition(dst2Center, angleToDSt2Dst3Minus90, lengthMax);
@@ -807,10 +777,6 @@ public class SAROperation {
         // Bottom punkt på dst2, på kanten af cirklen
         Position C2D2Center2 = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
 
-       
-        
-        
-        
         // Create a line going from dst2 center thats perpendicule to angle between dst1 and dst2
         angleEndPosition = Calculator.findPosition(dst3Center, angleToDSt2Dst3Plus90, lengthMax);
 
@@ -839,8 +805,6 @@ public class SAROperation {
         // Top punkt på dst3, på kanten af cirklen
         Position A3B3Center = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
 
-        
-        
         // Top point A2:
         double reverseDst2ToDst3 = Calculator.reverseDirection(bearingDst2Dst3);
 
@@ -861,14 +825,12 @@ public class SAROperation {
         // Top Middle
         Position A2D2Center = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
 
-        
-        
         // Create line going from topLeftIntersect, going right, towards the top line
         angleEndPosition = Calculator.findPosition(A2D2Center, angleToDSt2Dst3Minus90, lengthMax);
 
         // Find how this line intersects with the line parallel with dst1 to dst2 line
-        angleEndPosition2 = Calculator.findPosition(A2B2Center2,
-                Calculator.bearing(A3B3Center, A2B2Center2, Heading.RL), lengthMax);
+        angleEndPosition2 = Calculator
+                .findPosition(A2B2Center2, Calculator.bearing(A3B3Center, A2B2Center2, Heading.RL), lengthMax);
 
         a1 = new Geo(A2D2Center.getLatitude(), A2D2Center.getLongitude());
         a2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
@@ -878,7 +840,7 @@ public class SAROperation {
 
         intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
 
-//        Position finalA2 = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
+        // Position finalA2 = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
 
         // Bottom point D:
         // Bottom Left of DST1 will be:
@@ -889,8 +851,7 @@ public class SAROperation {
         angleEndPosition = Calculator.findPosition(A2D2Center, angleToDSt2Dst3Plus90, lengthMax);
         //
         // //Find how this line intersects with the line parallel with dst1 to dst2 line
-        angleEndPosition2 = Calculator.findPosition(C3D3Center,
-                Calculator.bearing(C3D3Center, C2D2Center2, Heading.RL), lengthMax);
+        angleEndPosition2 = Calculator.findPosition(C3D3Center, Calculator.bearing(C3D3Center, C2D2Center2, Heading.RL), lengthMax);
 
         a1 = new Geo(A2D2Center.getLatitude(), A2D2Center.getLongitude());
         a2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
@@ -900,16 +861,7 @@ public class SAROperation {
         //
         intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
         //
-//        Position finalD2 = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
-        
-        
-        
-
-        
-        
-        
-        
-
+        // Position finalD2 = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
 
         // Find intersection
 
@@ -928,14 +880,11 @@ public class SAROperation {
         // Top Middle
         Position B3C3Center = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
 
-        
-        
         // Create line going from topLeftIntersect, going right, towards the top line
         angleEndPosition = Calculator.findPosition(B3C3Center, angleToDSt2Dst3Minus90, lengthMax);
 
         // Find how this line intersects with the line parallel with dst1 to dst2 line
-        angleEndPosition2 = Calculator.findPosition(A3B3Center,
-                Calculator.bearing(A2B2Center, A3B3Center, Heading.RL), lengthMax);
+        angleEndPosition2 = Calculator.findPosition(A3B3Center, Calculator.bearing(A2B2Center, A3B3Center, Heading.RL), lengthMax);
 
         a1 = new Geo(B3C3Center.getLatitude(), B3C3Center.getLongitude());
         a2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
@@ -956,8 +905,7 @@ public class SAROperation {
         angleEndPosition = Calculator.findPosition(B3C3Center, angleToDSt2Dst3Plus90, lengthMax);
         //
         // //Find how this line intersects with the line parallel with dst1 to dst2 line
-        angleEndPosition2 = Calculator.findPosition(C2D2Center,
-                Calculator.bearing(C2D2Center, C3D3Center, Heading.RL), lengthMax);
+        angleEndPosition2 = Calculator.findPosition(C2D2Center, Calculator.bearing(C2D2Center, C3D3Center, Heading.RL), lengthMax);
 
         a1 = new Geo(B3C3Center.getLatitude(), B3C3Center.getLongitude());
         a2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
@@ -968,29 +916,6 @@ public class SAROperation {
         intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
         //
         Position finalC = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
 
         // datumPolygon.add(angleEndPosition2);
         datumPolygon.add(finalA);
@@ -999,160 +924,127 @@ public class SAROperation {
 
         // datumPolygon.add(topLeftIntersect);
 
-//        datumPolygon.add(CDCenter);
-        
-        
-        
-//        datumPolygon.add(finalD2);
-        
-        datumPolygon.add(C2D2Center);
-        
-//        datumPolygon.add(C2D2Center2);
-        
-        datumPolygon.add(C3D3Center);
-        
-        datumPolygon.add(finalC);
-        
-        datumPolygon.add(finalB);
-        
-        
-        
-        
-        datumPolygon.add(A3B3Center);
-        
-//        datumPolygon.add(finalA2);
+        // datumPolygon.add(CDCenter);
 
-//         datumPolygon.add(topIntersect);
+        // datumPolygon.add(finalD2);
+
+        datumPolygon.add(C2D2Center);
+
+        // datumPolygon.add(C2D2Center2);
+
+        datumPolygon.add(C3D3Center);
+
+        datumPolygon.add(finalC);
+
+        datumPolygon.add(finalB);
+
+        datumPolygon.add(A3B3Center);
+
+        // datumPolygon.add(finalA2);
+
+        // datumPolygon.add(topIntersect);
 
         // datumPolygon.add(dst2Center);
 
-//        datumPolygon.add(bottomDst3Intersect);
-//        datumPolygon.add(topDst3IntersectPoint);
-        
+        // datumPolygon.add(bottomDst3Intersect);
+        // datumPolygon.add(topDst3IntersectPoint);
+
         datumPolygon.add(A2B2Center);
-//        datumPolygon.add(A2B2Center2);
-        
+        // datumPolygon.add(A2B2Center2);
+
         datumPolygon.add(ABCenter);
         datumPolygon.add(finalA);
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-//        
-//        
-//        
-//        
-//        double bearingBetweenDSt2Dst3 = Calculator.bearing(dst2Center, dst3Center, Heading.RL);
-//        
-//        // Vinkelret 90 grader til venstre for vinklen mellem dst2 og dst3 center
-//        double angleToDSt3Dst2Minus90 = Calculator.turn90Minus(bearingBetweenDSt2Dst3);
-//        double angleToDSt3Dst2Plus90 = Calculator.turn90Plus(bearingBetweenDSt2Dst3);
-//
-//        
-//     // Create a line going from dst3 center thats perpendicule to angle between dst2 and dst3
-//        angleEndPosition = Calculator.findPosition(dst3Center, angleToDSt3Dst2Plus90, lengthMax);
-//        
-//        a1 = new Geo(dst3.getC().getLatitude(), dst3.getC().getLongitude());
-//        a2 = new Geo(dst3.getD().getLatitude(), dst3.getD().getLongitude());
-//
-//        b1 = new Geo(dst3Center.getLatitude(), dst3Center.getLongitude());
-//        b2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
-//
-//        intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
-//        
-//        Position bottomDst3Intersect = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
-//        
-//        
-//        // Create a line going from dst1 center thats perpendicule to angle between dst1 and dst2
-//        angleEndPosition = Calculator.findPosition(dst2Center, angleToDSt3Dst2Minus90, lengthMax);
-//
-//        a1 = new Geo(dst3.getA().getLatitude(), dst3.getA().getLongitude());
-//        a2 = new Geo(dst3.getB().getLatitude(), dst3.getB().getLongitude());
-//
-//        b1 = new Geo(dst3Center.getLatitude(), dst3Center.getLongitude());
-//        b2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
-//
-//        intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
-//
-//        // Top Middle
-//        // Top punkt på dst2, på kanten af cirklen
-//        Position topDst3IntersectPoint = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
-//        
-//        
-//        
-//        
-//        
-//        
-//        
-//        
-//        
-//        // Bottom point C:
-//        // Top Right of DST3 will be:
-//        // Go from center to direction of dst2 and 3
-//        
-//     // Find intersection
-//
-//        // Create line from center of dst1 in opposite direction
-//        angleEndPosition = Calculator.findPosition(dst3Center, bearingBetweenDSt2Dst3, lengthMax);
-//
-//        // Find intersection with B and C
-//
-//        a1 = new Geo(dst3.getB().getLatitude(), dst3.getB().getLongitude());
-//        a2 = new Geo(dst3.getC().getLatitude(), dst3.getC().getLongitude());
-//
-//        b1 = new Geo(dst3Center.getLatitude(), dst3Center.getLongitude());
-//        b2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
-//
-//        intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
-//
-//        // Bottom right center
-//        Position dst3RightCenterIntersect = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
-//        
-//        
-//        
-//        
-//        // Create line going from dst3RightCenterIntersect, going left, towards the bottom line
-//        angleEndPosition = Calculator.findPosition(dst3RightCenterIntersect, angleToDSt3Dst2Minus90, lengthMax);
-//
-//        // Find how this line intersects with the line parallel with dst2 to dst3 line
-//        angleEndPosition2 = Calculator.findPosition(C2D2Center,
-//                Calculator.bearing(C2D2Center, bottomDst3Intersect, Heading.RL), lengthMax);
-//
-//        a1 = new Geo(dst3RightCenterIntersect.getLatitude(), dst3RightCenterIntersect.getLongitude());
-//        a2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
-//
-//        b1 = new Geo(ABCenter.getLatitude(), ABCenter.getLongitude());
-//        b2 = new Geo(angleEndPosition2.getLatitude(), angleEndPosition2.getLongitude());
-//
-//        intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
 
-//        Position topA = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
-        
-        
-        
-   
-        
+        //
+        //
+        //
+        //
+        // double bearingBetweenDSt2Dst3 = Calculator.bearing(dst2Center, dst3Center, Heading.RL);
+        //
+        // // Vinkelret 90 grader til venstre for vinklen mellem dst2 og dst3 center
+        // double angleToDSt3Dst2Minus90 = Calculator.turn90Minus(bearingBetweenDSt2Dst3);
+        // double angleToDSt3Dst2Plus90 = Calculator.turn90Plus(bearingBetweenDSt2Dst3);
+        //
+        //
+        // // Create a line going from dst3 center thats perpendicule to angle between dst2 and dst3
+        // angleEndPosition = Calculator.findPosition(dst3Center, angleToDSt3Dst2Plus90, lengthMax);
+        //
+        // a1 = new Geo(dst3.getC().getLatitude(), dst3.getC().getLongitude());
+        // a2 = new Geo(dst3.getD().getLatitude(), dst3.getD().getLongitude());
+        //
+        // b1 = new Geo(dst3Center.getLatitude(), dst3Center.getLongitude());
+        // b2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
+        //
+        // intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+        //
+        // Position bottomDst3Intersect = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
+        //
+        //
+        // // Create a line going from dst1 center thats perpendicule to angle between dst1 and dst2
+        // angleEndPosition = Calculator.findPosition(dst2Center, angleToDSt3Dst2Minus90, lengthMax);
+        //
+        // a1 = new Geo(dst3.getA().getLatitude(), dst3.getA().getLongitude());
+        // a2 = new Geo(dst3.getB().getLatitude(), dst3.getB().getLongitude());
+        //
+        // b1 = new Geo(dst3Center.getLatitude(), dst3Center.getLongitude());
+        // b2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
+        //
+        // intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+        //
+        // // Top Middle
+        // // Top punkt på dst2, på kanten af cirklen
+        // Position topDst3IntersectPoint = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        // // Bottom point C:
+        // // Top Right of DST3 will be:
+        // // Go from center to direction of dst2 and 3
+        //
+        // // Find intersection
+        //
+        // // Create line from center of dst1 in opposite direction
+        // angleEndPosition = Calculator.findPosition(dst3Center, bearingBetweenDSt2Dst3, lengthMax);
+        //
+        // // Find intersection with B and C
+        //
+        // a1 = new Geo(dst3.getB().getLatitude(), dst3.getB().getLongitude());
+        // a2 = new Geo(dst3.getC().getLatitude(), dst3.getC().getLongitude());
+        //
+        // b1 = new Geo(dst3Center.getLatitude(), dst3Center.getLongitude());
+        // b2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
+        //
+        // intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+        //
+        // // Bottom right center
+        // Position dst3RightCenterIntersect = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
+        //
+        //
+        //
+        //
+        // // Create line going from dst3RightCenterIntersect, going left, towards the bottom line
+        // angleEndPosition = Calculator.findPosition(dst3RightCenterIntersect, angleToDSt3Dst2Minus90, lengthMax);
+        //
+        // // Find how this line intersects with the line parallel with dst2 to dst3 line
+        // angleEndPosition2 = Calculator.findPosition(C2D2Center,
+        // Calculator.bearing(C2D2Center, bottomDst3Intersect, Heading.RL), lengthMax);
+        //
+        // a1 = new Geo(dst3RightCenterIntersect.getLatitude(), dst3RightCenterIntersect.getLongitude());
+        // a2 = new Geo(angleEndPosition.getLatitude(), angleEndPosition.getLongitude());
+        //
+        // b1 = new Geo(ABCenter.getLatitude(), ABCenter.getLongitude());
+        // b2 = new Geo(angleEndPosition2.getLatitude(), angleEndPosition2.getLongitude());
+        //
+        // intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
 
-        
-        
-        
-        
-        
-        
-        
+        // Position topA = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
+
         // datumPolygon.add(dst3Center);
 
         // datumPolygon.add(dst1.getA());
@@ -1373,11 +1265,28 @@ public class SAROperation {
 
             Geo newA = Intersection.segmentsIntersect(ParseUtils.PositionToGeo(downWindGrowCenter),
                     ParseUtils.PositionToGeo(downWindLeft), ParseUtils.PositionToGeo(internalA), ParseUtils.PositionToGeo(AGrow));
+            
             Geo newB = Intersection.segmentsIntersect(ParseUtils.PositionToGeo(downWindGrowCenter),
                     ParseUtils.PositionToGeo(downWindRight), ParseUtils.PositionToGeo(internalB), ParseUtils.PositionToGeo(BGrow));
 
-            internalA = ParseUtils.GeoToPosition(newA);
-            internalB = ParseUtils.GeoToPosition(newB);
+            if (newA != null){
+                internalA = ParseUtils.GeoToPosition(newA);    
+                
+            }else{
+                System.out.println("ERROR Internal A");
+            }
+            
+            
+
+            if (newB != null){
+                internalB = ParseUtils.GeoToPosition(newB);
+                
+            }else{
+                System.out.println("ERROR Internal B");
+            }
+            
+            
+
 
             data.setA(internalA);
             data.setB(internalB);

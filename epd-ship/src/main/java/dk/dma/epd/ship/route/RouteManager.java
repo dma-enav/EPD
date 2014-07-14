@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,10 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute.ActiveWpSelectionResult;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
@@ -47,10 +46,6 @@ import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
-import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
-import dk.dma.epd.ship.service.RouteSuggestionHandler;
-import dk.dma.epd.ship.service.SuggestedRoute;
-import dk.dma.epd.ship.service.SuggestedRoute.SuggestedRouteStatus;
 import dk.dma.epd.ship.settings.handlers.RouteManagerSettings;
 
 /**
@@ -63,12 +58,10 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
     private static final String ROUTES_FILE = EPD.getInstance().getHomePath().resolve(".routes").toString();
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
-    private volatile RouteSuggestionHandler routeSuggestionHandler;
     private volatile PntHandler pntHandler;
     
-    @GuardedBy("suggestedRoutes")
-    private List<SuggestedRoute> suggestedRoutes = new LinkedList<>();    
-    private RouteSuggestionDialog routeSuggestionDialog;
+    @GuardedBy("routeSuggestions")
+    private List<RouteSuggestionData> routeSuggestions = new LinkedList<>();    
     
     /**
      * Constructor
@@ -99,6 +92,8 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
             return;
         }
 
+        
+        
         ActiveWpSelectionResult endRes;
         ActiveWpSelectionResult res;
         synchronized (this) {
@@ -203,161 +198,6 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
         notifyListeners(RoutesUpdateEvent.ROUTE_DEACTIVATED);
     }
 
-    /**************************************/
-    /** Route suggestion operations      **/
-    /**************************************/
-
-    /**
-     * Called when a new suggested route is received via the Maritime Cloud
-     * @param message the route suggestion
-     */
-    public void receiveRouteSuggestion(SuggestedRoute message){
-        
-        synchronized(suggestedRoutes){
-            suggestedRoutes.add(message);            
-        }
-        
-        // Update route layer
-        notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
-        
-        // Show dialog
-        routeSuggestionDialog.showSuggestion(message);
-    }
-    
-    /**
-     * Display the route suggestion dialog
-     * @param id the index of the suggested route to display
-     */
-    public void showSuggestionDialog(int id){
-        // Show dialog
-        synchronized (suggestedRoutes) {
-            routeSuggestionDialog.showSuggestion(suggestedRoutes.get(id));
-        }                
-    }
-    
-    /**
-     * Accepts the given suggested route
-     * @param route the suggested route to accept
-     * @return if the route was accepted
-     */
-    public boolean acceptSuggested(SuggestedRoute route){
-        boolean removed = false;
-        
-        synchronized (suggestedRoutes) {
-            for (int i = 0; i < suggestedRoutes.size(); i++) {
-                if (suggestedRoutes.get(i).getId() == route.getId()){
-                        suggestedRoutes.remove(i);
-                        removed = true;
-                        break;
-                }
-            }
-        }
-        
-        if (removed){
-            // Update route layer
-            notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
-            
-            synchronized (this) {
-                routes.add(route.getRoute());
-            }            
-            notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * Removes the given suggested route
-     * @param route the suggested route to remove
-     * @return if the route was removed
-     */
-    public boolean removeSuggested(SuggestedRoute route){
-        System.out.println("Removing");
-        
-        boolean removed = false;
-        
-        synchronized (suggestedRoutes) {
-            for (int i = 0; i < suggestedRoutes.size(); i++) {
-                if (suggestedRoutes.get(i).getId() == route.getId()) {
-                    suggestedRoutes.remove(i);
-                    removed = true;
-                    break;
-                }
-            }
-        }
-        
-        if (removed){
-            // Update route layer
-            notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
-
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * Sends a route suggestion reply over the Maritime Cloud
-     * @param routeSuggestion the route suggestion
-     * @param status the acceptance status of the route
-     * @param message an additional message
-     */
-    public void routeSuggestionReply(
-            SuggestedRoute routeSuggestion,
-            SuggestedRouteStatus status, String message) {
-        
-
-        switch (status) {
-        case ACCEPTED:
-            routeSuggestion.setStatus(SuggestedRouteStatus.ACCEPTED);
-            acceptSuggested(routeSuggestion);
-            routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_ACCEPTED, routeSuggestion.getId(), message);
-            break;
-        case REJECTED:
-            //Remove it
-            routeSuggestion.setStatus(SuggestedRouteStatus.REJECTED);
-            routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_REJECTED, routeSuggestion.getId(), message);
-            break;
-        case NOTED:
-            //Do nothing
-            routeSuggestion.setStatus(SuggestedRouteStatus.NOTED);
-            routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_NOTED, routeSuggestion.getId(), message);
-            break;
-        default:
-            break;
-        }
-
-        notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
-    }
-    
-    /**
-     * Returns a reference to the route {@linkplain RouteSuggestionDialog}
-     * @return a reference to the route {@linkplain RouteSuggestionDialog}
-     */
-    public RouteSuggestionDialog getRouteSuggestionDialog() {
-        return routeSuggestionDialog;
-    }
-
-    /**
-     * Returns the list of suggested routes
-     * @return the list of suggested routes
-     */
-    public List<SuggestedRoute> getSuggestedRoutes() {
-        synchronized (suggestedRoutes) {
-            return new ArrayList<>(suggestedRoutes);
-        }
-    }
-    
-    /**
-     * Sets the list of suggested routes
-     * @param suggestedRoutes the list of suggested routes
-     */
-    private void setSuggestedRoutes(List<SuggestedRoute> suggestedRoutes) {
-        synchronized (suggestedRoutes) {
-            if (suggestedRoutes != null) {
-                this.suggestedRoutes = suggestedRoutes;
-            }
-        }
-    }
 
     /**************************************/
     /** Life cycle operations            **/
@@ -377,8 +217,6 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
             manager.setRoutes(routeStore.getRoutes());
             manager.activeRoute = routeStore.getActiveRoute();
             manager.activeRouteIndex = routeStore.getActiveRouteIndex();
-            manager.setSuggestedRoutes(routeStore
-                    .getSuggestedRoutes());
 
         } catch (FileNotFoundException e) {
             // Not an error
@@ -416,12 +254,6 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
         if (pntHandler == null && obj instanceof PntHandler) {
             pntHandler = (PntHandler) obj;
             pntHandler.addListener(this);
-        }
-        if (obj instanceof RouteSuggestionDialog) {
-            routeSuggestionDialog = (RouteSuggestionDialog) obj;
-        }
-        if (obj instanceof RouteSuggestionHandler) {
-            routeSuggestionHandler = (RouteSuggestionHandler) obj;
         }
     }
 

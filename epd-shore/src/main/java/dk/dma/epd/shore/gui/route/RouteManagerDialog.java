@@ -75,17 +75,9 @@ public class RouteManagerDialog extends InternalComponentFrame implements Action
 
     private static final long serialVersionUID = 1L;
 
-//    private static final Logger LOG = Logger.getLogger(RouteManagerDialog.class);
 
     protected RouteManager routeManager;
 
-//    private JButton propertiesBtn;
-//    private JButton zoomToBtn;
-//    private JButton reverseCopyBtn;
-//    private JButton deleteBtn;
-//    private JButton exportBtn;
-//    private JButton importBtn;
-//    private JButton closeBtn;
     private JLabel propertiesBtn;
     private JLabel zoomToBtn;
     private JLabel reverseCopyBtn;
@@ -442,7 +434,6 @@ public class RouteManagerDialog extends InternalComponentFrame implements Action
             RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
                     parent, 
                     EPDShore.getInstance().getMainFrame().getActiveChartPanel(),
-                    routeManager, 
                     i);
             routePropertiesDialog.setVisible(true);
         }

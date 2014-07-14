@@ -15,9 +15,9 @@
  */
 package dk.dma.epd.common.prototype.gui.menuitems;
 
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+import dk.dma.epd.common.prototype.EPD;
 
-public class RouteReverse extends RouteMenuItem<RouteManagerCommon> {
+public class RouteReverse extends RouteMenuItem {
     
     private static final long serialVersionUID = 1L;
     
@@ -28,6 +28,6 @@ public class RouteReverse extends RouteMenuItem<RouteManagerCommon> {
     
     @Override
     public void doAction() {
-        routeManager.routeReverse(routeIndex);
+        EPD.getInstance().getRouteManager().routeReverse(routeIndex);
     }
 }

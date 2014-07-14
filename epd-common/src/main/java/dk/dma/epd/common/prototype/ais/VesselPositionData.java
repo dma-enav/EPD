@@ -71,7 +71,8 @@ public class VesselPositionData implements Serializable {
         pos = aisPositionMessage.getPos().getGeoLocation();
         navStatus = aisPositionMessage.getNavStatus();
         navEnumStatus = NavigationalStatus.fromAIS(aisPositionMessage.getNavStatus());
-        rot = aisPositionMessage.getRot();
+        Float rawRot = aisPositionMessage.getSensorRot();
+        rot = rawRot == null ? 0.0f : rawRot;
         sog = aisPositionMessage.getSog() / (float)10.0;
         posAcc = aisPositionMessage.getPosAcc();
         cog = aisPositionMessage.getCog() / (float)10.0;

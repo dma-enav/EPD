@@ -32,6 +32,7 @@ import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.common.prototype.event.HistoryNavigationPanelInterface;
+import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.gui.GoBackButton;
 import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
@@ -39,11 +40,13 @@ import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings.ENCColorScheme;
 import dk.dma.epd.common.prototype.settings.layers.AisLayerCommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.DynamicPredictorLayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.IntendedRouteLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 import dk.dma.epd.common.prototype.settings.layers.WMSLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.observers.AisLayerCommonSettingsListener;
+import dk.dma.epd.common.prototype.settings.observers.DynamicPredictorLayerSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.IntendedRouteLayerCommonSettingsListener;
 import dk.dma.epd.ship.EPDShip;
@@ -60,7 +63,7 @@ import dk.dma.epd.ship.layers.route.RouteLayer;
  */
 public class TopPanel extends OMComponentPanel implements ActionListener,
         MouseListener, HistoryNavigationPanelInterface, AisLayerCommonSettingsListener, IntendedRouteLayerCommonSettingsListener, 
-        ENCLayerCommonSettingsListener {
+        ENCLayerCommonSettingsListener, DynamicPredictorLayerSettingsListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -76,11 +79,11 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             toolbarIcon("wrench.png"));
     private final ButtonLabel routeManagerBtn = new ButtonLabel(
             toolbarIcon("marker.png"));
-    private final ButtonLabel aisButton = new ButtonLabel(
+    private final ButtonLabel aisDialogButton = new ButtonLabel(
             toolbarIcon("radar.png"));
     private final ToggleButtonLabel aisToggleName = new ToggleButtonLabel(
             toolbarIcon("edit-letter-spacing.png"));
-    private final ToggleButtonLabel aisBtn = new ToggleButtonLabel(
+    private final ToggleButtonLabel aisLayerBtn = new ToggleButtonLabel(
             toolbarIcon("board-game.png"));
     private final ToggleButtonLabel encBtn = new ToggleButtonLabel(
             toolbarIcon("map-medium.png"));
@@ -98,7 +101,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             toolbarIcon("direction.png"));
     private final ToggleButtonLabel toggleIntendedRouteFilter = new ToggleButtonLabel(
             toolbarIcon("road-sign.png"));
-
+    private final ToggleButtonLabel toggleDynamicPredictorLayer = new ToggleButtonLabel(
+            toolbarIcon("dynamic-predictor.png"));
 
     /**
      * Toggle button to enable distance circle mode.
@@ -138,6 +142,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().addObserver(this);
         // Observe global intended route layer settings for changes
         EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().addObserver(this);
+        // Observer global dynamic predictor layer settings for changes.
+        EPDShip.getInstance().getSettings().getPrimaryDynamicPredictorLayerSettings().addObserver(this);
         setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
         this.setMinimumSize(new Dimension(0, 24));
@@ -154,8 +160,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         setupBtn.setToolTipText("Setup");
         newRouteBtn.setToolTipText("Add a new route : Shortcut Ctrl N");
         routeManagerBtn.setToolTipText("Routes Manager : Shortcut Ctrl R");
-        aisButton.setToolTipText("Show nearby vessels : Shortcut Ctrl A");
-        aisBtn.setToolTipText("Show/hide AIS targets");
+        aisDialogButton.setToolTipText("Show nearby vessels : Shortcut Ctrl A");
+        aisLayerBtn.setToolTipText("Show/hide AIS targets");
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
         encBtn.setToolTipText("Show/hide ENC");
         encBtn.setEnabled(EPDShip.getInstance().getSettings().getENCLayerSettings().isEncInUse());
@@ -173,6 +179,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
         this.toggleDistanceCircleMode
                 .setToolTipText("Enable range circles mode.");
+        
+        this.toggleDynamicPredictorLayer.setToolTipText("Toggle dynamic predictor layer");
 
         add(goBackBtn);
         add(goForwardBtn);
@@ -187,16 +195,17 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(setupBtn);
         add(newRouteBtn);
         add(routeManagerBtn);
-        add(aisButton);
+        add(aisDialogButton);
         add(new JSeparator());
-        add(aisBtn);
+        add(aisLayerBtn);
         add(aisToggleName);
         add(encBtn);
         add(wmsBtn);
         add(toggleSafeHaven);
         add(toggleIntendedRoute);
         add(toggleIntendedRouteFilter);
-
+        add(this.toggleDynamicPredictorLayer);
+        
         Component horizontalStrut = Box.createHorizontalStrut(5);
         horizontalStrut = Box.createHorizontalStrut(5);
 
@@ -214,8 +223,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         setupBtn.addMouseListener(this);
         newRouteBtn.addMouseListener(this);
         routeManagerBtn.addMouseListener(this);
-        aisButton.addMouseListener(this);
-        aisBtn.addMouseListener(this);
+        aisDialogButton.addMouseListener(this);
+        aisLayerBtn.addMouseListener(this);
         encBtn.addMouseListener(this);
         wmsBtn.addMouseListener(this);
         aisToggleName.addMouseListener(this);
@@ -227,14 +236,15 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         toggleDistanceCircleMode.addMouseListener(this);
         toggleIntendedRoute.addMouseListener(this);
         toggleIntendedRouteFilter.addMouseListener(this);
-
+        toggleDynamicPredictorLayer.addMouseListener(this);
+        
         updateButtons();
     }
 
     public void updateButtons() {
         autoFollowBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
                 .isAutoFollow());
-        aisBtn.setSelected(EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().isVisible());
+        aisLayerBtn.setSelected(EPDShip.getInstance().getSettings().getPrimaryAisLayerSettings().isVisible());
         ENCLayerCommonSettings<?> encLayerSettings = EPDShip.getInstance().getSettings().getENCLayerSettings();
         WMSLayerCommonSettings<?> wmsLayerSettings = EPDShip.getInstance().getSettings().getPrimaryWMSLayerSettings();
         // Updated these two to also check use (previous version only checked layer visibility)
@@ -248,6 +258,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         toggleDistanceCircleMode.setSelected(false);
         
         toggleIntendedRoute.setSelected(EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings().isVisible());
+        // toggle button according to value stored in settings
+        toggleDynamicPredictorLayer.setEnabled(EPDShip.getInstance().getSettings().getPrimaryDynamicPredictorLayerSettings().isEnabled());
+        toggleDynamicPredictorLayer.setSelected(EPDShip.getInstance().getSettings().getPrimaryDynamicPredictorLayerSettings().isVisible());
     }
 
     public void disableAutoFollow() {
@@ -358,8 +371,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         } else if (e.getSource() == zoomOutBtn) {
             mainFrame.getChartPanel().doZoom(2f);
             
-        } else if (e.getSource() == aisBtn) {
-            mainFrame.getChartPanel().aisVisible(aisBtn.isSelected());
+        } else if (e.getSource() == aisLayerBtn) {
+            mainFrame.getChartPanel().aisVisible(aisLayerBtn.isSelected());
+
         } else if (e.getSource() == encBtn) {
 //            mainFrame.getChartPanel().encVisible(encBtn.isSelected());
 //            menuBar.getEncLayer().setSelected(encBtn.isSelected());
@@ -377,7 +391,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         } else if (e.getSource() == setupBtn) {
             mainFrame.openSetupDialog();
             
-        } else if (e.getSource() == aisButton) {
+        } else if (e.getSource() == aisDialogButton) {
             aisDialog.setVisible(true);
             aisDialog.setSelection(-1, true);
             
@@ -418,13 +432,12 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         else if (e.getSource() == this.toggleDistanceCircleMode) {
             if (this.toggleDistanceCircleMode.isSelected()) {
                 this.mainFrame.getChartPanel().setMouseMode(
-                        DistanceCircleMouseMode.MODE_ID);
+                        CommonDistanceCircleMouseMode.MODE_ID);
             } else {
                 // go back to previously active mouse mode
                 this.mainFrame.getChartPanel().setMouseMode(
-                        ((DistanceCircleMouseMode) this.mainFrame
-                                .getChartPanel().getMouseDelegator()
-                                .getActiveMouseMode()).getPreviousMouseMode());
+                        ((CommonDistanceCircleMouseMode) this.mainFrame.getChartPanel().getMouseDelegator().getActiveMouseMode())
+                                .getPreviousMouseMode());
             }
             
         } else if (e.getSource() == toggleIntendedRoute) {
@@ -432,6 +445,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         }        
         else if (e.getSource() == toggleIntendedRouteFilter) {
             intendedRouteLayer.getSettings().setIntendedRouteFilterInUse(toggleIntendedRouteFilter.isSelected());
+        
+        } else if(e.getSource() == this.toggleDynamicPredictorLayer) {
+            boolean visible = toggleDynamicPredictorLayer.isSelected();
+            mainFrame.getChartPanel().setDynamicPredictorLayerVisibility(visible);
         }
     }
 
@@ -523,7 +540,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
              * AIS layer visibility toggled.
              * Update toggle button accordingly.
              */
-            aisBtn.setSelected(newValue);
+            aisLayerBtn.setSelected(newValue);
         } else if (source == EPDShip.getInstance().getSettings().getPrimaryIntendedRouteLayerSettings()) {
             /*
              * Intended route layer visibility toggled.
@@ -536,9 +553,23 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
              * Update toggle button accordingly.
              */
             encBtn.setSelected(newValue);
+        } else if (source == EPDShip.getInstance().getSettings().getPrimaryDynamicPredictorLayerSettings()) {
+            /*
+             * Dynamic predictor layer visibility toggled.
+             * Update toggle button accordingly.
+             */
+            toggleDynamicPredictorLayer.setSelected(newValue);
         }
     }
 
+    @Override
+    public void onEnabledChanged(DynamicPredictorLayerSettings source,
+            boolean enabled) {
+        if (source == EPDShip.getInstance().getSettings().getPrimaryDynamicPredictorLayerSettings()) {
+            toggleDynamicPredictorLayer.setEnabled(enabled);
+        }
+    }
+    
     @Override
     public void showAllPastTracksChanged(AisLayerCommonSettings<?> source, boolean newValue) {
         // Not relevant for TopPanel.   

@@ -15,11 +15,21 @@
  */
 package dk.dma.epd.common.prototype.gui.notification;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Path2D;
+import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +48,9 @@ import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
@@ -52,22 +64,33 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     private static final long serialVersionUID = 1L;
 
     protected List<NotificationPanelListener> listeners = new CopyOnWriteArrayList<>();
+    protected NotificationCenterCommon notificationCenter;
+    
+    // Maximized/minimized handling
+    protected boolean maximized = true;
+    protected int saveDividerLocation;
     
     protected NotificationTableModel<N> tableModel;
     protected JTable table = new JTable();
     protected JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
     protected NotificationDetailPanel<N> notificationDetailPanel;
+    protected JPanel detailPanel = new JPanel(new BorderLayout());
+    protected JPanel listPanel = new JPanel(new BorderLayout());
+    
     
     // Standard actions
     protected JButton acknowledgeBtn = new JButton("Acknowledge", EPD.res().getCachedImageIcon("images/notifications/tick.png"));
     protected JButton gotoBtn = new JButton("Goto", EPD.res().getCachedImageIcon("images/notifications/map-pin.png"));
     protected JButton deleteBtn = new JButton("Delete", EPD.res().getCachedImageIcon("images/notifications/cross.png"));
+    protected JButton chatBtn = new JButton("Chat",EPD.res().getCachedImageIcon("images/notifications/balloon.png"));
     
     /**
      * Constructor
+     * @param notificationCenter the notification center
      */
-    public NotificationPanel() {
+    public NotificationPanel(NotificationCenterCommon notificationCenter) {
         super(new BorderLayout());
+        this.notificationCenter = notificationCenter;
         
         add(splitPane, BorderLayout.CENTER);
         
@@ -88,13 +111,13 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        splitPane.add(scrollPane);
+        listPanel.add(scrollPane, BorderLayout.CENTER);
+        splitPane.add(listPanel);
 
-        JPanel detailPanel = new JPanel(new BorderLayout());
         splitPane.add(detailPanel);
         
         // Initialize the button panel
-        JPanel buttonPanel = initButtonPanel(); 
+        final JPanel buttonPanel = initButtonPanel(); 
         detailPanel.add(buttonPanel, BorderLayout.NORTH);
         
         notificationDetailPanel = initNotificationDetailPanel();
@@ -106,7 +129,33 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         // Update the enabled state of the buttons
         updateButtonEnabledState();
     }
+    
+    /**
+     * Returns a reference to the detail panel, which contains the 
+     * button panel and the notification detail panel
+     * @return the detail panel
+     */
+    public JPanel getDetailPanel() {
+        return detailPanel;
+    }
+    
+    /**
+     * Returns the list panel used for the list of notifications
+     * @return the list panel used for the list of notifications
+     */
+    public JPanel getListPanel() {
+        return listPanel;
+    }
 
+    /**
+     * Returns a reference to the split pane, which contains the
+     * table and the detail panel
+     * @return the split pane
+     */
+    public JSplitPane getSplitPane() {
+        return splitPane;
+    }
+    
     /**
      * Returns the notification type
      * @return the notification type
@@ -145,6 +194,7 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         return null;
     }
     
+
     /**
      * Adds the buttons to the button panel.
      * Sub-class can override to customize the list of buttons to display
@@ -152,8 +202,8 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
      * @param buttonPanel the button panel to add the buttons to
      * @return the button panel
      */
-    protected JPanel initButtonPanel() {
-        JPanel buttonPanel = new JPanel();
+    protected ButtonPanel initButtonPanel() {
+        ButtonPanel buttonPanel = new ButtonPanel(notificationCenter);
         buttonPanel.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createMatteBorder(0, 0, 2, 0, UIManager.getColor("Separator.shadow")),
@@ -176,6 +226,11 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
             @Override public void actionPerformed(ActionEvent e) {
                 deleteSelectedNotifications();
             }});
+
+        chatBtn.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                chatWithNotificationTarget();
+            }});
         
         return buttonPanel;
     }
@@ -185,6 +240,18 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
      * @return the notification detail panel
      */
     protected abstract NotificationDetailPanel<N> initNotificationDetailPanel();    
+    
+    /**
+     * Fixes the width of the given table column
+     * @param columnIndex the column
+     * @param width the width
+     */
+    protected void fixColumnWidth(int columnIndex, int width) {
+        TableColumn col = table.getColumnModel().getColumn(columnIndex);
+        col.setWidth(width);
+        col.setMaxWidth(width);
+        col.setMinWidth(width);
+    }
     
     /*************************************/
     /** Selection methods               **/
@@ -209,7 +276,10 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     public List<N> getSelectedNotifications() {
         List<N> selection = new ArrayList<>();
         for (int row : table.getSelectedRows()) {
-            selection.add(tableModel.getNotification(row));
+            N notifcation = tableModel.getNotification(row);
+            if (notifcation != null) {
+                selection.add(notifcation);
+            }
         }
         return selection;
     }
@@ -241,6 +311,22 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         acknowledgeBtn.setEnabled(canAcknowledge);
         deleteBtn.setEnabled(canDelete);
         gotoBtn.setEnabled(selection.size() == 1 && selection.get(0).getLocation() != null);
+        updateChatEnabledState();
+    }
+    
+    /**
+     * Updates the enabled state of the chat button
+     */
+    protected void updateChatEnabledState() {
+        N notification = getSelectedNotification();
+        if (notification != null) {
+            chatBtn.setEnabled(
+                    notification != null && 
+                    notification.getTargetId() != null &&
+                    EPD.getInstance().getChatServiceHandler().availableForChat(notification.getTargetId()));
+        } else {
+            chatBtn.setEnabled(false);
+        }
     }
     
     /**
@@ -285,6 +371,18 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
                 setSelectedRow(row);
                 return;
             }
+        }
+    }
+
+    /**
+     * If the notification with the given id is the currently selected one,
+     * then refresh the selection.
+     * @param id the id of the notification to select
+     */
+    public void checkRefreshSelection(Object id) {
+        N notification = getSelectedNotification();
+        if (notification != null && notification.getId().equals(id)) {
+            setSelectedNotification();
         }
     }
     
@@ -457,6 +555,45 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         }
     }
     
+    /**
+     * Starts a chat session with the target maritime id of the selected notification
+     */
+    protected void chatWithNotificationTarget() {
+        N notification = getSelectedNotification();
+        if (notification != null && 
+            notification.getTargetId() != null &&
+            EPD.getInstance().getChatServiceHandler().availableForChat(notification.getTargetId())) {
+            EPD.getInstance().getNotificationCenter()
+                .openNotification(NotificationType.MESSAGES, notification.getTargetId(), false);
+        }
+    }
+    
+    /*************************************/
+    /** Maximize/minimize methods       **/
+    /*************************************/
+    
+    /**
+     * Sets the maximized state of the notification center
+     * @param maximized the maximized state of the notification center
+     */
+    public void setMaximized(boolean maximized) {
+        if (maximized == this.maximized) {
+            return;
+        }
+        
+        if (maximized) {
+            if (splitPane.getRightComponent() != detailPanel) {
+                splitPane.setRightComponent(detailPanel);
+            }
+            splitPane.setDividerLocation(saveDividerLocation);
+        } else {
+            saveDividerLocation = splitPane.getDividerLocation();
+        }
+        
+        this.maximized = maximized;
+    }
+    
+    
     /*************************************/
     /** Listener methods                **/
     /*************************************/
@@ -521,5 +658,110 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
      */
     public interface NotificationPanelListener {
         void notificationsUpdated(NotificationStatistics stats);
+    }
+    
+    /**
+     * Base class used for button panels.
+     * Adds an additional button used for maximizing/minimizing
+     * the notification center
+     */
+    public static class ButtonPanel extends JPanel {
+
+        private static final long serialVersionUID = 1L;
+        private static final Color BTN_BG_COLOR = new Color(200, 100, 100, 100);
+        private static final Color BTN_FG_COLOR = new Color(200, 200, 200, 100);
+        
+        NotificationCenterCommon notificationCenter;
+        Shape outlineShape;
+        int prevWidth = -1;
+        
+        /**
+         * Constructor
+         * @param notificationCenter
+         */
+        public ButtonPanel(final NotificationCenterCommon notificationCenter) {
+            this.notificationCenter = notificationCenter;
+            
+            // Handle maximize/minimize events
+            addMouseListener(new MouseAdapter() {
+                @Override public void mouseClicked(MouseEvent e) {
+                    onMouseClicked(e.getPoint());
+                }});
+            
+            // Handle tooltips
+            addMouseMotionListener(new MouseAdapter() {
+                @Override public void mouseMoved(MouseEvent e) {
+                    if (getOutlineShape().contains(e.getPoint())) {
+                        setToolTipText(notificationCenter.isMaximized() 
+                                    ? "Minimize Notification Center"
+                                    : "Maximize Notification Center");
+                    } else if (getToolTipText() != null) {
+                        setToolTipText(null);
+                    }
+                }
+            });
+        }
+        
+        /**
+         * Checks if the maximized/minimize button was clicked
+         * @param pt the mouse point
+         */
+        public void onMouseClicked(Point pt) {
+            if (getOutlineShape().contains(pt)) {
+                notificationCenter.toggleMaximized();
+            }
+        }
+        
+        /**
+         * Returns the shape used for the maximize/minimize button
+         * @return the shape used for the maximize/minimize button
+         */
+        public Shape getOutlineShape() {
+            if (prevWidth == getWidth() && outlineShape != null) {
+                return outlineShape;
+            }
+            int s = 20;
+            prevWidth = getWidth();
+            outlineShape = new RoundRectangle2D.Double(getWidth() - 2 - s, 2, s, s, 10, 10);
+            return outlineShape;
+        }
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void paint(Graphics g) {
+            super.paint(g);
+            
+            Graphics2D g2 = (Graphics2D)g;
+            g2.setRenderingHints(GraphicsUtil.ANTIALIAS_HINT);
+            
+            g2.setColor(BTN_BG_COLOR);
+            g2.fill(getOutlineShape());
+            
+            g2.setColor(BTN_FG_COLOR);
+            g2.setStroke(new BasicStroke(1f));
+            
+            int s = 10;
+            int x = getWidth() - s - 8;
+            int y = 6;
+            if (notificationCenter.isMaximized()) {
+                g2.drawRect(x, y, s, s);
+                Path2D arrow = new Path2D.Double();
+                arrow.moveTo(x, y);
+                arrow.lineTo(x + s / 2, y + s / 2);
+                arrow.lineTo(x, y + s);                
+                arrow.closePath();
+                g2.fill(arrow);
+            } else {
+                g2.drawRect(x + s / 2, y, s / 2, s);
+                Path2D arrow = new Path2D.Double();
+                arrow.moveTo(x + s / 2, y);
+                arrow.lineTo(x, y + s / 2);
+                arrow.lineTo(x + s / 2, y + s);                
+                arrow.closePath();
+                g2.fill(arrow);
+            }
+        }   
     }
 }

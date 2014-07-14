@@ -16,18 +16,18 @@
 package dk.dma.epd.ship.gui.menuitems;
 
 import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
-import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.ship.EPDShip;
 
-public class RouteActivateToggle extends RouteMenuItem<RouteManager> {
+public class RouteActivateToggle extends RouteMenuItem {
     
     private static final long serialVersionUID = 1L;
     
     @Override
     public void doAction() {
-        if(routeManager.getActiveRouteIndex() == routeIndex){
-            routeManager.deactivateRoute();
+        if(EPDShip.getInstance().getRouteManager().getActiveRouteIndex() == routeIndex){
+            EPDShip.getInstance().getRouteManager().deactivateRoute();
         } else {
-            routeManager.activateRoute(routeIndex);
+            EPDShip.getInstance().getRouteManager().activateRoute(routeIndex);
         }
     }
 }

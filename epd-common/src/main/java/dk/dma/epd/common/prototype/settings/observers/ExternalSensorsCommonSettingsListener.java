@@ -67,6 +67,16 @@ public interface ExternalSensorsCommonSettingsListener {
     void aisTcpOrUdpPortChanged(int port);
 
     /**
+     * Invoked when
+     * {@link ExternalSensorsCommonSettings#getAisSerialPortBaudRate()} has
+     * changed.
+     * 
+     * @param aisSerialPortBaudRate
+     *            The new baud rate.
+     */
+    void aisSerialPortBaudRateChanged(int aisSerialPortBaudRate);
+
+    /**
      * Invoked when {@link ExternalSensorsCommonSettings#getGpsConnectionType()}
      * has changed.
      * 

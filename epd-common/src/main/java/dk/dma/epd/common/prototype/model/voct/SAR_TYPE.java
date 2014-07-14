@@ -16,5 +16,5 @@
 package dk.dma.epd.common.prototype.model.voct;
 
 public enum SAR_TYPE{
-    RAPID_RESPONSE, DATUM_POINT, DATUM_LINE, BACKTRACK, NONE
+    RAPID_RESPONSE, DATUM_POINT, DATUM_LINE, BACKTRACK, NONE, SARIS_DATUM_POINT
 }

@@ -53,5 +53,8 @@ public class PntStatus extends ComponentStatus {
         buf.append("Last PNT data: " + Formatter.formatLongDateTime(currentData.getLastUpdated()));
         return buf.toString();
     }
-
+    
+    public synchronized PntData getPntData() {
+        return this.currentData;
+    }
 }

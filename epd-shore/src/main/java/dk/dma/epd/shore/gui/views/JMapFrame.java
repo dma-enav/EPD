@@ -28,7 +28,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 import java.util.Iterator;
 import java.util.Objects;
@@ -39,7 +38,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -72,7 +70,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
     protected final MainFrame mainFrame;
     protected JLabel moveHandler;
     protected JPanel mapPanel;
-    protected JPanel masterPanel;
+    protected JPanel masterPanel = new JPanel(new BorderLayout());
     protected JLabel maximize;
     protected MapMenu mapMenu;
 
@@ -81,7 +79,6 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
     public int width;
     public int height;
     protected static int chartPanelOffset = 12;
-    JInternalFrame mapFrame;
     protected JPanel glassPanel;
 
     MapFrameType type = MapFrameType.standard;
@@ -102,6 +99,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
      *            reference to the mainframe
      * @param frameMapSettings
      *            The map settings that this frame should use.
+     * @param type the type of map frame
      */
     public JMapFrame(int id, MainFrame mainFrame, final MapFrameType type, MapCommonSettings<MapCommonSettingsListener> frameMapSettings) {
         super("New Window " + id, true, true, true, true);
@@ -114,28 +112,15 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         initGlassPane();
 
         chartPanel = new ChartPanel(mainFrame, this);
-        this.setContentPane(chartPanel);
-
-        setContentPane(chartPanel);
-
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                chartPanel.initChart(type);
-            }
-        }).run();
+        chartPanel.initChart(type);
 
         initGUI();
 
         layerTogglingPanel.setChartPanel(chartPanel);
 
-        this.setVisible(true);
-
         setVisible(true);
-
     }
-
+    
     /**
      * Get a reference to the {@link MapCommonSettings} used by this frame.
      * @return The {@link MapCommonSettings} used by this frame.
@@ -151,31 +136,11 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
      *            id number for this map frame
      * @param mainFrame
      *            reference to the map frame
-     * @param center
-     *            where to center map
-     * @param scale
-     *            map zoom level
      * @param frameMapSettings
      *            The map settings that this frame should use.
      */
-    public JMapFrame(int id, MainFrame mainFrame, Point2D center, float scale, MapCommonSettings<MapCommonSettingsListener> frameMapSettings) {
-
-        super("New Window " + id, true, true, true, true);
-
-        this.mainFrame = mainFrame;
-        this.id = id;
-        this.mapSettings = Objects.requireNonNull(frameMapSettings);
-        // Initialize the glass pane
-        initGlassPane();
-
-        chartPanel = new ChartPanel(mainFrame, this);
-        this.setContentPane(chartPanel);
-        this.setVisible(true);
-
-        chartPanel.initChart(center, scale);
-        initGUI();
-
-        layerTogglingPanel.setChartPanel(chartPanel);
+    public JMapFrame(int id, MainFrame mainFrame, MapCommonSettings<MapCommonSettingsListener> frameMapSettings) {
+        this(id, mainFrame, MapFrameType.standard, frameMapSettings);
     }
 
     /**
@@ -213,6 +178,24 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
     @Override
     public Component asComponent() {
         return this;
+    }
+    
+    /**
+     * Adds the given panel as a content panel next to the chart panel.
+     * <p>
+     * The {@code position} is a {@linkplain BorderLayout} position,
+     * and may be either east, west or south.
+     * 
+     * @param panel the panel to add
+     * @param position the position of the panel
+     */
+    public void addContentPanel(JPanel panel, String position) {
+        if (!BorderLayout.EAST.equals(position) && 
+                !BorderLayout.WEST.equals(position) &&
+                !BorderLayout.SOUTH.equals(position)) {
+            throw new IllegalArgumentException("Invalid position");
+        }
+        masterPanel.add(panel, position);
     }
 
     /**
@@ -253,10 +236,8 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
     public void initGUI() {
         makeKeyBindings();
 
-        mapFrame = this;
-
         // Listen for resize
-        mapFrame.addComponentListener(new ComponentAdapter() {
+        addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
                 repaintMapWindow();
             }
@@ -309,7 +290,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
 
             public void mouseReleased(MouseEvent e) {
                 try {
-                    mapFrame.setIcon(true);
+                    setIcon(true);
                 } catch (PropertyVetoException e1) {
                     e1.printStackTrace();
                 }
@@ -325,11 +306,11 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
             public void mouseReleased(MouseEvent e) {
                 try {
                     if (maximized) {
-                        mapFrame.setMaximum(false);
+                        setMaximum(false);
                         maximized = false;
                         maximize.setIcon(windowRes.getCachedImageIcon("maximize.png"));
                     } else {
-                        mapFrame.setMaximum(true);
+                        setMaximum(true);
                         maximized = true;
                         maximize.setIcon(windowRes.getCachedImageIcon("restore.png"));
                     }
@@ -348,7 +329,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
             public void mouseReleased(MouseEvent e) {
 
                 try {
-                    mapFrame.setClosed(true);
+                    setClosed(true);
                 } catch (PropertyVetoException e1) {
                     e1.printStackTrace();
                 }
@@ -360,16 +341,15 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         mapPanel.add(mapToolsPanel);
 
         // Create the masterpanel for aligning
-        masterPanel = new JPanel(new BorderLayout());
         masterPanel.add(mapPanel, BorderLayout.NORTH);
-        masterPanel.add(chartPanel, BorderLayout.SOUTH);
+        masterPanel.add(chartPanel, BorderLayout.CENTER);
         masterPanel.setBackground(new Color(45, 45, 45));
         masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45, 45)));
 
-        this.setContentPane(masterPanel);
+        setContentPane(masterPanel);
         ImageIcon minimizedIcon = EPDShore.res().getCachedImageIcon("images/settings/map.png");
-        this.setFrameIcon(minimizedIcon);
-        this.iconable = false;
+        setFrameIcon(minimizedIcon);
+        iconable = false;
         repaintMapWindow();
 
         // Init the map right click menu
@@ -420,14 +400,14 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
             masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45,
                     45)));
             locked = false;
-            mapFrame.setResizable(true);
+            setResizable(true);
 
         } else {
             setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45, 45)));
             masterPanel.setBorder(null);
             masterPanel.remove(mapPanel);
             locked = true;
-            mapFrame.setResizable(false);
+            setResizable(false);
 
         }
 
@@ -439,8 +419,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
      */
     protected void makeKeyBindings() {
 
-        JPanel content = (JPanel) getContentPane();
-        InputMap inputMap = content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        InputMap inputMap = chartPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         @SuppressWarnings("serial")
         Action zoomIn = new AbstractAction() {
@@ -495,12 +474,12 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_LEFT, 0), "panLeft");
         inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_RIGHT, 0), "panRight");
 
-        content.getActionMap().put("ZoomOut", zoomOut);
-        content.getActionMap().put("ZoomIn", zoomIn);
-        content.getActionMap().put("panUp", panUp);
-        content.getActionMap().put("panDown", panDown);
-        content.getActionMap().put("panLeft", panLeft);
-        content.getActionMap().put("panRight", panRight);
+        chartPanel.getActionMap().put("ZoomOut", zoomOut);
+        chartPanel.getActionMap().put("ZoomIn", zoomIn);
+        chartPanel.getActionMap().put("panUp", panUp);
+        chartPanel.getActionMap().put("panDown", panDown);
+        chartPanel.getActionMap().put("panLeft", panLeft);
+        chartPanel.getActionMap().put("panRight", panRight);
 
     }
 
@@ -523,25 +502,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
      * Function for repainting the mapframe after e.g. resize
      */
     public void repaintMapWindow() {
-
-        width = mapFrame.getSize().width;
-        int innerHeight = mapFrame.getSize().height - moveHandlerHeight - chartPanelOffset;
-        height = mapFrame.getSize().height;
-
-        if (locked) {
-            innerHeight = mapFrame.getSize().height - 4; // 4 for border
-        }
-
-        // And finally set the size and repaint it
-        chartPanel.setSize(width, innerHeight);
-        chartPanel.setPreferredSize(new Dimension(width, innerHeight));
-
-        this.setSize(width, height);
-
         layerTogglingPanel.checkPosition();
-        this.revalidate();
-        this.repaint();
-
     }
 
     @Override

@@ -25,19 +25,19 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
-import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 
 /**
@@ -48,22 +48,21 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
     private static final long serialVersionUID = 1L;
     
     private static final String[] NAMES = {
-        "", "Name", "Callsign", "Called", "Status" };
+        "", "Name", "Callsign", "Date", "Status" };
 
     protected JButton routeDetailsBtn;
     protected JButton handleRequestBtn;
-
     
     /**
      * Constructor
      */
-    public StrategicRouteNotificationPanel() {
-        super();
+    public StrategicRouteNotificationPanel(NotificationCenterCommon notificationCenter) {
+        super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setPreferredWidth(80);
         table.getColumnModel().getColumn(2).setPreferredWidth(60);
-        table.getColumnModel().getColumn(3).setPreferredWidth(90);
+        table.getColumnModel().getColumn(3).setPreferredWidth(70);
         table.getColumnModel().getColumn(4).setPreferredWidth(85);
         splitPane.setDividerLocation(350);
     }
@@ -72,8 +71,8 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
      * {@inheritDoc}
      */
     @Override
-    protected JPanel initButtonPanel() {
-        JPanel btnPanel = new JPanel();
+    protected ButtonPanel initButtonPanel() {
+        ButtonPanel btnPanel = new ButtonPanel(notificationCenter);
         btnPanel.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createMatteBorder(0, 0, 2, 0, UIManager.getColor("Separator.shadow")),
@@ -88,6 +87,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         
         btnPanel.add(routeDetailsBtn);
         btnPanel.add(handleRequestBtn);
+        btnPanel.add(chatBtn);
         
         routeDetailsBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
@@ -97,6 +97,11 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         handleRequestBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
                 handleRouteRequest();
+            }});
+        
+        chatBtn.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                chatWithNotificationTarget();
             }});
         
         return btnPanel;
@@ -110,6 +115,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         StrategicRouteNotification n = getSelectedNotification();
         routeDetailsBtn.setEnabled(n != null);
         handleRequestBtn.setEnabled(n != null && !n.isAcknowledged());
+        updateChatEnabledState();
     }
     
     /**
@@ -123,7 +129,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
                     EPDShore.getInstance().getMainFrame(), 
                     EPDShore.getInstance().getMainFrame().getActiveChartPanel(),
-                    notification.getLatestRoute());
+                    notification.get().getLatestRoute());
             
             routePropertiesDialog.setVisible(true);
         }
@@ -138,17 +144,17 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             
             Voyage voyage = new Voyage(
                     notification.get().getMmsi(), 
-                    notification.getLatestRoute(),
+                    notification.get().getLatestRoute(),
                     notification.getId());
 
             EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(
-                notification.getOriginalRoute(),
-                notification.getVesselName(), 
+                notification.get().getOriginalRoute(),
+                notification.getCallerlName(), 
                 voyage, 
                 false);
 
             // Hide the notification center
-            SwingUtilities.getWindowAncestor(this).setVisible(false);
+            SwingUtilities.getWindowAncestor(detailPanel).setVisible(false);
         }
     }
     
@@ -190,9 +196,9 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
                 case 0: return !notification.isRead() 
                         ? ICON_UNREAD 
                         : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
-                case 1: return notification.getVesselName();
+                case 1: return notification.getCallerlName();
                 case 2: return notification.getVesselCallsign();
-                case 3: return Formatter.formatShortDateTime(notification.getDate());
+                case 3: return Formatter.formatShortDateTimeNoTz(notification.getDate());
                 case 4: return notification.get().getStatus();
                 default:
                 }
@@ -225,7 +231,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         }
         
         List<StrategicRouteNotification> notifications = new ArrayList<>();
-        for (StrategicRouteNegotiationData routeData : strategicRouteHandler.getStrategicNegotiationData().values()) {
+        for (StrategicRouteNegotiationData routeData : strategicRouteHandler.getSortedStrategicNegotiationData()) {
             StrategicRouteNotification notification = new StrategicRouteNotification(routeData);
             
             // Restore the "read" flag

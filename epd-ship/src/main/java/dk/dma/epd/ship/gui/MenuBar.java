@@ -337,14 +337,6 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             }
         });
         
-        JMenuItem chatMenuItem = new JMenuItem("Send message...");
-        chatMenuItem.addActionListener(new ActionListener() {            
-            @Override public void actionPerformed(ActionEvent e) {
-                EPD.getInstance().getMainFrame().getChatServiceDialog().init();
-            }
-        });
-        tools.add(chatMenuItem);
-        
 
         /*****************************************/
         /** Layouts menu                        **/

@@ -33,7 +33,8 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.ship.gui.panels.ActiveWaypointPanel;
 import dk.dma.epd.ship.route.RouteManager;
 
-public class ActiveWaypointComponentPanel extends OMComponentPanel implements IPntDataListener, Runnable, ProjectionListener, IMapCoordListener, IRoutesUpdateListener {
+public class ActiveWaypointComponentPanel extends OMComponentPanel 
+    implements IPntDataListener, Runnable, ProjectionListener, IMapCoordListener, IRoutesUpdateListener, DockableComponentPanel {
 
     private static final long serialVersionUID = 1L;
     private final ActiveWaypointPanel activeWaypointPanel;
@@ -94,5 +95,32 @@ public class ActiveWaypointComponentPanel extends OMComponentPanel implements IP
         }
     }
     
+    /****************************************/
+    /** DockableComponentPanel methods     **/
+    /****************************************/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDockableComponentName() {
+        return "Active Waypoint";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInDefaultLayout() {
+        return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean includeInPanelsMenu() {
+        return true;
+    }
 
 }

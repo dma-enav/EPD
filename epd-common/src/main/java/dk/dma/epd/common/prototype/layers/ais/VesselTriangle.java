@@ -27,6 +27,7 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.layers.CircleSelectionGraphic;
+import dk.dma.epd.common.prototype.layers.predictor.VesselPortrayalData;
 
 /**
  * <p>
@@ -100,10 +101,23 @@ public class VesselTriangle extends VesselGraphic {
         if (pos == null) {
             return;
         }
+        
         float trueHeading = posData.getTrueHeading();
         if (trueHeading == 511f) {
             trueHeading = vesselTarget.getPositionData().getCog();
         }
+        
+        /*
+         *  Triangle display does not make use of vessel's width and/or length, so simply use 0 for distance values.
+         */
+        VesselPortrayalData portrayalData = new VesselPortrayalData(pos, trueHeading, 0f, 0f, 0f, 0f);
+        this.updateGraphic(portrayalData);
+    }
+    
+    @Override
+    public void updateGraphic(VesselPortrayalData data) {
+        Position pos = data.getPos();
+        float trueHeading = data.getHeading();
         double hdgR = Math.toRadians(trueHeading);
         vessel.setLocation(pos.getLatitude(), pos.getLongitude(),
                 OMGraphicConstants.DECIMAL_DEGREES, hdgR);

@@ -30,8 +30,7 @@ import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.layers.GeneralLayer;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class VoctLayerCommon extends GeneralLayer implements
-        MapMouseListener, VOCTUpdateListener {
+public class VoctLayerCommon extends GeneralLayer implements MapMouseListener, VOCTUpdateListener {
 
     private static final long serialVersionUID = 1L;
     protected MapBean mapBean;
@@ -45,7 +44,7 @@ public class VoctLayerCommon extends GeneralLayer implements
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -56,7 +55,6 @@ public class VoctLayerCommon extends GeneralLayer implements
         ret[2] = SelectMouseMode.MODEID; // "SelectMouseMode"
         return ret;
     }
-
 
     @Override
     public boolean mouseClicked(MouseEvent arg0) {
@@ -73,19 +71,19 @@ public class VoctLayerCommon extends GeneralLayer implements
     @Override
     public void mouseEntered(MouseEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseMoved() {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -108,20 +106,18 @@ public class VoctLayerCommon extends GeneralLayer implements
 
     public void updateEffectiveAreaLocation(SARData sarData) {
         // TODO Auto-generated method stub
-        
+
     }
 
-    
     public void toggleEffectiveAreaVisibility(int id, boolean visible) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public void removeEffortAllocationArea(int i) {
         // TODO Auto-generated method stub
-        
+
     }
-  
 
     @Override
     public void findAndInit(Object obj) {
@@ -141,7 +137,7 @@ public class VoctLayerCommon extends GeneralLayer implements
 
     public void showFutureData(SARData sarData) {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
 }

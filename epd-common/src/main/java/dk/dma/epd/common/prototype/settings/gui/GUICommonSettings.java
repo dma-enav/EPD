@@ -306,33 +306,6 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettingsListener>
         }
     }
 
-    /**
-     * A specialized {@link Representer} that skips recursive properties in
-     * {@link Dimension} and {@link Point} objects.
-     * 
-     * @author Janus Varmarken
-     * 
-     */
-    protected static class GUICommonSettingsRepresenter extends Representer {
-
-        @Override
-        protected NodeTuple representJavaBeanProperty(Object javaBean,
-                Property property, Object propertyValue, Tag customTag) {
-            if (javaBean instanceof Dimension
-                    && "size".equals(property.getName())) {
-                // Do not serialize as it produces infinite recursion.
-                return null;
-            } else if (javaBean instanceof Point
-                    && "location".equals(property.getName())) {
-                // Do not serialize as it produces infinite recursion.
-                return null;
-            }
-            return super.representJavaBeanProperty(javaBean, property,
-                    propertyValue, customTag);
-        }
-
-    }
-
     /*
      * Begin: Listener methods that are only used if this instance observes
      * another instance of this class.
@@ -372,4 +345,31 @@ public class GUICommonSettings<OBSERVER extends GUICommonSettingsListener>
      * End: Listener methods that are only used if this instance observes
      * another instance of this class.
      */
+    
+    /**
+     * A specialized {@link Representer} that skips recursive properties in
+     * {@link Dimension} and {@link Point} objects.
+     * 
+     * @author Janus Varmarken
+     * 
+     */
+    protected static class GUICommonSettingsRepresenter extends Representer {
+
+        @Override
+        protected NodeTuple representJavaBeanProperty(Object javaBean,
+                Property property, Object propertyValue, Tag customTag) {
+            if (javaBean instanceof Dimension
+                    && "size".equals(property.getName())) {
+                // Do not serialize as it produces infinite recursion.
+                return null;
+            } else if (javaBean instanceof Point
+                    && "location".equals(property.getName())) {
+                // Do not serialize as it produces infinite recursion.
+                return null;
+            }
+            return super.representJavaBeanProperty(javaBean, property,
+                    propertyValue, customTag);
+        }
+
+    }
 }

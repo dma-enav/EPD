@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -11,15 +10,15 @@
 
 	<groupId>dk.dma.epd</groupId>
 	<artifactId>epd-parent</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>3.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>EPD Parent</name>
 	<description>eNavigation Prototype Display parent module</description>
 
 	<scm>
-		<connection>scm:git:git@github.com:dma-dk/epd.git</connection>
-		<developerConnection>scm:git:git@github.com:dma-dk/epd.git</developerConnection>
-		<url>https://github.com/dma-dk/epd</url>
+		<connection>scm:git:git@github.com:dma-enav/EPD.git</connection>
+		<developerConnection>scm:git:git@github.com:dma-enav/EPD.git</developerConnection>
+		<url>https://github.com/dma-enav/EPD</url>
 	</scm>
 
 	<dependencies>
@@ -36,7 +35,7 @@
 		<dependency>
 			<groupId>dk.dma.commons</groupId>
 			<artifactId>dma-commons-app</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>0.1</version>
 		</dependency>
 	</dependencies>
 
@@ -44,6 +43,7 @@
 		<module>epd-common</module>
 		<module>epd-ship</module>
 		<module>epd-shore</module>
+		<module>epd-util</module>
 		<module>distribution</module>
 	</modules>
 

@@ -18,12 +18,12 @@ package dk.dma.epd.common.prototype.gui.menuitems;
 
 import java.util.ArrayList;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.dialogs.ISimpleConfirmDialogListener;
 import dk.dma.epd.common.prototype.gui.dialogs.SimpleConfirmDialog;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteDelete extends RouteMenuItem<RouteManagerCommon> implements ISimpleConfirmDialogListener {
+public class RouteDelete extends RouteMenuItem implements ISimpleConfirmDialogListener {
     
     private static final long serialVersionUID = 1L;
     
@@ -50,6 +50,6 @@ public class RouteDelete extends RouteMenuItem<RouteManagerCommon> implements IS
     @Override
     public void onYesClicked() {
         // User confirmed route deletion
-        routeManager.removeRoute(routeIndex);
+        EPD.getInstance().getRouteManager().removeRoute(routeIndex);
     }
 }

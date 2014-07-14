@@ -15,6 +15,9 @@
  */
 package dk.dma.epd.shore.voct;
 
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
+
 /**
  * Definition of a SRU
  * 
@@ -24,12 +27,12 @@ package dk.dma.epd.shore.voct;
 public class SRU {
 
     public enum SRU_TYPE {
-//        SHIP, HELICOPTER, PLANE
+        // SHIP, HELICOPTER, PLANE
         Smaller_Vessel, Ship
     }
 
     public enum sru_status {
-       AVAILABLE, UNAVAILABLE, INVITED, ACCEPTED, DECLINED, UNKNOWN, LOCALONLY
+        AVAILABLE, UNAVAILABLE, INVITED, ACCEPTED, DECLINED, UNKNOWN, LOCALONLY
     }
 
     private String name;
@@ -41,11 +44,11 @@ public class SRU {
     private int visibility;
     private double fatigue;
     private int searchTime;
-    
-     
 
-    public SRU(String name, long mmsi, SRU_TYPE type, sru_status status,
-            double searchSpeed, int visibility, double fatigue,
+    private VoctMsgStatus voctMsgStatus;
+    private CloudMessageStatus cloudStatus;
+
+    public SRU(String name, long mmsi, SRU_TYPE type, sru_status status, double searchSpeed, int visibility, double fatigue,
             int searchTime) {
 
         this.name = name;
@@ -57,9 +60,9 @@ public class SRU {
         this.visibility = visibility;
         this.fatigue = fatigue;
         this.searchTime = searchTime;
+        voctMsgStatus = VoctMsgStatus.UNKNOWN;
+        cloudStatus = CloudMessageStatus.NOT_SENT;
     }
-
-
 
     /**
      * @return the name
@@ -68,16 +71,13 @@ public class SRU {
         return name;
     }
 
-
-
     /**
-     * @param name the name to set
+     * @param name
+     *            the name to set
      */
     public void setName(String name) {
         this.name = name;
     }
-
-
 
     /**
      * @return the mmsi
@@ -86,16 +86,13 @@ public class SRU {
         return mmsi;
     }
 
-
-
     /**
-     * @param mmsi the mmsi to set
+     * @param mmsi
+     *            the mmsi to set
      */
     public void setMmsi(long mmsi) {
         this.mmsi = mmsi;
     }
-
-
 
     /**
      * @return the type
@@ -104,16 +101,13 @@ public class SRU {
         return type;
     }
 
-
-
     /**
-     * @param type the type to set
+     * @param type
+     *            the type to set
      */
     public void setType(SRU_TYPE type) {
         this.type = type;
     }
-
-
 
     /**
      * @return the status
@@ -122,16 +116,13 @@ public class SRU {
         return status;
     }
 
-
-
     /**
-     * @param status the status to set
+     * @param status
+     *            the status to set
      */
     public void setStatus(sru_status status) {
         this.status = status;
     }
-
-
 
     /**
      * @return the visible
@@ -140,16 +131,13 @@ public class SRU {
         return visible;
     }
 
-
-
     /**
-     * @param visible the visible to set
+     * @param visible
+     *            the visible to set
      */
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
-
-
 
     /**
      * @return the searchSpeed
@@ -158,16 +146,13 @@ public class SRU {
         return searchSpeed;
     }
 
-
-
     /**
-     * @param searchSpeed the searchSpeed to set
+     * @param searchSpeed
+     *            the searchSpeed to set
      */
     public void setSearchSpeed(double searchSpeed) {
         this.searchSpeed = searchSpeed;
     }
-
-
 
     /**
      * @return the visibility
@@ -176,16 +161,13 @@ public class SRU {
         return visibility;
     }
 
-
-
     /**
-     * @param visibility the visibility to set
+     * @param visibility
+     *            the visibility to set
      */
     public void setVisibility(int visibility) {
         this.visibility = visibility;
     }
-
-
 
     /**
      * @return the fatigue
@@ -194,16 +176,13 @@ public class SRU {
         return fatigue;
     }
 
-
-
     /**
-     * @param fatigue the fatigue to set
+     * @param fatigue
+     *            the fatigue to set
      */
     public void setFatigue(double fatigue) {
         this.fatigue = fatigue;
     }
-
-
 
     /**
      * @return the searchTime
@@ -212,10 +191,9 @@ public class SRU {
         return searchTime;
     }
 
-
-
     /**
-     * @param searchTime the searchTime to set
+     * @param searchTime
+     *            the searchTime to set
      */
     public void setSearchTime(int searchTime) {
         this.searchTime = searchTime;
@@ -223,14 +201,39 @@ public class SRU {
 
 
 
-    @Override
-    public String toString() {
-        return "SRU [name=" + name + ", mmsi=" + mmsi + ", type=" + type
-                + ", status=" + status + ", visible=" + visible
-                + ", searchSpeed=" + searchSpeed + ", visibility=" + visibility
-                + ", fatigue=" + fatigue + ", searchTime=" + searchTime + "]";
+    /**
+     * @return the voctMsgStatus
+     */
+    public VoctMsgStatus getVoctMsgStatus() {
+        return voctMsgStatus;
     }
 
-    
+    /**
+     * @param voctMsgStatus the voctMsgStatus to set
+     */
+    public void setVoctMsgStatus(VoctMsgStatus voctMsgStatus) {
+        this.voctMsgStatus = voctMsgStatus;
+    }
+
+    /**
+     * @return the cloudStatus
+     */
+    public CloudMessageStatus getCloudStatus() {
+        return cloudStatus;
+    }
+
+    /**
+     * @param cloudStatus the cloudStatus to set
+     */
+    public void setCloudStatus(CloudMessageStatus cloudStatus) {
+        this.cloudStatus = cloudStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "SRU [name=" + name + ", mmsi=" + mmsi + ", type=" + type + ", status=" + status + ", visible=" + visible
+                + ", searchSpeed=" + searchSpeed + ", visibility=" + visibility + ", fatigue=" + fatigue + ", searchTime="
+                + searchTime + "]";
+    }
 
 }

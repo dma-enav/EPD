@@ -46,10 +46,11 @@ import javax.swing.JButton;
 /**
  * 
  * @author adamduehansen
- *
+ * 
  */
-public class CommonMapSettingsPanel extends BaseSettingsPanel {
-    
+public class CommonMapSettingsPanel extends BaseSettingsPanel implements
+        ActionListener {
+
     private static final long serialVersionUID = 1L;
     private JPanel generalMapSettings;
     private JPanel wmsSettings;
@@ -77,10 +78,14 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JCheckBox chckbxPlainAreas;
     private JButton btnAdvancedOptions;
     
+    
     protected MapCommonSettings<?> mapSettings;
     protected ENCLayerCommonSettings<?> encLayerSettings;
     protected WMSLayerCommonSettings<?> wmsLayerSettings;
     
+
+    private boolean s57SettingsChanged;
+
     /**
      * Constructs a new CommonMapSettingsPanel object.
      */
@@ -91,21 +96,21 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         this.encLayerSettings = Objects.requireNonNull(encLayerSettings);
         this.wmsLayerSettings = Objects.requireNonNull(wmsLayerSettings);
         setLayout(null);
-        
-        
+
         /************** General settings ***************/
-        
+
         generalMapSettings = new JPanel();
         generalMapSettings.setBounds(6, 6, 438, 160);
         generalMapSettings.setLayout(null);
-        generalMapSettings.setBorder(new TitledBorder(null, "General", TitledBorder.LEADING, 
-                TitledBorder.TOP, null, null));
-        
+        generalMapSettings.setBorder(new TitledBorder(null, "General",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+
         // General settings panel components.
-        spinnerDefaultMapScale = new JSpinner(new SpinnerNumberModel(new Float(0), null, null, new Float(1)));
+        spinnerDefaultMapScale = new JSpinner(new SpinnerNumberModel(new Float(
+                0), null, null, new Float(1)));
         spinnerDefaultMapScale.setBounds(16, 20, 75, 20);
         generalMapSettings.add(spinnerDefaultMapScale);
-        
+
         JLabel lblDefaultMapScale = new JLabel("Default map scale");
         lblDefaultMapScale.setBounds(103, 22, 113, 16);
         generalMapSettings.add(lblDefaultMapScale);
@@ -113,149 +118,152 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         spinnerMaximumScale = new JSpinner(new SpinnerNumberModel(new Float(0), null, null, new Float(1)));
         spinnerMaximumScale.setBounds(16, 45, 75, 20);
         generalMapSettings.add(spinnerMaximumScale);
-        
+
         JLabel lblMaximumScale = new JLabel("Maximum scale");
         lblMaximumScale.setBounds(103, 47, 98, 16);
         generalMapSettings.add(lblMaximumScale);
-        
+
         JLabel lblDefaultMapCenter = new JLabel("Default map center");
         lblDefaultMapCenter.setBounds(16, 70, 120, 16);
         generalMapSettings.add(lblDefaultMapCenter);
-        
+
         JLabel lblLatitude = new JLabel("Latitude:");
         lblLatitude.setBounds(16, 95, 55, 16);
         generalMapSettings.add(lblLatitude);
-        
-        spinnerLatitude = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
+
+        spinnerLatitude = new JSpinner(new SpinnerNumberModel(new Double(0),
+                null, null, new Double(1)));
         spinnerLatitude.setBounds(83, 93, 75, 20);
         generalMapSettings.add(spinnerLatitude);
-        
+
         JLabel lblLongitude = new JLabel("Longitude:");
         lblLongitude.setBounds(190, 93, 75, 16);
         generalMapSettings.add(lblLongitude);
-        
-        spinnerLongitude = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
+
+        spinnerLongitude = new JSpinner(new SpinnerNumberModel(new Double(0),
+                null, null, new Double(1)));
         spinnerLongitude.setBounds(245, 91, 75, 20);
         generalMapSettings.add(spinnerLongitude);
-        
+
         this.add(generalMapSettings);
-        
+
         chckbxUseEnc = new JCheckBox("use ENC");
         chckbxUseEnc.setBounds(16, 123, 84, 20);
         generalMapSettings.add(chckbxUseEnc);
-        
-        
+
         /************** WMS settings ***************/
-        
+
         wmsSettings = new JPanel();
         wmsSettings.setBounds(6, 409, 438, 155);
         wmsSettings.setLayout(null);
-        wmsSettings.setBorder(new TitledBorder(null, "WMS Settings", TitledBorder.LEADING, 
-                TitledBorder.TOP, null, null));
+        wmsSettings.setBorder(new TitledBorder(null, "WMS Settings",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
         chckbxUseWms = new JCheckBox("Use WMS");
         chckbxUseWms.setBounds(16, 20, 88, 23);
         wmsSettings.add(chckbxUseWms);
-        
+
         lblWmsUrl = new JLabel("WMS URL:");
         lblWmsUrl.setBounds(16, 50, 61, 16);
         wmsSettings.add(lblWmsUrl);
-        
+
         textFieldWMSURL = new JTextField();
         textFieldWMSURL.setBounds(16, 75, 405, 20);
         wmsSettings.add(textFieldWMSURL);
         textFieldWMSURL.setColumns(10);
-        
+
         this.add(wmsSettings);
-        
-        lblenterTheUrl = new JLabel("<html>Enter the URL to the WMS service you wish to use, <br>enter everything except BBOX and height/width options.</html>");
+
+        lblenterTheUrl = new JLabel(
+                "<html>Enter the URL to the WMS service you wish to use, <br>enter everything except BBOX and height/width options.</html>");
         lblenterTheUrl.setBounds(16, 100, 405, 37);
         wmsSettings.add(lblenterTheUrl);
-        
-        
+
         /************** S52 settings ***************/
-        
+
         JPanel panel = new JPanel();
         panel.setLayout(null);
-        panel.setBorder(new TitledBorder(
-                        null, "S52 Layer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        panel.setBorder(new TitledBorder(null, "S52 Layer",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
         panel.setBounds(6, 178, 438, 219);
         add(panel);
-        
+
         spinnerShallowContour = new JSpinner();
         spinnerShallowContour.setBounds(16, 20, 75, 20);
         panel.add(spinnerShallowContour);
-        
+
         spinnerSafetyDepth = new JSpinner();
         spinnerSafetyDepth.setBounds(16, 45, 75, 20);
         panel.add(spinnerSafetyDepth);
-        
+
         spinnerSafetyContour = new JSpinner();
         spinnerSafetyContour.setBounds(16, 70, 75, 20);
         panel.add(spinnerSafetyContour);
-        
+
         spinnerDeepContour = new JSpinner();
         spinnerDeepContour.setBounds(16, 95, 75, 20);
         panel.add(spinnerDeepContour);
-        
+
         JLabel label = new JLabel("Shallow contour");
         label.setBounds(103, 22, 101, 16);
         panel.add(label);
-        
+
         JLabel label_1 = new JLabel("Safety depth");
         label_1.setBounds(103, 47, 78, 16);
         panel.add(label_1);
-        
+
         JLabel label_2 = new JLabel("Safety contour");
         label_2.setBounds(103, 72, 91, 16);
         panel.add(label_2);
-        
+
         JLabel label_3 = new JLabel("Deep contour");
         label_3.setBounds(103, 97, 91, 16);
         panel.add(label_3);
-        
-        String[] colorModes = {"Day", "Dusk", "Night"};
+
+        String[] colorModes = { "Day", "Dusk", "Night" };
         comboBoxColorProfile = new JComboBox<String>(colorModes);
         comboBoxColorProfile.setBounds(206, 19, 75, 20);
         panel.add(comboBoxColorProfile);
-        
+
         JLabel label_4 = new JLabel("Color profile");
         label_4.setBounds(293, 20, 91, 16);
         panel.add(label_4);
-        
+
         chckbxShowText = new JCheckBox("Show text");
         chckbxShowText.setBounds(16, 125, 128, 23);
         panel.add(chckbxShowText);
-        
+
         chckbxShallowPattern = new JCheckBox("Shallow pattern");
         chckbxShallowPattern.setBounds(16, 150, 142, 23);
         panel.add(chckbxShallowPattern);
-        
+
         chckbxSimplePointSymbols = new JCheckBox("Simple point symbols");
         chckbxSimplePointSymbols.setBounds(16, 175, 168, 23);
         panel.add(chckbxSimplePointSymbols);
-        
+
         chckbxTwoShades = new JCheckBox("Two shades");
         chckbxTwoShades.setBounds(220, 150, 106, 23);
         panel.add(chckbxTwoShades);
-        
+
         chckbxPlainAreas = new JCheckBox("Plain areas");
         chckbxPlainAreas.setBounds(220, 125, 106, 23);
         panel.add(chckbxPlainAreas);
-        
+
         btnAdvancedOptions = new JButton("Advanced Options");
         btnAdvancedOptions.setBounds(220, 175, 107, 20);
-        
-        btnAdvancedOptions.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                new AdvancedSettingsWindow();
-                
-            }
-        });
-        
+
+        btnAdvancedOptions.addActionListener(this);
+
+        // new ActionListener() {
+        // public void actionPerformed(ActionEvent arg0) {
+        // new AdvancedSettingsWindow(self);
+        //
+        // }
+        // });
+
         panel.add(btnAdvancedOptions);
     }
-    
+
     /**
      * 
      * @return The General settings panel.
@@ -263,7 +271,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     public JPanel getGeneralPanel() {
         return this.generalMapSettings;
     }
-    
+
     /**
      * 
      * @return The WMS settings panel.
@@ -271,7 +279,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     public JPanel getWMSPanel() {
         return this.wmsSettings;
     }
-    
+
     /**
      * 
      * @return The WMS URL JLabel Component.
@@ -279,7 +287,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     public JLabel getLblWMSURL() {
         return this.lblWmsUrl;
     }
-    
+
     public JTextField getTextFieldWMSURL() {
         return this.textFieldWMSURL;
     }
@@ -308,9 +316,11 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
                 
                 // Changes in WMS settings.
                 changed(this.wmsLayerSettings.isUseWms(), this.chckbxUseWms.isSelected()) ||
-                changed(this.wmsLayerSettings.getWmsQuery(), this.textFieldWMSURL.getText());
+                changed(this.wmsLayerSettings.getWmsQuery(), this.textFieldWMSURL.getText())
+                
+                || s57SettingsChanged;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -318,7 +328,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     protected boolean checkNeedsRestart() {
         return 
                 changed(this.encLayerSettings.isEncInUse(), this.chckbxUseEnc.isSelected()) ||
-                changed(this.wmsLayerSettings.isUseWms(), this.chckbxUseWms.isSelected());        
+                changed(this.wmsLayerSettings.isUseWms(), this.chckbxUseWms.isSelected()) || s57SettingsChanged;        
     }
 
     /**
@@ -359,7 +369,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doSaveSettings() {
-        
+
         // Save generel panel.
         this.mapSettings.setInitialMapScale((Float) spinnerDefaultMapScale.getValue());
         this.mapSettings.setMinMapScale((Float) this.spinnerMaximumScale.getValue());
@@ -382,12 +392,12 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         
         // Checks the WMS settings
         checkWmsSettings();
-        
+
         // Save settings for WMS.
         this.wmsLayerSettings.setUseWms(this.chckbxUseWms.isSelected());
         this.wmsLayerSettings.setWmsQuery(textFieldWMSURL.getText());
     }
-    
+
     /**
      * Checks that the WMS query is a valid URL if WMS is turned on
      */
@@ -398,7 +408,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
             
             boolean validUrl = textFieldWMSURL.getText().length() > 0; 
             if (validUrl) {
-                try {   
+                try {
                     URL url = new URL(textFieldWMSURL.getText());
                     url.openConnection().connect();
                 } catch (MalformedURLException e) {
@@ -409,11 +419,11 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
                 }
             }
             if (!validUrl) {
-                JOptionPane.showMessageDialog(
-                        this, 
-                        "The specified WMS URL is not valid.\nWMS will be turned off.", 
-                        "Invalid WMS URL",
-                        JOptionPane.WARNING_MESSAGE);
+                JOptionPane
+                        .showMessageDialog(
+                                this,
+                                "The specified WMS URL is not valid.\nWMS will be turned off.",
+                                "Invalid WMS URL", JOptionPane.WARNING_MESSAGE);
                 chckbxUseWms.setSelected(false);
             }
         }
@@ -425,5 +435,17 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     @Override
     protected void fireSettingsChanged() {
         fireSettingsChanged(Type.MAP);
+    }
+
+    public void s57MapSettingsChanged() {
+        s57SettingsChanged = true;
+        fireSettingsChanged(Type.MAP);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnAdvancedOptions) {
+            new AdvancedSettingsWindow(this);
+        }
     }
 }

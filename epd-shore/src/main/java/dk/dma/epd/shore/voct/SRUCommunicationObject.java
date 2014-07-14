@@ -15,27 +15,23 @@
  */
 package dk.dma.epd.shore.voct;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
-import dk.dma.epd.common.prototype.model.route.Route;
 
 public class SRUCommunicationObject {
 
     SRU sru;
+    Date lastMessageRecieved;
 
     // List<VOCTSARBroadCast> sruCommunicationObjects = new
     // ArrayList<VOCTSARBroadCast>();
 
-    List<Position> positions = new ArrayList<Position>();
-    List<Date> messageDates = new ArrayList<Date>();
+    // List<Position> positions = new ArrayList<Position>();
+    // List<Date> messageDates = new ArrayList<Date>();
 
-    private double heading;
+    // private double heading;
     private boolean visible = true;
-    private Route intendedSearchPattern;
+
+    // private Route intendedSearchPattern;
 
     public SRUCommunicationObject(SRU sru) {
         this.sru = sru;
@@ -45,29 +41,30 @@ public class SRUCommunicationObject {
         return sru;
     }
 
-    public synchronized void addBroadcastMessage(VOCTSARBroadCast message) {
-
-        positions.add(Position.create(message.getLat(), message.getLon()));
-        this.heading = message.getHeading();
-
-        if (message.getIntendedSearchPattern() != null) {
-
-            intendedSearchPattern = new Route(
-                    message.getIntendedSearchPattern());
-        }
-        messageDates.add(new Date(message.getDate()));
-
-        // sruCommunicationObjects.add(message);
-    }
-
-    public Date getLastMessageDate() {
-        if (messageDates.size() == 0) {
-            return null;
-        } else {
-            return messageDates.get(messageDates.size() - 1);
-        }
-    }
-
+    //
+    // public synchronized void addBroadcastMessage(VOCTSARBroadCast message) {
+    //
+    // positions.add(Position.create(message.getLat(), message.getLon()));
+    // this.heading = message.getHeading();
+    //
+    // if (message.getIntendedSearchPattern() != null) {
+    //
+    // intendedSearchPattern = new Route(
+    // message.getIntendedSearchPattern());
+    // }
+    // messageDates.add(new Date(message.getDate()));
+    //
+    // // sruCommunicationObjects.add(message);
+    // }
+    //
+    // public Date getLastMessageDate() {
+    // if (messageDates.size() == 0) {
+    // return null;
+    // } else {
+    // return messageDates.get(messageDates.size() - 1);
+    // }
+    // }
+    // visible
     /**
      * @return the visible
      */
@@ -76,39 +73,26 @@ public class SRUCommunicationObject {
     }
 
     /**
+     * @return the lastMessageRecieved
+     */
+    public Date getLastMessageRecieved() {
+        return lastMessageRecieved;
+    }
+
+    /**
+     * @param lastMessageRecieved
+     *            the lastMessageRecieved to set
+     */
+    public void setLastMessageRecieved(Date lastMessageRecieved) {
+        this.lastMessageRecieved = lastMessageRecieved;
+    }
+
+    /**
      * @param visible
      *            the visible to set
      */
     public void setVisible(boolean visible) {
         this.visible = visible;
-    }
-
-    /**
-     * @return the positions
-     */
-    public List<Position> getPositions() {
-        return positions;
-    }
-
-    /**
-     * @return the messageDates
-     */
-    public List<Date> getMessageDates() {
-        return messageDates;
-    }
-
-    /**
-     * @return the heading
-     */
-    public double getHeading() {
-        return heading;
-    }
-
-    /**
-     * @return the intendedSearchPattern
-     */
-    public Route getIntendedSearchPattern() {
-        return intendedSearchPattern;
     }
 
 }

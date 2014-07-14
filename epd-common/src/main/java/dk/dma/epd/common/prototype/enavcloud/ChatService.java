@@ -15,22 +15,19 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-import java.util.List;
+import java.util.Date;
 
-import dk.dma.epd.common.prototype.notification.NotificationAlert;
-import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 
 /**
- * A maritime cloud service used for sending messages
- * between maritime entities such as ship and shore.
+ * A maritime cloud service used for sending messages between maritime entities such as ship and shore.
  */
 public class ChatService {
 
     /** An initiation point */
-    public static final ServiceInitiationPoint<ChatServiceMessage> INIT = new ServiceInitiationPoint<>(
-            ChatServiceMessage.class);
+    public static final ServiceInitiationPoint<ChatServiceMessage> INIT = new ServiceInitiationPoint<>(ChatServiceMessage.class);
 
     /**
      * The chat service message
@@ -38,23 +35,20 @@ public class ChatService {
     public static class ChatServiceMessage extends ServiceMessage<Void> {
 
         private String message;
-        private long id;
-        private String senderName;
-        private long sendDate;
+        private Date sendDate;
         private NotificationSeverity severity;
-        private List<NotificationAlert> alerts;
-        
+        private boolean ownMessage;
+
         public ChatServiceMessage() {
         }
 
         /**
          * @param message
          */
-        public ChatServiceMessage(String message, long id, long sendDate, String senderName) {
+        public ChatServiceMessage(String message, boolean ownMessage) {
             this.message = message;
-            this.id = id;
-            this.sendDate = sendDate;
-            this.senderName = senderName;
+            this.ownMessage = ownMessage;
+            this.sendDate = new Date();
         }
 
         public String getMessage() {
@@ -65,44 +59,28 @@ public class ChatService {
             this.message = message;
         }
 
-        public long getId() {
-            return id;
+        public boolean isOwnMessage() {
+            return ownMessage;
         }
 
-        public void setId(long id) {
-            this.id = id;
+        public void setOwnMessage(boolean ownMessage) {
+            this.ownMessage = ownMessage;
         }
 
-        public String getSenderName() {
-            return senderName;
-        }
-
-        public void setSenderName(String senderName) {
-            this.senderName = senderName;
-        }
-
-        public long getSendDate() {
+        public Date getSendDate() {
             return sendDate;
         }
 
-        public void setSendDate(long sendDate) {
+        public void setSendDate(Date sendDate) {
             this.sendDate = sendDate;
         }
-        
+
         public NotificationSeverity getSeverity() {
             return severity;
         }
 
         public void setSeverity(NotificationSeverity severity) {
             this.severity = severity;
-        }
-
-        public List<NotificationAlert> getAlerts() {
-            return alerts;
-        }
-
-        public void setAlerts(List<NotificationAlert> alerts) {
-            this.alerts = alerts;
-        }
+        }        
     }
 }

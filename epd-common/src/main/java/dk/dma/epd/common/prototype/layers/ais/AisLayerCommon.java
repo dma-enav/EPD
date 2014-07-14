@@ -199,6 +199,19 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
             }
         }
     }
+    
+    /**
+     * Clears all AIS target graphics
+     */
+    public synchronized void clearAisTargetGraphics() {
+        targets.clear();
+        synchronized (graphics) {
+            graphics.clear();
+        }
+        selectedGraphic = null;
+        doPrepare();
+    }
+    
 
     /**
      * Get the graphical representation of an AIS target with the given MMSI.

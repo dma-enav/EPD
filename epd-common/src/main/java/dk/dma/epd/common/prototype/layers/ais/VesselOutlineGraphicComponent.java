@@ -25,7 +25,6 @@ import java.util.Objects;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMText;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
@@ -165,7 +164,7 @@ public class VesselOutlineGraphicComponent extends VesselGraphicComponent {
             this.aisName.setLat(positionData.getPos().getLatitude());
             this.aisName.setY(-20);
             if (staticData != null) {
-                this.aisName.setData(AisMessage.trimText(staticData.getName()));
+                this.aisName.setData(staticData.getTrimmedName());
             } else {
                 this.aisName.setData("ID: " + vesselTarget.getMmsi());
             }

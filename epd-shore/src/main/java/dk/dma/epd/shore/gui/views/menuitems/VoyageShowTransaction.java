@@ -38,7 +38,7 @@ public class VoyageShowTransaction extends JMenuItem implements IMapMenuAction {
     @Override
     public void doAction() {
         EPD.getInstance().getNotificationCenter()
-            .selectNotification(NotificationType.STRATEGIC_ROUTE, transactionID);
+            .openNotification(NotificationType.STRATEGIC_ROUTE, transactionID, false);
     }
 
     /**

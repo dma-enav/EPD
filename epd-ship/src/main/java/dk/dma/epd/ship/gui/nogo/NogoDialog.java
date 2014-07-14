@@ -16,16 +16,20 @@
 package dk.dma.epd.ship.gui.nogo;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -40,6 +44,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.joda.time.DateTime;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
@@ -52,28 +58,39 @@ import dk.dma.epd.ship.ownship.OwnShipHandler;
 /**
  * The nogo dialog
  */
-public class NogoDialog extends JDialog implements ActionListener, Runnable {
+public class NogoDialog extends JDialog implements ActionListener, Runnable, ItemListener {
     private static final long serialVersionUID = 1L;
     private JButton requestNogo;
     private JButton cancelButton;
     private JButton btnSelectArea;
-    JSpinner spinnerDraught;
-    JSpinner spinnerTimeStart;
-    JSpinner spinnerTimeEnd;
+    private JSpinner spinnerDraught;
+    private JSpinner spinnerTimeStart;
+    private JSpinner spinnerTimeEnd;
+    private JSpinner spinnerUKC;
 
-    JLabel nwPtlbl;
-    JLabel nePtlbl;
-    JLabel swPtlbl;
-    JLabel sePtlbl;
+    private JLabel depthTxt;
 
-    ChartPanel chartPanel;
-    NogoHandler nogoHandler;
-    MainFrame mainFrame;
+    private JLabel nwPtlbl;
+    private JLabel nePtlbl;
+    private JLabel swPtlbl;
+    private JLabel sePtlbl;
 
-    Position northWestPoint;
-    Position southEastPoint;
+    private ChartPanel chartPanel;
+    private NogoHandler nogoHandler;
+    private MainFrame mainFrame;
 
-    @SuppressWarnings("deprecation")
+    private Position northWestPoint;
+    private Position southEastPoint;
+
+    private JCheckBox chckbxUseSlices;
+    private JComboBox<Integer> minuteSlices;
+
+    private boolean useSlices;
+
+    private int sliceInMinutes = 10;
+    private JLabel slicesCount;
+    private Double totalDepth = 0.0;
+
     public NogoDialog(JFrame parent, NogoHandler nogoHandler, OwnShipHandler ownShipHandler) {
         super(parent, "Request Nogo", true);
 
@@ -82,7 +99,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         this.chartPanel = mainFrame.getChartPanel();
         this.nogoHandler = nogoHandler;
 
-        setSize(384, 412);
+        setSize(384, 445);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
         setResizable(false);
@@ -138,10 +155,12 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         lblNogoBetween.setBounds(10, 24, 137, 14);
         panel_1.add(lblNogoBetween);
 
-        Date date = new Date();
-        date.setMinutes(0);
-        date.setSeconds(0);
+        DateTime dateTime = new DateTime();
+        dateTime = dateTime.withMillisOfSecond(0);
+        dateTime = dateTime.withSecondOfMinute(0);
+        dateTime = dateTime.withMinuteOfHour(0);
 
+        Date date = new Date(dateTime.getMillis());
         Date date48hour = date;
 
         Calendar c = Calendar.getInstance();
@@ -161,6 +180,16 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
                     spinnerTimeEnd.setValue(spinnerTimeStart.getValue());
                 }
 
+                calculateSlices();
+
+            }
+        });
+
+        spinnerTimeEnd.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent arg0) {
+                calculateSlices();
+
             }
         });
 
@@ -176,31 +205,81 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         spinnerTimeStart.setEditor(new JSpinner.DateEditor(spinnerTimeStart, "HH:mm-dd-MM-yy"));
         spinnerTimeEnd.setEditor(new JSpinner.DateEditor(spinnerTimeEnd, "HH:mm-dd-MM-yy"));
 
+        chckbxUseSlices = new JCheckBox("Use Slices");
+        chckbxUseSlices.setBounds(153, 24, 97, 23);
+        chckbxUseSlices.addItemListener(this);
+
+        panel_1.add(chckbxUseSlices);
+
+        minuteSlices = new JComboBox<Integer>();
+        minuteSlices.setModel(new DefaultComboBoxModel<Integer>(new Integer[] { 10, 20, 30, 40, 50, 60 }));
+        minuteSlices.setEnabled(false);
+        minuteSlices.setBounds(155, 49, 43, 20);
+        panel_1.add(minuteSlices);
+        minuteSlices.addItemListener(this);
+
+        JLabel lblMinutes = new JLabel("Minutes");
+        lblMinutes.setBounds(208, 49, 46, 14);
+        panel_1.add(lblMinutes);
+
+        slicesCount = new JLabel("");
+        slicesCount.setBounds(153, 72, 165, 14);
+        panel_1.add(slicesCount);
+
         JPanel panel_2 = new JPanel();
-        panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Depth", TitledBorder.LEADING,
-                TitledBorder.TOP, null, new Color(0, 0, 0)));
-        panel_2.setBounds(15, 259, 327, 59);
+        panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Depth Contour", TitledBorder.LEADING,
+                TitledBorder.TOP, null, null));
+        panel_2.setBounds(15, 259, 327, 114);
         contentPanel.add(panel_2);
         panel_2.setLayout(null);
 
-        JLabel lblNewLabel = new JLabel("Current depth in meters: ");
+        JLabel lblNewLabel = new JLabel("Ship Draft in meters:");
         lblNewLabel.setBounds(12, 26, 139, 16);
         panel_2.add(lblNewLabel);
 
-        
-        
         SpinnerNumberModel m_numberSpinnerModel;
         Double current = new Double(5.50);
         Double min = new Double(0.00);
         Double max = new Double(1000.00);
         Double step = new Double(0.50);
         m_numberSpinnerModel = new SpinnerNumberModel(current, min, max, step);
-        
-        
+
         spinnerDraught = new JSpinner(m_numberSpinnerModel);
-        spinnerDraught.setBounds(151, 24, 38, 20);
-        
+        spinnerDraught.setBounds(252, 24, 38, 20);
+
+        spinnerDraught.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent arg0) {
+                updateTotalDepthLabel();
+            }
+        });
+
         panel_2.add(spinnerDraught);
+
+        JLabel lblDesiredUnderKeel = new JLabel("Desired Under Keel Clearance (UKC) in meters:");
+        lblDesiredUnderKeel.setBounds(12, 53, 224, 14);
+        panel_2.add(lblDesiredUnderKeel);
+
+        JLabel lblTotalDepthIn = new JLabel("Total Depth in meters:");
+        lblTotalDepthIn.setBounds(10, 78, 226, 14);
+        panel_2.add(lblTotalDepthIn);
+
+        depthTxt = new JLabel("");
+        depthTxt.setBounds(257, 78, 65, 14);
+        panel_2.add(depthTxt);
+
+        spinnerUKC = new JSpinner();
+        spinnerUKC.setModel(new SpinnerNumberModel(new Integer(2), null, null, new Integer(1)));
+        spinnerUKC.setBounds(252, 55, 38, 20);
+
+        spinnerUKC.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent arg0) {
+                updateTotalDepthLabel();
+            }
+        });
+
+        panel_2.add(spinnerUKC);
         {
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -220,9 +299,24 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         }
 
         if (ownShipHandler != null && ownShipHandler.getStaticData() != null) {
-            double draught = (double)(ownShipHandler.getStaticData().getDraught() / 10);
+
+            int shipDraught = (int) ownShipHandler.getStaticData().getDraught();
+
+//            System.out.println("Pure value is " + ownShipHandler.getStaticData().getDraught());
+            double draught = shipDraught / 10.0;
+//            System.out.println("Draught is " + draught);
             spinnerDraught.setValue(draught);
+
         }
+
+        updateTotalDepthLabel();
+
+    }
+
+    private void updateTotalDepthLabel() {
+        totalDepth = ((Double) spinnerDraught.getValue()).doubleValue() + (Integer) spinnerUKC.getValue();
+
+        depthTxt.setText(totalDepth.toString());
 
     }
 
@@ -258,19 +352,19 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
             // Send off the request
             if (northWestPoint != null & southEastPoint != null) {
 
-                double westEastDistance = northWestPoint.rhumbLineDistanceTo(Position.create(northWestPoint
-                        .getLatitude(), southEastPoint.getLongitude()));
-                double northSouthDistance = northWestPoint.rhumbLineDistanceTo(Position.create(southEastPoint
-                        .getLatitude(), northWestPoint.getLongitude()));
+                double westEastDistance = northWestPoint.rhumbLineDistanceTo(Position.create(northWestPoint.getLatitude(),
+                        southEastPoint.getLongitude()));
+                double northSouthDistance = northWestPoint.rhumbLineDistanceTo(Position.create(southEastPoint.getLatitude(),
+                        northWestPoint.getLongitude()));
 
                 // 1300000000
-                // 1300000                
-                if ( westEastDistance * northSouthDistance/1000 < 1300000) {
+                // 1300000
+                if (westEastDistance * northSouthDistance / 1000 < 1300000) {
 
                     this.setVisible(false);
                     nogoHandler.setNorthWestPoint(northWestPoint);
                     nogoHandler.setSouthEastPoint(southEastPoint);
-                    double draught = ((Double) spinnerDraught.getValue()).doubleValue();
+                    double draught = this.totalDepth;
                     nogoHandler.setDraught(draught);
                     nogoHandler.setValidFrom((Date) spinnerTimeStart.getValue());
                     nogoHandler.setValidTo((Date) spinnerTimeEnd.getValue());
@@ -288,36 +382,84 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
                 }
             } else {
                 nwPtlbl.setText("You must select an area");
+                return;
             }
 
             // Set the mouse mode back to navigation.
-            this.chartPanel.setMouseMode(
-                    this.chartPanel.getNoGoMouseMode().getPreviousMouseModeID());
-            
-//            this.chartPanel.getMouseDelegator().getActiveMouseMode().s
+            this.chartPanel.setMouseMode(this.chartPanel.getNoGoMouseMode().getPreviousMouseModeID());
+            // this.chartPanel.getMouseDelegator().getActiveMouseMode().s
         }
         if (e.getSource() == cancelButton) {
             // Cancel the request
+            if (northWestPoint != null & southEastPoint != null) {
+                this.chartPanel.setMouseMode(this.chartPanel.getNoGoMouseMode().getPreviousMouseModeID());
+            }
+
             this.dispose();
         }
         if (e.getSource() == btnSelectArea) {
             // Make a selection on the chartmap
             this.setVisible(false);
-            
+
             chartPanel.setNogoDialog(this);
-            
+
             // Set the previous active mouse mode.
-            this.chartPanel.getNoGoMouseMode().setPreviousMouseModeID(
-                    this.chartPanel.getMouseDelegator().getActiveMouseModeID());
-            
+            this.chartPanel.getNoGoMouseMode().setPreviousMouseModeID(this.chartPanel.getMouseDelegator().getActiveMouseModeID());
+
             chartPanel.setMouseMode(NoGoMouseMode.MODE_ID);
         }
     }
 
     @Override
     public void run() {
-        nogoHandler.updateNogo(EPDShip.getInstance().getSettings().getGuiSettings());
+        // TODO fix this
+        //nogoHandler.updateNogo(useSlices, sliceInMinutes);
+        nogoHandler.updateNogo(EPDShip.getInstance().getSettings().getGuiSettings(), useSlices, sliceInMinutes);
         this.dispose();
     }
 
+    @Override
+    public void itemStateChanged(ItemEvent arg0) {
+
+        if (arg0.getSource() == chckbxUseSlices) {
+            if (chckbxUseSlices.isSelected()) {
+                useSlices = true;
+                minuteSlices.setEnabled(true);
+                calculateSlices();
+            } else {
+                minuteSlices.setEnabled(false);
+                useSlices = false;
+                slicesCount.setText("");
+            }
+        }
+
+        if (arg0.getSource() == minuteSlices) {
+            sliceInMinutes = (int) minuteSlices.getSelectedItem();
+
+            // slicesCount.setText(calculateSlicesAmount() + " slices");
+            calculateSlices();
+        }
+
+    }
+
+    private void calculateSlices() {
+
+        if (useSlices) {
+
+            int sliceCount = 1;
+
+            DateTime startDate = new DateTime(spinnerTimeStart.getValue());
+            DateTime endDate = new DateTime(spinnerTimeEnd.getValue());
+
+            DateTime currentVal = startDate.plusMinutes(sliceInMinutes);
+
+            while (currentVal.isBefore(endDate)) {
+                startDate = currentVal;
+                currentVal = startDate.plusMinutes(sliceInMinutes);
+                sliceCount = sliceCount + 1;
+            }
+
+            slicesCount.setText("Time Slices: " + sliceCount);
+        }
+    }
 }

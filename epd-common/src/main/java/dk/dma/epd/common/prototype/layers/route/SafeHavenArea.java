@@ -24,6 +24,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +34,13 @@ import javax.swing.ImageIcon;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
+import com.bbn.openmap.proj.Projection;
 
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.util.Calculator;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.util.Converter;
+import dk.dma.epd.common.util.SafeHavenUtils;
 
 public class SafeHavenArea extends OMGraphicList {
     private static final long serialVersionUID = 1L;
@@ -50,6 +55,8 @@ public class SafeHavenArea extends OMGraphicList {
     private Rectangle hatchFillRectangle;
     private BufferedImage hatchFill;
     OMPoly poly;
+    Position ownShipPosition;
+    Position polygonCenterPosition;
 
     public SafeHavenArea() {
         super();
@@ -57,9 +64,7 @@ public class SafeHavenArea extends OMGraphicList {
         hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D big = hatchFill.createGraphics();
         Composite originalComposite = big.getComposite();
-        // big.setColor(Color.green);
         big.setColor(new Color(0f, 1f, 0f, 0.7f));
-        // big.setComposite(makeComposite(0.7f));
         big.drawLine(0, 0, 10, 10);
 
         hatchFillRectangle = new Rectangle(0, 0, 10, 10);
@@ -81,7 +86,9 @@ public class SafeHavenArea extends OMGraphicList {
         polyPoints[j] = polyPoints[0];
         polyPoints[j + 1] = polyPoints[1];
         poly = new OMPoly(polyPoints, OMGraphicConstants.DECIMAL_DEGREES, OMGraphicConstants.LINETYPE_RHUMB, 1);
-        // poly.setLinePaint(clear);
+
+        updateColor();
+
         poly.setFillPaint(new Color(0, 0, 0, 1));
         poly.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
 
@@ -97,13 +104,12 @@ public class SafeHavenArea extends OMGraphicList {
         add(poly);
     }
 
-    public void moveSymbol(Position pos, double bearing, double width, double height) {
+    public void moveSymbol(Position pos, double bearing, double width, double length) {
 
         if (pos != null) {
-//            System.out.println("Moving symbol " + pos);
+            polygonCenterPosition = pos;
+            // System.out.println("Moving symbol " + pos);
 
-            
-            
             // remove(poly);
             graphics.clear();
 
@@ -111,65 +117,17 @@ public class SafeHavenArea extends OMGraphicList {
             // int height = 500;
 
             // Create the polygon around the position.
-            calculatePolygon(pos, bearing, width, height);
+            SafeHavenUtils.calculateBounds(pos, bearing, width, length, polygon);
 
             // createGraphics();
             drawPolygon();
-            
+
             this.setVisible(true);
-        }else{
+        } else {
             this.setVisible(false);
         }
 
     }
-
-    private void calculatePolygon(Position position, double bearing, double width, double height) {
-        // double withNm = Converter.nmToMeters(width/2);
-        // double heightNm = Converter.nmToMeters(height/2);
-
-        double angle = 90 + bearing;
-        double oppositeBearing = 180 + bearing;
-
-        Position topLinePt = Calculator.findPosition(position, bearing, width / 2);
-
-        if (angle > 360) {
-            angle = angle - 360;
-        }
-
-        if (oppositeBearing > 360) {
-            oppositeBearing = oppositeBearing - 360;
-        }
-
-        Position bottomLinePt = Calculator.findPosition(position, oppositeBearing, width / 2);
-
-        // System.out.println("Top pnt: " + topLinePt);
-        // System.out.println("Btm pnt: " + bottomLinePt);
-
-        Position point1 = Calculator.findPosition(bottomLinePt, angle, height / 2);
-
-        Position point2 = Calculator.findPosition(topLinePt, angle, height / 2);
-
-        Position point3 = Calculator.findPosition(bottomLinePt, angle + 180, height / 2);
-
-        Position point4 = Calculator.findPosition(topLinePt, angle + 180, height / 2);
-
-        polygon.clear();
-
-        // polygon.add(topLinePt);
-        // polygon.add(bottomLinePt);
-
-        polygon.add(point1);
-
-        polygon.add(point2);
-
-        polygon.add(point4);
-        polygon.add(point3);
-
-    }
-
-    // public void removeSymbol() {
-    // remove(selectionGraphics);
-    // }
 
     /**
      * Turn on anti-aliasing
@@ -179,5 +137,47 @@ public class SafeHavenArea extends OMGraphicList {
         Graphics2D image = (Graphics2D) g;
         image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
+    }
+
+    public void shipPositionChanged(Position position) {
+        this.ownShipPosition = position;
+    }
+
+    private void updateColor() {
+
+        hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D big = hatchFill.createGraphics();
+        Composite originalComposite = big.getComposite();
+
+        if (polygonCenterPosition != null && ownShipPosition != null) {
+
+            double distance = Converter.metersToNm(polygonCenterPosition.distanceTo(ownShipPosition, CoordinateSystem.CARTESIAN));
+
+            Projection proj = EPD.getInstance().getMainFrame().getActiveChartPanel().getMap().getProjection();
+            Point2D ownShipPositionPoint = proj.forward(ownShipPosition.getLatitude(), ownShipPosition.getLongitude());
+            
+            //Generate the shape so we can check if we are located inside it
+            poly.generate(proj);
+            
+            if (poly.contains(ownShipPositionPoint.getX(), ownShipPositionPoint.getY())) {
+                big.setColor(new Color(0f, 1f, 0f, 0.5f));
+            } else {
+                if (distance > 1) {
+                    big.setColor(new Color(1f, 0f, 0f, 0.5f));
+                } else {
+                    big.setColor(new Color(1f, 1f, 0f, 0.5f));
+                }
+
+            }
+
+        } else {
+            big.setColor(new Color(0.8f, 0.78f, 0.78f, 0.5f));
+        }
+
+        big.drawLine(0, 0, 10, 10);
+
+        hatchFillRectangle = new Rectangle(0, 0, 10, 10);
+        big.setComposite(originalComposite);
+
     }
 }

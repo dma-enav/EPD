@@ -32,6 +32,7 @@ import dk.dma.epd.common.prototype.settings.handlers.MetocHandlerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.MSILayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.network.NetworkSettings;
 import dk.dma.epd.common.util.ParseUtils;
+import java.awt.GridLayout;
 
 /**
  * 
@@ -70,14 +71,12 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
         this.msiHandlerSettings = Objects.requireNonNull(msiHandlerSettings);
         this.msiLayerSettings = msiLayerSettings;
         
-        this.setLayout(null);
-        
         
         /************** METOC settings ***************/
+        setLayout(new GridLayout(0, 1, 6, 6));
         
         JPanel METOCPanel = new JPanel();
         METOCPanel.setLayout(null);
-        METOCPanel.setBounds(6, 6, 438, 110);
         METOCPanel.setBorder(new TitledBorder(null, "METOC Settings", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
         
@@ -113,7 +112,6 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
         
         JPanel httpPanel = new JPanel();
         httpPanel.setLayout(null);
-        httpPanel.setBounds(6, 128, 438, 128);
         httpPanel.setBorder(new TitledBorder(null, "HTTP Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
         
@@ -161,7 +159,6 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
         
         JPanel MSIPanel = new JPanel();
         MSIPanel.setLayout(null);
-        MSIPanel.setBounds(6, 268, 438, 160);
         MSIPanel.setBorder(new TitledBorder(null, "MSI Settings", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
         

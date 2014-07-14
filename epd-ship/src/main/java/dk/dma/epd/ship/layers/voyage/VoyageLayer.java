@@ -29,7 +29,7 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
@@ -51,10 +51,15 @@ import dk.dma.epd.ship.service.StrategicRouteHandler;
 public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpdateListener {
 
     private static final long serialVersionUID = 1L;
-
+    private static final Color ECDIS_ORANGE = new Color(213, 103, 45, 255);
+    
+    public static final int ROUTE_INDEX_ORIGINAL_ROUTE = 0;
+    public static final int ROUTE_INDEX_STCC_ROUTE     = 1;
+    public static final int ROUTE_INDEX_EDITABLE_ROUTE = 2;
+    public static final int ROUTE_INDEX_CURRENT        = 3;
+    
     private float routeWidth = 2.0f;
     private Timer routeAnimatorTimer;
-    Color ECDISOrange = new Color(213, 103, 45, 255);
 
     private Route primaryRoute;
     private Route stccRoute;
@@ -93,7 +98,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         primaryRoute = route;
 
         // Added the route as green, original received one
-        drawRoute(route, ECDISOrange);
+        drawRoute(route, ECDIS_ORANGE);
 
         startRouteAnimation();
     }
@@ -114,7 +119,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
                 0.0f);
 
         // Added the route as green, original received one
-        RouteGraphic routeGraphic = new RouteGraphic(route, 3, true, stroke, color);
+        RouteGraphic routeGraphic = new RouteGraphic(route, ROUTE_INDEX_CURRENT, true, stroke, color);
         graphics.add(routeGraphic);
         graphics.project(getProjection(), true);
         doPrepare();
@@ -131,6 +136,10 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     private void drawRoute(int id, Route route, Color color,
             Color broadLineColor, boolean circleDash) {
 
+        if (route == null) {
+            return;
+        }
+        
         Stroke stroke = new BasicStroke(
                 routeWidth,                     // Width
                 BasicStroke.CAP_SQUARE,         // End cap
@@ -181,7 +190,10 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
      * Stops animating the route
      */
     private void stopRouteAnimated() {
-        routeAnimatorTimer.cancel();
+        if (routeAnimatorTimer != null){
+            routeAnimatorTimer.cancel();    
+        }
+        
     }
 
     /**
@@ -222,7 +234,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         if (clickedGraphics instanceof WaypointCircle) {
             WaypointCircle wpc = (WaypointCircle) clickedGraphics;
             getMapMenu().sendToSTCC(wpc.getRouteIndex());
-            if (wpc.getRouteIndex() == 2) {
+            if (wpc.getRouteIndex() == ROUTE_INDEX_EDITABLE_ROUTE) {
                 // This is a route under modification: allow append way point
                 getMapMenu().addVoyageHandlingWaypointAppendMenuItem(wpc.getRoute(), wpc.getRouteIndex());
                 // also allow Way point deletion
@@ -232,7 +244,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         } else if (clickedGraphics instanceof RouteLegGraphic) {
             RouteLegGraphic rlg = (RouteLegGraphic) clickedGraphics;
             getMapMenu().sendToSTCC(rlg.getRouteIndex());
-            if (rlg.getRouteIndex() == 2 && modifiedSTCCRoute != null) {
+            if (rlg.getRouteIndex() == ROUTE_INDEX_EDITABLE_ROUTE && modifiedSTCCRoute != null) {
                 // This is a route under modification: allow insert way point
                 getMapMenu().addVoyageHandlingLegInsertWaypointMenuItem(modifiedSTCCRoute,
                         rlg.getRouteLeg(), evt.getPoint(), rlg.getRouteIndex());
@@ -256,7 +268,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         if (selectedGraphic instanceof WaypointCircle) {
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
 
-            if (wpc.getRouteIndex() == 2 && modifiedSTCCRoute != null) {
+            if (wpc.getRouteIndex() == ROUTE_INDEX_EDITABLE_ROUTE && modifiedSTCCRoute != null) {
                 RouteWaypoint routeWaypoint = modifiedSTCCRoute.getWaypoints()
                         .get(wpc.getWpIndex());
                 LatLonPoint newLatLon = mapBean.getProjection().inverse(
@@ -273,16 +285,6 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         }
 
         return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void mouseMoved() {
-        // TODO: Is this really necessary?
-        //graphics.deselect();
-        //repaint();
     }
 
     /**
@@ -332,10 +334,10 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         drawModifiedSTCCRoute(false);
 
         // old STCC in green
-        drawRoute(1, stccRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f, 0.6f), false);
+        drawRoute(ROUTE_INDEX_STCC_ROUTE, stccRoute, ECDIS_ORANGE, new Color(0.39f, 0.69f, 0.49f, 0.6f), false);
 
         // Old route in red
-        drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f), false);
+        drawRoute(ROUTE_INDEX_ORIGINAL_ROUTE, primaryRoute, ECDIS_ORANGE, new Color(1f, 0, 0, 0.4f), false);
     }
 
     /**
@@ -352,7 +354,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
                 OMGraphic omg = graphics.get(i);
                 if (omg instanceof RouteGraphic) {
                     RouteGraphic rg = (RouteGraphic) omg;
-                    if (rg.getRouteIndex() == 2) {
+                    if (rg.getRouteIndex() == ROUTE_INDEX_EDITABLE_ROUTE) {
                         // remove modified STCC route
                         graphics.remove(rg);
                         break;
@@ -360,7 +362,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
                 }
             }
         }
-        drawRoute(2, modifiedSTCCRoute, ECDISOrange,
+        drawRoute(ROUTE_INDEX_EDITABLE_ROUTE, modifiedSTCCRoute, ECDIS_ORANGE,
                 new Color(1f, 1f, 0, 0.4f), true);
     }
 
@@ -390,16 +392,16 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         graphics.clear();
 
         // New route in green
-        drawRoute(3, modifiedSTCCRoute, ECDISOrange,
+        drawRoute(ROUTE_INDEX_CURRENT, modifiedSTCCRoute, ECDIS_ORANGE,
                 new Color(1f, 1f, 0, 0.4f), true);
     }
 
     /**
      * Called by the {@link StrategicRouteHandler} to handle re-negotiation
      */
-    public void handleReNegotiation(StrategicRouteRequestReply reply,
+    public void handleReNegotiation(StrategicRouteMessage routeMessage,
             Route previousAcceptedRoute) {
-        modifiedSTCCRoute = new Route(reply.getRoute());
+        modifiedSTCCRoute = new Route(routeMessage.getRoute());
         stccRoute = modifiedSTCCRoute.copy();
         primaryRoute = previousAcceptedRoute;
 
@@ -407,31 +409,31 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         stopRouteAnimated();
 
         // Shore agrees
-        if (reply.getStatus() == StrategicRouteStatus.AGREED) {
+        if (routeMessage.getStatus() == StrategicRouteStatus.AGREED) {
             // Display routeLayer with green
             graphics.clear();
-            drawRoute(0, stccRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f,
+            drawRoute(ROUTE_INDEX_ORIGINAL_ROUTE, stccRoute, ECDIS_ORANGE, new Color(0.39f, 0.69f, 0.49f,
                     0.6f), false);
 
-            drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+            drawRoute(ROUTE_INDEX_ORIGINAL_ROUTE, primaryRoute, ECDIS_ORANGE, new Color(1f, 0, 0, 0.4f),
                     false);
-        } else if (reply.getStatus() == StrategicRouteStatus.NEGOTIATING) {
+        } else if (routeMessage.getStatus() == StrategicRouteStatus.NEGOTIATING) {
             // Draw old one in red and new one in green with lines
             // seperated on new Color(1f, 1f, 0, 0.7f)
             graphics.clear();
 
             // New route in green
-            drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(0.39f,
+            drawRoute(ROUTE_INDEX_EDITABLE_ROUTE, modifiedSTCCRoute, ECDIS_ORANGE, new Color(0.39f,
                     0.69f, 0.49f, 0.6f), true);
 
             // Old route in red
-            drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+            drawRoute(ROUTE_INDEX_ORIGINAL_ROUTE, primaryRoute, ECDIS_ORANGE, new Color(1f, 0, 0, 0.4f),
                     false);
 
-        } else if (reply.getStatus() == StrategicRouteStatus.REJECTED) {
+        } else if (routeMessage.getStatus() == StrategicRouteStatus.REJECTED) {
             // Display route with red - might not be relevant?
             graphics.clear();
-            drawRoute(2, stccRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+            drawRoute(ROUTE_INDEX_EDITABLE_ROUTE, stccRoute, ECDIS_ORANGE, new Color(1f, 0, 0, 0.4f),
                     false);
         }
     }
@@ -440,9 +442,9 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
      * Called by the {@link StrategicRouteHandler} upon receiving a reply
      * @param reply the reply
      */
-    public void handleReply(StrategicRouteRequestReply reply) {
+    public void handleReply(StrategicRouteMessage routeMessage) {
 
-        modifiedSTCCRoute = new Route(reply.getRoute());
+        modifiedSTCCRoute = new Route(routeMessage.getRoute());
         stccRoute = modifiedSTCCRoute.copy();
         // modifiedSTCCRoute = stccRoute;
 
@@ -450,31 +452,31 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         stopRouteAnimated();
 
         // Shore agrees
-        if (reply.getStatus() == StrategicRouteStatus.AGREED) {
+        if (routeMessage.getStatus() == StrategicRouteStatus.AGREED) {
             // Display routeLayer with green
             graphics.clear();
-            drawRoute(0, stccRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f,
+            drawRoute(ROUTE_INDEX_ORIGINAL_ROUTE, stccRoute, ECDIS_ORANGE, new Color(0.39f, 0.69f, 0.49f,
                     0.6f), false);
 
-            drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+            drawRoute(ROUTE_INDEX_ORIGINAL_ROUTE, primaryRoute, ECDIS_ORANGE, new Color(1f, 0, 0, 0.4f),
                     false);
-        } else if (reply.getStatus() == StrategicRouteStatus.NEGOTIATING) {
+        } else if (routeMessage.getStatus() == StrategicRouteStatus.NEGOTIATING) {
             // Draw old one in red and new one in green with lines
             // seperated on new Color(1f, 1f, 0, 0.7f)
             graphics.clear();
 
             // New route in green
-            drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(0.39f,
+            drawRoute(ROUTE_INDEX_EDITABLE_ROUTE, modifiedSTCCRoute, ECDIS_ORANGE, new Color(0.39f,
                     0.69f, 0.49f, 0.6f), true);
 
             // Old route in red
-            drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+            drawRoute(ROUTE_INDEX_ORIGINAL_ROUTE, primaryRoute, ECDIS_ORANGE, new Color(1f, 0, 0, 0.4f),
                     false);
 
-        } else if (reply.getStatus() == StrategicRouteStatus.REJECTED) {
+        } else if (routeMessage.getStatus() == StrategicRouteStatus.REJECTED) {
             // Display route with red - might not be relevant?
             graphics.clear();
-            drawRoute(2, stccRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+            drawRoute(ROUTE_INDEX_EDITABLE_ROUTE, stccRoute, ECDIS_ORANGE, new Color(1f, 0, 0, 0.4f),
                     false);
         }
 
@@ -497,17 +499,29 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     }
 
     /**
-     * Called when the voyage has beed updated
+     * Called when the voyage has been updated
      */
     @Override
     public void voyageUpdated(VoyageUpdateEvent typeOfUpdate,
             Route updatedVoyage, int routeIndex) {
-        if (routeIndex == 2) {
-            // This is a modified STCC route
-            // Redraw the route to reflect modifications
-            drawModifiedSTCCRoute(true);
-            // update dialog to "send modified"
-            strategicRouteHandler.modifiedRequest();
+        if (routeIndex == ROUTE_INDEX_EDITABLE_ROUTE) {
+            voyageUpdated();
         }
+    }
+    
+    /**
+     * Called when the voyage has been updated
+     */
+    public void voyageUpdated() {
+        // Sanity check
+        if (modifiedSTCCRoute == null) {
+            return;
+        }
+        
+        // This is a modified STCC route
+        // Redraw the route to reflect modifications
+        drawModifiedSTCCRoute(true);
+        // update dialog to "send modified"
+        strategicRouteHandler.modifiedRequest();
     }
 }

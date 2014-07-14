@@ -36,8 +36,6 @@ import dk.dma.epd.shore.gui.views.menuitems.LayerToggleWindow;
 import dk.dma.epd.shore.gui.views.menuitems.RouteEditEndRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
-import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
-import dk.dma.epd.shore.gui.views.menuitems.ShowVoyagePlanInfo;
 import dk.dma.epd.shore.gui.views.menuitems.ToggleAisTargetNames;
 import dk.dma.epd.shore.gui.views.menuitems.ToggleShowStatusArea;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageDeleteMenuItem;
@@ -51,7 +49,6 @@ import dk.dma.epd.shore.gui.views.menuitems.VoyageShowTransaction;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageZoomToShip;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
-import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.voyage.Voyage;
@@ -84,9 +81,6 @@ public class MapMenu extends MapMenuCommon {
     private VoyageHideAll voyageHideAll;
     private VoyageDeleteMenuItem voyageDelete;
 
-    private ShowVoyagePlanInfo openVoyagePlan;
-    private SendVoyage sendVoyage;
-
     private RouteManager routeManager;
     private Route route;
 
@@ -115,7 +109,7 @@ public class MapMenu extends MapMenuCommon {
         sarTargetDetails.addActionListener(this);
 
         // route general items
-        setRouteExchangeRoute = new SendRouteFromRoute("Send Route");
+        setRouteExchangeRoute = new SendRouteFromRoute("Send Route...");
         setRouteExchangeRoute.addActionListener(this);
 
         // route edit menu
@@ -123,21 +117,13 @@ public class MapMenu extends MapMenuCommon {
         routeEditEndRoute.addActionListener(this);
 
         // ais menu items
-        sendRouteToShip = new SendRouteToShip("Send Route to vessel");
+        sendRouteToShip = new SendRouteToShip("Send Route to vessel...");
         sendRouteToShip.addActionListener(this);
 
         routeRequestMetoc.setEnabled(false);
 
-        // Voyage menu
-        openVoyagePlan = new ShowVoyagePlanInfo("Open Voyage Plans Details");
-        openVoyagePlan.addActionListener(this);
-
-        sendVoyage = new SendVoyage("Select and send Voyage");
-        sendVoyage.addActionListener(this);
-        // sendVoyage.setText("Select and send Voyage");
-
-        this.voyageDelete = new VoyageDeleteMenuItem("Delete Voyage");
-        this.voyageDelete.addActionListener(this);
+        voyageDelete = new VoyageDeleteMenuItem("Delete Voyage");
+        voyageDelete.addActionListener(this);
 
         // voyage leg menu
         voyageHandlingLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShore.getInstance()
@@ -150,13 +136,13 @@ public class MapMenu extends MapMenuCommon {
         voyageHandlingAppendWaypoint = new VoyageHandlingAppendWaypoint("Append waypoint");
         voyageHandlingAppendWaypoint.addActionListener(this);
 
-        voyageProperties = new VoyageProperties("Show Voyage Plan");
+        voyageProperties = new VoyageProperties("Show Voyage Plan...");
         voyageProperties.addActionListener(this);
 
-        voyageRenegotiate = new VoyageRenegotiate("Renegotigate Voyage");
+        voyageRenegotiate = new VoyageRenegotiate("Renegotigate Voyage...");
         voyageRenegotiate.addActionListener(this);
 
-        voyageShowTransaction = new VoyageShowTransaction("Show Transaction");
+        voyageShowTransaction = new VoyageShowTransaction("Show Transaction...");
         voyageShowTransaction.addActionListener(this);
 
         voyageZoomToShip = new VoyageZoomToShip("Zoom to Ship");
@@ -334,7 +320,6 @@ public class MapMenu extends MapMenuCommon {
         routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager();
         route = routeManager.getRoute(routeIndex);
 
-        routeAppendWaypoint.setRouteManager(routeManager);
         routeAppendWaypoint.setRouteIndex(routeIndex);
         add(routeAppendWaypoint);
 
@@ -344,23 +329,18 @@ public class MapMenu extends MapMenuCommon {
         setRouteExchangeRoute.setSendRouteDialog(EPDShore.getInstance().getMainFrame().getSendRouteDialog());
         add(setRouteExchangeRoute);
 
-        routeHide.setRouteManager(routeManager);
         routeHide.setRouteIndex(routeIndex);
         add(routeHide);
 
-        routeDelete.setRouteManager(routeManager);
         routeDelete.setRouteIndex(routeIndex);
         add(routeDelete);
 
-        routeCopy.setRouteManager(routeManager);
         routeCopy.setRouteIndex(routeIndex);
         add(routeCopy);
 
-        routeReverse.setRouteManager(routeManager);
         routeReverse.setRouteIndex(routeIndex);
         add(routeReverse);
 
-        routeRequestMetoc.setRouteManager(routeManager);
         routeRequestMetoc.setRouteIndex(routeIndex);
         add(routeRequestMetoc);
 
@@ -376,15 +356,12 @@ public class MapMenu extends MapMenuCommon {
             routeShowMetocToggle.setText("Show METOC");
         }
 
-        routeShowMetocToggle.setRouteManager(routeManager);
         routeShowMetocToggle.setRouteIndex(routeIndex);
         add(routeShowMetocToggle);
 
-        routeMetocProperties.setRouteManager(routeManager);
         routeMetocProperties.setRouteIndex(routeIndex);
         add(routeMetocProperties);
 
-        routeProperties.setRouteManager(routeManager);
         routeProperties.setRouteIndex(routeIndex);
         routeProperties.setChartPanel(EPDShore.getInstance().getMainFrame().getActiveChartPanel());
         add(routeProperties);
@@ -411,7 +388,6 @@ public class MapMenu extends MapMenuCommon {
 
         routeLegInsertWaypoint.setEnabled(true);
         routeLegInsertWaypoint.setMapBean(mapBean);
-        routeLegInsertWaypoint.setRouteManager(routeManager);
         routeLegInsertWaypoint.setRouteLeg(routeLeg);
         routeLegInsertWaypoint.setRouteIndex(routeIndex);
         routeLegInsertWaypoint.setPoint(point);
@@ -419,7 +395,6 @@ public class MapMenu extends MapMenuCommon {
         add(routeLegInsertWaypoint);
 
         generalRouteMenu(routeIndex);
-        // TODO: add leg specific items
         revalidate();
     }
 
@@ -441,7 +416,6 @@ public class MapMenu extends MapMenuCommon {
 
         routeWaypointDelete.setRouteWaypointIndex(routeWaypointIndex);
         routeWaypointDelete.setRouteIndex(routeIndex);
-        routeWaypointDelete.setRouteManager(routeManager);
         add(routeWaypointDelete);
 
         generalRouteMenu(routeIndex);
@@ -495,24 +469,17 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
-    public void voyageWaypointMenu(VoyageHandlingLayer voyageHandlingLayer, MapBean mapBean, Voyage voyage, boolean modified,
-            JMapFrame parent, VoyagePlanInfoPanel voyagePlanInfoPanel, boolean waypoint, Route route, RouteLeg routeLeg,
-            Point point, int routeWayPointIndex, boolean renegotiate) {
+    public void voyageWaypointMenu(
+            VoyageHandlingLayer voyageHandlingLayer, 
+            MapBean mapBean, 
+            Voyage voyage, 
+            boolean waypoint, 
+            Route route, 
+            RouteLeg routeLeg,
+            Point point, 
+            int routeWayPointIndex) {
 
         removeAll();
-
-        openVoyagePlan.setVoyagePlanInfoPanel(voyagePlanInfoPanel);
-
-        sendVoyage.setRenegotiate(renegotiate);
-        sendVoyage.setVoyage(voyage);
-        sendVoyage.setModifiedRoute(modified);
-        sendVoyage.setSendVoyageDialog(EPDShore.getInstance().getMainFrame().getSendVoyageDialog());
-        sendVoyage.setParent(parent);
-
-        add(openVoyagePlan);
-        add(sendVoyage);
-
-        addSeparator();
 
         if (waypoint) {
 

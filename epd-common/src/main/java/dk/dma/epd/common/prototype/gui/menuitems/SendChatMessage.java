@@ -22,6 +22,7 @@ import net.maritimecloud.core.id.MmsiId;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 
 /**
  * Sends a chat message to the selected vessel if the vessel 
@@ -47,7 +48,7 @@ public class SendChatMessage extends JMenuItem implements IMapMenuAction {
     public void doAction() {
         if (checkEnabled()) {
             MaritimeId id = new MmsiId((int)vesselTarget.getMmsi());
-            EPD.getInstance().getMainFrame().getChatServiceDialog().init(id);
+            EPD.getInstance().getNotificationCenter().openNotification(NotificationType.MESSAGES, id, false);
         }
     }
     
@@ -58,7 +59,7 @@ public class SendChatMessage extends JMenuItem implements IMapMenuAction {
      */
     public boolean checkEnabled() {
         boolean enabled = vesselTarget != null &&
-            EPD.getInstance().getChatServiceHandler().shipAvailableForChatSuggestion((int)vesselTarget.getMmsi());
+            EPD.getInstance().getChatServiceHandler().availableForChat((int)vesselTarget.getMmsi());
         setEnabled(enabled);
         return enabled;
     }

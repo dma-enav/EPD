@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import net.maritimecloud.core.id.MaritimeId;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
 
@@ -49,6 +50,7 @@ public class Notification<T, I> implements Serializable {
     protected boolean acknowledged;
     protected boolean autoAcknowledge;
     protected Date date = new Date();
+    protected MaritimeId targetId;
     
     /**
      * Constructor
@@ -232,6 +234,15 @@ public class Notification<T, I> implements Serializable {
     public void setAcknowledged(boolean acknowledged) {
         this.acknowledged = acknowledged;
     }
+    
+    /**
+     * Returns whether the notification can be acknowledged or not
+     * Sub-classes can override to e.g. avoid a "Dismiss" button in the pop-up notifications.
+     * @return whether the notification can be acknowledged or not
+     */
+    public boolean canAcknowledge() {
+        return true;
+    }
 
     /**
      * Returns if the notification should be automatically acknowledged
@@ -266,6 +277,23 @@ public class Notification<T, I> implements Serializable {
     public void setDate(Date date) {
         this.date = date;
     }
+    
+    /**
+     * Returns the target maritime id of the notification
+     * @return the target maritime id of the notification
+     */
+    public MaritimeId getTargetId() {
+        return targetId;
+    }
+
+    /**
+     * Sets the target maritime id of the notification
+     * @param targetId the target maritime id of the notification
+     */
+    public void setTargetId(MaritimeId targetId) {
+        this.targetId = targetId;
+    }
+
     
     /**
      * Returns a HTML description of this notification

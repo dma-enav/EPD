@@ -16,7 +16,6 @@
 package dk.dma.epd.shore.gui.views;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.util.Properties;
 
 import javax.swing.BoxLayout;
@@ -31,8 +30,10 @@ import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.event.ProjectionSupport;
 import com.bbn.openmap.layer.shape.MultiShapeLayer;
 
+import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
+import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
@@ -95,17 +96,21 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
     private VoyageLayer voyageLayer;
     private VoyageHandlingLayer voyageHandlingLayer;
     private VoctLayerCommon voctLayer;
+    private CommonRulerLayer rulerLayer;
 
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
-    protected transient ProjectionSupport projectionSupport = new ProjectionSupport(this, false);
+    protected transient ProjectionSupport projectionSupport = new ProjectionSupport(
+            this, false);
     private LayerTogglingPanel layerTogglingPanel;
 
     /**
      * Constructor
      * 
-     * @param mainFrame mainFrame used
-     * @param jmapFrame The jmapframe connected to this chartPanel
+     * @param mainFrame
+     *            mainFrame used
+     * @param jmapFrame
+     *            The jmapframe connected to this chartPanel
      */
     public ChartPanel(MainFrame mainFrame, JMapFrame jmapFrame) {
         super(jmapFrame.getMapSettings());
@@ -118,13 +123,15 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         mapHandler.add(EPDShore.getInstance().getAisHandler());
         mapHandler.add(EPDShore.getInstance().getShoreServices());
         mapHandler.add(EPDShore.getInstance().getIntendedRouteHandler());
+        // mapHandler.add(EPDShore.getInstance().getIdentityHandler());
+        // mapHandler.add(EPDShore.getInstance().getChatServiceHandler());
         mapHandler.add(this);
         mapHandler.add(mainFrame);
         mapHandler.add(mainFrame.getStatusArea());
         mapHandler.add(jmapFrame);
 
         layerTogglingPanel = jmapFrame.getLayerTogglingPanel();
-        
+
         // Set layout
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
     }
@@ -165,7 +172,8 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
             } catch (java.lang.ClassNotFoundException e) {
                 LOG.error("Layer class not found: \"" + className + "\"");
             } catch (java.io.IOException e) {
-                LOG.error("IO Exception instantiating class \"" + className + "\"");
+                LOG.error("IO Exception instantiating class \"" + className
+                        + "\"");
             }
         }
     }
@@ -191,24 +199,6 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         // Get from settings
         map.setScale(getMapSettings().getInitialMapScale());
 
-        add(map);
-    }
-
-    /**
-     * Initiate the chart with a specific center and zoom scale
-     * 
-     * @param center
-     *            map center
-     * @param scale
-     *            zoom scale
-     */
-    public void initChart(Point2D center, float scale) {
-
-        initChartDefault(MapFrameType.standard);
-
-        // Get from settings
-        map.setCenter(center);
-        map.setScale(scale);
 
         add(map);
     }
@@ -229,14 +219,16 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         globalEncLayerSettings.addObserver(localEncLayerSettings);
         // And register self as observer of local settings
         localEncLayerSettings.addObserver(this);
+        EncLayerFactory encLayerFactory = null;
         if (globalEncLayerSettings.isEncInUse()) {
             // Try to create ENC layer...
-            EncLayerFactory encLayerFactory = new EncLayerFactory(localEncLayerSettings);
+            encLayerFactory = new EncLayerFactory(localEncLayerSettings);
             encLayer = encLayerFactory.getEncLayer();
         }
 
         map = new DraggableLayerMapBean();
-        map.addClipComponents(mainFrame.getToolbar(), mainFrame.getStatusArea(), layerTogglingPanel);
+        map.addClipComponents(mainFrame.getToolbar(),
+                mainFrame.getStatusArea(), layerTogglingPanel);
 
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);
@@ -245,14 +237,17 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         dragMouseMode = new DragMouseMode(this);
         selectMouseMode = new SelectMouseMode(this);
         routeEditMouseMode = new RouteEditMouseMode(this);
+        rangeCirclesMouseMode = new CommonDistanceCircleMouseMode();
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);
         mouseDelegator.addMouseMode(selectMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
+        mouseDelegator.addMouseMode(rangeCirclesMouseMode);
         getMap().addKeyListener(mapNavMouseMode);
 
-        if (type != MapFrameType.SAR_Planning || type != MapFrameType.SAR_Tracking) {
+        if (type != MapFrameType.SAR_Planning
+                || type != MapFrameType.SAR_Tracking) {
             setMouseMode(mainFrame.getMouseMode());
         }
 
@@ -260,6 +255,7 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         mapHandler.add(mapNavMouseMode);
         mapHandler.add(selectMouseMode);
         mapHandler.add(routeEditMouseMode);
+        mapHandler.add(rangeCirclesMouseMode);
 
         layerHandler = new LayerHandler();
 
@@ -275,6 +271,10 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         GeneralLayer generalLayer = new GeneralLayer(null);
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
+
+        rulerLayer = new CommonRulerLayer();
+        rulerLayer.setVisible(true);
+        mapHandler.add(this.rulerLayer);
 
         // Add WMS Layer
         WMSLayerCommonSettings<WMSLayerCommonSettingsListener> globalWmsLayerSettings = EPDShore.getInstance().getSettings().getPrimaryWMSLayerSettings();
@@ -294,13 +294,7 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
             this.setupAisLayer();
 
             // Add MSI Layer
-            MSILayerCommonSettings<MSILayerCommonSettingsListener> globalMsiLayerSettings = EPDShore.getInstance().getSettings().getPrimaryMsiLayerSettings();
-            MSILayerCommonSettings<MSILayerCommonSettingsListener> localMsiLayerSettings = globalMsiLayerSettings.copy();
-            // MSI layer settings for this frame should obey to global settings
-            globalMsiLayerSettings.addObserver(localMsiLayerSettings);
-            msiLayer = new MsiLayer(localMsiLayerSettings);
-            msiLayer.setVisible(true);
-            mapHandler.add(msiLayer);
+            this.setupMsiLayer();
 
             // Add Route Layer
             this.setupRouteLayer();
@@ -320,10 +314,13 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
             intendedRouteTCPALayer = new  IntendedRouteTCPALayer();
             intendedRouteTCPALayer.setVisible(true);
             mapHandler.add(intendedRouteTCPALayer);
-            
+
         }
 
         if (type == MapFrameType.suggestedRoute) {
+            
+            // Add MSI Layer
+            this.setupMsiLayer();
 
             // Add Voyage Layer
             this.setupVoyageLayer(true);
@@ -345,7 +342,7 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
             routeEditLayer = new RouteEditLayer();
             routeEditLayer.setVisible(true);
             mapHandler.add(routeEditLayer);
-            
+
             // Create Intended Route Layer
             this.setupIntendedRouteLayer();
             
@@ -353,7 +350,7 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
             intendedRouteTCPALayer = new  IntendedRouteTCPALayer();
             intendedRouteTCPALayer.setVisible(true);
             mapHandler.add(intendedRouteTCPALayer);
-            
+
         }
 
         if (type == MapFrameType.SAR_Planning) {
@@ -385,15 +382,21 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
             mapHandler.add(voctLayer);
             mapHandler.add(EPDShore.getInstance().getVoctManager());
             mapHandler.add(EPDShore.getInstance().getSRUManager());
+            
+            // Add AIS Layer
+            this.setupAisLayer();
+            
+            // Create Intended Route Layer
+            this.setupIntendedRouteLayer();
         }
 
         // Create MSI handler
         MsiHandler msiHandler = EPDShore.getInstance().getMsiHandler();
         mapHandler.add(msiHandler);
 
-        StrategicRouteHandler strategicRouteHandler = EPDShore.getInstance().getStrategicRouteHandler();
+        StrategicRouteHandler strategicRouteHandler = EPDShore.getInstance()
+                .getStrategicRouteHandler();
         mapHandler.add(strategicRouteHandler);
-
 
         // Create background layer
         String layerName = "background";
@@ -407,9 +410,13 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
-        
+
         // Add map to map handler
         mapHandler.add(map);
+
+        if (encLayerFactory != null) {
+            encLayerFactory.setMapSettings();
+        }
 
         if (routeLayer != null) {
             // Force a route layer update
@@ -487,30 +494,69 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
         mapHandler.add(voyageLayer);
     }
     
+    private void setupMsiLayer() {
+        MSILayerCommonSettings<MSILayerCommonSettingsListener> globalMsiLayerSettings = EPDShore.getInstance().getSettings().getPrimaryMsiLayerSettings();
+        MSILayerCommonSettings<MSILayerCommonSettingsListener> localMsiLayerSettings = globalMsiLayerSettings.copy();
+        // MSI layer settings for this frame should obey to global settings
+        globalMsiLayerSettings.addObserver(localMsiLayerSettings);
+        msiLayer = new MsiLayer(localMsiLayerSettings);
+        msiLayer.setVisible(true);
+        mapHandler.add(msiLayer);
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public void setMouseMode(String modeID) {
         this.mouseMode = modeID;
-        
+
         // Mode0 is mapNavMouseMode
         if (modeID.equals(NavigationMouseMode.MODEID)) {
-            mouseDelegator.setActive(mapNavMouseMode); 
+            mouseDelegator.setActive(mapNavMouseMode);
+            mainFrame.getToolbar().setActiveToolItem(
+                    mainFrame.getToolbar().getZoomBtn(),
+                    mainFrame.getToolbar().getMapToolItems());
         }
         // Mode1 is DragNavMouseMode
         else if (modeID.equals(DragMouseMode.MODEID)) {
             mouseDelegator.setActive(dragMouseMode);
+            mainFrame.getToolbar().setActiveToolItem(
+                    mainFrame.getToolbar().getDragBtn(),
+                    mainFrame.getToolbar().getMapToolItems());
         }
-        
+
         // Mode2 is Select
         else if (modeID.equals(SelectMouseMode.MODEID)) {
             mouseDelegator.setActive(selectMouseMode);
+            mainFrame.getToolbar().setActiveToolItem(
+                    mainFrame.getToolbar().getSelectBtn(),
+                    mainFrame.getToolbar().getMapToolItems());
         }
         // Mode3 is Route Edit
         else if (modeID.equals(RouteEditMouseMode.MODEID)) {
             mouseDelegator.setActive(routeEditMouseMode);
         }
+        // Mode4 is Distance Circle.
+        else if (modeID.equals(CommonDistanceCircleMouseMode.MODE_ID)) {
+
+            // Get previous used mouse mode.
+            String previousMouseMode = this.getMouseDelegator()
+                    .getActiveMouseMode().getID();
+            this.rangeCirclesMouseMode
+                    .setPreviousMouseModeModeID(previousMouseMode);
+
+            mouseDelegator.setActive(rangeCirclesMouseMode);
+        }
+
+    }
+    
+    public VoyageLayer getVoyageLayer() {
+        return voyageLayer;
+    }
+
+    public VoyageHandlingLayer getVoyageHandlingLayer() {
+        return voyageHandlingLayer;
     }
     
     /**
@@ -520,14 +566,6 @@ public class ChartPanel extends ChartPanelCommon implements ENCLayerSettingsList
     @Override
     public ENCLayerSettings getEncLayerSettings() {
         return this.localEncLayerSettings;
-    }
-    
-    public VoyageLayer getVoyageLayer() {
-        return voyageLayer;
-    }
-
-    public VoyageHandlingLayer getVoyageHandlingLayer() {
-        return voyageHandlingLayer;
     }
 
     /*

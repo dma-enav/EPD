@@ -15,16 +15,17 @@
  */
 package dk.dma.epd.common.prototype.gui.route;
 
-import static java.awt.GridBagConstraints.NONE;
-import static java.awt.GridBagConstraints.EAST;
-import static java.awt.GridBagConstraints.WEST;
-import static java.awt.GridBagConstraints.NORTHWEST;
-import static java.awt.GridBagConstraints.BOTH;
-import static java.awt.GridBagConstraints.HORIZONTAL;
 import static dk.dma.epd.common.graphics.GraphicsUtil.fixSize;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.EAST;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.NORTHWEST;
+import static java.awt.GridBagConstraints.WEST;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -42,9 +43,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -52,6 +56,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JSpinner.DateEditor;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
 import javax.swing.UIManager;
@@ -64,7 +69,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.DefaultFormatter;
+import javax.swing.table.TableCellEditor;
+import javax.swing.text.DateFormatter;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXDatePicker;
@@ -75,13 +81,14 @@ import org.slf4j.LoggerFactory;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.Route.EtaAdjust;
 import dk.dma.epd.common.prototype.model.route.Route.EtaCalculationType;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
@@ -116,11 +123,12 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
 
     private Window parent;
     private ChartPanelCommon chartPanel;
-    private RouteManagerCommon routeManager;
     protected Route route = new Route();
     protected boolean[] locked;
-    protected boolean isActiveRoute;
+    protected boolean readOnlyRoute;
     boolean quiescent;
+    protected List<RouteChangeListener> listeners = new CopyOnWriteArrayList<>();
+
 
     // Column 1 widgets
     private JTextField nameTxT = new JTextField();
@@ -133,6 +141,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private JSpinner departureSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.HOUR_OF_DAY));
     private JXDatePicker arrivalPicker = new JXDatePicker();
     private JSpinner arrivalSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.HOUR_OF_DAY));
+    
     private JTextField inrouteTxT = new JTextField();
     private JComboBox<EtaCalculationType> etaCalculationTime = new JComboBox<EtaCalculationType>(EtaCalculationType.values());
     
@@ -142,10 +151,15 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private int selectedWp = -1;
     
     // Button panel
-    private JButton btnZoomTo = new JButton("Zoom to");
+    private JButton btnZoomToRoute = new JButton("Zoom to Route");
+    private JButton btnZoomToWp = new JButton("Zoom to Way Point");
     private JButton btnDelete = new JButton("Delete");
     protected JButton btnActivate = new JButton("Activate");
     private JButton btnClose = new JButton("Close");
+    private JCheckBox cbVisible = new JCheckBox("Visible");
+    
+    private JTextField allSpeeds = new JTextField(); 
+    private JButton allSpeedsBtn = new JButton("Set");
 
     
     /**
@@ -155,12 +169,13 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * @param routeManager the route manager
      * @param routeId the route index
      */
-    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, RouteManagerCommon routeManager, int routeId) {
+    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, int routeId) {
         this(parent, 
              chartPanel, 
-             routeManager.getRoute(routeId), 
-             routeManager.isActiveRoute(routeId));
-        this.routeManager = routeManager;
+             EPD.getInstance().getRouteManager().getRoute(routeId), 
+             EPD.getInstance().getRouteManager().isActiveRoute(routeId));
+        
+        setOpacity((float) 0.95);
     }
     
     /**
@@ -168,28 +183,26 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * 
      * @param parent the parent window
      * @param route the route
-     * @param isActiveRoute whether the route is the active route or not
+     * @param readOnlyRoute whether the route is read-only or not
      */
-    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, Route route, boolean isActiveRoute) {
+    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, Route route, boolean readOnlyRoute) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
         
         this.parent = parent;
         this.chartPanel = chartPanel;
         this.route = route;
-        this.isActiveRoute = isActiveRoute;
+        this.readOnlyRoute = readOnlyRoute;
         locked = new boolean[route.getWaypoints().size()];
         
         addWindowListener(new WindowAdapter() {
             @Override public void windowClosed(WindowEvent e) {
-                if (routeManager != null) {
-                    routeManager.validateMetoc(RoutePropertiesDialogCommon.this.route);
-                }
+                EPD.getInstance().getRouteManager().validateMetoc(RoutePropertiesDialogCommon.this.route);
             }});
         
         initGui();
         initValues();
         
-        setBounds(100, 100, 1000, 400);
+        setBounds(100, 100, 1000, 450);
         setLocationRelativeTo(parent);
     }
     
@@ -229,15 +242,18 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         AutoCompleteDecorator.decorate(destinationTxT, strings, false);
         
         // Column 1 widgets
-        int gridY = 0;        
+        int gridY = 0;
+        nameTxT.setEditable(!readOnlyRoute);
         nameTxT.getDocument().addDocumentListener(new TextFieldChangeListener(nameTxT));
         routeProps.add(new JLabel("Name:"), new GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         routeProps.add(fixSize(nameTxT, 120), new GridBagConstraints(1, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         
+        originTxT.setEditable(!readOnlyRoute);
         originTxT.getDocument().addDocumentListener(new TextFieldChangeListener(originTxT));
         routeProps.add(new JLabel("Origin:"), new GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         routeProps.add(fixSize(originTxT, 120), new GridBagConstraints(1, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         
+        destinationTxT.setEnabled(!readOnlyRoute);
         destinationTxT.getDocument().addDocumentListener(new TextFieldChangeListener(destinationTxT));
         routeProps.add(new JLabel("Destination:"), new GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         routeProps.add(fixSize(destinationTxT, 120), new GridBagConstraints(1, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
@@ -263,9 +279,16 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         routeProps.add(new JLabel("Estimated Time in-route:"), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
         routeProps.add(fixSize(inrouteTxT, 180), new GridBagConstraints(3, gridY++, 2, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
 
+        etaCalculationTime.setEnabled(!readOnlyRoute);
         etaCalculationTime.addActionListener(this);
         routeProps.add(new JLabel("Calculate TTG/ETA using:"), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets6, 0, 0));
         routeProps.add(fixSize(etaCalculationTime, 180), new GridBagConstraints(3, gridY++, 2, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        
+        allSpeeds.setEnabled(!readOnlyRoute);
+        allSpeedsBtn.setEnabled(!readOnlyRoute);
+        routeProps.add(new JLabel("Speed all legs: "), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
+        routeProps.add(fixSize(allSpeeds, 60), new GridBagConstraints(3, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets3, 0, 0));
+        routeProps.add(fixSize(allSpeedsBtn, 60, h), new GridBagConstraints(4, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets4, 0, 0));
         
         routeProps.add(new JLabel(""), new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
         
@@ -289,6 +312,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         routeDetailTable.fixColumnWidth(0, COL_MIN_WIDTHS[0]);
         routeDetailTable.getColumn(0).setCellRenderer(new LockTableCell.CustomBooleanCellRenderer());
         routeDetailTable.getColumn(0).setCellEditor(new LockTableCell.CustomBooleanCellEditor());
+        
+        // Configure ETA column
+        routeDetailTable.getColumn(7).setCellEditor(new EtaEditor());
 
         // Configure heading column
         JComboBox<Heading> headingCombo = new JComboBox<>(Heading.values());
@@ -308,15 +334,20 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         JPanel btnPanel = new JPanel(new GridBagLayout());
         content.add(btnPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, NORTHWEST, HORIZONTAL, insets10, 0, 0));
         
-        btnZoomTo.addActionListener(this);
+        btnZoomToRoute.addActionListener(this);
+        btnZoomToWp.addActionListener(this);
         btnDelete.addActionListener(this);
         btnActivate.addActionListener(this);
         btnClose.addActionListener(this);
+        cbVisible.addActionListener(this);
+        allSpeedsBtn.addActionListener(this);
         getRootPane().setDefaultButton(btnClose);
-        btnPanel.add(btnZoomTo, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        btnPanel.add(btnDelete, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        btnPanel.add(btnActivate, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        btnPanel.add(btnClose, new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0, EAST, NONE, insets5, 0, 0));
+        btnPanel.add(btnZoomToRoute, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        btnPanel.add(btnZoomToWp, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        btnPanel.add(btnDelete, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        btnPanel.add(btnActivate, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        btnPanel.add(cbVisible, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        btnPanel.add(btnClose, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, EAST, NONE, insets5, 0, 0));
     }
     
     
@@ -394,6 +425,18 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                     case  4: 
                         wp.setTurnRad(parseDouble(value.toString())); 
                         break;
+                    case 6:
+                        wp.getInLeg().setSpeedFromTtg(parseTime(value.toString()));
+                        adjustStartTime();
+                        break;
+                    case 7:
+                        if (value == null) {
+                            break;
+                        }
+                        // Try to change route given ETA
+                        route.adjustEta(rowIndex, (EtaAdjust)value);
+                        adjustStartTime();
+                        break;
                     case 10: 
                         wp.getOutLeg().setHeading((Heading)value); 
                         adjustStartTime();
@@ -421,15 +464,19 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                 } catch (Exception ex) {
                     LOG.warn(String.format(
                             "Failed updating field '%s' in row %d: %s", COL_NAMES[columnIndex], rowIndex, ex.getMessage()));
+                    JOptionPane.showMessageDialog(RoutePropertiesDialogCommon.this, "Input error: " + ex.getMessage(), "Input error", JOptionPane.ERROR_MESSAGE);
                 }
             }
 
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return !isActiveRoute &&
+                return !readOnlyRoute &&
                         (columnIndex == 0 || !locked[rowIndex]) &&
-                        (columnIndex < 5 || columnIndex > 9) &&
-                        !(columnIndex == 4 && rowIndex == 0);
+                        (columnIndex < 8 || columnIndex > 9) &&
+                        !(columnIndex == 6 && rowIndex == 0) &&
+                        !(columnIndex == 4 && rowIndex == 0) &&
+                        (columnIndex != 5);
+                        
             }   
         };
     }
@@ -442,14 +489,18 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private void initDatePicker(JXDatePicker picker, JSpinner spinner) {
         picker.setFormats(new SimpleDateFormat("E dd/MM/yyyy"));
         picker.addPropertyChangeListener("date", this);
+        
         DateEditor editor = new JSpinner.DateEditor(spinner, "HH:mm");
-        ((DefaultFormatter)editor.getTextField().getFormatter()).setCommitsOnValidEdit(true);
+        DateFormatter formatter = (DateFormatter)editor.getTextField().getFormatter();
+        formatter.setAllowsInvalid(false);
+        formatter.setOverwriteMode(true);
+        formatter.setCommitsOnValidEdit(true);
         spinner.setEditor(editor);
         spinner.addChangeListener(new SpinnerChangeListener());
         
         // Set the enabled state
-        picker.setEnabled(!isActiveRoute);
-        spinner.setEnabled(!isActiveRoute);
+        picker.setEnabled(!readOnlyRoute);
+        spinner.setEnabled(!readOnlyRoute);
     }
     
     /**
@@ -469,6 +520,12 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         // Update the route start time and the start time-related fields 
         adjustStartTime();
         
+        cbVisible.setSelected(route.isVisible());
+        
+        if (route.getWaypoints().size() > 1) {
+            allSpeeds.setText(Formatter.formatSpeed(route.getWaypoints().get(0).getOutLeg().getSpeed()));
+        }
+        
         updateButtonEnabledState();
         
         // Done
@@ -480,13 +537,14 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      */
     private void updateButtonEnabledState() {
         boolean wpSelected = selectedWp >= 0;
-        btnActivate.setEnabled(wpSelected && isActiveRoute);
-        btnDelete.setEnabled(wpSelected && !isActiveRoute);
-        btnZoomTo.setEnabled(wpSelected && chartPanel != null);
+        btnActivate.setEnabled(wpSelected && readOnlyRoute);
+        btnDelete.setEnabled(wpSelected && !readOnlyRoute);
+        btnZoomToWp.setEnabled(wpSelected && chartPanel != null);
+        btnZoomToRoute.setEnabled(chartPanel != null);
         
         boolean allRowsLocked = checkLockedRows();
-        arrivalPicker.setEnabled(!isActiveRoute && !allRowsLocked);
-        arrivalSpinner.setEnabled(!isActiveRoute && !allRowsLocked);
+        arrivalPicker.setEnabled(!readOnlyRoute && !allRowsLocked);
+        arrivalSpinner.setEnabled(!readOnlyRoute && !allRowsLocked);
     }
     
     /***************************************************/
@@ -521,26 +579,50 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             return;
         }
         
-        if (evt.getSource() == btnZoomTo) {
-            if (chartPanel != null) {
-                chartPanel.goToPosition(route.getWaypoints().get(selectedWp).getPos());
-            }
+        if (evt.getSource() == btnZoomToRoute && chartPanel != null) {
+            chartPanel.zoomToWaypoints(route.getWaypoints());
         
+        } else if (evt.getSource() == btnZoomToWp && chartPanel != null) {
+            chartPanel.goToPosition(route.getWaypoints().get(selectedWp).getPos());
+            
         } else if (evt.getSource() == btnDelete) {
             onDelete();
+            routeUpdated();
         
         } else if (evt.getSource() == btnActivate) {
-            routeManager.changeActiveWp(selectedWp);
+            EPD.getInstance().getRouteManager().changeActiveWp(selectedWp);
+            routeUpdated();
         
         } else if (evt.getSource() == btnClose) {
             dispose();
         
+        } else if (evt.getSource() == cbVisible) {
+            route.setVisible(cbVisible.isSelected());
+            
+            EPD.getInstance().getRouteManager()
+                .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+            
         } else if (evt.getSource() == etaCalculationTime) {
             route.setEtaCalculationType((EtaCalculationType)etaCalculationTime.getSelectedItem());
             adjustStartTime();
+            routeUpdated();
+        } else if (evt.getSource() == allSpeedsBtn) {
+            double speed;
+            try {
+                speed = parseDouble(allSpeeds.getText());
+                allSpeeds.setText(Formatter.formatSpeed(speed));
+            } catch (FormatException e) {
+                JOptionPane.showMessageDialog(this, "Error in speed", "Input error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            for (int i=0; i < route.getWaypoints().size(); i++) {
+                RouteWaypoint wp = route.getWaypoints().get(i);
+                if (wp.getOutLeg() != null && !locked[i]) {
+                    wp.getOutLeg().setSpeed(speed);
+                }
+            }
+            adjustStartTime();
         }
-        
-        routeUpdated();
     }
 
     /** 
@@ -552,16 +634,17 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         // Check if we are in a quiescent state
         if (quiescent) {
             return;
-        }
+        }        
         
         if (evt.getSource() == departurePicker) {
-            Date date = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
+            Date date = ParseUtils.combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
             route.setStarttime(date);
             adjustStartTime();
-            
         } else if (evt.getSource() == arrivalPicker) {
-            Date date = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
+            Date date = ParseUtils.combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
             recalculateSpeeds(date);
+        } else {
+            return;
         }
         
         routeUpdated();
@@ -578,13 +661,14 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         }
         
         if (spinner == departureSpinner) {
-            Date date = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
+            Date date = ParseUtils.combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
             route.setStarttime(date);
             adjustStartTime();
-            
         } else if (spinner == arrivalSpinner) {            
-            Date date = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
+            Date date = ParseUtils.combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
             recalculateSpeeds(date);
+        } else {
+            return;
         }
         
         routeUpdated();
@@ -617,11 +701,32 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     /***************************************************/
     
     /**
+     * Adds a listener for route updates
+     * @param listener the lister to add
+     */
+    public void addRouteChangeListener(RouteChangeListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Removes a listener for route updates
+     * @param listener the lister to remove
+     */
+    public void removeRouteChangeListener(RouteChangeListener listener) {
+        listeners.remove(listener);
+    }
+    
+    /**
      * Sub-classes can override this to be notified 
      * whenever the route has been updated in the
      * route properties dialog
      */
     protected void routeUpdated() {
+        if (!readOnlyRoute) {
+            for (RouteChangeListener listener : listeners) {
+                listener.routeChanged();
+            }
+        }
     }
     
     /**
@@ -642,10 +747,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                     JOptionPane.YES_NO_OPTION, 
                     JOptionPane.QUESTION_MESSAGE);
             if (result == JOptionPane.YES_OPTION) {
-                if (routeManager != null) {
-                    routeManager.removeRoute(routeManager.getRouteIndex(route));
-                    routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
-                }
+                EPD.getInstance().getRouteManager().removeRoute(
+                        EPD.getInstance().getRouteManager().getRouteIndex(route));
+                EPD.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
                 dispose();
             }
         }
@@ -662,9 +766,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             route.deleteWaypoint(selectedWp);
             adjustStartTime();
             routeTableModel.fireTableDataChanged();
-            if (routeManager != null) {
-                routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
-            }
+            EPD.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
         }
     }
 
@@ -673,9 +775,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * @param event the event to signal
      */
     private void notifyRouteListeners(RoutesUpdateEvent event) {
-        if (routeManager != null) {
-            routeManager.notifyListeners(event);
-        }
+        EPD.getInstance().getRouteManager().notifyListeners(event);
     }
     
     /**
@@ -688,7 +788,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         quiescent = true;
 
         // Get start time or default now
-        if (!isActiveRoute) {
+        if (!readOnlyRoute) {
             route.adjustStartTime();
         }
         Date starttime = route.getStarttime();
@@ -721,13 +821,13 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * Called when route values changes and the fields should be refreshed
      */
     private void updateFields() {
-        if (!isActiveRoute) {
+        if (!readOnlyRoute) {
             route.calcValues(true);
             route.calcAllWpEta();
         }
         inrouteTxT.setText(Formatter.formatTime(route.getRouteTtg()));
         distanceTxT.setText(Formatter.formatDistNM(route.getRouteDtg()));
-        routeTableModel.fireTableDataChanged();
+        routeTableModel.fireTableDataChanged();        
     }
 
     /**
@@ -814,26 +914,6 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     /** Utility functions                             **/
     /***************************************************/
     
-    /**
-     * Combines the date from the first {@code date} parameter with the 
-     * time from the {@code time} parameter
-     * 
-     * @param date the date
-     * @param time the time
-     * @return the combined date
-     */
-    private static Date combineDateTime(Date date, Date time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        Calendar timeCal = Calendar.getInstance();
-        timeCal.setTime(time);
-
-        cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
-        cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
-        cal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
-        return cal.getTime();
-    }
-
     /**
      * Parses the text field as a double. Will skip any type suffix.
      * @param str the string to parse as a double
@@ -958,5 +1038,59 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         public void insertUpdate(DocumentEvent e) {
             textFieldValueChanged(field);
         }   
+    }
+    
+    /**
+     * Editor for adjusting the clicked ETA
+     */
+    class EtaEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {        
+        private static final long serialVersionUID = 1L;
+        
+        JButton button;
+        Date eta;
+        String wpName;
+        EtaAdjust etaAdjust;
+        
+        public EtaEditor() {
+            button = new JButton("Edit");
+            button.addActionListener(this);
+            
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() != button) {
+                return;
+            }
+            EtaEditDialog etaDialog = new EtaEditDialog(RoutePropertiesDialogCommon.this, eta, wpName);
+            etaAdjust = etaDialog.getEtaAdjust();
+            fireEditingStopped();
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return etaAdjust;
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            eta = RoutePropertiesDialogCommon.this.route.getWpEta(row);         
+            wpName = RoutePropertiesDialogCommon.this.route.getWaypoints().get(row).getName();
+            return button;
+        }
+        
+    }
+    
+    /**
+     * Interface to be implemented by clients wishing 
+     * to be notified about updates to the route
+     */
+    public interface RouteChangeListener {
+        
+        /**
+         * Signal that the route has changed
+         */
+        void routeChanged();
+
     }
 }

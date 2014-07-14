@@ -49,13 +49,13 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
     /**
      * Constructor
      */
-    public MsiNotificationPanel() {
-        super();
+    public MsiNotificationPanel(NotificationCenterCommon notificationCenter) {
+        super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setPreferredWidth(40);
         table.getColumnModel().getColumn(2).setPreferredWidth(60);
-        table.getColumnModel().getColumn(3).setPreferredWidth(90);
+        table.getColumnModel().getColumn(3).setPreferredWidth(80);
         table.getColumnModel().getColumn(4).setPreferredWidth(130);
         splitPane.setDividerLocation(400);
         setCellAlignment(1, JLabel.RIGHT);
@@ -101,7 +101,7 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
                                 : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
                 case 1: return notification.getId();
                 case 2: return notification.get().getMsiMessage().getPriority();
-                case 3: return Formatter.formatShortDateTime(notification.getDate());
+                case 3: return Formatter.formatShortDateTimeNoTz(notification.getDate());
                 case 4: return notification.get().getMsiMessage().getLocation() != null
                                 ? notification.get().getMsiMessage().getLocation().getArea()
                                 : "";

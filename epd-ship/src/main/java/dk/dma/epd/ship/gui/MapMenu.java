@@ -17,6 +17,9 @@ package dk.dma.epd.ship.gui;
 
 import java.awt.Point;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
@@ -31,6 +34,7 @@ import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
@@ -41,16 +45,14 @@ import dk.dma.epd.ship.gui.menuitems.NogoRequest;
 import dk.dma.epd.ship.gui.menuitems.RouteActivateToggle;
 import dk.dma.epd.ship.gui.menuitems.RouteEditEndRoute;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
-import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
+import dk.dma.epd.ship.gui.menuitems.RouteSuggestionDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
 import dk.dma.epd.ship.gui.menuitems.VoyageHandlingWaypointDelete;
-import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
-import dk.dma.epd.ship.service.SuggestedRoute;
 
 /**
  * Right click map menu
@@ -58,6 +60,7 @@ import dk.dma.epd.ship.service.SuggestedRoute;
 public class MapMenu extends MapMenuCommon {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(MapMenu.class);
 
     // menu items
     private GeneralClearMap clearMap;
@@ -70,7 +73,7 @@ public class MapMenu extends MapMenuCommon {
     
     private RouteActivateToggle routeActivateToggle;
     private MonaLisaRouteRequest monaLisaRouteRequest;
-    private SuggestedRouteDetails suggestedRouteDetails;
+    private RouteSuggestionDetails routeSuggestionDetails;
     private RouteEditEndRoute routeEditEndRoute;
     private SendToSTCC sendToSTCC;
     private VoyageAppendWaypoint voyageAppendWaypoint;
@@ -79,7 +82,6 @@ public class MapMenu extends MapMenuCommon {
     private RouteManager routeManager;
     private MainFrame mainFrame;
     private PntHandler gpsHandler;
-    private RouteSuggestionDialog routeSuggestionDialog;
     private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
     private OwnShipHandler ownShipHandler;
@@ -100,11 +102,11 @@ public class MapMenu extends MapMenuCommon {
         newRoute = new GeneralNewRoute("Add new route - Ctrl N");
         newRoute.addActionListener(this);
 
-        nogoRequest = new NogoRequest("Request NoGo area");
+        nogoRequest = new NogoRequest("Request NoGo area...");
         nogoRequest.addActionListener(this);
         
         // ais menu items
-        aisTargetDetails = new AisTargetDetails("Show AIS target details");
+        aisTargetDetails = new AisTargetDetails("Show AIS target details...");
         aisTargetDetails.addActionListener(this);
 //        aisTargetLabelToggle = new AisTargetLabelToggle();
 //        aisTargetLabelToggle.addActionListener(this);
@@ -116,7 +118,7 @@ public class MapMenu extends MapMenuCommon {
         sarTargetDetails.addActionListener(this);
 
         // route general items
-        sendToSTCC = new SendToSTCC("Send to STCC");
+        sendToSTCC = new SendToSTCC("Send to STCC...");
         sendToSTCC.addActionListener(this);
 
         routeActivateToggle = new RouteActivateToggle();
@@ -127,9 +129,8 @@ public class MapMenu extends MapMenuCommon {
         monaLisaRouteRequest.addActionListener(this);
 
         // suggested route menu
-        suggestedRouteDetails = new SuggestedRouteDetails(
-                "Suggested route details");
-        suggestedRouteDetails.addActionListener(this);
+        routeSuggestionDetails = new RouteSuggestionDetails("Route suggestion details...");
+        routeSuggestionDetails.addActionListener(this);
 
         // route edit menu
         routeEditEndRoute = new RouteEditEndRoute("End route");
@@ -171,7 +172,6 @@ public class MapMenu extends MapMenuCommon {
         
         // Prep the clearMap action
         routeHide.setRouteIndex(RouteHide.ALL_INACTIVE_ROUTES);
-        routeHide.setRouteManager(routeManager);
         clearMap.setMapMenuActions(hideIntendedRoutes, routeHide, hidePastTracks, mainFrame.getTopPanel().getHideAisNamesAction());
         
         if (alone) {
@@ -241,7 +241,7 @@ public class MapMenu extends MapMenuCommon {
         addSeparator();
         sendChatMessage.setVesselTarget(vesselTarget);
         sendChatMessage.checkEnabled();
-        
+        add(sendChatMessage);
 
         revalidate();
         generalMenu(false);
@@ -306,22 +306,29 @@ public class MapMenu extends MapMenuCommon {
     public void sendToSTCC(int routeIndex) {
         removeAll();
 
-        // Look up the route
-        Route route = routeManager.getRoute(routeIndex);
-        if (routeManager.isActiveRoute(routeIndex)) {
-            route = routeManager.getActiveRoute();
-        }
-
-        sendToSTCC.setRoute(route);
-        sendToSTCC
-                .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
-                        && routeManager.getActiveRouteIndex() != routeIndex
-                        && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
-
+        // Check if we are in a route exchange transaction
         if (strategicRouteHandler.isTransaction()) {
-            sendToSTCC.setText("Show STCC info");
+            sendToSTCC.setText("Show STCC info...");
+            sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
+       
         } else {
-            sendToSTCC.setText("Send to STCC");
+            try {
+                // Look up the route
+                Route route = routeManager.getRoute(routeIndex);
+                if (routeManager.isActiveRoute(routeIndex)) {
+                    route = routeManager.getActiveRoute();
+                }
+        
+                sendToSTCC.setText("Send to STCC...");
+                sendToSTCC.setRoute(route);
+                sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
+                                && routeManager.getActiveRouteIndex() != routeIndex
+                                && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+        
+            } catch (Exception ex) {
+                sendToSTCC.setEnabled(false);
+                LOG.error("Error opening Send to STCC map menu for route index " + routeIndex, ex);
+            }
         }
 
         add(sendToSTCC);
@@ -373,7 +380,6 @@ public class MapMenu extends MapMenuCommon {
             routeAppendWaypoint.setEnabled(true);
         }
 
-        routeAppendWaypoint.setRouteManager(routeManager);
         routeAppendWaypoint.setRouteIndex(routeIndex);
         add(routeAppendWaypoint);
 
@@ -383,38 +389,33 @@ public class MapMenu extends MapMenuCommon {
         this.add(seperator);
 
         sendToSTCC.setRoute(route);
-        sendToSTCC
-                .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
+        sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
+        sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
                         && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
         if (strategicRouteHandler.isTransaction()) {
-            sendToSTCC.setText("Show STCC info");
+            sendToSTCC.setText("Show STCC info...");
         } else {
-            sendToSTCC.setText("Send to STCC");
+            sendToSTCC.setText("Send to STCC...");
         }
 
         add(sendToSTCC);
 
         // addSeparator();
 
-        routeActivateToggle.setRouteManager(routeManager);
         routeActivateToggle.setRouteIndex(routeIndex);
         add(routeActivateToggle);
 
-        routeHide.setRouteManager(routeManager);
         routeHide.setRouteIndex(routeIndex);
         add(routeHide);
 
-        routeDelete.setRouteManager(routeManager);
         routeDelete.setRouteIndex(routeIndex);
         add(routeDelete);
 
-        routeCopy.setRouteManager(routeManager);
         routeCopy.setRouteIndex(routeIndex);
         add(routeCopy);
 
-        routeReverse.setRouteManager(routeManager);
         routeReverse.setRouteIndex(routeIndex);
         add(routeReverse);
 
@@ -424,7 +425,6 @@ public class MapMenu extends MapMenuCommon {
         monaLisaRouteRequest.setOwnShipHandler(ownShipHandler);
         add(monaLisaRouteRequest);
 
-        routeRequestMetoc.setRouteManager(routeManager);
         routeRequestMetoc.setRouteIndex(routeIndex);
         add(routeRequestMetoc);
 
@@ -441,15 +441,12 @@ public class MapMenu extends MapMenuCommon {
             routeShowMetocToggle.setText("Show METOC");
         }
 
-        routeShowMetocToggle.setRouteManager(routeManager);
         routeShowMetocToggle.setRouteIndex(routeIndex);
         add(routeShowMetocToggle);
 
-        routeMetocProperties.setRouteManager(routeManager);
         routeMetocProperties.setRouteIndex(routeIndex);
         add(routeMetocProperties);
 
-        routeProperties.setRouteManager(routeManager);
         routeProperties.setRouteIndex(routeIndex);
         routeProperties.setChartPanel(EPDShip.getInstance().getMainFrame().getChartPanel());
         add(routeProperties);
@@ -475,7 +472,6 @@ public class MapMenu extends MapMenuCommon {
         }
 
         routeLegInsertWaypoint.setMapBean(mapBean);
-        routeLegInsertWaypoint.setRouteManager(routeManager);
         routeLegInsertWaypoint.setRouteLeg(routeLeg);
         routeLegInsertWaypoint.setRouteIndex(routeIndex);
         routeLegInsertWaypoint.setPoint(point);
@@ -503,28 +499,33 @@ public class MapMenu extends MapMenuCommon {
         if (routeManager.getActiveRouteIndex() == routeIndex) {
             routeWaypointActivateToggle.setEnabled(true);
             routeWaypointDelete.setEnabled(false);
+            routeWaypointEditEta.setEnabled(false);
+            routeWaypointEditEta.setVisible(false);
         } else {
             routeWaypointActivateToggle.setEnabled(false);
             routeWaypointDelete.setEnabled(true);
+            routeWaypointEditEta.setVisible(true);
+            routeWaypointEditEta.setEnabled(true);
         }
 
         add(routeWaypointActivateToggle);
 
         routeWaypointDelete.setRouteWaypointIndex(routeWaypointIndex);
         routeWaypointDelete.setRouteIndex(routeIndex);
-        routeWaypointDelete.setRouteManager(routeManager);
         add(routeWaypointDelete);
+        routeWaypointEditEta.setRouteWaypointIndex(routeWaypointIndex);
+        routeWaypointEditEta.setRouteIndex(routeIndex);
+        add(routeWaypointEditEta);
 
         generalRouteMenu(routeIndex);
         revalidate();
     }
 
-    public void suggestedRouteMenu(SuggestedRoute aisSuggestedRoute) {
+    public void routeSuggestionMenu(RouteSuggestionData routeSuggestion) {
         removeAll();
 
-        suggestedRouteDetails.setSuggestedRoute(aisSuggestedRoute);
-        suggestedRouteDetails.setRouteSuggestionDialog(routeSuggestionDialog);
-        add(suggestedRouteDetails);
+        routeSuggestionDetails.setRouteSuggestion(routeSuggestion);
+        add(routeSuggestionDetails);
 
         generalMenu(false);
         revalidate();
@@ -551,9 +552,6 @@ public class MapMenu extends MapMenuCommon {
         
         if (obj instanceof RouteManager) {
             routeManager = (RouteManager) obj;
-        }
-        if (obj instanceof RouteSuggestionDialog) {
-            routeSuggestionDialog = (RouteSuggestionDialog) obj;
         }
         if (obj instanceof NewRouteContainerLayer) {
             newRouteLayer = (NewRouteContainerLayer) obj;

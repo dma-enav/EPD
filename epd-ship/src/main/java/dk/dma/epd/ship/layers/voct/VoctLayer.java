@@ -26,16 +26,18 @@ import com.bbn.openmap.omGraphics.OMList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.layers.voct.AreaInternalGraphics;
-import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
-import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics.LineType;
+import dk.dma.enav.model.voct.SARAreaData;
+import dk.dma.epd.common.prototype.layers.voct.EffortAllocationInternalGraphics;
+import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics;
+import dk.dma.epd.common.prototype.layers.voct.EffortAllocationAreaGraphics.LineType;
 import dk.dma.epd.common.prototype.layers.voct.SarAreaGraphic;
-import dk.dma.epd.common.prototype.layers.voct.SarEffectiveAreaLines;
+import dk.dma.epd.common.prototype.layers.voct.EffortAllocationLines;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
@@ -57,11 +59,14 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
     private MapBean mapBean;
     private VOCTManager voctManager;
 
-    EffectiveSRUAreaGraphics effectiveArea;
+    private EffortAllocationAreaGraphics effectiveArea;
+
+    private SarAreaGraphic sarArea;
+    private SarGraphics sarGraphics;
 
     private MainFrame mainFrame;
 
-    private SarGraphics sarGraphics;
+    
 
     boolean editLocked;
 
@@ -137,7 +142,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
 
         for (OMGraphic omGraphic : allClosest) {
-            if (omGraphic instanceof AreaInternalGraphics) {
+            if (omGraphic instanceof EffortAllocationInternalGraphics) {
                 // System.out.println("Selected Effective Area");
                 selectedGraphic = omGraphic;
                 break;
@@ -183,12 +188,12 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
             for (OMGraphic omGraphic : allClosest) {
-                if (omGraphic instanceof SarEffectiveAreaLines) {
+                if (omGraphic instanceof EffortAllocationLines) {
                     // System.out.println("selected something");
                     selectedGraphic = omGraphic;
                     break;
                 } else {
-                    if (omGraphic instanceof AreaInternalGraphics) {
+                    if (omGraphic instanceof EffortAllocationInternalGraphics) {
                         // System.out.println("selected something");
                         selectedGraphic = omGraphic;
                         // break;
@@ -198,11 +203,11 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             }
         }
 
-        if (selectedGraphic instanceof SarEffectiveAreaLines) {
+        if (selectedGraphic instanceof EffortAllocationLines) {
 
             System.out.println("Selected line");
 
-            SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
+            EffortAllocationLines selectedLine = (EffortAllocationLines) selectedGraphic;
 
             System.out.println(selectedLine.getType());
 
@@ -223,9 +228,9 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         }
 
-        if (selectedGraphic instanceof AreaInternalGraphics) {
+        if (selectedGraphic instanceof EffortAllocationInternalGraphics) {
             // System.out.println("Moving box");
-            AreaInternalGraphics selectedArea = (AreaInternalGraphics) selectedGraphic;
+            EffortAllocationInternalGraphics selectedArea = (EffortAllocationInternalGraphics) selectedGraphic;
 
             // New Center
             LatLonPoint newLatLon = mapBean.getProjection().inverse(e.getPoint());
@@ -262,12 +267,12 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 2.0f);
             for (OMGraphic omGraphic : allClosest) {
-                if (omGraphic instanceof SarEffectiveAreaLines) {
+                if (omGraphic instanceof EffortAllocationLines) {
                     // System.out.println("selected something");
                     selectedGraphic = omGraphic;
                     break;
                 } else {
-                    if (omGraphic instanceof AreaInternalGraphics) {
+                    if (omGraphic instanceof EffortAllocationInternalGraphics) {
                         // System.out.println("selected something");
                         selectedGraphic = omGraphic;
                         // break;
@@ -277,9 +282,9 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             }
         }
 
-        if (selectedGraphic instanceof SarEffectiveAreaLines) {
+        if (selectedGraphic instanceof EffortAllocationLines) {
             // System.out.println("Selected line");
-            SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
+            EffortAllocationLines selectedLine = (EffortAllocationLines) selectedGraphic;
 
             double bearing = selectedLine.getA().rhumbLineBearingTo(selectedLine.getB());
             System.out.println(bearing);
@@ -375,17 +380,17 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         }
 
-        if (selectedGraphic != null && selectedGraphic instanceof AreaInternalGraphics) {
+        if (selectedGraphic != null && selectedGraphic instanceof EffortAllocationInternalGraphics) {
             mainFrame.getGlassPane().setVisible(true);
             mainFrame.getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
             return true;
 
         }
 
-        EPDShip.getInstance().getMainFrame().getGlassPane().setCursor(
-                EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getCursor());
-//        System.out.println(EPDShip.getInstance().getMainFrame().getGlassPane().isVisible());
-//        EPDShip.getInstance().getMainFrame().getGlassPane().setVisible(false);
+        EPDShip.getInstance().getMainFrame().getGlassPane()
+                .setCursor(EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getCursor());
+        // System.out.println(EPDShip.getInstance().getMainFrame().getGlassPane().isVisible());
+        // EPDShip.getInstance().getMainFrame().getGlassPane().setVisible(false);
 
         return false;
     }
@@ -416,6 +421,9 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             if (voctManager.getSarType() == SAR_TYPE.DATUM_LINE) {
                 drawDatumLine();
             }
+            if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
+                drawSarisDatumPoint();
+            }
 
             this.setVisible(true);
 
@@ -438,11 +446,15 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
                 drawDatumPoint();
             }
 
+            if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
+                drawSarisDatumPoint();
+            }
+
             if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
 
                 EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0);
 
-                effectiveArea = new EffectiveSRUAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
+                effectiveArea = new EffortAllocationAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
                         effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(),
                         effortAllocationArea.getEffectiveAreaD(), 0, "");
                 graphics.add(effectiveArea);
@@ -456,13 +468,31 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
     }
 
+    private void drawSarisDatumPoint() {
+
+        graphics.clear();
+        DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
+
+        for (int i = 0; i < data.getSarisTarget().size(); i++) {
+
+            SARAreaData sarArea = data.getSarAreaData().get(i);
+
+            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(), sarArea.getB(), sarArea.getC(), sarArea.getD(),
+                    sarArea.getCentre(), data.getSarisTarget().get(i).getName());
+
+            graphics.add(sarAreaGraphic);
+        }
+
+        doPrepare();
+        this.setVisible(true);
+    }
+
     public void showFutureData(SARData sarData) {
 
         if (sarData instanceof DatumPointData) {
 
             DatumPointData data = (DatumPointData) sarData;
-            
-            
+
             Position A = data.getA();
             Position B = data.getB();
             Position C = data.getC();
@@ -480,23 +510,23 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             Position WTCPoint = data.getWtc();
 
             graphics.remove(sarGraphics);
-            
+            graphics.remove(sarArea);
 
+            sarArea = new SarAreaGraphic(A, B, C, D);
+            graphics.add(sarArea);
             // public SarGraphics(Position datumDownWind, Position datumMin,
             // Position datumMax, double radiusDownWind, double radiusMin, double
             // radiusMax, Position LKP, Position current) {
-            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
-                    A, B, C, D);
-            
+            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
+
             graphics.add(sarGraphics);
 
         }
-        
-        
+
         if (sarData instanceof RapidResponseData) {
-            
+
             RapidResponseData data = (RapidResponseData) sarData;
-            
+
             Position A = data.getA();
             Position B = data.getB();
             Position C = data.getC();
@@ -507,12 +537,16 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
             Position LKP = data.getLKP();
 
+            graphics.remove(sarArea);
+
+            sarArea = new SarAreaGraphic(A, B, C, D);
+            graphics.add(sarArea);
             graphics.remove(sarGraphics);
 
-            sarGraphics = new SarGraphics(datum, radius, A, B, C, D, LKP, data.getCurrentList(), data.getWindList());
+            sarGraphics = new SarGraphics(datum, radius, LKP, data.getCurrentList(), data.getWindList());
             graphics.add(sarGraphics);
         }
-        
+
         doPrepare();
     }
 
@@ -530,11 +564,6 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             System.out.println("Creating area " + i);
             DatumPointData data = datumLineData.getDatumPointDataSets().get(i);
 
-            Position A = data.getA();
-            Position B = data.getB();
-            Position C = data.getC();
-            Position D = data.getD();
-
             Position datumDownWind = data.getDatumDownWind();
             Position datumMin = data.getDatumMin();
             Position datumMax = data.getDatumMax();
@@ -547,12 +576,12 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             Position WTCPoint = data.getWtc();
 
             sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
-                    A, B, C, D, i + 1);
+                    i + 1);
 
             graphics.add(sarGraphics);
         }
 
-        SarAreaGraphic sarArea = new SarAreaGraphic(datumLineData.getDatumLinePolygon());
+        sarArea = new SarAreaGraphic(datumLineData.getDatumLinePolygon());
         graphics.add(sarArea);
 
         // public SarGraphics(Position datumDownWind, Position datumMin,
@@ -572,6 +601,9 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         Position C = data.getC();
         Position D = data.getD();
 
+        sarArea = new SarAreaGraphic(A, B, C, D);
+        graphics.add(sarArea);
+
         Position datumDownWind = data.getDatumDownWind();
         Position datumMin = data.getDatumMin();
         Position datumMax = data.getDatumMax();
@@ -585,11 +617,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         graphics.clear();
 
-        // public SarGraphics(Position datumDownWind, Position datumMin,
-        // Position datumMax, double radiusDownWind, double radiusMin, double
-        // radiusMax, Position LKP, Position current) {
-        sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint, A, B,
-                C, D);
+        sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
 
         graphics.add(sarGraphics);
 
@@ -612,15 +640,11 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         graphics.clear();
 
-        sarGraphics = new SarGraphics(datum, radius, A, B, C, D, LKP, data.getCurrentList(), data.getWindList());
+        sarArea = new SarAreaGraphic(A, B, C, D);
+        graphics.add(sarArea);
+
+        sarGraphics = new SarGraphics(datum, radius, LKP, data.getCurrentList(), data.getWindList());
         graphics.add(sarGraphics);
-
-        System.out.println("A is: " + A.getLongitude());
-        System.out.println("B is: " + B);
-        System.out.println("C is: " + C);
-        System.out.println("D is: " + D);
-
-        System.out.println("Datum is: " + datum);
 
         doPrepare();
     }
@@ -651,7 +675,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         // startingPosition = ((RapidResponseData) data).getA();
         // }
 
-        effectiveArea = new EffectiveSRUAreaGraphics(width, height, data, 0, "");
+        effectiveArea = new EffortAllocationAreaGraphics(width, height, data, 0, "");
 
         graphics.add(effectiveArea);
 

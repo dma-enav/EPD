@@ -162,9 +162,13 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
     @Override
     public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
         // Remove this as listener for settings of old own ship
-        oldValue.getSettings().removeChangeListener(this);
+        if (oldValue != null) {
+            oldValue.getSettings().removeChangeListener(this);
+        }
         // Add this as listener for settings of new own ship
-        newValue.getSettings().addChangeListener(this);
+        if (newValue != null) {
+            newValue.getSettings().addChangeListener(this);
+        }
     }
 
     /**

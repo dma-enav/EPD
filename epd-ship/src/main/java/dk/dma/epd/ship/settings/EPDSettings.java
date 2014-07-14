@@ -20,9 +20,7 @@ import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.settings.layers.ENCLayerCommonSettings;
 import dk.dma.epd.common.prototype.settings.layers.PastTrackSettings;
 import dk.dma.epd.common.prototype.settings.observers.ENCLayerCommonSettingsListener;
-import dk.dma.epd.common.prototype.settings.observers.ExternalSensorsCommonSettingsListener;
 import dk.dma.epd.common.prototype.settings.observers.PastTrackSettingsListener;
-import dk.dma.epd.common.prototype.settings.sensor.ExternalSensorsCommonSettings;
 import dk.dma.epd.ship.settings.gui.GUISettings;
 import dk.dma.epd.ship.settings.gui.MapSettings;
 import dk.dma.epd.ship.settings.handlers.IntendedRouteHandlerSettings;
@@ -30,6 +28,7 @@ import dk.dma.epd.ship.settings.handlers.RouteManagerSettings;
 import dk.dma.epd.ship.settings.layers.OwnShipLayerSettings;
 import dk.dma.epd.ship.settings.observers.GUISettingsListener;
 import dk.dma.epd.ship.settings.observers.RouteManagerSettingsListener;
+import dk.dma.epd.ship.settings.sensor.ExternalSensorsSettings;
 
 
 /**
@@ -53,7 +52,7 @@ public class EPDSettings extends Settings {
     
     private RouteManagerSettings<RouteManagerSettingsListener> routeManagerSettings;
     
-    private ExternalSensorsCommonSettings<ExternalSensorsCommonSettingsListener> externalSensorsSettings;
+    private ExternalSensorsSettings externalSensorsSettings;
     
     private ENCLayerCommonSettings<ENCLayerCommonSettingsListener> encLayerSettings;
     
@@ -96,11 +95,10 @@ public class EPDSettings extends Settings {
         
         /*
          *  Load external sensors settings.
-         *  Even though ship uses common version, we need to load it here instead of in super class as shore uses specific version.
          */
-        ExternalSensorsCommonSettings<ExternalSensorsCommonSettingsListener> ext = ObservedSettings.loadFromFile(ExternalSensorsCommonSettings.class, resolve(externalSensorsSettingsFile).toFile());
+        ExternalSensorsSettings ext = ObservedSettings.loadFromFile(ExternalSensorsSettings.class, resolve(externalSensorsSettingsFile).toFile());
         // Use loaded instance or create new if the file was not found.
-        this.externalSensorsSettings = ext != null ? ext : new ExternalSensorsCommonSettings<ExternalSensorsCommonSettingsListener>();
+        this.externalSensorsSettings = ext != null ? ext : new ExternalSensorsSettings();
         
         /*
          *  Load ENC layer settings.
@@ -153,7 +151,7 @@ public class EPDSettings extends Settings {
     }
     
     @Override
-    public ExternalSensorsCommonSettings<ExternalSensorsCommonSettingsListener> getExternalSensorsSettings() {
+    public ExternalSensorsSettings getExternalSensorsSettings() {
         return this.externalSensorsSettings;
     }
     

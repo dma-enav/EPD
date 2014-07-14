@@ -18,19 +18,17 @@ package dk.dma.epd.shore.util;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.geom.Point2D;
+import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.SwingUtilities;
 
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.Heading;
+import com.bbn.openmap.proj.coords.LatLonPoint;
+
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 import dk.dma.epd.common.prototype.settings.observers.MapCommonSettingsListener;
-import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
@@ -43,7 +41,7 @@ public class ThreadedMapCreator implements Runnable {
     private boolean workspace;
     private boolean locked;
     private boolean alwaysInFront;
-    private Point2D center;
+    private LatLonPoint center;
     private float scale;
     private String title;
     private Dimension size;
@@ -64,7 +62,7 @@ public class ThreadedMapCreator implements Runnable {
     MapFrameType type;
 
     public ThreadedMapCreator(MainFrame mainFrame, boolean workspace,
-            boolean locked, boolean alwaysInFront, Point2D center, float scale,
+            boolean locked, boolean alwaysInFront, LatLonPoint center, float scale,
             String title, Dimension size, Point location, Boolean maximized) {
 
         this.mainFrame = mainFrame;
@@ -109,6 +107,7 @@ public class ThreadedMapCreator implements Runnable {
         this.renegotiate = renegotiate;
     }
 
+    
     private JMapFrame addStrategicRouteHandlingWindow(String shipName, Voyage voyage,
             Route originalRoute, boolean renegotiate) {
         mainFrame.increaseWindowCount();
@@ -123,74 +122,32 @@ public class ThreadedMapCreator implements Runnable {
         mainFrame.getMapWindows().add(window);
         mainFrame.getTopMenu().addMap(window, false, false);
 
+        // Layer toggling panel invisible by default
+        window.getLayerTogglingPanel().setVisible(false);
+        
         window.alwaysFront();
 
         window.getChartPanel().getVoyageHandlingLayer()
                 .handleVoyage(originalRoute, voyage, renegotiate);
 
-        int positionX = 200;
-        int positionY = 200;
+        int positionX = 150;
+        int positionY = 50;
+        
+        // Determine the max monitor size at the top left location
+        Point screenLocation = new Point(positionX, positionY);
+        SwingUtilities.convertPointToScreen(screenLocation, mainFrame);
+        Rectangle screenBounds = GraphicsUtil.getMonitorBoundsForScreenPoint(screenLocation);
+        int maxWidthOnScreen = screenBounds.x + screenBounds.width - screenLocation.x - 150;
+        int maxHeightOnScreen = screenBounds.y + screenBounds.height - screenLocation.y - 150;
 
-        int width = (int) (mainFrame.getSize().getWidth() - positionX - 100);
-        int height = (int) (mainFrame.getSize().getHeight() - positionY - 100);
+        int width = Math.min(maxWidthOnScreen, (int)(mainFrame.getSize().getWidth() - positionX - 150));
+        int height = Math.min(maxHeightOnScreen, (int) (mainFrame.getSize().getHeight() - positionY - 150));
 
         window.setSize(width, height);
-        // window.setSize(1280, 768);
-
-        // 100, 100
         window.setLocation(positionX, positionY);
 
-        // The two positions that must be shown
-        Position pos1 = voyage.getRoute().getWaypoints().get(0).getPos();
-        Position pos2 = voyage.getRoute().getWaypoints()
-                .get(voyage.getRoute().getWaypoints().size() - 1).getPos();
-
-        double distance = Calculator.range(pos1, pos2, Heading.RL);
-        // System.out.println("Distance is: " + distance);
-        int scale = 250000;
-
-        if (distance > 1) {
-            scale = 60000;
-        }
-
-        if (distance > 5) {
-            scale = 120000;
-        }
-
-        if (scale > 10) {
-            scale = 240000;
-        }
-
-        if (distance > 25) {
-            scale = 500000;
-        }
-        if (distance > 50) {
-            scale = 1000000;
-        }
-        if (distance > 100) {
-            scale = 2500000;
-        }
-        if (distance > 200) {
-            scale = 5000000;
-        }
-        if (distance > 400) {
-            scale = 10000000;
-        }
-
-        // 5 mil
-
-        window.getChartPanel().getMap().setScale(scale);
-
-        // window.getChartPanel().zoomToPoint(
-        // voyage.getRoute().getWaypoints().get(0).getPos());
-
-        List<Position> waypoints = new ArrayList<>();
-
-        for (int i = 0; i < voyage.getRoute().getWaypoints().size(); i++) {
-            waypoints.add(voyage.getRoute().getWaypoints().get(i).getPos());
-        }
-
-        window.getChartPanel().zoomTo(waypoints);
+        // Zoom to the route
+        window.getChartPanel().zoomToWaypoints(voyage.getRoute().getWaypoints());
 
         return window;
     }
@@ -209,13 +166,17 @@ public class ThreadedMapCreator implements Runnable {
     }
 
     public JMapFrame addMapWindow(boolean workspace, boolean locked,
-            boolean alwaysInFront, Point2D center, float scale, String title,
+            boolean alwaysInFront, LatLonPoint center, float scale, String title,
             Dimension size, Point location, Boolean maximized) {
 
         mainFrame.increaseWindowCount();
-
-        JMapFrame window = new JMapFrame(mainFrame.getWindowCount(), mainFrame,
-                center, scale, this.prepareLocalMapSettingsInstance());
+        
+        MapCommonSettings<MapCommonSettingsListener> frameMapSettings = this.prepareLocalMapSettingsInstance();
+        // Hack to apply workspace settings
+        // Consider removing workspace and serialize yaml settings for each frame.
+        frameMapSettings.setCenter(center);
+        frameMapSettings.setInitialMapScale(scale);
+        JMapFrame window = new JMapFrame(mainFrame.getWindowCount(), mainFrame, frameMapSettings);
 
         window.setTitle(title);
         // Maybe not needed
@@ -238,7 +199,6 @@ public class ThreadedMapCreator implements Runnable {
             try {
                 window.setMaximum(maximized);
             } catch (PropertyVetoException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -277,6 +237,7 @@ public class ThreadedMapCreator implements Runnable {
             window.setLocation((int) mainFrameSize.getWidth() / 2 - 10, 0);
             window.setSize((int) mainFrameSize.getWidth() / 2 - 10,
                     (int) mainFrameSize.getHeight() - 10);
+            
             for (int i = 0; i < EPDShore.getInstance().getMainFrame()
                     .getMapWindows().size(); i++) {
                 if (EPDShore.getInstance().getMainFrame().getMapWindows()

@@ -20,6 +20,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -31,9 +33,8 @@ import com.bbn.openmap.MapHandler;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.HistoryListener;
-import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
-import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
+import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
@@ -41,15 +42,15 @@ import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.DockableComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.STCCCommunicationComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.SafeHavenComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
-import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
-import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.ship.settings.gui.GUISettings;
 
@@ -74,21 +75,21 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private CursorComponentPanel cursorPanel;
     private ActiveWaypointComponentPanel activeWaypointPanel;
     private AisComponentPanel aisComponentPanel;
-    private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
     private SARComponentPanel sarPanel;
-
     private MultiSourcePntComponentPanel msPntComponentPanel;
+    private STCCCommunicationComponentPanel stccComponentPanel;
+    private SafeHavenComponentPanel safeHavenPanel;
 
     private AisDialog aisDialog;
-    private RouteSuggestionDialog routeSuggestionDialog;
     private SendStrategicRouteDialog sendStrategicRouteDialog;
 
     private DockableComponents dockableComponents;
 
     private MapMenu mapMenu;
     private MenuBar menuBar;
-    private RequestStrategicRouteDialog strategicRouteSTCCDialog;
+
+    private BottomPanelStatusDialog bottomStatusDialog;
 
     /**
      * Constructor
@@ -154,13 +155,11 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         activeWaypointPanel = new ActiveWaypointComponentPanel();
         chartPanel = new ChartPanel(activeWaypointPanel, EPDShip.getInstance().getSettings().getMapSettings());
         aisComponentPanel = new AisComponentPanel();
-        dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
         sarPanel = new SARComponentPanel();
         msPntComponentPanel = new MultiSourcePntComponentPanel();
-
-        // Mona Lisa Dialog
-        strategicRouteSTCCDialog = new RequestStrategicRouteDialog(this);
+        stccComponentPanel = new STCCCommunicationComponentPanel();
+        safeHavenPanel = new SafeHavenComponentPanel();
 
         // Unmovable panels
         bottomPanel = new BottomPanel();
@@ -195,12 +194,11 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         mapHandler.add(cursorPanel);
         mapHandler.add(activeWaypointPanel);
         mapHandler.add(aisComponentPanel);
-        mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
-
+        mapHandler.add(stccComponentPanel);
         mapHandler.add(sarPanel);
-
         mapHandler.add(msPntComponentPanel);
+        mapHandler.add(safeHavenPanel);
 
         // Create top menubar
         menuBar = new MenuBar();
@@ -218,18 +216,13 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         // Init AIS dialog
         aisDialog = new AisDialog(this);
         mapHandler.add(aisDialog);
-
-        // Init Route suggestion dialog
-        routeSuggestionDialog = new RouteSuggestionDialog(this);
-        mapHandler.add(routeSuggestionDialog);
         
+        bottomStatusDialog = new BottomPanelStatusDialog();
+
         // Init Send Strategic Route dialog
         sendStrategicRouteDialog = new SendStrategicRouteDialog(this);
         mapHandler.add(sendStrategicRouteDialog);
 
-        // Init the chat service dialog
-        chatServiceDialog = new ChatServiceDialog(this);
-        
         // Init the map right click menu
         mapMenu = new MapMenu();
         mapHandler.add(mapMenu);
@@ -307,7 +300,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
                 
                 final StringBuilder aboutText = new StringBuilder();
                 aboutText.append("The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\n");
-                aboutText.append("The user manual is available from service.e-navigation.net\n\n");
+                aboutText.append("The user manual is available from e-navigation.net\n\n");
                 aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
                 aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
                 aboutText.append("Build date: " + VersionInfo.getBuildDate() + "\n");
@@ -322,6 +315,27 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         };
         return aboutEpdShip;
     }
+    
+    /**
+     * Returns the list of dockable component panels
+     * @return the list of dockable component panels
+     */
+    public List<DockableComponentPanel> getDockableComponentPanels() {
+        return Arrays.asList(
+                (DockableComponentPanel)chartPanel,
+                scalePanel,
+                ownShipPanel,
+                gpsPanel,
+                cursorPanel,
+                activeWaypointPanel,
+                aisComponentPanel,
+                nogoPanel,
+                sarPanel,
+                msPntComponentPanel,
+                stccComponentPanel,
+                safeHavenPanel
+              );
+    }
 
     /*******************************/
     /** Getters and setters       **/
@@ -335,30 +349,14 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return topPanel;
     }
 
-    public ScaleComponentPanel getScalePanel() {
-        return scalePanel;
+    public BottomPanelStatusDialog getBottomPanelStatusDialog() {
+        return this.bottomStatusDialog;
     }
-
-    public OwnShipComponentPanel getOwnShipPanel() {
-        return ownShipPanel;
-    }
-
-    public PntComponentPanel getGpsPanel() {
-        return gpsPanel;
-    }
-
-    public CursorComponentPanel getCursorPanel() {
-        return cursorPanel;
-    }
-
-    public ActiveWaypointComponentPanel getActiveWaypointPanel() {
-        return activeWaypointPanel;
-    }
-
+    
     public DockableComponents getDockableComponents() {
         return dockableComponents;
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -367,31 +365,8 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return menuBar;
     }
 
-    public AisComponentPanel getAisComponentPanel() {
-        return aisComponentPanel;
-    }
-
-    public DynamicNoGoComponentPanel getDynamicNoGoPanel() {
-        return dynamicNoGoPanel;
-    }
-
-    public NoGoComponentPanel getNogoPanel() {
-        return nogoPanel;
-    }
-
-    public MultiSourcePntComponentPanel getMsPntComponentPanel() {
-        return msPntComponentPanel;
-    }
-
-    public RequestStrategicRouteDialog getStrategicRouteSTCCDialog() {
-        return strategicRouteSTCCDialog;
-    }
-
     public SendStrategicRouteDialog getSendStrategicRouteDialog() {
         return sendStrategicRouteDialog;
     }
     
-    public SARComponentPanel getSarPanel() {
-        return sarPanel;
-    }
 }

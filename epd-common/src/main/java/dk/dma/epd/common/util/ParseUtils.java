@@ -18,6 +18,7 @@ package dk.dma.epd.common.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -45,6 +46,17 @@ public class ParseUtils {
             return null;
         }
         return Converter.metersToNm(meters);
+    }
+    
+    public static Float parseFloat(String str) throws FormatException {
+        if (str == null || str.length() == 0) {
+            return null;
+        }
+        try {
+            return Float.parseFloat(str);
+        } catch (NumberFormatException e) {
+            throw new FormatException("Could not parse " + str + " as a decimal number");
+        }
     }
     
     public static Double parseDouble(String str) throws FormatException {
@@ -189,7 +201,7 @@ public class ParseUtils {
         }
     }
     
-    public static Date parseVariuosDateTime(String dateStr) {
+    public static Date parseVariuosDateTime(String dateStr) throws FormatException {
         // Preparation
         int i = dateStr.indexOf('(');
         if (i >=0) {
@@ -208,12 +220,13 @@ public class ParseUtils {
         for (String pattern : patterns) {
             dateFormat = new SimpleDateFormat(pattern);
             try {
-                res = dateFormat.parse(dateStr);                
+                res = dateFormat.parse(dateStr);
+                return res;
             } catch (ParseException e) {
                 
             }
         }
-        return res;
+        throw new FormatException("Cannot parse datetime");
     }
     
     public static Geo PositionToGeo(Position position){
@@ -223,4 +236,25 @@ public class ParseUtils {
     public static Position GeoToPosition(Geo geo){
         return Position.create(geo.getLatitude(), geo.getLongitude());
     }
+    
+    /**
+     * Combines the date from the first {@code date} parameter with the 
+     * time from the {@code time} parameter
+     * 
+     * @param date the date
+     * @param time the time
+     * @return the combined date
+     */
+    public static Date combineDateTime(Date date, Date time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        Calendar timeCal = Calendar.getInstance();
+        timeCal.setTime(time);
+
+        cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
+        cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
+        cal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
+        return cal.getTime();
+    }
+
 }    

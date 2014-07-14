@@ -1,0 +1,9 @@
+name=Davids VTS
+role=VTS
+affiliation=Danish Maritime Authority
+maritimeID=999139472
+description=DMA Internal VTS on developer machine
+service.name=Intended Route;MSI;Tactical Route Exchange
+service.description=Intended Route;MSI;Tactical Route Exchange
+service.lat=56.18 56.10 55.12 55.14;56.18 56.10 55.12 55.14;56.18 56.10 55.12 55.14
+service.lon=11.24 12.36 11.09 13.01;11.24 12.36 11.09 13.01;11.24 12.36 11.09 13.01

@@ -19,12 +19,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteMessage;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter.FilterType;
+import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Calculator;
@@ -90,13 +93,16 @@ public class ActiveRoute extends Route {
 
     protected int lastWpCounter;
 
+    // Computed safe haven attributes
     private Position safeHavenLocation;
     private double safeHavenLength;
     private double safeHavenWidth;
+    private double safeHavenSpeed;
+    protected double safeHavenBearing;
 
     private Route originalRoute;
 
-    protected double safeHavenBearing;
+    private boolean searchPattern;
 
     public ActiveRoute(Route route, PntData pntData) {
         super();
@@ -106,7 +112,10 @@ public class ActiveRoute extends Route {
         this.departure = route.getDeparture();
         this.destination = route.getDestination();
         this.starttime = route.getStarttime();
+
         this.origStarttime = PntTime.getInstance().getDate();
+        this.origStarttime = route.getStarttime();
+
         this.routeMetocSettings = route.getRouteMetocSettings();
         this.metocForecast = route.getMetocForecast();
         this.originalRoute = route.copy();
@@ -118,47 +127,69 @@ public class ActiveRoute extends Route {
         super.calcAllWpEta();
         calcValues(true);
 
-        changeActiveWaypoint(getBestWaypoint(route, pntData));
+        int activeWp = 0;
+
+        if (route instanceof SearchPatternRoute) {
+            searchPattern = true;
+        } else {
+            activeWp = getBestWaypoint(route, pntData);
+        }
+        
+        changeActiveWaypoint(activeWp);
+
     }
 
-    /*
-     * Get's the most optimal route choice If speed is lower than 3 we start at point 0, otherwise we take bearing and distance into
-     * account and select the best match. It will never select a waypoint behind itself.
+    /**
+     * Performs a deep copy of a route.
+     */
+    @Override
+    public Route copy() {
+        Route newRoute = super.copy();
+
+        newRoute.starttime = origStarttime;
+        newRoute.etas = originalRoute.getEtas();
+        newRoute.etas = new ArrayList<Date>(etas);
+        return newRoute;
+    }
+
+    /**
+     * Get's the most optimal route choice Wwe take bearing and distance into account and select the best match. It will never
+     * select a waypoint behind itself.
      */
     private int getBestWaypoint(Route route, PntData pntData) {
 
-        if (pntData != null) {
-
-            if (pntData.isBadPosition() || pntData.getSog() < 3) {
-                return 0;
-            } else {
-                double smallestDist = 99999999.0;
-                int index = 0;
-                for (int i = 0; i <= route.getWaypoints().size() - 1; i++) {
-                    Position wpPos = route.getWaypoints().get(i).getPos();
-                    double distance = pntData.getPosition().rhumbLineDistanceTo(wpPos);
-                    double angleToWpDeg = pntData.getPosition().rhumbLineBearingTo(wpPos);
-                    double weight = 1 - (Math.toRadians(pntData.getCog()) - Math.toRadians(angleToWpDeg));
-                    double result = Math.abs(weight) * (0.5 * Converter.metersToNm(distance));
-                    double upper = pntData.getCog() + 90;
-                    double lower = pntData.getCog() - 90;
-
-                    if (result < smallestDist && angleToWpDeg < upper && angleToWpDeg > lower) {
-                        smallestDist = result;
-                        index = i;
-                    }
-
-                }
-                return index;
-            }
-        } else {
+        if (pntData == null || pntData.isBadPosition()) {
             return 0;
         }
 
+        double smallestDist = 99999999.0;
+        int index = 0;
+        for (int i = 0; i <= route.getWaypoints().size() - 1; i++) {
+            Position wpPos = route.getWaypoints().get(i).getPos();
+            double distance = pntData.getPosition().rhumbLineDistanceTo(wpPos);
+            double angle = Math.abs(pntData.getCog() - pntData.getPosition().rhumbLineBearingTo(wpPos));
+            if (angle >= 90) {
+                continue;
+            }
+            double weight = Math.cos(Math.toRadians(angle));
+            if (weight < 0.1) {
+                continue;
+            }
+            double weightedDistance = distance / weight;
+            if (weightedDistance < smallestDist) {
+                smallestDist = weightedDistance;
+                index = i;
+            }
+        }
+        return index;
     }
 
     public double getSafeHavenBearing() {
         return safeHavenBearing;
+    }
+
+    public double getSafeHavenSpeed() {
+        return safeHavenSpeed;
     }
 
     /**
@@ -184,12 +215,14 @@ public class ActiveRoute extends Route {
         // waypoint
 
         if (currentTime < originalRoute.getStarttime().getTime()) {
-            RouteLeg leg = originalRoute.getWaypoints().get(0).getOutLeg();
-            safeHavenBearing = computeBearing(leg);
-            safeHavenLength = leg.getSFLen();
-            safeHavenWidth = leg.getSFWidth();
+            RouteWaypoint wp = originalRoute.getWaypoints().get(0);
+            safeHavenBearing = computeBearing(wp.getOutLeg());
+            safeHavenLength = wp.getOutLeg().getSFLen();
+            safeHavenWidth = wp.getOutLeg().getSFWidth();
+            safeHavenSpeed = 0;
+            safeHavenLocation = wp.getPos();
 
-            return originalRoute.getWaypoints().get(0).getPos();
+            return safeHavenLocation;
         } else {
 
             for (int i = 0; i < originalRoute.getWaypoints().size(); i++) {
@@ -200,15 +233,16 @@ public class ActiveRoute extends Route {
                     safeHavenBearing = computeBearing(originalRoute.getWaypoints().getLast().getInLeg());
                     safeHavenLength = getWaypoints().get(i - 1).getOutLeg().getSFLen();
                     safeHavenWidth = getWaypoints().get(i - 1).getOutLeg().getSFWidth();
-
-                    return originalRoute.getWaypoints().get(i).getPos();
+                    safeHavenSpeed = 0;
+                    safeHavenLocation = originalRoute.getWaypoints().get(i).getPos();
+                    return safeHavenLocation;
                 } else {
 
                     // We should be beyond this
                     if (currentTime > originalRoute.getEtas().get(i).getTime()
                             && currentTime < originalRoute.getEtas().get(i + 1).getTime()) {
-                        // How long have we been sailing between these
-                        // waypoints?
+
+                        // How long have we been sailing between these way points?
                         long secondsSailTime = (currentTime - originalRoute.getEtas().get(i).getTime()) / 1000;
 
                         double distanceTravelledNauticalMiles = Converter.milesToNM(Calculator.distanceAfterTimeMph(originalRoute
@@ -225,6 +259,7 @@ public class ActiveRoute extends Route {
                         safeHavenBearing = computeBearing(originalRoute.getWaypoints().get(i).getOutLeg());
                         safeHavenLength = getWaypoints().get(i).getOutLeg().getSFLen();
                         safeHavenWidth = getWaypoints().get(i).getOutLeg().getSFWidth();
+                        safeHavenSpeed = originalRoute.getWaypoints().get(i).getOutLeg().getSpeed();
 
                         return safeHavenLocation;
                     }
@@ -232,7 +267,8 @@ public class ActiveRoute extends Route {
             }
         }
         // An error must have occured
-        return null;
+        safeHavenLocation = null;
+        return safeHavenLocation;
     }
 
     public synchronized void update(PntData pntData) {
@@ -316,6 +352,7 @@ public class ActiveRoute extends Route {
     }
 
     public synchronized ActiveWpSelectionResult chooseActiveWp() {
+
         // Calculate if in Wp circle
         boolean inWpCircle = false;
         double xtd = currentLeg.getMaxXtd() == null ? 0.0 : currentLeg.getMaxXtd();
@@ -350,8 +387,8 @@ public class ActiveRoute extends Route {
                 return ActiveWpSelectionResult.CHANGED;
             }
         } else {
-            // Some temporary fallback when we are really of course
-            if (relaxedWpChange) {
+            // Some temporary fallback when we are really off course and not doing sar
+            if (!searchPattern && relaxedWpChange) {
                 if (2 * nextWpRng < getWpRng(activeWaypointIndex)) {
                     changeActiveWaypoint(activeWaypointIndex + 1);
                     return ActiveWpSelectionResult.CHANGED;
@@ -383,6 +420,15 @@ public class ActiveRoute extends Route {
         if (ttg == null) {
             return null;
         }
+
+        // If we have just activated the route ie. wp 0, and the route start date is in the future do not recalculate the first eta
+        if (getActiveWaypointIndex() == 0) {
+            DateTime start = new DateTime(origStarttime);
+            if (start.isAfterNow()) {
+                return origStarttime;
+            }
+        }
+
         return new Date(PntTime.getInstance().getDate().getTime() + ttg);
     }
 
@@ -513,17 +559,19 @@ public class ActiveRoute extends Route {
     /**
      * Returns the intended route broadcast, based on the parameters passed along
      * 
-     * @param filter the filter to apply to extract the partial route
-     * @param broadcast the result to update. If null, a new instance is created.
+     * @param filter
+     *            the filter to apply to extract the partial route
+     * @param broadcast
+     *            the result to update. If null, a new instance is created.
      * @return the partial route
      */
     public synchronized IntendedRouteBroadcast getPartialRouteData(PartialRouteFilter filter, IntendedRouteBroadcast broadcast) {
-        
+
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
         List<Date> originalEtas = new ArrayList<>();
         int activeWpIndex = 0;
-        
-        // Pre-compute the start and end ETA's for the partial route 
+
+        // Pre-compute the start and end ETA's for the partial route
         Date startDate = null, endDate = null;
         if (filter.getType() == FilterType.MINUTES) {
             startDate = new Date(getActiveWaypointEta().getTime() - filter.getBackward() * 1000L * 60L);
@@ -571,8 +619,8 @@ public class ActiveRoute extends Route {
             }
 
             // Check if we have reached the active way point
-            if  (i == activeWaypointIndex) {
-                activeWpIndex = voyageRoute.getWaypoints().size();                
+            if (i == activeWaypointIndex) {
+                activeWpIndex = voyageRoute.getWaypoints().size();
             }
             // Add the original ETA for the current way point
             originalEtas.add(originalRoute.getEtas().get(i));
@@ -612,7 +660,7 @@ public class ActiveRoute extends Route {
                 lastWaypoint.setRouteLeg(null);
             }
         }
-        
+
         // Make the broadcast message
         if (broadcast == null) {
             broadcast = new IntendedRouteBroadcast();
@@ -621,7 +669,7 @@ public class ActiveRoute extends Route {
         irm.setPlannedEtas(originalEtas);
         irm.setActiveWpIndex(activeWpIndex);
         broadcast.setRoute(irm);
-        
+
         return broadcast;
     }
 }

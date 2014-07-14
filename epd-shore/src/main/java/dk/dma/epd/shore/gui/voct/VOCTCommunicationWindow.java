@@ -25,6 +25,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -48,13 +50,13 @@ import javax.swing.table.TableCellRenderer;
 
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.voct.SRU;
+import dk.dma.epd.shore.voct.SRU.sru_status;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class VOCTCommunicationWindow extends JDialog implements
-        ListSelectionListener, MouseListener, TableModelListener,
+public class VOCTCommunicationWindow extends JDialog implements ListSelectionListener, MouseListener, TableModelListener,
         ActionListener, SRUUpdateListener {
     private static final long serialVersionUID = 1L;
 
@@ -72,6 +74,8 @@ public class VOCTCommunicationWindow extends JDialog implements
     private VOCTCommunicationTableModel sruTableModel;
     private ListSelectionModel sruSelectionModel;
 
+    private VOCTManager voctManager;
+
     /**
      * Create the dialog.
      */
@@ -81,7 +85,7 @@ public class VOCTCommunicationWindow extends JDialog implements
         this.setResizable(false);
 
         // setBounds(100, 100, 559, 733);
-        setBounds(100, 100, 621, 408);
+        setBounds(100, 100, 700, 408);
         getContentPane().setLayout(new BorderLayout());
 
         buttomBar();
@@ -138,6 +142,8 @@ public class VOCTCommunicationWindow extends JDialog implements
     public void setVoctManager(VOCTManager voctManager) {
         sruManager = voctManager.getSruManager();
         sruManager.addListener(this);
+
+        this.voctManager = voctManager;
     }
 
     private void initPanel() {
@@ -148,18 +154,16 @@ public class VOCTCommunicationWindow extends JDialog implements
 
         {
             JPanel panel = new JPanel();
-            panel.setBorder(new TitledBorder(UIManager
-                    .getBorder("TitledBorder.border"), "SRU Tracking",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            panel.setBounds(10, 11, 595, 325);
+            panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SRU Tracking", TitledBorder.LEADING,
+                    TitledBorder.TOP, null, null));
+            panel.setBounds(10, 11, 670, 325);
             initPanel.add(panel);
             panel.setLayout(null);
 
             JPanel panel_2 = new JPanel();
-            panel_2.setBorder(new TitledBorder(UIManager
-                    .getBorder("TitledBorder.border"), "All SRUs",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            panel_2.setBounds(10, 32, 575, 282);
+            panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "All SRUs", TitledBorder.LEADING,
+                    TitledBorder.TOP, null, null));
+            panel_2.setBounds(10, 32, 650, 282);
             panel.add(panel_2);
             panel_2.setLayout(null);
 
@@ -168,10 +172,8 @@ public class VOCTCommunicationWindow extends JDialog implements
             sruTable = new JTable(model) {
                 private static final long serialVersionUID = 1L;
 
-                public Component prepareRenderer(TableCellRenderer renderer,
-                        int Index_row, int Index_col) {
-                    Component comp = super.prepareRenderer(renderer, Index_row,
-                            Index_col);
+                public Component prepareRenderer(TableCellRenderer renderer, int Index_row, int Index_col) {
+                    Component comp = super.prepareRenderer(renderer, Index_row, Index_col);
                     if (Index_row % 2 == 0) {
                         comp.setBackground(new Color(49, 49, 49));
                     } else {
@@ -202,9 +204,8 @@ public class VOCTCommunicationWindow extends JDialog implements
             sruTable.setFocusable(false);
             // routeTable.setAutoResizeMode(0);
 
-            sruTableModel = new VOCTCommunicationTableModel(EPDShore.getInstance()
-                    .getVoctManager().getSruManager(),
-                    EPDShore.getInstance().getVoctManager());
+            sruTableModel = new VOCTCommunicationTableModel(EPDShore.getInstance().getVoctManager().getSruManager(), EPDShore
+                    .getInstance().getVoctManager());
             sruTableModel.addTableModelListener(this);
 
             sruTable.setShowHorizontalLines(false);
@@ -214,43 +215,40 @@ public class VOCTCommunicationWindow extends JDialog implements
             sruScrollPane = new JScrollPane(sruTable);
             sruScrollPane.setEnabled(false);
 
-            sruScrollPane.setBounds(10, 23, 555, 248);
+            sruScrollPane.setBounds(10, 23, 655, 248);
 
-            sruScrollPane
-                    .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-            sruScrollPane
-                    .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            sruScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            sruScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             sruTable.setFillsViewportHeight(true);
 
-            sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,
-                    new Color(30, 30, 30)));
+            sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(30, 30, 30)));
 
             // TODO: Comment this line when using WindowBuilder
             sruTable.setModel(sruTableModel);
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 7; i++) {
 
                 if (i == 0) {
                     sruTable.getColumnModel().getColumn(i).setPreferredWidth(5);
                 }
                 if (i == 1) {
-                    sruTable.getColumnModel().getColumn(i)
-                            .setPreferredWidth(75);
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(75);
                 }
                 if (i == 2) {
-                    sruTable.getColumnModel().getColumn(i)
-                            .setPreferredWidth(50);
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(40);
                 }
 
                 if (i == 3) {
-                    sruTable.getColumnModel().getColumn(i)
-                            .setPreferredWidth(15);
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(80);
                 }
+
                 if (i == 4) {
-                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(5);
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(15);
                 }
                 if (i == 5) {
-                    sruTable.getColumnModel().getColumn(i)
-                            .setPreferredWidth(25);
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(5);
+                }
+                if (i == 6) {
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(5);
                 }
             }
             sruSelectionModel = sruTable.getSelectionModel();
@@ -260,8 +258,7 @@ public class VOCTCommunicationWindow extends JDialog implements
 
             panel_2.add(sruScrollPane);
 
-            noSRUs = new JLabel(
-                    "There are no SRUs added. Please add a SRU before doing Effort Allocation");
+            noSRUs = new JLabel("There are no SRUs added. Please add a SRU before doing Effort Allocation");
             noSRUs.setBounds(10, 23, 446, 14);
             noSRUs.setVisible(false);
             panel_2.add(noSRUs);
@@ -322,34 +319,29 @@ public class VOCTCommunicationWindow extends JDialog implements
                 // Send
                 if ((boolean) sruTable.getValueAt(i, 0)) {
 
-//                    try {
-//                        voctManager.updateEffectiveAreaLocation();
-//
-//                        sruManager.setSRUStatus(i, sru_status.INVITED);
-//
-//                        EPDShore.getInstance().getEnavServiceHandler().sendVOCTMessage(
-//                                sruList.get(i).getMmsi(),
-//                                voctManager.getSarData(), "OSC", "Please Join",
-//                                i, (boolean) sruTable.getValueAt(i, 4),
-//                                (boolean) sruTable.getValueAt(i, 5));
-//
-//                    } catch (InterruptedException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    } catch (ExecutionException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    } catch (TimeoutException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    }
+                    try {
+                        voctManager.updateEffectiveAreaLocation();
 
+                        sruManager.setSRUStatus(i, sru_status.INVITED);
+
+                        EPDShore.getInstance()
+                                .getVoctHandler()
+                                .sendVOCTMessage(sruList.get(i).getMmsi(), voctManager.getSarData(), "OSC", "Please Join", i,
+                                        (boolean) sruTable.getValueAt(i, 5), (boolean) sruTable.getValueAt(i, 6));
+
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                 }
-
             }
-
             this.setVisible(false);
-
         }
 
     }
@@ -357,8 +349,7 @@ public class VOCTCommunicationWindow extends JDialog implements
     @SuppressWarnings("unused")
     private void displayMissingField(String fieldname) {
         // Missing or incorrect value in
-        JOptionPane.showMessageDialog(this, "Missing or incorrect value in "
-                + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Missing or incorrect value in " + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override

@@ -147,6 +147,7 @@ public class EncLayerFactory {
 
     }
 
+
     /**
      * Set Navicon settings if Navicon layer
      * 
@@ -163,8 +164,14 @@ public class EncLayerFactory {
         Class<?>[] argTypes = new Class<?>[0];
         Object[] arguments = new Object[0];
         try {
+            
+
+            
+            
+            
             // Get settings
-            Method method = encLayer.getClass().getDeclaredMethod("getS52MarinerSettings", argTypes);
+            Method method = encLayer.getClass().getDeclaredMethod(
+                    "getS52MarinerSettings", argTypes);
             Object obj = method.invoke(encLayer, arguments);
             marinerSettings = (Properties) obj;
 
@@ -182,22 +189,40 @@ public class EncLayerFactory {
                     Boolean.toString(this.encSettings.isUseSimplePointSymbols()));
             marinerSettings.setProperty("MARINER_PARAM.usePlainAreas", Boolean.toString(this.encSettings.isUsePlainAreas()));
             marinerSettings.setProperty("MARINER_PARAM.S52_MAR_TWO_SHADES", Boolean.toString(this.encSettings.isS52TwoShades()));
+            // TODO implement this in new settings
+            //marinerSettings.setProperty("MARINER_PARAM.color", mapSettings
+            //        .getColor().toUpperCase());
 
             // Set settings on layer
             argTypes = new Class<?>[1];
             argTypes[0] = Properties.class;
             arguments = new Object[1];
             arguments[0] = marinerSettings;
-            method = encLayer.getClass().getDeclaredMethod("setS52MarinerSettings", argTypes);
+            method = encLayer.getClass().getDeclaredMethod(
+                    "setS52MarinerSettings", argTypes);
             method.invoke(encLayer, arguments);
+
+
+            
+            
+            // Set s57 settings
+            Properties s57Props = new Properties();
+            s57Props.setProperty("enc.viewGroupSettings", EPDShore.getInstance().getSettings()
+                    .getS57LayerSettings().getS52mapSettings());
+
+            encLayer.setProperties(s57Props);
+            
+            
 
             return true;
         } catch (Exception e) {
-            LOG.error("Failed to set mariner settings on Navicon ENC layer: " + e.getMessage());
+            LOG.error("Failed to set mariner settings on Navicon ENC layer: "
+                    + e.getMessage());
             e.printStackTrace();
         }
 
         return false;
     }
+
 
 }

@@ -29,7 +29,6 @@ import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
@@ -166,8 +165,8 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
             }
 
             if (staticData != null) {
-                ownName = AisMessage.trimText(staticData.getName());
-                ownCallsign = AisMessage.trimText(staticData.getCallsign());
+                ownName = staticData.getTrimmedName();
+                ownCallsign = staticData.getTrimmedCallsign();
             }
 
         }
