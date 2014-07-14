@@ -400,7 +400,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     public void zoomTo(List<Position> waypoints) {
         if (waypoints.size() > 0) {
             // Disable auto follow
-            EPDShip.getInstance().getSettings().getNavSettings().setAutoFollow(false);
+            EPDShip.getInstance().getSettings().getMapSettings().setAutoFollow(false);
 
             if (topPanel != null) {
                 topPanel.updateButtons();
