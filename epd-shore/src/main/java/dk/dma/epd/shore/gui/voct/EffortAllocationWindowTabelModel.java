@@ -51,9 +51,10 @@ public class EffortAllocationWindowTabelModel extends AbstractTableModel {
     }
 
     public void updateCalculateTable() {
+
         calculate.clear();
-        for (int i = 0; i < sruManager.getSRUs().size(); i++) {
-            if (voctManager.getSarData().getEffortAllocationData().size() > i) {
+        for (int i = 0; i < sruManager.getSRUsAsList().length; i++) {
+            if (voctManager.getSarData().getEffortAllocationData().get(sruManager.getSRUsAsList()[i]) != null) {
                 calculate.add(false);
             } else {
                 calculate.add(true);
@@ -75,7 +76,7 @@ public class EffortAllocationWindowTabelModel extends AbstractTableModel {
     public int getRowCount() {
         // return sruManager.getSRUCount();
         // return 0;
-        return sruManager.getSRUs().size();
+        return sruManager.getSRUsAsList().length;
     }
 
     @Override
@@ -102,9 +103,13 @@ public class EffortAllocationWindowTabelModel extends AbstractTableModel {
         switch (columnIndex) {
         case 2:
 
-            if (voctManager.getSarData().getEffortAllocationData().size() > rowIndex) {
-                calculate.set(rowIndex, (Boolean) aValue);
-            }
+            // if (voctManager.getSarData().getEffortAllocationData().get(sruManager.getSRUsAsList()[rowIndex]) != null) {
+            calculate.set(rowIndex, (Boolean) aValue);
+            // }
+
+            // if (voctManager.getSarData().getEffortAllocationData().size() > rowIndex) {
+            // calculate.set(rowIndex, (Boolean) aValue);
+            // }
 
             // super.setValueAt((Boolean) aValue, rowIndex, columnIndex);
 

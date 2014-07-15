@@ -19,7 +19,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.JDialog;
@@ -161,6 +163,35 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
 
         }
 
+    }
+
+    @Override
+    protected void checkSRU(SARData sarData) {
+        // Check SRU data
+
+        Iterator it = sarData.getEffortAllocationData().entrySet().iterator();
+        Map.Entry entry = (Map.Entry) it.next();
+        while (it.hasNext()) {
+
+            long key = (long) entry.getKey();
+            entry = (Map.Entry) it.next();
+            if (!sruManager.getsRUCommunication().containsKey(key)) {
+
+                sarData.getEffortAllocationData().remove(key);
+            }
+
+        }
+
+        // for (Entry<Long, EffortAllocationData> entry : sarData.getEffortAllocationData().entrySet()) {
+        //
+        // if (!sruManager.getsRUCommunication().containsKey(entry.getKey())) {
+        // sarData.getEffortAllocationData().remove(entry.getKey());
+        // }
+        // // if (EPDShore.)
+        //
+        // // EffortAllocationData list = entry.getValue();
+        // // Do things with the list
+        // }
     }
 
     public void loadVOCTManager() {

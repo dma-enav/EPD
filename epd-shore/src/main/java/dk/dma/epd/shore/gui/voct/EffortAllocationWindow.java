@@ -519,6 +519,8 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon impleme
 
                 data.setW(wc);
 
+                data.setMmsi(currentSRU.getMmsi());
+
                 System.out.println("Calculating for ");
 
                 System.out.println("Setting W to " + wc);

@@ -158,12 +158,11 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     public void displaySar() {
         saveToFile();
         // This is where we display SAR
-        
+
         updateLayers();
 
         System.out.println("This display sar?");
         notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
-
 
     }
 
@@ -271,7 +270,17 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         this.loadSarFromSerialize = loadSarFromSerialize;
     }
 
+    /**
+     * Used by EPD Shore to remove possible removed effort allocation areas
+     * @param sarData
+     */
+    protected void checkSRU(SARData sarData) {
+
+    }
+
     protected void initializeFromSerializedFile(SARData sarData) {
+
+        checkSRU(sarData);
 
         if (sarData instanceof RapidResponseData) {
             setSarType(SAR_TYPE.RAPID_RESPONSE);
@@ -295,7 +304,6 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         }
 
         displaySar();
-
     }
 
 }

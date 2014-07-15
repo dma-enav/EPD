@@ -76,8 +76,6 @@ public class SARData implements Serializable {
         this.additionalInfo = additionalInfo;
     }
 
-
-
     public void addEffortAllocationData(long mmsi, EffortAllocationData data) {
         effortAllocationData.put(mmsi, data);
 
@@ -92,6 +90,10 @@ public class SARData implements Serializable {
      */
     public Map<Long, EffortAllocationData> getEffortAllocationData() {
         return effortAllocationData;
+    }
+
+    public EffortAllocationData[] getEffortAllocationAsArray() {
+        return effortAllocationData.values().toArray(new EffortAllocationData[0]);
     }
 
     /**

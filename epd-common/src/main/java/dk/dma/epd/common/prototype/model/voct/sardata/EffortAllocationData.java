@@ -29,40 +29,58 @@ public class EffortAllocationData implements Serializable {
     private int searchTime;
     private double effectiveAreaSize;
 
-//    private double effectiveAreaWidth;
-//    private double effectiveAreaHeight;
+    private long mmsi;
+
+    // private double effectiveAreaWidth;
+    // private double effectiveAreaHeight;
 
     private Position effectiveAreaA;
     private Position effectiveAreaB;
     private Position effectiveAreaC;
     private Position effectiveAreaD;
-    
+
     SearchPatternRoute searchPatternRoute;
-    
+
     private boolean noReDraw;
-    
-    public EffortAllocationData(){
-        
+
+    public EffortAllocationData() {
+
     }
-    
-    public EffortAllocationData(EffortAllocationDTO effortAllocationDTO){
-        
+
+    public EffortAllocationData(EffortAllocationDTO effortAllocationDTO) {
+
         this.w = effortAllocationDTO.getW();
         this.groundSpeed = effortAllocationDTO.getGroundSpeed();
         pod = effortAllocationDTO.getPod();
         this.trackSpacing = effortAllocationDTO.getTrackSpacing();
         this.effectiveAreaSize = effortAllocationDTO.getEffectiveAreaSize();
-        
-        this.effectiveAreaA = Position.create(effortAllocationDTO.getEffectiveAreaA().getLatitude(), effortAllocationDTO.getEffectiveAreaA().getLongitude());
-        this.effectiveAreaB = Position.create(effortAllocationDTO.getEffectiveAreaB().getLatitude(), effortAllocationDTO.getEffectiveAreaB().getLongitude());
-        this.effectiveAreaC = Position.create(effortAllocationDTO.getEffectiveAreaC().getLatitude(), effortAllocationDTO.getEffectiveAreaC().getLongitude());
-        this.effectiveAreaD = Position.create(effortAllocationDTO.getEffectiveAreaD().getLatitude(), effortAllocationDTO.getEffectiveAreaD().getLongitude());
-        
-        
-        
-        
+
+        this.effectiveAreaA = Position.create(effortAllocationDTO.getEffectiveAreaA().getLatitude(), effortAllocationDTO
+                .getEffectiveAreaA().getLongitude());
+        this.effectiveAreaB = Position.create(effortAllocationDTO.getEffectiveAreaB().getLatitude(), effortAllocationDTO
+                .getEffectiveAreaB().getLongitude());
+        this.effectiveAreaC = Position.create(effortAllocationDTO.getEffectiveAreaC().getLatitude(), effortAllocationDTO
+                .getEffectiveAreaC().getLongitude());
+        this.effectiveAreaD = Position.create(effortAllocationDTO.getEffectiveAreaD().getLatitude(), effortAllocationDTO
+                .getEffectiveAreaD().getLongitude());
+
     }
 
+    /**
+     * @return the mmsi
+     */
+    public long getMmsi() {
+        return mmsi;
+    }
+
+    
+    
+    /**
+     * @param mmsi the mmsi to set
+     */
+    public void setMmsi(long mmsi) {
+        this.mmsi = mmsi;
+    }
 
     /**
      * @return the redraw
@@ -72,7 +90,8 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param redraw the redraw to set
+     * @param redraw
+     *            the redraw to set
      */
     public void setNoRedraw(boolean noReDraw) {
         this.noReDraw = noReDraw;
@@ -86,12 +105,13 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param searchPatternRoute the searchPatternRoute to set
+     * @param searchPatternRoute
+     *            the searchPatternRoute to set
      */
     public void setSearchPatternRoute(SearchPatternRoute searchPatternRoute) {
         this.searchPatternRoute = searchPatternRoute;
     }
-    
+
     /**
      * @return the effectiveAreaSize
      */
@@ -100,7 +120,8 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param effectiveAreaSize the effectiveAreaSize to set
+     * @param effectiveAreaSize
+     *            the effectiveAreaSize to set
      */
     public void setEffectiveAreaSize(double effectiveAreaSize) {
         this.effectiveAreaSize = effectiveAreaSize;
@@ -114,7 +135,8 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param searchTime the searchTime to set
+     * @param searchTime
+     *            the searchTime to set
      */
     public void setSearchTime(int searchTime) {
         this.searchTime = searchTime;
@@ -128,7 +150,8 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param w the w to set
+     * @param w
+     *            the w to set
      */
     public void setW(double w) {
         this.w = w;
@@ -142,7 +165,8 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param groundSpeed the groundSpeed to set
+     * @param groundSpeed
+     *            the groundSpeed to set
      */
     public void setGroundSpeed(double groundSpeed) {
         this.groundSpeed = groundSpeed;
@@ -156,7 +180,8 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param pod the pod to set
+     * @param pod
+     *            the pod to set
      */
     public void setPod(double pod) {
         this.pod = pod;
@@ -170,33 +195,33 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param trackSpacing the trackSpacing to set
+     * @param trackSpacing
+     *            the trackSpacing to set
      */
     public void setTrackSpacing(double trackSpacing) {
         this.trackSpacing = trackSpacing;
     }
 
+    // /**
+    // * @param effectiveAreaWidth the effectiveAreaWidth to set
+    // */
+    // public void setEffectiveAreaWidth(double effectiveAreaWidth) {
+    // this.effectiveAreaWidth = effectiveAreaWidth;
+    // }
 
-//    /**
-//     * @param effectiveAreaWidth the effectiveAreaWidth to set
-//     */
-//    public void setEffectiveAreaWidth(double effectiveAreaWidth) {
-//        this.effectiveAreaWidth = effectiveAreaWidth;
-//    }
+    // /**
+    // * @return the effectiveAreaHeight
+    // */
+    // public double getEffectiveAreaHeight() {
+    // return effectiveAreaHeight;
+    // }
 
-//    /**
-//     * @return the effectiveAreaHeight
-//     */
-//    public double getEffectiveAreaHeight() {
-//        return effectiveAreaHeight;
-//    }
-
-//    /**
-//     * @param effectiveAreaHeight the effectiveAreaHeight to set
-//     */
-//    public void setEffectiveAreaHeight(double effectiveAreaHeight) {
-//        this.effectiveAreaHeight = effectiveAreaHeight;
-//    }
+    // /**
+    // * @param effectiveAreaHeight the effectiveAreaHeight to set
+    // */
+    // public void setEffectiveAreaHeight(double effectiveAreaHeight) {
+    // this.effectiveAreaHeight = effectiveAreaHeight;
+    // }
 
     /**
      * @return the effectiveAreaA
@@ -206,7 +231,8 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param effectiveAreaA the effectiveAreaA to set
+     * @param effectiveAreaA
+     *            the effectiveAreaA to set
      */
     public void setEffectiveAreaA(Position effectiveAreaA) {
         this.effectiveAreaA = effectiveAreaA;
@@ -220,7 +246,8 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param effectiveAreaB the effectiveAreaB to set
+     * @param effectiveAreaB
+     *            the effectiveAreaB to set
      */
     public void setEffectiveAreaB(Position effectiveAreaB) {
         this.effectiveAreaB = effectiveAreaB;
@@ -234,7 +261,8 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param effectiveAreaC the effectiveAreaC to set
+     * @param effectiveAreaC
+     *            the effectiveAreaC to set
      */
     public void setEffectiveAreaC(Position effectiveAreaC) {
         this.effectiveAreaC = effectiveAreaC;
@@ -248,34 +276,29 @@ public class EffortAllocationData implements Serializable {
     }
 
     /**
-     * @param effectiveAreaD the effectiveAreaD to set
+     * @param effectiveAreaD
+     *            the effectiveAreaD to set
      */
     public void setEffectiveAreaD(Position effectiveAreaD) {
         this.effectiveAreaD = effectiveAreaD;
     }
-    
-    
+
     public EffortAllocationDTO getModelData() {
-        return new EffortAllocationDTO(w, groundSpeed, pod, trackSpacing,
-                searchTime, effectiveAreaSize, effectiveAreaA.getDTO(), effectiveAreaB.getDTO(),
-                effectiveAreaC.getDTO(), effectiveAreaD.getDTO());
+        return new EffortAllocationDTO(w, groundSpeed, pod, trackSpacing, searchTime, effectiveAreaSize, effectiveAreaA.getDTO(),
+                effectiveAreaB.getDTO(), effectiveAreaC.getDTO(), effectiveAreaD.getDTO());
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        return "EffortAllocationData [w=" + w + ", groundSpeed=" + groundSpeed
-                + ", pod=" + pod + ", trackSpacing=" + trackSpacing
-                + ", searchTime=" + searchTime + ", effectiveAreaSize="
-                + effectiveAreaSize + ", effectiveAreaA=" + effectiveAreaA
-                + ", effectiveAreaB=" + effectiveAreaB + ", effectiveAreaC="
-                + effectiveAreaC + ", effectiveAreaD=" + effectiveAreaD
-                + ", searchPatternRoute=" + searchPatternRoute + ", noReDraw="
-                + noReDraw + "]";
+        return "EffortAllocationData [w=" + w + ", groundSpeed=" + groundSpeed + ", pod=" + pod + ", trackSpacing=" + trackSpacing
+                + ", searchTime=" + searchTime + ", effectiveAreaSize=" + effectiveAreaSize + ", effectiveAreaA=" + effectiveAreaA
+                + ", effectiveAreaB=" + effectiveAreaB + ", effectiveAreaC=" + effectiveAreaC + ", effectiveAreaD="
+                + effectiveAreaD + ", searchPatternRoute=" + searchPatternRoute + ", noReDraw=" + noReDraw + "]";
     }
-    
-    
-}
 
+}

@@ -63,8 +63,9 @@ public class SRUTableModelPanel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(sruManager.getSRUsAsList()[rowIndex].getMmsi());
-        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(sru.getMmsi());
+
+        SRU sru = sruManager.getSRUs().get(voctManager.getSarData().getEffortAllocationAsArray()[rowIndex].getMmsi());
+        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationAsArray()[rowIndex];
         switch (columnIndex) {
         case 0:
             return Formatter.formatString(sru.getName());

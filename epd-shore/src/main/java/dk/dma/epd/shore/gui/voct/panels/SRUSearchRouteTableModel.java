@@ -74,8 +74,8 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(sruManager.getSRUsAsList()[rowIndex].getMmsi());
-        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(sru.getMmsi());
+        SRU sru = sruManager.getSRUs().get(voctManager.getSarData().getEffortAllocationAsArray()[rowIndex].getMmsi());
+        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationAsArray()[rowIndex];
         switch (columnIndex) {
         case 0:
             return Formatter.formatString(sru.getName());
@@ -90,11 +90,12 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
             }
             return false;
         case 3:
-            // return false;
-            if (effortAllocationData.getSearchPatternRoute() != null) {
-                return effortAllocationData.getSearchPatternRoute().isDynamic();
-            } else {
-                return false;
+            if (effortAllocationData != null) {
+                if (effortAllocationData.getSearchPatternRoute() != null) {
+                    return effortAllocationData.getSearchPatternRoute().isDynamic();
+                } else {
+                    return false;
+                }
             }
 
         default:
@@ -109,7 +110,7 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
         // SRU sru = sruManager.getSRUs().get(rowIndex);
 
         if (voctManager.getSarData().getEffortAllocationData().size() > rowIndex) {
-            EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(rowIndex);
+            EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationAsArray()[rowIndex];
 
             switch (columnIndex) {
 
@@ -161,7 +162,7 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(sruManager.getSRUsAsList()[rowIndex].getMmsi());
+        SRU sru = sruManager.getSRUs().get(voctManager.getSarData().getEffortAllocationAsArray()[rowIndex].getMmsi());
         if (columnIndex == 1) {
             return true;
         }

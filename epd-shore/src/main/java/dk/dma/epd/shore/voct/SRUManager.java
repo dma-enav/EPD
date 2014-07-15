@@ -443,6 +443,7 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
                 }
                 // maintainAvailableSRUs();
                 notifyListeners(SRUUpdateEvent.SRU_REMOVED, i);
+                voctManager.saveToFile();
             }
         }
     }

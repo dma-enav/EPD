@@ -265,8 +265,9 @@ public final class EPDShore extends EPD {
 
         // Create voct manager
         voctManager = new VOCTManager();
-        voctManager.loadVOCTManager();
         beanHandler.add(voctManager);
+        voctManager.loadVOCTManager();
+        
 
         // Create embedded transponder frame
         transponderFrame = new TransponderFrame(getHomePath().resolve("transponder.xml").toString(), true, mainFrame);
