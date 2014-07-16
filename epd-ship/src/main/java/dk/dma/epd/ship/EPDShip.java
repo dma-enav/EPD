@@ -418,23 +418,26 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         default:
             LOG.error("Unknown sensor connection type: " + sensorSettings.getMsPntConnectionType());
         }
-
-        switch (sensorSettings.getDynamicPredictorConnectionType()) {
-        case TCP:
-            dynamicPredictorSensor = new NmeaTcpSensor(sensorSettings.getDynamicPredictorHostOrSerialPort(),
-                    sensorSettings.getDynamicPredictorTcpOrUdpPort());
-            break;
-        case UDP:
-            dynamicPredictorSensor = new NmeaUdpSensor(sensorSettings.getDynamicPredictorTcpOrUdpPort());
-            break;
-        case SERIAL:
-            dynamicPredictorSensor = new NmeaSerialSensor(sensorSettings.getDynamicPredictorHostOrSerialPort(),
-                    sensorSettings.getDynamicPredictorSerialPortBaudRate());
-        default:
-            dynamicPredictorSensor = null;
-            break;
+        // Only init sensor if dynamic prediction has been enabled.
+        if (getSettings().getNavSettings().isDynamicPrediction()) {
+	        switch (sensorSettings.getDynamicPredictorConnectionType()) {
+	        case TCP:
+	            dynamicPredictorSensor = new NmeaTcpSensor(sensorSettings.getDynamicPredictorHostOrSerialPort(),
+	                    sensorSettings.getDynamicPredictorTcpOrUdpPort());
+	            break;
+	        case UDP:
+	            dynamicPredictorSensor = new NmeaUdpSensor(sensorSettings.getDynamicPredictorTcpOrUdpPort());
+	            break;
+	        case SERIAL:
+	            dynamicPredictorSensor = new NmeaSerialSensor(sensorSettings.getDynamicPredictorHostOrSerialPort(),
+	                    sensorSettings.getDynamicPredictorSerialPortBaudRate());
+	        default:
+	            dynamicPredictorSensor = null;
+	            break;
+	        }
+        } else {
+        	dynamicPredictorSensor = null;
         }
-
         if (aisSensor != null) {
             aisSensor.addAisListener(aisHandler);
             aisSensor.addAisListener(ownShipHandler);

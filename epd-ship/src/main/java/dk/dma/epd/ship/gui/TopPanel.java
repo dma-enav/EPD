@@ -161,7 +161,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
                 .setToolTipText("Enable range circles mode.");
         
         this.toggleDynamicPredictorLayer.setToolTipText("Toggle dynamic predictor layer");
-
+        // disable button if dynamic predictor disabled
+        this.toggleDynamicPredictorLayer.setEnabled(EPDShip.getInstance().getSettings().getNavSettings().isDynamicPrediction());
+        
         add(goBackBtn);
         add(goForwardBtn);
         add(zoomInBtn);
