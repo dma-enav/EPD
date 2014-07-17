@@ -99,7 +99,7 @@ public class SAROperation {
     }
 
     public DatumLineData startDatumLineCalculations(DatumLineData data) {
-        System.out.println("Datum line");
+//        System.out.println("Datum line");
 
         // Create a datumpoint for each
         List<DatumPointData> datumPoints = data.getDatumPointDataSets();
@@ -117,9 +117,9 @@ public class SAROperation {
 
         // System.out.println("Did we get something calculated?");
 
-        System.out.println("Different: ");
+//        System.out.println("Different: ");
         for (int i = 0; i < datumPoints.size(); i++) {
-            System.out.println("Time elapsed " + datumPoints.get(i).getTimeElasped());
+//            System.out.println("Time elapsed " + datumPoints.get(i).getTimeElasped());
         }
 
         // We have to find the box around all circles
@@ -132,9 +132,9 @@ public class SAROperation {
 
     public RapidResponseData startRapidResponseCalculations(RapidResponseData data) {
 
-        System.out.println("Starting Rapid Response with the following parameters");
-        System.out.println("Time of Last known position: " + data.getLKPDate());
-        System.out.println("Commence Search Start time: " + data.getCSSDate());
+//        System.out.println("Starting Rapid Response with the following parameters");
+//        System.out.println("Time of Last known position: " + data.getLKPDate());
+//        System.out.println("Commence Search Start time: " + data.getCSSDate());
 
         double difference = (double) (data.getCSSDate().getMillis() - data.getLKPDate().getMillis()) / 60 / 60 / 1000;
 
@@ -147,9 +147,9 @@ public class SAROperation {
     }
 
     public DatumPointData startDatumPointCalculations(DatumPointData data) {
-        System.out.println("Starting Datum Point with the following parameters");
-        System.out.println("Time of Last known position: " + data.getLKPDate());
-        System.out.println("Commence Search Start time: " + data.getCSSDate());
+//        System.out.println("Starting Datum Point with the following parameters");
+//        System.out.println("Time of Last known position: " + data.getLKPDate());
+//        System.out.println("Commence Search Start time: " + data.getCSSDate());
 
         double difference = (double) (data.getCSSDate().getMillis() - data.getLKPDate().getMillis()) / 60 / 60 / 1000;
 
@@ -171,7 +171,7 @@ public class SAROperation {
 
                 futureDataList.add(rapidResponse(new RapidResponseData((RapidResponseData) data, additionalTime)));
 
-                System.out.println("Additional Time: " + additionalTime + " minutes");
+//                System.out.println("Additional Time: " + additionalTime + " minutes");
 
             }
 
@@ -185,7 +185,7 @@ public class SAROperation {
 
                 futureDataList.add(datumPoint(new DatumPointData((DatumPointData) data, additionalTime)));
 
-                System.out.println("Additional Time: " + additionalTime + " minutes");
+//                System.out.println("Additional Time: " + additionalTime + " minutes");
 
             }
 
@@ -343,12 +343,12 @@ public class SAROperation {
             SARWeatherData weatherObject = weatherPoints.get(i);
             double validFor = weatherPointsValidFor.get(i);
 
-            System.out.println("Valid for : " + validFor);
+//            System.out.println("Valid for : " + validFor);
 
             double currentTWC = weatherObject.getTWCknots() * validFor;
 
-            System.out.println("Current TWC: " + currentTWC);
-            System.out.println("HEading TWC: " + weatherObject.getLWHeading());
+//            System.out.println("Current TWC: " + currentTWC);
+//            System.out.println("Heading TWC: " + weatherObject.getLWHeading());
 
             double leewayspeed = searchObjectValue(data.getSearchObject(), weatherObject.getLWknots());
             double leeway = leewayspeed * validFor;
@@ -366,8 +366,8 @@ public class SAROperation {
 
             currentPositions.add(currentPos);
 
-            System.out.println("Current is: " + currentPos.getLatitude());
-            System.out.println("Current is: " + currentPos.getLongitude());
+//            System.out.println("Current is: " + currentPos.getLatitude());
+//            System.out.println("Current is: " + currentPos.getLongitude());
 
             // Temp
             data.setWtc(currentPos);
@@ -1154,13 +1154,13 @@ public class SAROperation {
         double endRadius = radiusMax;
 
         if (radiusMin > radiusMax) {
-            System.out.println("Starting with min");
+//            System.out.println("Starting with min");
             startPos = datumMin;
             startRadius = radiusMin;
             endPos = datumMax;
             endRadius = radiusMax;
         } else {
-            System.out.println("Starting with max");
+//            System.out.println("Starting with max");
             startPos = datumMax;
             startRadius = radiusMax;
             endPos = datumMin;
@@ -1217,14 +1217,14 @@ public class SAROperation {
         b1 = new Geo(internalC.getLatitude(), internalC.getLongitude());
         b2 = new Geo(directionFromC.getLatitude(), directionFromC.getLongitude());
 
-        System.out.println(a1);
-        System.out.println(a2);
-        System.out.println(b1);
-        System.out.println(b2);
-
-        System.out.println("Internal A is: " + internalA);
-        System.out.println("Internal B is: " + internalB);
-        System.out.println("Internal C is: " + internalC);
+//        System.out.println(a1);
+//        System.out.println(a2);
+//        System.out.println(b1);
+//        System.out.println(b2);
+//
+//        System.out.println("Internal A is: " + internalA);
+//        System.out.println("Internal B is: " + internalB);
+//        System.out.println("Internal C is: " + internalC);
 
         intersection = Intersection.segmentsIntersect(a1, a2, b1, b2);
         // System.out.println("Intersectin at : " + intersection);
@@ -1292,8 +1292,8 @@ public class SAROperation {
             // Modify A and B
 
         } else {
-            System.out.println("Modify in direction "
-                    + Calculator.reverseDirection(datumDownWind.rhumbLineBearingTo(downWindParallelMinus)));
+//            System.out.println("Modify in direction "
+//                    + Calculator.reverseDirection(datumDownWind.rhumbLineBearingTo(downWindParallelMinus)));
 
             double direction = Calculator.reverseDirection(datumDownWind.rhumbLineBearingTo(downWindParallelMinus));
 
@@ -1320,7 +1320,7 @@ public class SAROperation {
                 data.setD(internalC);
                 data.setC(internalD);
             } else {
-                System.out.println("is already inside");
+//                System.out.println("is already inside");
             }
             // Modify C and D
         }
@@ -1636,12 +1636,12 @@ public class SAROperation {
             SARWeatherData weatherObject = weatherPoints.get(i);
             double validFor = weatherPointsValidFor.get(i);
 
-            System.out.println("Valid for : " + validFor);
+//            System.out.println("Valid for : " + validFor);
 
             double currentTWC = weatherObject.getTWCknots() * validFor;
 
-            System.out.println("Current TWC: " + currentTWC);
-            System.out.println("Heading TWC: " + weatherObject.getLWHeading());
+//            System.out.println("Current TWC: " + currentTWC);
+//            System.out.println("Heading TWC: " + weatherObject.getLWHeading());
 
             double leewayspeed = searchObjectValue(data.getSearchObject(), weatherObject.getLWknots());
             double leeway = leewayspeed * validFor;
@@ -1659,8 +1659,8 @@ public class SAROperation {
 
             currentPositions.add(currentPos);
 
-            System.out.println("Current is: " + currentPos.getLatitude());
-            System.out.println("Current is: " + currentPos.getLongitude());
+//            System.out.println("Current is: " + currentPos.getLatitude());
+//            System.out.println("Current is: " + currentPos.getLongitude());
 
             Position windPos = Calculator.findPosition(currentPos, weatherObject.getDownWind(), Converter.nmToMeters(leeway));
 
@@ -1748,7 +1748,7 @@ public class SAROperation {
 
         data.setRadius(radius);
 
-        System.out.println("Radius is: " + radius);
+//        System.out.println("Radius is: " + radius);
 
         findRapidResponseBox(datumPosition, radius, data);
 
@@ -1783,22 +1783,22 @@ public class SAROperation {
         Position D = Calculator.findPosition(bottomCenter, Calculator.reverseDirection(horizontalDirection),
                 Converter.nmToMeters(radius));
 
-        System.out.println("Final box parameters:");
-        System.out.println("A: " + A.getLatitude());
-        System.out.println("A: " + A.getLongitude());
+//        System.out.println("Final box parameters:");
+//        System.out.println("A: " + A.getLatitude());
+//        System.out.println("A: " + A.getLongitude());
+//
+//        System.out.println("B: " + B.getLatitude());
+//        System.out.println("B: " + B.getLongitude());
+//
+//        System.out.println("C: " + C.getLatitude());
+//        System.out.println("C: " + C.getLongitude());
+//
+//        System.out.println("D: " + D.getLatitude());
+//        System.out.println("D: " + D.getLongitude());
 
-        System.out.println("B: " + B.getLatitude());
-        System.out.println("B: " + B.getLongitude());
+//        double area = radius * 2 * radius * 2;
 
-        System.out.println("C: " + C.getLatitude());
-        System.out.println("C: " + C.getLongitude());
-
-        System.out.println("D: " + D.getLatitude());
-        System.out.println("D: " + D.getLongitude());
-
-        double area = radius * 2 * radius * 2;
-
-        System.out.println("Area in nm2 is: " + area);
+//        System.out.println("Area in nm2 is: " + area);
 
         // Effort Allocation /// wait
 
@@ -1834,9 +1834,9 @@ public class SAROperation {
             double groundSpeed = effortAllocationData.getGroundSpeed();
             int timeSearching = effortAllocationData.getSearchTime();
 
-            System.out.println("Track Spacing is: " + trackSpacing);
-            System.out.println("Ground speed is: " + groundSpeed);
-            System.out.println("Time searching is: " + timeSearching);
+//            System.out.println("Track Spacing is: " + trackSpacing);
+//            System.out.println("Ground speed is: " + groundSpeed);
+//            System.out.println("Time searching is: " + timeSearching);
 
             double areaSize = trackSpacing * groundSpeed * timeSearching;
 

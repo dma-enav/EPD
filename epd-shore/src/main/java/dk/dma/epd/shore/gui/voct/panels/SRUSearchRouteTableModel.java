@@ -74,8 +74,9 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(voctManager.getSarData().getEffortAllocationAsArray()[rowIndex].getMmsi());
         EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationAsArray()[rowIndex];
+        SRU sru = sruManager.getSRUs().get(effortAllocationData.getMmsi());
+        
         switch (columnIndex) {
         case 0:
             return Formatter.formatString(sru.getName());

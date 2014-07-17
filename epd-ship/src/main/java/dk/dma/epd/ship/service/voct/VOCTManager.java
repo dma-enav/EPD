@@ -187,6 +187,8 @@ public class VOCTManager extends VOCTManagerCommon {
         EPDShip.getInstance().getRouteManager().addRoute(searchRoute);
 
         notifyListeners(VOCTUpdateEvent.SEARCH_PATTERN_GENERATED);
+
+        saveToFile();
     }
 
     @Override
@@ -321,8 +323,6 @@ public class VOCTManager extends VOCTManagerCommon {
 
             notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
 
-            // Force start
-            startVOCTBroadcast();
         } else {
             voctHandler.sendVOCTReply(VoctMsgStatus.REJECTED, message.getId(), "Rejected", type);
         }
@@ -346,13 +346,6 @@ public class VOCTManager extends VOCTManagerCommon {
             SARInvitationRequest sarInviteDialog = new SARInvitationRequest(this, message);
             sarInviteDialog.setVisible(true);
         }
-
-    }
-
-    public void startVOCTBroadcast() {
-        // voctBroadcastService = new VOCTBroadcastService(EPDShip.getInstance().getEnavServiceHandler(),
-        // EPDShip.getInstance().getRouteManager(),
-        // EPDShip.getInstance().getPntHandler(), this);
 
     }
 

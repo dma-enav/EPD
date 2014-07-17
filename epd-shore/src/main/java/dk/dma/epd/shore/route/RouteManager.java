@@ -26,12 +26,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
-
+import dk.dma.epd.shore.EPDShore;
 
 /**
-* Manager for handling a collection of routes and active route
-*/
+ * Manager for handling a collection of routes and active route
+ */
 public class RouteManager extends RouteManagerCommon {
 
     private static final long serialVersionUID = -8815260482774695988L;
@@ -39,8 +40,8 @@ public class RouteManager extends RouteManagerCommon {
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     /**
-* Constructor
-*/
+     * Constructor
+     */
     public RouteManager() {
         super();
     }
@@ -48,12 +49,12 @@ public class RouteManager extends RouteManagerCommon {
     /**************************************/
     /** Life cycle operations **/
     /**************************************/
-    
+
     /**
-* Loads and instantiates a {@code RouteManager} from the
-* default routes file.
-* @return the new route manager
-*/
+     * Loads and instantiates a {@code RouteManager} from the default routes file.
+     * 
+     * @return the new route manager
+     */
     public static RouteManager loadRouteManager() {
         RouteManager manager = new RouteManager();
         try {
@@ -76,8 +77,8 @@ public class RouteManager extends RouteManagerCommon {
     }
 
     /**
-* {@inheritDoc}
-*/
+     * {@inheritDoc}
+     */
     @Override
     public void saveToFile() {
         synchronized (routes) {
@@ -92,5 +93,12 @@ public class RouteManager extends RouteManagerCommon {
                 LOG.error("Failed to save routes file: " + e.getMessage());
             }
         }
+    }
+
+    @Override
+    public void notifyListeners(RoutesUpdateEvent e) {
+        super.notifyListeners(e);
+
+        EPDShore.getInstance().getVoctManager().saveToFile();
     }
 }

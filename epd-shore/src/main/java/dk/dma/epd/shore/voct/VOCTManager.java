@@ -21,7 +21,6 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.JDialog;
@@ -137,7 +136,6 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
         if (loadSarFromSerialize) {
 
             if (sarData.getEffortAllocationData().size() > 0) {
-
                 notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
                 notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
             }
@@ -169,23 +167,51 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     protected void checkSRU(SARData sarData) {
         // Check SRU data
 
-        Iterator it = sarData.getEffortAllocationData().entrySet().iterator();
-        Map.Entry entry = (Map.Entry) it.next();
-        while (it.hasNext()) {
+        // Iterator it = sarData.getEffortAllocationData().entrySet().iterator();
+        // Map.Entry entry = (Map.Entry) it.next();
+        // while (it.hasNext()) {
+        //
+        // long key = (long) entry.getKey();
+        // entry = (Map.Entry) it.next();
+        // if (!sruManager.getsRUCommunication().containsKey(key)) {
+        //
+        // sarData.getEffortAllocationData().remove(key);
+        // }
+        //
+        // }
 
-            long key = (long) entry.getKey();
-            entry = (Map.Entry) it.next();
-            if (!sruManager.getsRUCommunication().containsKey(key)) {
+        List<Long> effortAllocationsToBeRemoved = new ArrayList<>();
 
-                sarData.getEffortAllocationData().remove(key);
+        Iterator<Entry<Long, EffortAllocationData>> iter = sarData.getEffortAllocationData().entrySet().iterator();
+        while (iter.hasNext()) {
+            Entry<Long, EffortAllocationData> entry = iter.next();
+
+            if (!sruManager.getSRUs().containsKey(entry.getKey())) {
+                effortAllocationsToBeRemoved.add(entry.getKey());
+            } else {
+                if (entry.getValue().getSearchPatternRoute() != null) {
+
+                    SearchPatternRoute searchPattern = entry.getValue().getSearchPatternRoute();
+                    for (int i = 0; i < routeManager.getRoutes().size(); i++) {
+                        if (routeManager.getRoute(i).toString().equals(searchPattern.toString())) {
+                            routeManager.getRoutes().set(i, searchPattern);
+                            break;
+                        }
+                    }
+                }
             }
-
         }
 
+        for (int i = 0; i < effortAllocationsToBeRemoved.size(); i++) {
+            sarData.getEffortAllocationData().remove(effortAllocationsToBeRemoved.get(i));
+        }
+
+        //
         // for (Entry<Long, EffortAllocationData> entry : sarData.getEffortAllocationData().entrySet()) {
         //
         // if (!sruManager.getsRUCommunication().containsKey(entry.getKey())) {
         // sarData.getEffortAllocationData().remove(entry.getKey());
+        // }
         // }
         // // if (EPDShore.)
         //
@@ -253,6 +279,8 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
         EPDShore.getInstance().getRouteManager().addRoute(searchRoute);
 
         notifyListeners(VOCTUpdateEvent.SEARCH_PATTERN_GENERATED);
+
+        saveToFile();
     }
 
     @Override
