@@ -118,11 +118,11 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
         this.setVisible(true);
     }
 
-    public void removeEffectiveArea(long mmsi, int id) {
+    public void removeEffectiveArea(long mmsi) {
 
     }
 
-    public void drawEffectiveArea(long mmsi, int id) {
+    public void drawEffectiveArea(long mmsi) {
         System.out.println("Drawing effective Area on tracking layer");
         // effectiveAreas
 
@@ -133,16 +133,16 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
             effectiveAreas.remove(mmsi);
         }
 
-        if (voctManager.getSarData().getEffortAllocationData().size() > id) {
+        if (voctManager.getSarData().getEffortAllocationData().containsKey(mmsi)) {
 
-            EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(id);
+            EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(mmsi);
 
             System.out.println("The effort allocation is : " + effortAllocationData);
-            System.out.println(sruManager.getSRUs(id).getName());
+            System.out.println(sruManager.getSRUs(mmsi).getName());
 
             EffortAllocationAreaGraphics area = new EffortAllocationAreaGraphics(effortAllocationData.getEffectiveAreaA(),
                     effortAllocationData.getEffectiveAreaB(), effortAllocationData.getEffectiveAreaC(),
-                    effortAllocationData.getEffectiveAreaD(), id, sruManager.getSRUs(id).getName());
+                    effortAllocationData.getEffectiveAreaD(), 0, sruManager.getSRUs(mmsi).getName());
 
             effectiveAreas.put(mmsi, area);
 

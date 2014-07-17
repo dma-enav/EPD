@@ -52,15 +52,17 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
 
     public void updateCalculateTable() {
         tableContent.clear();
-        for (int i = 0; i < sruManager.getSRUs().size(); i++) {
+        for (int i = 0; i < sruManager.getSRUsAsList().length; i++) {
 
+            SRU sru = sruManager.getSRUsAsList()[i];
+            
             boolean isSend = false;
             boolean isSar = false;
             boolean isAO = false;
             boolean isRoute = false;
 
             // Can we send it?
-            if (sruManager.getSRUs().get(i).getStatus() == sru_status.AVAILABLE) {
+            if (sru.getStatus() == sru_status.AVAILABLE) {
                 // || sruManager.getSRUs().get(i).getStatus() == sru_status.AVAILABLE
                 // || sruManager.getSRUs().get(i).getStatus() == sru_status.DECLINED
                 // || sruManager.getSRUs().get(i).getStatus() == sru_status.INVITED) {
@@ -73,11 +75,11 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
             isSar = true;
 
             // Do we have effort allocation data for the SRU
-            if (voctManager.getSarData().getEffortAllocationData().size() > i) {
+            if (voctManager.getSarData().getEffortAllocationData().containsKey(sru.getMmsi())) {
                 isAO = true;
 
                 // We have effort allocation data, do we have a route?
-                if (voctManager.getSarData().getEffortAllocationData().get(i).getSearchPatternRoute() != null) {
+                if (voctManager.getSarData().getEffortAllocationData().get(sru.getMmsi()).getSearchPatternRoute() != null) {
                     isRoute = true;
                 }
 
@@ -112,7 +114,7 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(rowIndex);
+        SRU sru = sruManager.getSRUsAsList()[rowIndex];
 
         // System.out.println("updating table! " + sru.getStatus());
 
@@ -129,7 +131,7 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
             if (sru.getCloudStatus() != CloudMessageStatus.NOT_SENT) {
                 return sru.getCloudStatus().getTitle();
             }
-            
+
             return "Not sent";
         case 4:
             return tableContent.get(rowIndex).isSarData();
@@ -146,7 +148,7 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         System.out.println("Set value at, aValue: " + aValue + " rowIndex: " + rowIndex + " columIndex: " + columnIndex);
-        SRU sru = sruManager.getSRUs().get(rowIndex);
+        SRU sru = sruManager.getSRUsAsList()[rowIndex];
         switch (columnIndex) {
         case 0:
             // Send - can we change the status
@@ -193,7 +195,7 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(rowIndex);
+        SRU sru = sruManager.getSRUsAsList()[rowIndex];
         switch (columnIndex) {
         case 0:
             // Can we toggle send or not

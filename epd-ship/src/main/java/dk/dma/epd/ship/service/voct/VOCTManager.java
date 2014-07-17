@@ -107,11 +107,17 @@ public class VOCTManager extends VOCTManagerCommon {
         if (loadSarFromSerialize) {
             listener.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
 
-            if (sarData.getEffortAllocationData().size() > 0) {
+            if (sarData != null) {
+                if (sarData.getEffortAllocationData() != null) {
 
-                listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
-                listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
+                    if (sarData.getEffortAllocationData().size() > 0) {
+
+                        listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
+                        listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
+                    }
+                }
             }
+
         }
     }
 
@@ -323,6 +329,7 @@ public class VOCTManager extends VOCTManagerCommon {
 
             notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
 
+            saveToFile();
         } else {
             voctHandler.sendVOCTReply(VoctMsgStatus.REJECTED, message.getId(), "Rejected", type);
         }

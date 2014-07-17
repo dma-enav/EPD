@@ -55,10 +55,10 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
         TOP, BOTTOM, LEFT, RIGHT
     }
 
-    public EffortAllocationAreaGraphics(Position A, Position B, Position C, Position D, long id, String labelName) {
+    public EffortAllocationAreaGraphics(Position A, Position B, Position C, Position D, long mmsi, String labelName) {
         super();
 
-        this.id = id;
+        this.id = mmsi;
 
         verticalBearing = Calculator.bearing(A, C, Heading.RL);
         horizontalBearing = Calculator.bearing(A, B, Heading.RL);
@@ -682,6 +682,4 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
         return id;
     }
 
-    
-    
 }

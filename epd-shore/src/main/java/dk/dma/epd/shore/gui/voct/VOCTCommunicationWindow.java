@@ -320,11 +320,11 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
                     try {
                         voctManager.updateEffectiveAreaLocation();
 
-                        sruManager.setSRUStatus(i, sru_status.INVITED);
+                        sruManager.setSRUStatus(sruList[i].getMmsi(), sru_status.INVITED);
 
                         EPDShore.getInstance()
                                 .getVoctHandler()
-                                .sendVOCTMessage(sruList[i].getMmsi(), voctManager.getSarData(), "OSC", "Please Join", i,
+                                .sendVOCTMessage(sruList[i].getMmsi(), voctManager.getSarData(), "OSC", "Please Join",
                                         (boolean) sruTable.getValueAt(i, 5), (boolean) sruTable.getValueAt(i, 6));
 
                     } catch (InterruptedException e) {
