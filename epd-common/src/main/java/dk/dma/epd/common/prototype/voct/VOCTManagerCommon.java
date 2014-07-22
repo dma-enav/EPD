@@ -19,7 +19,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.joda.time.DateTime;
@@ -36,9 +38,11 @@ import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.util.Util;
 
 /**
@@ -146,6 +150,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
      * User has clicked the Cancel button, abort operation and reset
      */
     public void cancelSarOperation() {
+        deleteAllRoutes();
         sarOperation = null;
         hasSar = false;
 
@@ -155,13 +160,31 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         new File(VOCT_FILE).delete();
     }
 
+    private void deleteAllRoutes() {
+        Iterator<Entry<Long, EffortAllocationData>> iter = sarData.getEffortAllocationData().entrySet().iterator();
+        while (iter.hasNext()) {
+            Entry<Long, EffortAllocationData> entry = iter.next();
+            if (entry.getValue().getSearchPatternRoute() != null) {
+
+                SearchPatternRoute searchPattern = entry.getValue().getSearchPatternRoute();
+                for (int i = 0; i < EPD.getInstance().getRouteManager().getRoutes().size(); i++) {
+                    if (EPD.getInstance().getRouteManager().getRoute(i).toString().equals(searchPattern.toString())) {
+                        EPD.getInstance().getRouteManager().getRoutes().remove(i);
+                        break;
+                    }
+                }
+
+            }
+
+        }
+    }
+
     public void displaySar() {
         saveToFile();
         // This is where we display SAR
 
         updateLayers();
 
-        System.out.println("This display sar?");
         notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
 
     }

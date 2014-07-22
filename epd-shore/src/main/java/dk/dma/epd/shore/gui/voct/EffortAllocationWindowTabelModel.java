@@ -54,7 +54,8 @@ public class EffortAllocationWindowTabelModel extends AbstractTableModel {
 
         calculate.clear();
         for (int i = 0; i < sruManager.getSRUsAsList().length; i++) {
-            if (voctManager.getSarData().getEffortAllocationData().get(sruManager.getSRUsAsList()[i]) != null) {
+            if (voctManager.getSarData().getEffortAllocationData().get(sruManager.getSRUsAsList()[i].getMmsi()) != null) {
+
                 calculate.add(false);
             } else {
                 calculate.add(true);
