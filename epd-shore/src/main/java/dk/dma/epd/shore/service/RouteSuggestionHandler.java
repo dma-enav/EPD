@@ -14,8 +14,13 @@
  */
 package dk.dma.epd.shore.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -42,35 +47,34 @@ import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
  */
 public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionHandler.class);  
+    private static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionHandler.class);
 
     private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionServiceList = new ArrayList<>();
-    
+
     /**
      * Constructor
      */
     public RouteSuggestionHandler() {
         super();
-        
+
         // Schedule a refresh of the strategic route acknowledge services approximately every minute
         scheduleWithFixedDelayWhenConnected(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 fetchRouteSuggestionServices();
-            }}, 5, 62, TimeUnit.SECONDS);        
+            }
+        }, 5, 62, TimeUnit.SECONDS);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void cloudConnected(MaritimeCloudClient connection) {
         try {
-            getMaritimeCloudConnection().serviceRegister(
-                    RouteSuggestionService.INIT,
+            getMaritimeCloudConnection().serviceRegister(RouteSuggestionService.INIT,
                     new InvocationCallback<RouteSuggestionMessage, RouteSuggestionReply>() {
-                        public void process(
-                                RouteSuggestionMessage message,
-                                Context<RouteSuggestionReply> context) {
+                        public void process(RouteSuggestionMessage message, Context<RouteSuggestionReply> context) {
 
                             // The cloud status is transient, so this ought to be unnecessary
                             message.setCloudMessageStatus(null);
@@ -78,7 +82,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
                             LOG.info("Shore received a suggeset route reply");
                             routeSuggestionReplyReceived(message);
 
-                            // Acknowledge that the message has been handled 
+                            // Acknowledge that the message has been handled
                             context.complete(new RouteSuggestionReply(message.getId()));
                         }
                     }).awaitRegistered(4, TimeUnit.SECONDS);
@@ -87,17 +91,17 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
             LOG.error("Error hooking up services", e);
         }
 
-        
         // Refresh the service list
         fetchRouteSuggestionServices();
     }
-    
+
     /**
      * Refreshes the list of route suggestion services
      */
     public void fetchRouteSuggestionServices() {
         try {
-            routeSuggestionServiceList = getMaritimeCloudConnection().serviceLocate(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get();
+            routeSuggestionServiceList = getMaritimeCloudConnection().serviceLocate(RouteSuggestionService.INIT)
+                    .nearest(Integer.MAX_VALUE).get();
         } catch (Exception e) {
             LOG.error("Failed looking up route suggestion services", e.getMessage());
         }
@@ -105,6 +109,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
     /**
      * Returns the route suggestion service list
+     * 
      * @return the route suggestion service list
      */
     public List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> getRouteSuggestionServiceList() {
@@ -114,22 +119,26 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
     /**
      * Checks for a ship with the given mmsi in the route suggestion service list
      * 
-     * @param mmsi the mmsi of the ship to search for
+     * @param mmsi
+     *            the mmsi of the ship to search for
      * @return if one such ship is available
      */
     public boolean shipAvailableForRouteSuggestion(long mmsi) {
-        return MaritimeCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, (int)mmsi) != null;
+        return MaritimeCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, (int) mmsi) != null;
     }
 
     /**
      * Sends a route suggestion to the given ship
      * 
-     * @param mmsi the mmsi of the ship
-     * @param route the route
-     * @param message an additional message
+     * @param mmsi
+     *            the mmsi of the ship
+     * @param route
+     *            the route
+     * @param message
+     *            an additional message
      */
-    public void sendRouteSuggestion(long mmsi, Route route, String message) throws InterruptedException,
-            ExecutionException, TimeoutException {
+    public void sendRouteSuggestion(long mmsi, Route route, String message) throws InterruptedException, ExecutionException,
+            TimeoutException {
 
         // Create a new message
         RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(route, message, RouteSuggestionStatus.PENDING);
@@ -142,17 +151,45 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
         // Send the message over the cloud
         routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
-        if (sendMaritimeCloudMessage(routeSuggestionServiceList, new MmsiId((int)mmsi), routeMessage, this)) {
+        if (sendMaritimeCloudMessage(routeSuggestionServiceList, new MmsiId((int) mmsi), routeMessage, this)) {
             routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
         }
-        
+
         // Update listeners
         notifyRouteSuggestionListeners();
     }
 
+    @SuppressWarnings("unchecked")
+    public static RouteSuggestionHandler loadRouteSuggestionHandler() {
+
+        // Where we load or serialize old VOCTS
+        RouteSuggestionHandler routeSuggestionHandler = new RouteSuggestionHandler();
+        try (FileInputStream fileIn = new FileInputStream(ROUTE_SUGGESTION_PATH);
+                ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
+
+            // routeSuggestions =);
+            routeSuggestionHandler.setRouteSuggestions((Map<Long, RouteSuggestionData>) objectIn.readObject());
+            routeSuggestionHandler.notifyRouteSuggestionListeners();
+            // voctManager.setLoadSarFromSerialize(true);
+            // voctManager.initializeFromSerializedFile(sarDataLoaded);
+            //
+        } catch (FileNotFoundException e) {
+            // Not an error
+        } catch (Exception e) {
+            LOG.error("Failed to load route suggestion file: " + e.getMessage());
+            // Delete possible corrupted or old file
+            new File(ROUTE_SUGGESTION_PATH).delete();
+        }
+
+        return routeSuggestionHandler;
+
+    }
+
     /**
      * Called when a route suggestion reply has been received
-     * @param message the reply
+     * 
+     * @param message
+     *            the reply
      */
     private void routeSuggestionReplyReceived(RouteSuggestionMessage message) {
 
@@ -167,7 +204,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
                 routeData.setReply(message);
                 routeData.setAcknowleged(false);
                 notifyRouteSuggestionListeners();
-            }            
+            }
         }
     }
 }

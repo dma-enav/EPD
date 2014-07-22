@@ -666,7 +666,6 @@ public class SRUManagerDialog extends InternalComponentFrame implements ActionLi
         }
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
-            System.out.println("aishandler found");
         }
     }
 

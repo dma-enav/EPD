@@ -14,6 +14,11 @@
  */
 package dk.dma.epd.ship.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.ObjectInputStream;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import net.maritimecloud.core.id.MaritimeId;
@@ -119,7 +124,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
         // Check that the reply status is valid
         if (replyStatus != RouteSuggestionStatus.ACCEPTED && replyStatus != RouteSuggestionStatus.REJECTED
-                && replyStatus != RouteSuggestionStatus.NOTED) {
+                && replyStatus != RouteSuggestionStatus.WAIT) {
             LOG.error("Invalid reply status " + replyStatus);
             throw new IllegalArgumentException("Invalid reply status " + replyStatus);
         }
@@ -158,5 +163,31 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         } catch (Exception e) {
             LOG.error("Failed to reply", e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static RouteSuggestionHandler loadRouteSuggestionHandler() {
+
+        // Where we load or serialize old VOCTS
+        RouteSuggestionHandler routeSuggestionHandler = new RouteSuggestionHandler();
+        try (FileInputStream fileIn = new FileInputStream(ROUTE_SUGGESTION_PATH);
+                ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
+
+            // routeSuggestions =);
+            routeSuggestionHandler.setRouteSuggestions((Map<Long, RouteSuggestionData>) objectIn.readObject());
+            routeSuggestionHandler.notifyRouteSuggestionListeners();
+            // voctManager.setLoadSarFromSerialize(true);
+            // voctManager.initializeFromSerializedFile(sarDataLoaded);
+            //
+        } catch (FileNotFoundException e) {
+            // Not an error
+        } catch (Exception e) {
+            LOG.error("Failed to load route suggestion file: " + e.getMessage());
+            // Delete possible corrupted or old file
+            new File(ROUTE_SUGGESTION_PATH).delete();
+        }
+
+        return routeSuggestionHandler;
+
     }
 }

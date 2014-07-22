@@ -123,10 +123,11 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private VOCTManager voctManager;
     private DynamicPredictor dynamicPredictor;
     private DynamicPredictorSentenceParser dynamicPredictorParser;
-    
+
     // Maritime Cloud services
     private IntendedRouteHandler intendedRouteHandler;
-//    private VoctHandler voctHandler;
+
+    // private VoctHandler voctHandler;
 
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
@@ -217,11 +218,11 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // Start dynamic predictor handler
         dynamicPredictorHandler = new DynamicPredictorHandler();
         mapHandler.add(dynamicPredictorHandler);
-        
+
         // Start dynamic predictor sensor sentence parser
         dynamicPredictorParser = new DynamicPredictorSentenceParser();
         mapHandler.add(dynamicPredictorParser);
-        
+
         // Maybe start dynamic prediction generator
         if (settings.getSensorSettings().isStartPredictionGenerator()) {
             dynamicPredictor = new DynamicPredictor();
@@ -265,7 +266,8 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         mapHandler.add(intendedRouteHandler);
 
         // Create the route suggestion handler
-        routeSuggestionHandler = new RouteSuggestionHandler();
+        // routeSuggestionHandler = new RouteSuggestionHandler();
+        routeSuggestionHandler = RouteSuggestionHandler.loadRouteSuggestionHandler();
         mapHandler.add(routeSuggestionHandler);
 
         // Create a chat service handler

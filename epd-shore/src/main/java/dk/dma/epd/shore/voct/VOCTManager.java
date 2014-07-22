@@ -231,7 +231,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
             SARData sarDataLoaded = (SARData) objectIn.readObject();
             setLoadSarFromSerialize(true);
             initializeFromSerializedFile(sarDataLoaded);
-            System.out.println("Loaded");
+            // System.out.println("Loaded");
 
         } catch (FileNotFoundException e) {
             // Not an error
@@ -267,11 +267,11 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
 
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
-            System.out.println("Previous route found");
+//            System.out.println("Previous route found");
             int routeIndex = EPDShore.getInstance().getRouteManager()
                     .getRouteIndex(sarData.getEffortAllocationData().get(id).getSearchPatternRoute());
 
-            System.out.println("Route index of old is " + routeIndex);
+//            System.out.println("Route index of old is " + routeIndex);
 
             EPDShore.getInstance().getRouteManager().removeRoute(routeIndex);
         }
@@ -288,7 +288,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     @Override
     public void updateEffectiveAreaLocation() {
 
-        System.out.println("Update effective area location and is it null sar data " + sarData);
+        // System.out.println("Update effective area location and is it null sar data " + sarData);
 
         voctLayers.get(0).updateEffectiveAreaLocation(sarData);
     }
@@ -322,7 +322,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     }
 
     public void toggleSRUVisibility(int id, boolean visible) {
-        System.out.println("Toggle visibility voctmanager");
+        // System.out.println("Toggle visibility voctmanager");
         for (int i = 0; i < voctLayers.size(); i++) {
             voctLayers.get(i).toggleEffectiveAreaVisibility(id, visible);
         }
@@ -370,7 +370,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
 
                 if (!routeManager.getRoutes().contains(effortAllocationData.getSearchPatternRoute())) {
 
-                    System.out.println("Route removed");
+//                    System.out.println("Route removed");
 
                     effortAllocationData.setSearchPatternRoute(null);
                 }
@@ -425,8 +425,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     public void setSarData(SARData sarData) {
         super.setSarData(sarData);
 
-        
-        //Reset all SRU status
+        // Reset all SRU status
         for (Entry<Long, SRU> entry : sruManager.getSRUs().entrySet()) {
             SRU sru = entry.getValue();
 

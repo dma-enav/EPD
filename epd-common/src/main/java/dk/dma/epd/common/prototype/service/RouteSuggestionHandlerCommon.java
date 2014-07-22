@@ -14,6 +14,9 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -21,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
@@ -32,13 +38,14 @@ import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessag
 /**
  * Common functionality for route suggestion e-Nav services.
  */
-public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon 
-    implements ICloudMessageListener<RouteSuggestionMessage, RouteSuggestionReply> {
+public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon implements
+        ICloudMessageListener<RouteSuggestionMessage, RouteSuggestionReply> {
 
     protected Map<Long, RouteSuggestionData> routeSuggestions = new ConcurrentHashMap<>();
     protected Set<RouteSuggestionListener> routeExchangeListener = new HashSet<RouteSuggestionListener>();
-    
-    
+    protected static final String ROUTE_SUGGESTION_PATH = EPD.getInstance().getHomePath().resolve(".routesuggestions").toString();
+    protected static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionHandlerCommon.class);
+
     /**
      * Constructor
      */
@@ -48,14 +55,16 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon
 
     /**
      * Returns the route suggestion data
+     * 
      * @return the route suggestion data
      */
     public Map<Long, RouteSuggestionData> getRouteSuggestions() {
         return routeSuggestions;
     }
-    
+
     /**
      * Returns the route suggestion data sorted by date
+     * 
      * @return the route suggestion data
      */
     public List<RouteSuggestionData> getSortedRouteSuggestions() {
@@ -63,21 +72,23 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon
         Collections.sort(list);
         return list;
     }
-    
+
     /**
      * Returns the RouteSuggestionData for the given transaction id
      * 
-     * @param transactionId the transaction id
+     * @param transactionId
+     *            the transaction id
      * @return the RouteSuggestionData
      */
     public RouteSuggestionData getRouteSuggestion(Long transactionId) {
         return routeSuggestions.get(transactionId);
     }
-    
+
     /**
      * Flags that the route suggestion ith the given id has been acknowledged
      * 
-     * @param id the id of the route suggestion
+     * @param id
+     *            the id of the route suggestion
      */
     public synchronized void setRouteSuggestionAcknowledged(Long id) {
         if (routeSuggestions.containsKey(id)) {
@@ -89,7 +100,8 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon
     /**
      * Removes the route suggestion with the given id
      * 
-     * @param id the id of the route suggestion
+     * @param id
+     *            the id of the route suggestion
      */
     public synchronized void removeSuggestion(long id) {
         routeSuggestions.remove(id);
@@ -98,6 +110,7 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon
 
     /**
      * Returns the number of route suggestions that have not been acknowledged
+     * 
      * @return the number of route suggestions that have not been acknowledged
      */
     public synchronized int getUnacknowledgedRouteSuggestions() {
@@ -111,11 +124,11 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon
         return counter;
     }
 
-    
     /**
      * Add a listener to the route suggestion service
      * 
-     * @param listener the listener to add
+     * @param listener
+     *            the listener to add
      */
     public synchronized void addRouteSuggestionListener(RouteSuggestionListener listener) {
         routeExchangeListener.add(listener);
@@ -124,7 +137,8 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon
     /**
      * Removes a listener from the route suggestion service
      * 
-     * @param listener the listener to remove
+     * @param listener
+     *            the listener to remove
      */
     public synchronized void removeRouteSuggestionListener(RouteSuggestionListener listener) {
         routeExchangeListener.remove(listener);
@@ -133,16 +147,34 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon
     /**
      * Broadcast a route update to all listeners
      */
-    protected synchronized void notifyRouteSuggestionListeners() {
+    public synchronized void notifyRouteSuggestionListeners() {
 
         for (RouteSuggestionListener listener : routeExchangeListener) {
             listener.routeUpdate();
         }
+        saveToFile();
+    }
+
+    /**
+     * @param routeSuggestions
+     *            the routeSuggestions to set
+     */
+    public void setRouteSuggestions(Map<Long, RouteSuggestionData> routeSuggestions) {
+        this.routeSuggestions = routeSuggestions;
+    }
+
+    public synchronized void saveToFile() {
+        try (FileOutputStream fileOut = new FileOutputStream(ROUTE_SUGGESTION_PATH);
+                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+            objectOut.writeObject(routeSuggestions);
+        } catch (IOException e) {
+            LOG.error("Failed to save Route Suggestion data: " + e.getMessage());
+        }
     }
 
     /****************************************/
-    /** ICloudMessageStatus methods        **/
-    /****************************************/    
+    /** ICloudMessageStatus methods **/
+    /****************************************/
 
     /**
      * {@inheritDoc}
@@ -150,8 +182,7 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon
     @Override
     public void messageReceivedByCloud(RouteSuggestionMessage message) {
         message.updateCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLOUD);
-        EPD.getInstance().getNotificationCenter()
-            .checkRefreshSelection(NotificationType.TACTICAL_ROUTE, message.getId());
+        EPD.getInstance().getNotificationCenter().checkRefreshSelection(NotificationType.TACTICAL_ROUTE, message.getId());
     }
 
     /**
@@ -160,17 +191,15 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon
     @Override
     public void messageHandled(RouteSuggestionMessage message, RouteSuggestionReply reply) {
         message.updateCloudMessageStatus(CloudMessageStatus.HANDLED_BY_CLIENT);
-        EPD.getInstance().getNotificationCenter()
-            .checkRefreshSelection(NotificationType.TACTICAL_ROUTE, message.getId());
+        EPD.getInstance().getNotificationCenter().checkRefreshSelection(NotificationType.TACTICAL_ROUTE, message.getId());
     }
-    
+
     /****************************************/
-    /** Helper classes                     **/
-    /****************************************/    
-    
+    /** Helper classes **/
+    /****************************************/
+
     /**
-     * Interface that should be implemented by client wishing to 
-     * be notified about route changes
+     * Interface that should be implemented by client wishing to be notified about route changes
      */
     public interface RouteSuggestionListener {
 
@@ -180,4 +209,5 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon
         void routeUpdate();
 
     }
+
 }
