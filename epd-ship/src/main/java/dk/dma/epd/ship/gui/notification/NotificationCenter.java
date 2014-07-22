@@ -25,50 +25,53 @@ import dk.dma.epd.common.prototype.notification.Notification;
 public class NotificationCenter extends NotificationCenterCommon {
 
     private static final long serialVersionUID = 1L;
-    
+
     private RouteSuggestionNotificationPanel routeSuggestionPanel;
     private StrategicRouteNotificationPanel strategicRoutePanel;
-    
+
     /**
      * Constructor
      * 
-     * @param window the parent window
+     * @param window
+     *            the parent window
      */
     public NotificationCenter(Window window) {
         super(window);
+
     }
-    
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     protected void registerPanels() {
         super.registerPanels();
-        
+
         // Add the ship specific panels
         routeSuggestionPanel = new RouteSuggestionNotificationPanel(this);
         strategicRoutePanel = new StrategicRouteNotificationPanel(this);
         panels.add(routeSuggestionPanel);
         panels.add(strategicRoutePanel);
-    }    
+
+    }
 
     /**
      * Adds a notification of the given type.
      * 
-     * @param notification the notification to add
+     * @param notification
+     *            the notification to add
      */
     @Override
     public void addNotification(Notification<?, ?> notification) {
         if (notification instanceof RouteSuggestionNotification) {
-            routeSuggestionPanel.addNotification((RouteSuggestionNotification)notification);
+            routeSuggestionPanel.addNotification((RouteSuggestionNotification) notification);
         } else if (notification instanceof StrategicRouteNotification) {
-            strategicRoutePanel.addNotification((StrategicRouteNotification)notification);
+            strategicRoutePanel.addNotification((StrategicRouteNotification) notification);
         } else {
             super.addNotification(notification);
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -84,9 +87,10 @@ public class NotificationCenter extends NotificationCenterCommon {
     public void routeUpdate() {
         routeSuggestionPanel.refreshNotifications();
     }
-    
+
     /**
      * Returns a reference to the strategic route panel
+     * 
      * @return a reference to the strategic route panel
      */
     public StrategicRouteNotificationPanel getStrategicRoutePanel() {

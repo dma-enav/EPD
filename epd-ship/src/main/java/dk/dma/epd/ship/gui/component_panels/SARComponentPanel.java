@@ -29,8 +29,7 @@ import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.gui.panels.SARPanel;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
-public class SARComponentPanel extends OMComponentPanel implements
- Runnable, ProjectionListener, IMapCoordListener,
+public class SARComponentPanel extends OMComponentPanel implements Runnable, ProjectionListener, IMapCoordListener,
         VOCTUpdateListener, DockableComponentPanel {
 
     private static final long serialVersionUID = 1L;
@@ -64,18 +63,14 @@ public class SARComponentPanel extends OMComponentPanel implements
 
     }
 
-
-
     @Override
     public void findAndInit(Object obj) {
-
-   
 
         if (obj instanceof VOCTManager) {
             voctManager = (VOCTManager) obj;
             sarPanel.setVoctManager(voctManager);
             voctManager.addListener(this);
-            
+
         }
     }
 
@@ -89,39 +84,41 @@ public class SARComponentPanel extends OMComponentPanel implements
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
             sarPanel.sarComplete(voctManager.getSarData());
             sarPanel.getBtnEffortAllocation().setEnabled(true);
-//            sarPanel.getBtnGenerateSearchPattern().setEnabled(true);
+            // sarPanel.getBtnGenerateSearchPattern().setEnabled(true);
         }
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {
             sarPanel.effortAllocationComplete(voctManager.getSarData());
         }
         if (e == VOCTUpdateEvent.SEARCH_PATTERN_GENERATED) {
             sarPanel.searchPatternGenerated(voctManager.getSarData());
+            sarPanel.getBtnGenerateSearchPattern().setEnabled(true);
+        }
+        if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED) {
+            sarPanel.getBtnEffortAllocation().setEnabled(true);
         }
 
         if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {
-            
+
             sarPanel.sarComplete(voctManager.getSarData());
             sarPanel.getBtnReopenCalculations().setEnabled(false);
 
-            
             if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
                 sarPanel.effortAllocationComplete(voctManager.getSarData());
                 sarPanel.getBtnEffortAllocation().setEnabled(false);
 
-                if (voctManager.getSarData().getEffortAllocationData().get(0L)
-                        .getSearchPatternRoute() != null) {
+                if (voctManager.getSarData().getEffortAllocationData().get(0L).getSearchPatternRoute() != null) {
 
                     sarPanel.getChckbxShowDynamicPattern().setEnabled(true);
                     sarPanel.getBtnGenerateSearchPattern().setEnabled(false);
-                }else{
+                } else {
                     sarPanel.getChckbxShowDynamicPattern().setEnabled(true);
                     sarPanel.getBtnGenerateSearchPattern().setEnabled(true);
                 }
 
-            }else{
+            } else {
                 sarPanel.getBtnEffortAllocation().setEnabled(true);
                 sarPanel.resetEffortAllocation();
-                
+
             }
 
         }
@@ -130,11 +127,11 @@ public class SARComponentPanel extends OMComponentPanel implements
     @Override
     public void receiveCoord(LatLonPoint llp) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /****************************************/
-    /** DockableComponentPanel methods     **/
+    /** DockableComponentPanel methods **/
     /****************************************/
 
     /**
@@ -144,7 +141,7 @@ public class SARComponentPanel extends OMComponentPanel implements
     public String getDockableComponentName() {
         return "SAR";
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -152,7 +149,7 @@ public class SARComponentPanel extends OMComponentPanel implements
     public boolean includeInDefaultLayout() {
         return false;
     }
-    
+
     /**
      * {@inheritDoc}
      */

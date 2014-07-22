@@ -51,7 +51,7 @@ public class RouteSuggestionService {
         PENDING(Color.YELLOW),
         ACCEPTED(new Color(130, 165, 80)),
         REJECTED(new Color(165, 80, 80)),
-        NOTED(new Color(130, 130, 200));
+        WAIT(new Color(130, 130, 200));
         
         Color color;        
         private RouteSuggestionStatus(Color color) {

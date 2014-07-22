@@ -34,6 +34,7 @@ import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
@@ -46,6 +47,7 @@ import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.layers.voct.VoctLayerCommon;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.VoctHandler;
+import dk.dma.epd.shore.voct.SRU.sru_status;
 
 /**
  * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
@@ -229,7 +231,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
             SARData sarDataLoaded = (SARData) objectIn.readObject();
             setLoadSarFromSerialize(true);
             initializeFromSerializedFile(sarDataLoaded);
-            System.out.println("Loaded");
+            // System.out.println("Loaded");
 
         } catch (FileNotFoundException e) {
             // Not an error
@@ -265,11 +267,11 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
 
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
-            System.out.println("Previous route found");
+//            System.out.println("Previous route found");
             int routeIndex = EPDShore.getInstance().getRouteManager()
                     .getRouteIndex(sarData.getEffortAllocationData().get(id).getSearchPatternRoute());
 
-            System.out.println("Route index of old is " + routeIndex);
+//            System.out.println("Route index of old is " + routeIndex);
 
             EPDShore.getInstance().getRouteManager().removeRoute(routeIndex);
         }
@@ -286,7 +288,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     @Override
     public void updateEffectiveAreaLocation() {
 
-        System.out.println("Update effective area location and is it null sar data " + sarData);
+        // System.out.println("Update effective area location and is it null sar data " + sarData);
 
         voctLayers.get(0).updateEffectiveAreaLocation(sarData);
     }
@@ -320,7 +322,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     }
 
     public void toggleSRUVisibility(int id, boolean visible) {
-        System.out.println("Toggle visibility voctmanager");
+        // System.out.println("Toggle visibility voctmanager");
         for (int i = 0; i < voctLayers.size(); i++) {
             voctLayers.get(i).toggleEffectiveAreaVisibility(id, visible);
         }
@@ -368,7 +370,7 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
 
                 if (!routeManager.getRoutes().contains(effortAllocationData.getSearchPatternRoute())) {
 
-                    System.out.println("Route removed");
+//                    System.out.println("Route removed");
 
                     effortAllocationData.setSearchPatternRoute(null);
                 }
@@ -417,6 +419,21 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
         super.EffortAllocationDataEntered();
 
         checkRoutes();
+    }
+
+    @Override
+    public void setSarData(SARData sarData) {
+        super.setSarData(sarData);
+
+        // Reset all SRU status
+        for (Entry<Long, SRU> entry : sruManager.getSRUs().entrySet()) {
+            SRU sru = entry.getValue();
+
+            sru.setStatus(sru_status.UNAVAILABLE);
+            sru.setCloudStatus(CloudMessageStatus.NOT_SENT);
+
+        }
+
     }
 
     @Override

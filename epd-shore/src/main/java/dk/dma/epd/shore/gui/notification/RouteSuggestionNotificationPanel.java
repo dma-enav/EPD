@@ -46,10 +46,9 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionNotificationPanel.class);
-    
-    private static final String[] NAMES = {
-        "", "MMSI", "Route Name", "Date", "Status" };
-    
+
+    private static final String[] NAMES = { "", "MMSI", "Route Name", "Date", "Status" };
+
     protected JButton resendBtn;
 
     /**
@@ -57,15 +56,17 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
      */
     public RouteSuggestionNotificationPanel(NotificationCenterCommon notificationCenter) {
         super(notificationCenter);
-        
+
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setPreferredWidth(50);
         table.getColumnModel().getColumn(2).setPreferredWidth(80);
         table.getColumnModel().getColumn(3).setPreferredWidth(70);
         splitPane.setDividerLocation(350);
         setCellAlignment(1, JLabel.RIGHT);
+
+        doRefreshNotifications();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -73,20 +74,20 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     protected ButtonPanel initButtonPanel() {
         ButtonPanel btnPanel = super.initButtonPanel();
 
-        resendBtn = new JButton(
-                "Resend", 
-                EPDShore.res().getCachedImageIcon("images/notificationcenter/arrow-circle-315.png"));
+        resendBtn = new JButton("Resend", EPDShore.res().getCachedImageIcon("images/notificationcenter/arrow-circle-315.png"));
         btnPanel.add(resendBtn);
         btnPanel.add(chatBtn);
-        
-        resendBtn.addActionListener(new ActionListener() {            
-            @Override public void actionPerformed(ActionEvent e) {
+
+        resendBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 resendSelectedRouteSuggestion();
-            }});
-        
+            }
+        });
+
         return btnPanel;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -94,9 +95,9 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     protected void updateButtonEnabledState() {
         super.updateButtonEnabledState();
         RouteSuggestionNotification n = getSelectedNotification();
-       resendBtn.setEnabled(n != null);
+        resendBtn.setEnabled(n != null);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -112,13 +113,13 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     protected NotificationTableModel<RouteSuggestionNotification> initTableModel() {
         return new NotificationTableModel<RouteSuggestionNotification>() {
             private static final long serialVersionUID = 1L;
-            
-            @Override 
-            public String[] getColumnNames() { 
-                return NAMES; 
+
+            @Override
+            public String[] getColumnNames() {
+                return NAMES;
             }
-            
-            @Override 
+
+            @Override
             public Class<?> getColumnClass(int columnIndex) {
                 if (columnIndex == 0) {
                     return ImageIcon.class;
@@ -126,22 +127,25 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
                     return super.getColumnClass(columnIndex);
                 }
             }
-            
-            @Override 
+
+            @Override
             public Object getValueAt(int rowIndex, int columnIndex) {
                 RouteSuggestionNotification notification = getNotification(rowIndex);
-                
+
                 switch (columnIndex) {
-                case 0: return !notification.isRead() 
-                                ? ICON_UNREAD 
-                                : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
-                case 1: return "" + notification.get().getMmsi();
-                case 2: return notification.get().getMessage().getRoute().getName();
-                case 3: return Formatter.formatShortDateTimeNoTz(notification.getDate());
-                case 4: return notification.get().getStatus().toString();
+                case 0:
+                    return !notification.isRead() ? ICON_UNREAD : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
+                case 1:
+                    return "" + notification.get().getMmsi();
+                case 2:
+                    return notification.get().getMessage().getRoute().getName();
+                case 3:
+                    return Formatter.formatShortDateTimeNoTz(notification.getDate());
+                case 4:
+                    return notification.get().getStatus().toString();
                 default:
                 }
-                return null; 
+                return null;
             }
         };
     }
@@ -153,7 +157,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     protected NotificationDetailPanel<RouteSuggestionNotification> initNotificationDetailPanel() {
         return new RouteSuggestionDetailPanel();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -166,9 +170,9 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
             routeSuggestionHandler.setRouteSuggestionAcknowledged(routeSuggestion.getId());
             selectFirstUnacknowledgedRow();
             notifyListeners();
-        }    
+        }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -194,24 +198,22 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
             RouteSuggestionHandler routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
             RouteSuggestionData routeSuggestion = notification.get();
             try {
-                routeSuggestionHandler.sendRouteSuggestion(
-                        routeSuggestion.getMmsi(), 
-                        routeSuggestion.getMessage().getRoute(), 
+                routeSuggestionHandler.sendRouteSuggestion(routeSuggestion.getMmsi(), routeSuggestion.getMessage().getRoute(),
                         routeSuggestion.getMessage().getMessage());
-                
+
             } catch (Exception ex) {
                 LOG.error("Error re-sending route suggestion", ex);
             }
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     protected void doRefreshNotifications() {
         RouteSuggestionHandler routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
-        
+
         // The back-end does not support the "read" flag, so, we store it
         Set<Long> readNotificationIds = new HashSet<>();
         for (RouteSuggestionNotification notificaiton : tableModel.getNotifications()) {
@@ -219,11 +221,11 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
                 readNotificationIds.add(notificaiton.getId());
             }
         }
-        
+
         List<RouteSuggestionNotification> notifications = new ArrayList<>();
         for (RouteSuggestionData routeSuggestion : routeSuggestionHandler.getSortedRouteSuggestions()) {
             RouteSuggestionNotification notification = new RouteSuggestionNotification(routeSuggestion);
-            
+
             // Restore the "read" flag
             if (readNotificationIds.contains(notification.getId())) {
                 notification.setRead(true);
@@ -237,7 +239,6 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
 
 }
 
-
 /**
  * Displays relevant route suggestion detail information
  */
@@ -249,25 +250,25 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
      */
     public RouteSuggestionDetailPanel() {
         super();
-        
+
         buildGUI();
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void setNotification(RouteSuggestionNotification notification) {
         this.notification = notification;
-        
+
         // Special case
         if (notification == null) {
             contentLbl.setText("");
             return;
         }
-        
+
         RouteSuggestionData routeSuggestion = notification.get();
-        
+
         StringBuilder html = new StringBuilder("<html>");
         html.append("<table>");
         append(html, "ID", routeSuggestion.getId());
@@ -282,44 +283,42 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         } else {
             append(html, "Reply Sent", "No reply received yet");
             append(html, "Reply Message", "No reply received yet");
-        }        
+        }
         html.append("</table>");
         html.append("</html>");
         contentLbl.setText(html.toString());
     }
 
     /**
-     * Formats the status of the route suggestion as HTML
-     * by including the Maritime Cloud message status.
+     * Formats the status of the route suggestion as HTML by including the Maritime Cloud message status.
      * 
-     * @param routeSuggestion the route suggestion
+     * @param routeSuggestion
+     *            the route suggestion
      * @return the status
      */
     private String getStatus(RouteSuggestionData routeSuggestion) {
         StringBuilder status = new StringBuilder();
         status.append(String.format("<span style='color:%s'>%s</span>",
-                GraphicsUtil.toHtmlColor(routeSuggestion.getStatus().getColor()),
-                routeSuggestion.getStatus().toString()));
+                GraphicsUtil.toHtmlColor(routeSuggestion.getStatus().getColor()), routeSuggestion.getStatus().toString()));
         if (routeSuggestion.getReply() == null && routeSuggestion.getMessage().getCloudMessageStatus() != null) {
             status.append("&nbsp;<small>(" + routeSuggestion.getMessage().getCloudMessageStatus().getTitle() + ")</small>");
         }
         return status.toString();
     }
-    
+
     /**
      * If non-empty, appends a table row with the given title and value
-     * @param html the html to append to
-     * @param title the title
-     * @param value the value
+     * 
+     * @param html
+     *            the html to append to
+     * @param title
+     *            the title
+     * @param value
+     *            the value
      */
     private void append(StringBuilder html, String title, Object value) {
         if (value != null && value.toString().length() > 0) {
-            html.append("<tr><td valign='top'><b>")
-                .append(title)
-                .append("</b></td><td>")
-                .append(value)
-                .append("</td></tr>");
+            html.append("<tr><td valign='top'><b>").append(title).append("</b></td><td>").append(value).append("</td></tr>");
         }
     }
 }
-

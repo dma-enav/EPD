@@ -220,7 +220,8 @@ public final class EPDShore extends EPD {
         beanHandler.add(intendedRouteHandler);
 
         // Create the route suggestion handler
-        routeSuggestionHandler = new RouteSuggestionHandler();
+//        routeSuggestionHandler = new RouteSuggestionHandler();
+        routeSuggestionHandler = RouteSuggestionHandler.loadRouteSuggestionHandler();
         beanHandler.add(routeSuggestionHandler);
 
         // Create MSI handler

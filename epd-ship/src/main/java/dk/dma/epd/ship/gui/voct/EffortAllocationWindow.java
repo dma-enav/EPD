@@ -39,7 +39,7 @@ import dk.dma.epd.common.prototype.model.voct.WeatherCorrectionFactors;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
-import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.service.voct.VOCTManager;
 
 public class EffortAllocationWindow extends EffortAllocationWindowCommon {
     private static final long serialVersionUID = 1L;
@@ -60,7 +60,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
     private JCheckBox editPoD;
     private JButton calculate;
     private JComboBox<Double> fatigueDropDown;
-    private VOCTManagerCommon voctManager;
+    private VOCTManager voctManager;
 
     /**
      * Create the dialog.
@@ -83,7 +83,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
 
     @Override
     public void setVoctManager(VOCTManagerCommon voctManager) {
-        this.voctManager = voctManager;
+        this.voctManager = (VOCTManager) voctManager;
     }
 
     private void initPanel() {
@@ -401,7 +401,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
             return false;
         }
         effortAllocationData.setSearchTime(timeSearching);
-
+        voctManager.removeOldSARData();
         sarData.getEffortAllocationData().put((long) 0, effortAllocationData);
         return true;
     }
