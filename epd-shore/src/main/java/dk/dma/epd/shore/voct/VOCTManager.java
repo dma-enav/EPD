@@ -34,6 +34,7 @@ import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
@@ -46,6 +47,7 @@ import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.layers.voct.VoctLayerCommon;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.VoctHandler;
+import dk.dma.epd.shore.voct.SRU.sru_status;
 
 /**
  * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
@@ -417,6 +419,22 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
         super.EffortAllocationDataEntered();
 
         checkRoutes();
+    }
+
+    @Override
+    public void setSarData(SARData sarData) {
+        super.setSarData(sarData);
+
+        
+        //Reset all SRU status
+        for (Entry<Long, SRU> entry : sruManager.getSRUs().entrySet()) {
+            SRU sru = entry.getValue();
+
+            sru.setStatus(sru_status.UNAVAILABLE);
+            sru.setCloudStatus(CloudMessageStatus.NOT_SENT);
+
+        }
+
     }
 
     @Override

@@ -21,11 +21,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -114,10 +117,30 @@ public class VOCTManager extends VOCTManagerCommon {
 
                         listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
                         listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
+
+                        Iterator<Entry<Long, EffortAllocationData>> iter = sarData.getEffortAllocationData().entrySet().iterator();
+                        while (iter.hasNext()) {
+                            Entry<Long, EffortAllocationData> entry = iter.next();
+                            System.out.println("Entry long is " + entry.getKey());
+                            if (entry.getValue().getSearchPatternRoute() != null) {
+
+                                SearchPatternRoute searchPattern = entry.getValue().getSearchPatternRoute();
+                                for (int i = 0; i < EPD.getInstance().getRouteManager().getRoutes().size(); i++) {
+                                    if (EPD.getInstance().getRouteManager().getRoute(i).toString().equals(searchPattern.toString())) {
+                                        EPD.getInstance().getRouteManager().getRoutes().set(i, searchPattern);
+                                        notifyListeners(VOCTUpdateEvent.SEARCH_PATTERN_GENERATED);
+                                        break;
+                                    }
+                                }
+
+                            }
+
+                        }
+
                     }
+
                 }
             }
-
         }
     }
 
@@ -141,11 +164,6 @@ public class VOCTManager extends VOCTManagerCommon {
             SARData sarDataLoaded = (SARData) objectIn.readObject();
             voctManager.setLoadSarFromSerialize(true);
             voctManager.initializeFromSerializedFile(sarDataLoaded);
-
-            // RouteStore routeStore = (RouteStore) objectIn.readObject();
-            // manager.setRoutes(routeStore.getRoutes());
-            // manager.activeRoute = routeStore.getActiveRoute();
-            // manager.activeRouteIndex = routeStore.getActiveRouteIndex();
 
         } catch (FileNotFoundException e) {
             // Not an error
@@ -202,7 +220,7 @@ public class VOCTManager extends VOCTManagerCommon {
         voctLayer.updateEffectiveAreaLocation(sarData);
     }
 
-    private void removeOldSARData() {
+    public void removeOldSARData() {
         // Remove any old SAR data
         if (sarData != null) {
             if (sarData.getEffortAllocationData().size() > 0) {
@@ -277,7 +295,6 @@ public class VOCTManager extends VOCTManagerCommon {
 
         if (accepted) {
 
-            System.out.println("ITS ACCEPTED SEND REPLY");
             voctHandler.sendVOCTReply(VoctMsgStatus.ACCEPTED, message.getId(), "Accepted", type);
 
             removeOldSARData();
@@ -302,13 +319,10 @@ public class VOCTManager extends VOCTManagerCommon {
 
             if (message.getEffortAllocationData() != null) {
 
-                // message.getEffortAllocationData()
                 EffortAllocationData effortAllocationData = new EffortAllocationData(message.getEffortAllocationData());
 
                 if (message.getSearchPattern() != null) {
                     SearchPatternRoute searchPattern = new SearchPatternRoute(new Route(message.getSearchPattern()));
-
-                    // sarOperation = new SAROperation(SAR_TYPE.RAPID_RESPONSE);
 
                     SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
                     searchPatternGenerator.calculateDynamicWaypoints(searchPattern, data);

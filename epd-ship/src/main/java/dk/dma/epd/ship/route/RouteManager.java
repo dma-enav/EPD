@@ -56,10 +56,9 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     private volatile PntHandler pntHandler;
-    
+
     @GuardedBy("routeSuggestions")
-    private List<RouteSuggestionData> routeSuggestions = new LinkedList<>();    
-    
+    private List<RouteSuggestionData> routeSuggestions = new LinkedList<>();
 
     /**
      * Constructor
@@ -70,7 +69,9 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
 
     /**
      * Called when receiving a position update
-     * @param pntData the updated position
+     * 
+     * @param pntData
+     *            the updated position
      */
     @Override
     public void pntDataUpdate(PntData pntData) {
@@ -81,8 +82,6 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
             return;
         }
 
-        
-        
         ActiveWpSelectionResult endRes;
         ActiveWpSelectionResult res;
         synchronized (this) {
@@ -112,12 +111,14 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
     }
 
     /**************************************/
-    /** Active Route operations          **/
+    /** Active Route operations **/
     /**************************************/
-    
+
     /**
      * Activates the route with the given index
-     * @param index the index of the route to activate
+     * 
+     * @param index
+     *            the index of the route to activate
      */
     public void activateRoute(int index) {
         synchronized (this) {
@@ -140,11 +141,9 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
             activeRoute = new ActiveRoute(route, pntHandler.getCurrentData());
 
             // Set the minimum WP circle radius
-            activeRoute.setWpCircleMin(EPDShip.getInstance().getSettings().getNavSettings()
-                    .getMinWpRadius());
+            activeRoute.setWpCircleMin(EPDShip.getInstance().getSettings().getNavSettings().getMinWpRadius());
             // Set relaxed WP change
-            activeRoute.setRelaxedWpChange(EPDShip.getInstance().getSettings().getNavSettings()
-                    .isRelaxedWpChange());
+            activeRoute.setRelaxedWpChange(EPDShip.getInstance().getSettings().getNavSettings().isRelaxedWpChange());
             // Inject the current position
             activeRoute.update(pntHandler.getCurrentData());
             // Set start time to now
@@ -152,8 +151,7 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
         }
 
         // If the dock isn't visible should it show it?
-        if (!EPDShip.getInstance().getMainFrame().getDockableComponents()
-                .isDockVisible("Active Waypoint")) {
+        if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("Active Waypoint")) {
 
             // Show it display the message?
             if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
@@ -161,10 +159,8 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
             } else {
 
                 if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                    EPDShip.getInstance().getMainFrame().getDockableComponents()
-                            .openDock("Active Waypoint");
-                    EPDShip.getInstance().getMainFrame().getJMenuBar()
-                            .refreshDockableMenu();
+                    EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("Active Waypoint");
+                    EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
                 }
 
                 // It shouldn't display message but take a default action
@@ -189,21 +185,18 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
         notifyListeners(RoutesUpdateEvent.ROUTE_DEACTIVATED);
     }
 
+    /**************************************/
+    /** Life cycle operations **/
+    /**************************************/
 
-    /**************************************/
-    /** Life cycle operations            **/
-    /**************************************/
-    
     /**
-     * Loads and instantiates a {@code RouteManager} from the 
-     * default routes file.
+     * Loads and instantiates a {@code RouteManager} from the default routes file.
+     * 
      * @return the new route manager
      */
     public static RouteManager loadRouteManager() {
         RouteManager manager = new RouteManager();
-        try (
-            FileInputStream fileIn = new FileInputStream(ROUTES_FILE);
-            ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
+        try (FileInputStream fileIn = new FileInputStream(ROUTES_FILE); ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
             RouteStore routeStore = (RouteStore) objectIn.readObject();
             manager.setRoutes(routeStore.getRoutes());
             manager.activeRoute = routeStore.getActiveRoute();
@@ -226,9 +219,8 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
     @Override
     public synchronized void saveToFile() {
         RouteStore routeStore = new RouteStore(this);
-        try (
-            FileOutputStream fileOut = new FileOutputStream(ROUTES_FILE);
-            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+        try (FileOutputStream fileOut = new FileOutputStream(ROUTES_FILE);
+                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
             objectOut.writeObject(routeStore);
         } catch (IOException e) {
             LOG.error("Failed to save routes file: " + e.getMessage());
@@ -241,7 +233,7 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
+
         if (pntHandler == null && obj instanceof PntHandler) {
             pntHandler = (PntHandler) obj;
             pntHandler.addListener(this);
@@ -258,4 +250,11 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
         }
         super.findAndUndo(obj);
     }
- }
+
+    @Override
+    public void notifyListeners(RoutesUpdateEvent e) {
+        super.notifyListeners(e);
+
+        EPDShip.getInstance().getVoctManager().saveToFile();
+    }
+}

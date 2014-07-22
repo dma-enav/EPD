@@ -167,11 +167,15 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     }
 
     public void saveToFile() {
-        try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
-                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
-            objectOut.writeObject(sarData);
-        } catch (IOException e) {
-            LOG.error("Failed to save VOCT data: " + e.getMessage());
+
+        if (hasSar || loadSarFromSerialize) {
+
+            try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
+                    ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+                objectOut.writeObject(sarData);
+            } catch (IOException e) {
+                LOG.error("Failed to save VOCT data: " + e.getMessage());
+            }
         }
     }
 
@@ -272,6 +276,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
     /**
      * Used by EPD Shore to remove possible removed effort allocation areas
+     * 
      * @param sarData
      */
     protected void checkSRU(SARData sarData) {
