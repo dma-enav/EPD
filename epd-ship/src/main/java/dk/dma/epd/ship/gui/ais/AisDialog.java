@@ -55,6 +55,7 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget.AisClass;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.layers.ais.AisLayer;
@@ -298,7 +299,7 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
         String lastReceived = "N/A";
         String eta = "N/A";
         String cargo = "unknown";
-        Date currentDate = new Date();
+        Date currentDate = PntTime.getDate();
 
         if (vesselTarget.getStaticData() != null ){
             name = vesselTarget.getStaticData().getTrimmedName();

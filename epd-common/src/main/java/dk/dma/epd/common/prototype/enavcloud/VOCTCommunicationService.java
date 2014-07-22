@@ -62,7 +62,7 @@ public class VOCTCommunicationService {
             this.sarDataRapidResponse = requireNonNull(sarData);
             this.effortAllocationData = effortAllocationData;
             this.searchPattern = searchPattern;
-            this.sent = requireNonNull(new Date());
+            this.sent = new Date();
             this.message = requireNonNull(message);
             this.sender = requireNonNull(sender);
             this.id = requireNonNull(id);
@@ -77,7 +77,7 @@ public class VOCTCommunicationService {
             this.sarDataDatumPoint = requireNonNull(sarData);
             this.effortAllocationData = effortAllocationData;
             this.searchPattern = searchPattern;
-            this.sent = requireNonNull(new Date());
+            this.sent = new Date();
             this.message = requireNonNull(message);
             this.sender = requireNonNull(sender);
             this.id = requireNonNull(id);
@@ -91,7 +91,7 @@ public class VOCTCommunicationService {
             this.sarDataDatumPointSaris = requireNonNull(sarData);
             this.effortAllocationData = effortAllocationData;
             this.searchPattern = searchPattern;
-            this.sent = requireNonNull(new Date());
+            this.sent = new Date();
             this.message = requireNonNull(message);
             this.sender = requireNonNull(sender);
             this.id = requireNonNull(id);

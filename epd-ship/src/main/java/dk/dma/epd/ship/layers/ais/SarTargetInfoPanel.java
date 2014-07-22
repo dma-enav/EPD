@@ -44,7 +44,7 @@ public class SarTargetInfoPanel extends InfoPanel implements Runnable {
     public synchronized void showSarInfo(SarTarget sarTarget) {
         this.sarTarget = sarTarget;
         StringBuilder str = new StringBuilder();
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
         Date lastReceived = sarTarget.getLastReceived();
         Date firstReceived = sarTarget.getFirstReceived();
         long elapsedLast = now.getTime() - lastReceived.getTime();

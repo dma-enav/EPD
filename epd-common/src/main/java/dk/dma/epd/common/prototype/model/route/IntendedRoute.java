@@ -59,7 +59,7 @@ public class IntendedRoute extends Route {
      */
     public IntendedRoute(IntendedRouteMessage intendedRouteMessage) {
         super();
-        received = PntTime.getInstance().getDate();
+        received = PntTime.getDate();
         parseRoute(intendedRouteMessage);
         setActiveWpIndex(intendedRouteMessage.getActiveWpIndex());
         setPlannedEtas(intendedRouteMessage.getPlannedEtas());
@@ -299,7 +299,7 @@ public class IntendedRoute extends Route {
 
     public Position getPlannedPosition() {
 
-        long currentTime = PntTime.getInstance().getDate().getTime();
+        long currentTime = PntTime.getDate().getTime();
 
         // Is the ship on the route yet? or where it was planning to be?
         // If not, don't draw anything as nothing is planned

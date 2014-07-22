@@ -14,7 +14,6 @@
  */
 package dk.dma.epd.ship.gui;
 
-import java.util.Date;
 import java.util.Locale;
 
 import javax.swing.GroupLayout;
@@ -43,8 +42,8 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.panels.ActiveWaypointPanel;
 import dk.dma.epd.ship.gui.panels.CursorPanel;
-import dk.dma.epd.ship.gui.panels.PntPanel;
 import dk.dma.epd.ship.gui.panels.OwnShipPanel;
+import dk.dma.epd.ship.gui.panels.PntPanel;
 import dk.dma.epd.ship.gui.panels.ScalePanel;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
@@ -61,7 +60,6 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
     private MsiHandler msiHandler;
     
     private PntData gpsData;
-    private PntTime gnssTime;
     private ChartPanel chartPanel;
     private RouteManager routeManager;
     private final ScalePanel scalePanel = new ScalePanel();    
@@ -182,11 +180,7 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
     @Override
     public void run() {
         while (true) {
-            if (gnssTime != null) {
-                Date now = gnssTime.getDate();
-                scalePanel.getTimeLabel().setText(Formatter.formatLongDateTime(now));
-            }
-            
+            scalePanel.getTimeLabel().setText(Formatter.formatLongDateTime(PntTime.getDate()));
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) { }
@@ -261,9 +255,6 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
     
     @Override
     public void findAndInit(Object obj) {
-        if (gnssTime == null && obj instanceof PntTime) {
-            gnssTime = (PntTime)obj;
-        }
         if (obj instanceof ChartPanel) {
             chartPanel = (ChartPanel)obj;
             chartPanel.getMap().addProjectionListener(this);
@@ -289,11 +280,6 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
     
     @Override
     public void findAndUndo(Object obj) {
-        if (obj instanceof PntTime) {
-            System.out.println("Removed GPS time");
-            gnssTime = null;
-            return;
-        }
         if (ownShipHandler == obj) {
             ownShipHandler = null;
         }

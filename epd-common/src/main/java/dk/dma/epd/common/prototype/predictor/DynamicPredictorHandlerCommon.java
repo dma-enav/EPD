@@ -100,8 +100,7 @@ public class DynamicPredictorHandlerCommon extends EnavServiceHandlerCommon {
      *         {@code false} if the prediction has timed out.
      */
     public boolean isDynamicPredictionValid(DynamicPrediction prediction) {
-        return prediction.getHeaderData().getTime() + TIMEOUT > PntTime
-                .getInstance().getDate().getTime();
+        return prediction.getHeaderData().getTime() + TIMEOUT > PntTime.getDate().getTime();
     }
 
     /**

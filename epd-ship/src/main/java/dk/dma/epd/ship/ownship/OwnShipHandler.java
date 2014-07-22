@@ -126,7 +126,7 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
             AisMessage5 msg5 = (AisMessage5) aisMessage;
             aisTarget.setStaticData(new VesselStaticData(msg5));
         }
-        aisTarget.setLastReceived(PntTime.getInstance().getDate());
+        aisTarget.setLastReceived(PntTime.getDate());
         aisTarget.setMmsi(aisMessage.getUserId());
 
         // Update the past-tracks

@@ -198,7 +198,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * Remove stale intended routes.
      */
     private synchronized void checkForInactiveRoutes() {
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
         for (Iterator<Map.Entry<Long, IntendedRoute>> it = intendedRoutes.entrySet().iterator(); it.hasNext();) {
             Map.Entry<Long, IntendedRoute> entry = it.next();
             if (now.getTime() - entry.getValue().getReceived().getTime() > ROUTE_TTL) {

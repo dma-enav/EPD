@@ -29,6 +29,7 @@ import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget.AisClass;
 import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
@@ -69,7 +70,7 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
             return;
         }
 
-        long t = System.currentTimeMillis();
+        long t = PntTime.getDate().getTime();
         Position pos = posData.getPos();
         float cog = posData.getCog();
         float sog = posData.getSog();

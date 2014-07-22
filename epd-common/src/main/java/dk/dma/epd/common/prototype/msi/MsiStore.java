@@ -75,7 +75,7 @@ public class MsiStore implements Serializable {
     }
     
     public synchronized boolean hasValidUnacknowledged() {
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
         for (Integer msgId : messages.keySet()) {
             MsiMessage msg = messages.get(msgId);
             if (msg.getValidFrom() != null && msg.getValidFrom().after(now)) {
@@ -89,7 +89,7 @@ public class MsiStore implements Serializable {
     }
 
     public synchronized boolean hasValidVisibleUnacknowledged() {
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
         for (Integer msgId : messages.keySet()) {
             MsiMessage msg = messages.get(msgId);
             if (msg.getValidFrom() != null && msg.getValidFrom().after(now)) {
@@ -259,7 +259,7 @@ public class MsiStore implements Serializable {
 
     public synchronized boolean cleanup() {
         List<Integer> doDelete = new ArrayList<>();
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
         for (MsiMessage message : messages.values()) {
             // Check if validTo has been passed
             if (message.getValidTo() != null

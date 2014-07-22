@@ -112,7 +112,7 @@ public class ActiveRoute extends Route {
         this.destination = route.getDestination();
         this.starttime = route.getStarttime();
 
-        this.origStarttime = PntTime.getInstance().getDate();
+        this.origStarttime = PntTime.getDate();
         this.origStarttime = route.getStarttime();
 
         this.routeMetocSettings = route.getRouteMetocSettings();
@@ -208,7 +208,7 @@ public class ActiveRoute extends Route {
 
     public synchronized Position getSafeHavenLocation() {
 
-        long currentTime = PntTime.getInstance().getDate().getTime();
+        long currentTime = PntTime.getDate().getTime();
 
         // We haven't begun sailing on the route yet, putting box at first
         // waypoint
@@ -400,7 +400,7 @@ public class ActiveRoute extends Route {
 
     public synchronized void changeActiveWaypoint(int index) {
         // Save actual ETA
-        etas.set(activeWaypointIndex, PntTime.getInstance().getDate());
+        etas.set(activeWaypointIndex, PntTime.getDate());
         // Change active waypoint
         activeWaypointIndex = index;
         // Set current leg
@@ -428,7 +428,7 @@ public class ActiveRoute extends Route {
             }
         }
 
-        return new Date(PntTime.getInstance().getDate().getTime() + ttg);
+        return new Date(PntTime.getDate().getTime() + ttg);
     }
 
     @Override

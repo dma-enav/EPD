@@ -58,7 +58,7 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpda
      */
     public void doUpdate() {
         graphics.clear();
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
         // Get messages
         List<MsiMessageExtended> messages = msiHandler.getMessageList();
         for (MsiMessageExtended message : messages) {

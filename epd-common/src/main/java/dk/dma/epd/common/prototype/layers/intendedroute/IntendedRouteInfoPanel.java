@@ -54,7 +54,7 @@ public class IntendedRouteInfoPanel extends InfoPanel {
     }
 
     private String getAge(Date received) {
-        return Formatter.formatTimeShort(PntTime.getInstance().getDate().getTime() - received.getTime()) + " (mm:ss)";
+        return Formatter.formatTimeShort(PntTime.getDate().getTime() - received.getTime()) + " (mm:ss)";
     }
 
     public void showLegInfo(IntendedRouteLegGraphic legGraphic, Point2D worldLocation) {

@@ -48,7 +48,7 @@ public class MetocGraphic extends OMGraphicList {
         clear();
         MetocForecast metocForecast = route.getMetocForecast();
         List<MetocForecastPoint> forecasts = metocForecast.getForecasts();
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
         for (int i = 0; i < forecasts.size(); i += step) {
             MetocForecastPoint metocPoint = forecasts.get(i);
 

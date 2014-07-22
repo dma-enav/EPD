@@ -65,7 +65,7 @@ public class Metoc {
 
             // Insert current location
             MetocForecastRequestWp reqWp = new MetocForecastRequestWp();
-            reqWp.setEta(PntTime.getInstance().getDate());
+            reqWp.setEta(PntTime.getDate());
             reqWp.setHeading(activeRoute.getCurrentLeg().getHeading().name());
             reqWp.setLat(pos.getLatitude());
             reqWp.setLon(pos.getLongitude());
@@ -78,7 +78,7 @@ public class Metoc {
             route.adjustStartTime();
         }
         
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
 
         for (int i = startWpIndex; i < route.getWaypoints().size(); i++) {
             Date eta = route.getWpEta(i);
