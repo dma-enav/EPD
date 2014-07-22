@@ -169,7 +169,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
                 SearchPatternRoute searchPattern = entry.getValue().getSearchPatternRoute();
                 for (int i = 0; i < EPD.getInstance().getRouteManager().getRoutes().size(); i++) {
                     if (EPD.getInstance().getRouteManager().getRoute(i).toString().equals(searchPattern.toString())) {
-                        EPD.getInstance().getRouteManager().getRoutes().remove(i);
+                        EPD.getInstance().getRouteManager().removeRoute(i);
                         break;
                     }
                 }
