@@ -60,7 +60,7 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements
                 new ArrayList<DynamicPredictionGraphic>());
 
         DynamicPredictorStateData state = dynamicPrediction.getHeaderData();
-        LOG.info("Layer received dynamic prediction: " + state);
+        //LOG.info("Layer received dynamic prediction: " + state);
 
         float vesselWidth = state.getWidth();
         float vesselLength = state.getLength();
@@ -68,7 +68,7 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements
         float count = 0f;
         for (DynamicPredictorPredictionData prediction : dynamicPrediction
                 .getPredictionDataPoints()) {
-            LOG.info("Dynamic predictor data: " + prediction);
+            //LOG.info("Dynamic predictor data: " + prediction);
             // Position is the middle of the ship
             Position pos = prediction.getPosition();
             float heading = prediction.getHeading();
@@ -124,6 +124,7 @@ public class DynamicPredictorLayer extends EPDLayerCommon implements
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         if (obj instanceof DynamicPredictorHandlerCommon) {
+            LOG.debug("Found dynamic predictor handler");
             ((DynamicPredictorHandlerCommon) obj).addListener(this);
         }
     }

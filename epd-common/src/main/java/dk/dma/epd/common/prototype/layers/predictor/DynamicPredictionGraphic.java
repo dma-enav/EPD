@@ -31,7 +31,7 @@ import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 @SuppressWarnings("serial")
 public class DynamicPredictionGraphic extends OMGraphicList {
 
-    private VesselOutline outline = new VesselOutline(Color.GRAY, 3.5f);
+    private VesselOutline outline = new VesselOutline(Color.GRAY, 2f);
     private VesselTriangle triangle = new VesselTriangle();
     private VesselDot dot = new VesselDot();
 
