@@ -168,7 +168,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
     @SuppressWarnings("unchecked")
     public static RouteSuggestionHandler loadRouteSuggestionHandler() {
 
-        // Where we load or serialize old VOCTS
+        // Where we load or serialize old Route Suggestions
         RouteSuggestionHandler routeSuggestionHandler = new RouteSuggestionHandler();
         try (FileInputStream fileIn = new FileInputStream(ROUTE_SUGGESTION_PATH);
                 ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {

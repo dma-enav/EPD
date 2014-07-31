@@ -393,6 +393,10 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         for (RouteSuggestionData routeSuggestion : routeSuggestionHandler.getSortedRouteSuggestions()) {
             RouteSuggestionNotification notification = new RouteSuggestionNotification(routeSuggestion);
 
+            if (routeSuggestion.isReplied()) {
+                notification.setAcknowledged(true);
+            }
+
             // Restore the "read" flag
             if (readNotificationIds.contains(notification.getId())) {
                 notification.setRead(true);

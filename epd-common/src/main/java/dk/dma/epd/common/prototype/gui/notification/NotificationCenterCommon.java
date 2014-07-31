@@ -14,8 +14,8 @@
  */
 package dk.dma.epd.common.prototype.gui.notification;
 
-import static java.awt.GridBagConstraints.HORIZONTAL;
 import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.HORIZONTAL;
 import static java.awt.GridBagConstraints.WEST;
 
 import java.awt.BorderLayout;
@@ -24,16 +24,19 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.TrayIcon.MessageType;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -41,28 +44,31 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
+import net.maritimecloud.core.id.MaritimeId;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.maritimecloud.core.id.MaritimeId;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.ChatNotification;
+import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.MsiNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.notification.RouteSuggestionNotificationCommon;
+import dk.dma.epd.common.prototype.notification.StrategicRouteNotificationCommon;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
 import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
 import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon.RouteSuggestionListener;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
-import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
 
 /**
@@ -95,7 +101,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     protected GeneralNotificationPanel generalPanel = new GeneralNotificationPanel(this);
     protected MsiNotificationPanel msiPanel = new MsiNotificationPanel(this);
     protected ChatNotificationPanel chatPanel = new ChatNotificationPanel(this);
-    
+
     protected List<NotificationPanel<?>> panels = new CopyOnWriteArrayList<>();
     protected Map<NotificationType, NotificationLabel> labels = new ConcurrentHashMap<>();
 
@@ -129,7 +135,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
 
         routeSuggestionHandler = EPD.getInstance().getRouteSuggestionHandler();
         routeSuggestionHandler.addRouteSuggestionListener(this);
-        
+
         alertTimer.setCoalesce(true);
         alertTimer.setRepeats(true);
         alertTimer.start();
@@ -183,11 +189,20 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
             if (alert.hasAlertType(AlertType.OPEN)) {
                 openNotification(notification.getType(), notification.getId(), false);
             }
-            
+
             // Handle beep alerts
             if (alert.hasAlertType(AlertType.BEEP)) {
-                Toolkit.getDefaultToolkit().beep();
+
+                // java.util.Timer warningTimer;
+                // warningTimer = new java.util.Timer();
+                // warningTimer.scheduleAtFixedRate(new ContinousVoiceAlerts(notification, warningTimer), 0, // initial delay
+                // 10 * 1000); // subsequent rate
             }
+
+            java.util.Timer warningTimer;
+            warningTimer = new java.util.Timer();
+            warningTimer.scheduleAtFixedRate(new ContinousVoiceAlerts(notification, warningTimer), 0, // initial delay
+                    10 * 1000); // subsequent rate
 
             // Handle system tray alerts
             if (systemTray != null && alert.hasAlertType(AlertType.SYSTEM_TRAY)) {
@@ -211,6 +226,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
             // Handle pop-up alerts
             if (bottomPanel != null && alert.hasAlertType(AlertType.POPUP)) {
                 bottomPanel.triggerAlert(panel, notification, alert);
+
             }
 
         } catch (Exception ex) {
@@ -329,9 +345,11 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         // Ensure that we operate in the Swing event thread
         if (!SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     openNotificationCenter(type, maximized);
-                }});
+                }
+            });
             return;
         }
 
@@ -398,16 +416,18 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     }
 
     /**
-     * If the notification with the given type and id is the currently selected one,
-     * then refresh the selection.
+     * If the notification with the given type and id is the currently selected one, then refresh the selection.
      * 
-     * @param notificationType the notification type
-     * @param id the id of the notification
+     * @param notificationType
+     *            the notification type
+     * @param id
+     *            the id of the notification
      */
     public void checkRefreshSelection(final NotificationType notificationType, final Object id) {
         if (notificationType == activeType) {
             SwingUtilities.invokeLater(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     getPanel(notificationType).checkRefreshSelection(id);
                 }
             });
@@ -446,7 +466,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         } else if (notification instanceof MsiNotification) {
             msiPanel.addNotification((MsiNotification) notification);
         } else if (notification instanceof ChatNotification) {
-            chatPanel.addNotification((ChatNotification)notification);
+            chatPanel.addNotification((ChatNotification) notification);
         } else {
             throw new IllegalArgumentException("Unknown notification type: " + notification);
         }
@@ -529,5 +549,64 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
 
         // Update the chat panel
         chatPanel.refreshNotifications();
+    }
+
+    class ContinousVoiceAlerts extends TimerTask {
+        Notification<?, ?> notification;
+        java.util.Timer warningTimer;
+
+        public ContinousVoiceAlerts(Notification<?, ?> notification, java.util.Timer warningTimer) {
+            this.notification = notification;
+            this.warningTimer = warningTimer;
+        }
+
+        public void run() {
+
+            // System.out.println("Run beep " + notification.isRead());
+            if (!notification.isRead()) {
+
+                // toolkit.beep();
+
+                URL audioClip = EPD.res().folder("audio/").getResource("warning.wav");
+
+                if (notification instanceof ChatNotification) {
+                    audioClip = EPD.res().folder("audio/").getResource("messagewarning.wav");
+                }
+                if (notification instanceof GeneralNotification) {
+                    if (notification.getTitle().contains("Intended")) {
+                        audioClip = EPD.res().folder("audio/").getResource("tcpawarning.wav");
+                    }
+                }
+
+                if (notification instanceof RouteSuggestionNotificationCommon) {
+                    audioClip = EPD.res().folder("audio/").getResource("tacticalroute.wav");
+
+                }
+
+                if (notification instanceof StrategicRouteNotificationCommon) {
+
+                    audioClip = EPD.res().folder("audio/").getResource("strategicroute.wav");
+
+                }
+
+                try {
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(AudioSystem.getAudioInputStream(audioClip));
+                    clip.start();
+
+                    if (notification.getTitle().contains("Intended")) {
+                        // Only play once
+                        warningTimer.cancel();
+                    }
+
+                } catch (Exception exc) {
+                    exc.printStackTrace(System.out);
+                }
+            } else {
+                warningTimer.cancel();
+                // System.out.println("Killing timer");
+            }
+
+        }
     }
 }

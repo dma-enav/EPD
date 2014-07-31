@@ -179,12 +179,15 @@ public class VOCTManager extends VOCTManagerCommon {
 
     @Override
     public synchronized void saveToFile() {
-        System.out.println("SAVE TO FILE");
-        try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
-                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
-            objectOut.writeObject(sarData);
-        } catch (IOException e) {
-            LOG.error("Failed to save VOCT data: " + e.getMessage());
+
+        if (hasSar || loadSarFromSerialize) {
+
+            try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
+                    ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+                objectOut.writeObject(sarData);
+            } catch (IOException e) {
+                LOG.error("Failed to save VOCT data: " + e.getMessage());
+            }
         }
     }
 

@@ -31,19 +31,17 @@ public class RouteSuggestionNotification extends RouteSuggestionNotificationComm
     /**
      * Constructor
      * 
-     * @param routeData the strategic route data
+     * @param routeData
+     *            the strategic route data
      */
     public RouteSuggestionNotification(RouteSuggestionData routeData) {
         super(routeData);
-        
-        String shoreName = NameUtils.getName((int)routeData.getMmsi());
-        
+
+        String shoreName = NameUtils.getName((int) routeData.getMmsi());
+
         if (routeData.getReply() == null) {
             // Original route suggestion from shore
-            description = String.format(
-                    "Route suggestion '%s' from %s", 
-                    routeData.getMessage().getRoute().getName(),
-                    shoreName);
+            description = String.format("Route suggestion '%s' from %s", routeData.getMessage().getRoute().getName(), shoreName);
             if (routeData.isAcknowleged()) {
                 severity = NotificationSeverity.MESSAGE;
             } else {
@@ -51,27 +49,15 @@ public class RouteSuggestionNotification extends RouteSuggestionNotificationComm
                 addAlerts(new NotificationAlert(AlertType.POPUP));
             }
             date = routeData.getMessage().getSentDate();
-            
+
         } else {
             // Reply to shore
-            description = String.format(
-                    "Route suggestion '%s' for %s is %s", 
-                    routeData.getMessage().getRoute().getName(),
-                    shoreName,
-                    routeData.getStatus().toString());
+            description = String.format("Route suggestion '%s' for %s is %s", routeData.getMessage().getRoute().getName(),
+                    shoreName, routeData.getStatus().toString());
             severity = NotificationSeverity.MESSAGE;
             date = routeData.getReply().getSentDate();
-            
+
         }
-    }    
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean canAcknowledge() {
-        return false;
     }
 
 }
