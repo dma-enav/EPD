@@ -298,7 +298,6 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
      * @param enabled
      */
     public void toggleFilter(boolean enabled) {
-        System.out.println("Toggling filter");
         this.useFilter = enabled;
 
         // Reload all routes

@@ -14,6 +14,7 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -318,6 +319,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      */
     protected void checkGenerateNotifications(FilteredIntendedRoutes oldFilteredRoutes,
             FilteredIntendedRoute newFilteredRoute) {
+        
+        System.out.println("check notification generation ");
+        
         FilteredIntendedRoute oldFilteredRoute = oldFilteredRoutes.get(newFilteredRoute.getMmsi1(), newFilteredRoute.getMmsi2());
 
         // NB: For now, we add a notification when a new filtered intended route surfaces
@@ -333,6 +337,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         }
 
         if (sendNotification) {
+            System.out.println("Send notification is true");
             newFilteredRoute.setGeneratedNotification(true);
             GeneralNotification notification = new GeneralNotification(newFilteredRoute, 
                     String.format("IntendedRouteNotificaiton_%s_%d",
@@ -575,8 +580,11 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             CoordinateSystem.CARTESIAN));
 
                     if (currentDistance < FILTER_DISTANCE_EPSILON) {
+                        
+                        DecimalFormat df = new DecimalFormat("#.##");
+                        
                         IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(route1CurrentPosition,
-                                route2CurrentPosition, "TCPA Warning, proxmity less than " + FILTER_DISTANCE_EPSILON + " nautical miles at " + traverseTime, 0, 0);
+                                route2CurrentPosition, "TCPA Warning, proxmity less than " + df.format(FILTER_DISTANCE_EPSILON) + " nautical miles ", 0, 0);
 
                         filterMessage.setTime1(traverseTime);
                         filterMessage.setTime2(traverseTime);

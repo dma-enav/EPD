@@ -29,6 +29,7 @@ import dk.dma.epd.common.prototype.layers.common.WpCircle;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**
  * Graphic for intended route
@@ -69,7 +70,6 @@ public class IntendedRouteGraphic extends OMGraphicList {
      */
     public IntendedRouteGraphic() {
         super();
-        
         add(plannedPositionArea);
     }
 
@@ -87,7 +87,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         routeLegs.add(leg);
         add(leg);
     }
-
+    
     /**
      * Creates a new route circle
      * 
@@ -233,7 +233,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         }
 
         // Adjust the transparency of the color depending on the last-received time for the route
-        long secondsSinceReceived = (System.currentTimeMillis() - intendedRoute.getReceived().getTime()) / 1000L;
+        long secondsSinceReceived = (PntTime.getInstance().getDate().getTime() - intendedRoute.getReceived().getTime()) / 1000L;
 
         if (secondsSinceReceived < TTL) {
             float factor = 1.0f - (float) secondsSinceReceived / (float) TTL;
