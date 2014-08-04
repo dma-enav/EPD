@@ -384,7 +384,6 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
      */
     @Override
     protected void applyFilter(IntendedRoute route) {
-        System.out.println("applyFilter");
         // If previous intended route exist re-apply filter
 
         if (routeManager.getActiveRoute() != null) {

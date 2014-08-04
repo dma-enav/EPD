@@ -656,6 +656,19 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                     }
 
+                    // Are we more than 5 hours in the future then stop
+
+                    DateTime currentTime = new DateTime(PntTime.getInstance().getDate().getTime());
+
+                    if (traverseTime.isAfter(currentTime.plusHours(3))) {
+                        LOG.debug("More than 3 hours head of current time, ending checks");
+                        break;
+                    }
+
+                    PntTime.getInstance().getDate().getTime();
+                    // if (traverseTime.s)
+                    // traverseTime
+
                 }
             } else {
                 LOG.debug("No segment was found - not sure how we reached this point...");
