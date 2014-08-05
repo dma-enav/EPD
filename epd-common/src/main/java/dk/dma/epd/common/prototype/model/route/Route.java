@@ -214,17 +214,14 @@ public class Route implements Serializable {
 
         newRoute.etas = (etas != null) ? new ArrayList<Date>(etas) : new ArrayList<Date>();
 
-        
-        
-//        newRoute.ttgs = this.ttgs;
-//        newRoute.dtgs = this.dtgs;
-//        newRoute.totalTtg = this.totalTtg;
-//        newRoute.totalDtg = this.totalDtg;
+        // newRoute.ttgs = this.ttgs;
+        // newRoute.dtgs = this.dtgs;
+        // newRoute.totalTtg = this.totalTtg;
+        // newRoute.totalDtg = this.totalDtg;
 
-        
         newRoute.stccApproved = this.stccApproved;
 
-//        newRoute.calcValues(true);
+        // newRoute.calcValues(true);
 
         return newRoute;
     }
@@ -608,13 +605,11 @@ public class Route implements Serializable {
                 double speed = dtgs[wpIndex] / t;
                 wp.getOutLeg().setSpeed(speed);
             }
-        }
-        else if (etaAdjust.getType() == EtaAdjustType.ADJUST_ALL_ETA) {
+        } else if (etaAdjust.getType() == EtaAdjustType.ADJUST_ALL_ETA) {
             // Find starttime resulting in wanted ETA
             long deltaT = newEta.getTime() - etas.get(wpIndex).getTime();
             this.starttime = new Date(this.starttime.getTime() + deltaT);
-        }
-        else {
+        } else {
             // New must be between ETD and ETA
             if (wpIndex != 0 && !newEta.after(starttime)) {
                 throw new IllegalArgumentException("New ETA is not after start time");
@@ -622,26 +617,26 @@ public class Route implements Serializable {
             if (!newEta.before(getEta())) {
                 throw new IllegalArgumentException("New ETA is not after route ETA");
             }
-            
+
             // Distance to and from wp
             double distBefore = 0;
             double distAfter = 0;
-            for (int i=0; i < wpIndex; i++) {
+            for (int i = 0; i < wpIndex; i++) {
                 distBefore += dtgs[i];
             }
-            for (int i=wpIndex; i < dtgs.length; i++) {
+            for (int i = wpIndex; i < dtgs.length; i++) {
                 distAfter += dtgs[i];
             }
-            
+
             // Time before and after
             double timeBefore = Converter.millisToHours(newEta.getTime() - this.starttime.getTime());
-            double timeAfter =  Converter.millisToHours(getEta().getTime() - newEta.getTime());
-            
+            double timeAfter = Converter.millisToHours(getEta().getTime() - newEta.getTime());
+
             double speedBefore = distBefore / timeBefore;
             double speedAfter = distAfter / timeAfter;
-           
+
             // Set leg speeds
-            for (int i=0; i < waypoints.size() - 1; i++) {
+            for (int i = 0; i < waypoints.size() - 1; i++) {
                 RouteLeg leg = waypoints.get(i).getOutLeg();
                 if (i < wpIndex) {
                     leg.setSpeed(speedBefore);
@@ -649,13 +644,13 @@ public class Route implements Serializable {
                     leg.setSpeed(speedAfter);
                 }
             }
-            
+
             // If first waypoint we have to change starttime
             if (wpIndex == 0) {
                 this.starttime = newEta;
             }
         }
-        
+
         calcValues(true);
 
     }
@@ -1077,6 +1072,15 @@ public class Route implements Serializable {
     public void setEtaCalculationType(EtaCalculationType etaCalculationType) {
         this.etaCalculationType = etaCalculationType;
     }
+    
+    
+    public double getSpeed(int id) {
+        if (waypoints.get(id).getOutLeg() != null) {
+            return waypoints.get(id).getOutLeg().getSpeed();
+        }
+
+        return 0;
+    }
 
     /**
      * Defines the ETA calculation type
@@ -1119,5 +1123,7 @@ public class Route implements Serializable {
         }
 
     }
+
+
 
 }

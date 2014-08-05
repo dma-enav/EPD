@@ -142,9 +142,9 @@ public class RouteGraphic extends OMGraphicList {
                 
                 RouteLegGraphic routeLegGraphic;
                 if (route instanceof ActiveRoute){
-                    routeLegGraphic = new ActiveRouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, SCALE);     
+                    routeLegGraphic = new ActiveRouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, SCALE, this, i);     
                 }else{
-                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, SCALE);
+                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, SCALE, this, i);
                 }
                 
                 
