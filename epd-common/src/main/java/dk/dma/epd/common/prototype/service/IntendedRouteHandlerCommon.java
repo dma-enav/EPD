@@ -318,8 +318,6 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      */
     protected void checkGenerateNotifications(FilteredIntendedRoutes oldFilteredRoutes, FilteredIntendedRoute newFilteredRoute) {
 
-        System.out.println("check notification generation ");
-
         FilteredIntendedRoute oldFilteredRoute = oldFilteredRoutes.get(newFilteredRoute.getMmsi1(), newFilteredRoute.getMmsi2());
 
         // NB: For now, we add a notification when a new filtered intended route surfaces
@@ -335,10 +333,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         }
 
         if (sendNotification) {
-            System.out.println("Send notification is true");
+//            System.out.println("Send notification is true");
             newFilteredRoute.setGeneratedNotification(true);
             GeneralNotification notification = new GeneralNotification(newFilteredRoute, String.format(
-                    "IntendedRouteNotificaiton_%s_%d", newFilteredRoute.getKey(), System.currentTimeMillis()));
+                    "IntendedRouteNotificaiton_%s_%d", newFilteredRoute.getKey(), newFilteredRoute.getFilterMessages().get(0).getTime1().getMillis()));
             notification.setTitle("CPA Warning");
             notification.setDescription(formatNotificationDescription(newFilteredRoute));
             if (newFilteredRoute.isWithinDistance(ALERT_DISTANCE_EPSILON)) {
@@ -664,10 +662,6 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                         LOG.debug("More than 3 hours head of current time, ending checks");
                         break;
                     }
-
-                    PntTime.getInstance().getDate().getTime();
-                    // if (traverseTime.s)
-                    // traverseTime
 
                 }
             } else {

@@ -14,12 +14,15 @@
  */
 package dk.dma.epd.common.prototype.gui.notification;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.ImageIcon;
 
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 
 /**
@@ -29,21 +32,21 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
 
     private static final long serialVersionUID = 1L;
 
-    private static final String[] NAMES = {
-        "", "", "Date", "Title"
-    };
-    
+    private static final String[] NAMES = { "", "", "Date", "Title", "Time To" };
+
     /**
      * Constructor
      */
     public GeneralNotificationPanel(NotificationCenterCommon notificationCenter) {
         super(notificationCenter);
-        
+
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setMaxWidth(18);
-        table.getColumnModel().getColumn(2).setPreferredWidth(60);
+        table.getColumnModel().getColumn(2).setPreferredWidth(30);
+        table.getColumnModel().getColumn(3).setPreferredWidth(60);
+        table.getColumnModel().getColumn(3).setPreferredWidth(30);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -51,7 +54,7 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
     public NotificationType getNotitficationType() {
         return NotificationType.NOTIFICATION;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -59,13 +62,13 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
     protected NotificationTableModel<GeneralNotification> initTableModel() {
         return new NotificationTableModel<GeneralNotification>() {
             private static final long serialVersionUID = 1L;
-            
-            @Override 
-            public String[] getColumnNames() { 
-                return NAMES; 
+
+            @Override
+            public String[] getColumnNames() {
+                return NAMES;
             }
-            
-            @Override 
+
+            @Override
             public Class<?> getColumnClass(int columnIndex) {
                 if (columnIndex <= 1) {
                     return ImageIcon.class;
@@ -73,23 +76,36 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
                     return super.getColumnClass(columnIndex);
                 }
             }
-            
-            @Override 
+
+            @Override
             public Object getValueAt(int rowIndex, int columnIndex) {
                 Notification<?, ?> notification = getNotification(rowIndex);
-                
+
                 switch (columnIndex) {
-                case 0: return !notification.isRead() 
-                                ? ICON_UNREAD 
-                                : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
-                case 1: return notification.getSeverity() == NotificationSeverity.ALERT
-                                ? ICON_ALERT
-                                : (notification.getSeverity() == NotificationSeverity.WARNING ? ICON_WARNING : null);
-                case 2: return Formatter.formatShortDateTimeNoTz(notification.getDate());
-                case 3: return notification.getTitle();
+                case 0:
+                    return !notification.isRead() ? ICON_UNREAD : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
+                case 1:
+                    return notification.getSeverity() == NotificationSeverity.ALERT ? ICON_ALERT
+                            : (notification.getSeverity() == NotificationSeverity.WARNING ? ICON_WARNING : null);
+                case 2:
+                    return Formatter.formatShortDateTimeNoTz(notification.getDate());
+                case 3:
+                    return notification.getTitle();
+                case 4:
+                    long timeLeft = notification.getDate().getTime() - PntTime.getInstance().getDate().getTime();
+
+//                    System.out.println("Notification Date: "+ notification.getDate() + " In Mili: " +  notification.getDate().getTime());
+//                    System.out.println("Current Date: "+  PntTime.getInstance().getDate() + " In Mili: " +  PntTime.getInstance().getDate().getTime());
+                    
+                    String timeLeftStr = String.format(
+                            "%d min, %d sec",
+                            TimeUnit.MILLISECONDS.toMinutes(timeLeft),
+                            TimeUnit.MILLISECONDS.toSeconds(timeLeft) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeLeft)));
+
+                    return timeLeftStr;
                 default:
                 }
-                return null; 
+                return null;
             }
         };
     }
@@ -101,16 +117,16 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
     protected NotificationDetailPanel<GeneralNotification> initNotificationDetailPanel() {
         return new GeneralNotificationDetailPanel();
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     protected void doRefreshNotifications() {
         refreshTableData();
-//        notifyListeners();
+        // notifyListeners();
     }
-    
+
 }
 
 /**
