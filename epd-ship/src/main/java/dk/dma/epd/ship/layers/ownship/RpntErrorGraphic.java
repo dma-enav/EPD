@@ -14,6 +14,19 @@
  */
 package dk.dma.epd.ship.layers.ownship;
 
+import com.bbn.openmap.omGraphics.OMCircle;
+import com.bbn.openmap.omGraphics.OMEllipse;
+import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.proj.Length;
+import com.bbn.openmap.proj.coords.LatLonPoint;
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.GraphicsUtil;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
+import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData.JammingFlag;
+import dk.dma.epd.ship.EPDShip;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -21,20 +34,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.RenderingHints;
-
-import com.bbn.openmap.omGraphics.OMCircle;
-import com.bbn.openmap.omGraphics.OMEllipse;
-import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.proj.Length;
-import com.bbn.openmap.proj.coords.LatLonPoint;
-
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.graphics.GraphicsUtil;
-import dk.dma.epd.common.prototype.ais.VesselPositionData;
-import dk.dma.epd.common.prototype.sensor.nmea.PntSource;
-import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
-import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData.JammingFlag;
-import dk.dma.epd.ship.EPDShip;
 
 /**
  * Draws the resilient PNT indicators around the own-ship graphics:
@@ -46,15 +45,12 @@ import dk.dma.epd.ship.EPDShip;
 public class RpntErrorGraphic  extends OMGraphicList {
 
     private static final long serialVersionUID  = 298296212706297238L;
-    private static final float RADIUS_BOOST     = 1f;
     private static final float STROKE_WIDTH     = 1.5f;
     
-    private static final Color COLOR_ERROR_ELLIPSE  = new Color(100, 200, 100);
-    private static final Color COLOR_PNT_SRC_NONE   = new Color(200, 100, 100);
-    private static final Color COLOR_PNT_SRC_GPS    = new Color(100, 100, 200);
-    private static final Color COLOR_PNT_SRC_ELORAN = new Color(200, 200, 200);
-    private static final Color COLOR_PNT_SRC_RADAR  = new Color(200, 200, 200);
-    private static final Paint PAINT_JAMMING        
+    private static final Color COLOR_ERROR_ELLIPSE_ERROR   = new Color(100, 200, 100);
+    private static final Color COLOR_ERROR_ELLIPSE_OK      = new Color(100, 200, 100);
+    private static final Color COLOR_HPL_CIRCLE            = new Color(100, 100, 200);
+    private static final Paint PAINT_JAMMING
         = GraphicsUtil.generateTexturePaint(
                         "Jamming", 
                         new Font("Segoe UI", Font.PLAIN, 11), 
@@ -74,7 +70,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
 
         hplCicle.setRenderType(RENDERTYPE_LATLON);
         hplCicle.setLatLon(0, 0); // Avoid NPE's
-        hplCicle.setLinePaint(COLOR_PNT_SRC_GPS);
+        hplCicle.setLinePaint(COLOR_HPL_CIRCLE);
         hplCicle.setStroke(new BasicStroke(
                 STROKE_WIDTH,                   // Width
                 BasicStroke.CAP_SQUARE,         // End cap
@@ -84,7 +80,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
                 0.0f));                         // Dash phase
         add(hplCicle);
 
-        errorEllipse.setLinePaint(COLOR_ERROR_ELLIPSE);
+        errorEllipse.setLinePaint(COLOR_ERROR_ELLIPSE_OK);
         errorEllipse.setStroke(new BasicStroke(
                 STROKE_WIDTH,                   // Width
                 BasicStroke.CAP_SQUARE,         // End cap
@@ -117,25 +113,6 @@ public class RpntErrorGraphic  extends OMGraphicList {
     }
     
     /**
-     * Returns the line color to use for the HPL circle
-     * which depends on the PNT source type
-     * 
-     * @param rpntData the resilient PNT data
-     * @return the color to use for the HPL circle
-     */
-    private Color getHplCircleColor(ResilientPntData rpntData) {
-        if (rpntData != null && rpntData.getPntSource() == PntSource.ELORAN) {
-            return COLOR_PNT_SRC_ELORAN;
-        } else if (rpntData != null && rpntData.getPntSource() == PntSource.RADAR) {
-                return COLOR_PNT_SRC_RADAR;
-        } else if (rpntData != null && rpntData.getPntSource() == PntSource.NONE) {
-            return COLOR_PNT_SRC_NONE;
-        }
-        // Default
-        return COLOR_PNT_SRC_GPS;
-    }
-    
-    /**
      * Updates this {@code RpntErrorGraphic} with the current position and 
      * PNT error information.
      * 
@@ -153,21 +130,24 @@ public class RpntErrorGraphic  extends OMGraphicList {
         if(pos == null || rpntData == null) {
             return;
         }
-        
+
+        int hal = EPD.getInstance().getSettings().getSensorSettings().getMsPntHal();
+
         // Update the UI
-        hplCicle.setLinePaint(getHplCircleColor(rpntData));
         hplCicle.setFillPaint(rpntData.getJammingFlag() != JammingFlag.OK ? PAINT_JAMMING : null);
         hplCicle.setRadius(
-                rpntData.getHpl() / 2.0 * RADIUS_BOOST, 
+                rpntData.getHpl(),
                 Length.METER);
         hplCicle.setLatLon(pos.getLatitude(), pos.getLongitude());
         
         errorEllipse.setAxis(
-                rpntData.getErrorEllipse().getMajorAxis() * RADIUS_BOOST, 
-                rpntData.getErrorEllipse().getMinorAxis() * RADIUS_BOOST, 
+                rpntData.getErrorEllipse().getMajorAxis() * 2,
+                rpntData.getErrorEllipse().getMinorAxis() * 2,
                 Length.METER);
         errorEllipse.setRotationAngle(rpntData.getErrorEllipse().getOMBearing());
         errorEllipse.setLatLon(pos.getLatitude(), pos.getLongitude());
+        errorEllipse.setLinePaint(rpntData.getHpl() > hal ? COLOR_ERROR_ELLIPSE_ERROR : COLOR_ERROR_ELLIPSE_OK);
+
     }
     
     /**

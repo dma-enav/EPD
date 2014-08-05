@@ -151,6 +151,8 @@ public class SensorSettings implements Serializable {
     private String msPntFilename = "";
     private int msPntTcpOrUdpPort = 9999;
     private int msPntSerialPortBaudRate = 38400;
+    private int msPntHal = 25;
+    private boolean msPntTrueHeadingFromCog;
 
     private PntSourceSetting pntSource = PntSourceSetting.AUTO;
 
@@ -198,6 +200,8 @@ public class SensorSettings implements Serializable {
         msPntHostOrSerialPort = props.getProperty(PREFIX + "msPntHostOrSerialPort", msPntHostOrSerialPort);
         msPntTcpOrUdpPort = PropUtils.intFromProperties(props, PREFIX + "msPntTcpOrUdpPort", msPntTcpOrUdpPort);
         msPntSerialPortBaudRate = PropUtils.intFromProperties(props, PREFIX + "msPntSerialPortBaudRate", msPntSerialPortBaudRate);
+        msPntHal = PropUtils.intFromProperties(props, PREFIX + "msPntHal", msPntHal);
+        msPntTrueHeadingFromCog = PropUtils.booleanFromProperties(props, PREFIX + "msPntTrueHeadingFromCog", msPntTrueHeadingFromCog);
         dynamicPredictorConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX
                 + "dynamicPredictorConnectionType", dynamicPredictorConnectionType.name()));
         dynamicPredictorHostOrSerialPort = props.getProperty(PREFIX + "dynamicPredictorHostOrSerialPort",
@@ -246,6 +250,8 @@ public class SensorSettings implements Serializable {
         props.put(PREFIX + "msPntHostOrSerialPort", msPntHostOrSerialPort);
         props.put(PREFIX + "msPntTcpOrUdpPort", Integer.toString(msPntTcpOrUdpPort));
         props.put(PREFIX + "msPntSerialPortBaudRate", Integer.toString(msPntSerialPortBaudRate));
+        props.put(PREFIX + "msPntHal", Integer.toString(msPntHal));
+        props.put(PREFIX + "msPntTrueHeadingFromCog", Boolean.toString(msPntTrueHeadingFromCog));
         props.put(PREFIX + "dynamicPredictorConnectionType", dynamicPredictorConnectionType.name());
         props.put(PREFIX + "dynamicPredictorHostOrSerialPort", dynamicPredictorHostOrSerialPort);
         props.put(PREFIX + "dynamicPredictorTcpOrUdpPort", Integer.toString(dynamicPredictorTcpOrUdpPort));
@@ -312,6 +318,22 @@ public class SensorSettings implements Serializable {
 
     public void setMsPntTcpOrUdpPort(int msPntTcpOrUdpPort) {
         this.msPntTcpOrUdpPort = msPntTcpOrUdpPort;
+    }
+
+    public int getMsPntHal() {
+        return msPntHal;
+    }
+
+    public void setMsPntHal(int msPntHal) {
+        this.msPntHal = msPntHal;
+    }
+
+    public boolean isMsPntTrueHeadingFromCog() {
+        return msPntTrueHeadingFromCog;
+    }
+
+    public void setMsPntTrueHeadingFromCog(boolean msPntTrueHeadingFromCog) {
+        this.msPntTrueHeadingFromCog = msPntTrueHeadingFromCog;
     }
 
     public SensorConnectionType getAisConnectionType() {
