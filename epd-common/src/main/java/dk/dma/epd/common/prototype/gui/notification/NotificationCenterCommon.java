@@ -562,6 +562,10 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
 
         public void run() {
 
+            if (notification == null) {
+                System.out.println("its null now");
+            }
+
             // System.out.println("Run beep " + notification.isRead());
             if (!notification.isRead()) {
 
@@ -573,8 +577,18 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
                     audioClip = EPD.res().folder("audio/").getResource("messagewarning.wav");
                 }
                 if (notification instanceof GeneralNotification) {
-                    if (notification.getTitle().contains("Intended")) {
-                        audioClip = EPD.res().folder("audio/").getResource("tcpawarning.wav");
+                    if (notification.getTitle().contains("CPA Warning")) {
+
+                        // System.out.println("Active intended route index is " +
+                        // EPD.getInstance().getRouteManager().getActiveRouteIndex());
+                        if (EPD.getInstance().getRouteManager().getActiveRouteIndex() < 0) {
+                            notification.setRead(true);
+                            warningTimer.cancel();
+                            return;
+                        } else {
+                            audioClip = EPD.res().folder("audio/").getResource("tcpawarning.wav");
+                        }
+
                     }
                 }
 

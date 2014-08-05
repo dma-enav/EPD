@@ -262,7 +262,6 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
     public void mousePressed(MouseEvent e) {
         super.mousePressed(e);
         if (e.getSource() instanceof MapBean && SwingUtilities.isLeftMouseButton(e) && !super.mouseSupport.fireMapMousePressed(e)) {
-            System.out.println("Starting Zoom");
             // Set the first point.
             this.point1 = e.getPoint();
             // Reset the second point.

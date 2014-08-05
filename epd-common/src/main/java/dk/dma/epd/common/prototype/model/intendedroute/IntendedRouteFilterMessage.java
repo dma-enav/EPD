@@ -29,15 +29,16 @@ public class IntendedRouteFilterMessage {
     int legEndIndex;
     DateTime time1;
     DateTime time2;
-    
-    public IntendedRouteFilterMessage(Position position1, Position position2, String message, int legStartIndex, int legEndIndex) {
+    boolean notificationOnly;
+
+    public IntendedRouteFilterMessage(Position position1, Position position2, String message, int legStartIndex, int legEndIndex, boolean notificationOnly) {
         this.legStartIndex = legStartIndex;
         this.legEndIndex = legEndIndex;
         this.position1 = position1;
         this.position2 = position2;
         this.message = message;
+        this.notificationOnly = notificationOnly;
     }
-
 
     public String getMessage() {
         return message;
@@ -47,21 +48,17 @@ public class IntendedRouteFilterMessage {
         this.message = message;
     }
 
-
     public Position getPosition1() {
         return position1;
     }
-
 
     public void setPosition1(Position position1) {
         this.position1 = position1;
     }
 
-
     public Position getPosition2() {
         return position2;
     }
-
 
     public void setPosition2(Position position2) {
         this.position2 = position2;
@@ -86,13 +83,14 @@ public class IntendedRouteFilterMessage {
     /**
      * Returns if the CPA position is within the given distance in nautical miles
      * 
-     * @param distance the distance in nautical miles
+     * @param distance
+     *            the distance in nautical miles
      * @return if the CPA position is within the given distance
      */
     public boolean isWithinDistance(double distance) {
         return Converter.metersToNm(getDistance()) < distance;
     }
-    
+
     /**
      * Returns the distance in meters between the two points of this message.
      * <p>
@@ -103,9 +101,26 @@ public class IntendedRouteFilterMessage {
     public double getDistance() {
         return getPosition1().distanceTo(getPosition2(), CoordinateSystem.CARTESIAN);
     }
+
+    /**
+     * @return the notificationOnly
+     */
+    public boolean isNotificationOnly() {
+        return notificationOnly;
+    }
+
+    /**
+     * @param notificationOnly the notificationOnly to set
+     */
+    public void setNotificationOnly(boolean notificationOnly) {
+        this.notificationOnly = notificationOnly;
+    }
+
+    
+    
     
     // Severity?
     // Type?
     // Possibly options is Intersection or Proximity Alert?
-    
+
 }

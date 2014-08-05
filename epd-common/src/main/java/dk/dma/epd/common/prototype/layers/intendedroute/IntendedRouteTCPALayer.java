@@ -77,13 +77,17 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
 
     private void repaintTCPAs() {
 
-        synchronized(graphics) {
+        synchronized (graphics) {
             graphics.clear();
-    
+
             for (FilteredIntendedRoute filteredIntendedRoute : intendedRouteHandler.getFilteredIntendedRoutes().values()) {
                 IntendedRouteFilterMessage minDistMessage = filteredIntendedRoute.getMinimumDistanceMessage();
                 for (IntendedRouteFilterMessage message : filteredIntendedRoute.getFilterMessages()) {
-                    graphics.add(new IntendedRouteTCPAGraphic(message, message == minDistMessage));
+
+                    if (!message.isNotificationOnly()) {
+                        graphics.add(new IntendedRouteTCPAGraphic(message, message == minDistMessage));
+                    }
+
                 }
             }
         }

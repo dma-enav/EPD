@@ -55,7 +55,8 @@ import dk.dma.epd.ship.settings.handlers.IIntendedRouteHandlerSettingsObserver;
  * <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
  * </ul>
  */
-public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable, IIntendedRouteHandlerSettingsObserver {
+public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable,
+        IIntendedRouteHandlerSettingsObserver {
 
     private static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandler.class);
     private static long BROADCAST_TIME = 60; // Broadcast intended route every minute for now
@@ -66,9 +67,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     private DateTime lastSend = new DateTime(1);
     private RouteManager routeManager;
     private boolean running;
-    
-    private IntendedRouteLayerCommon intendedRouteLayerCommon;
 
+    private IntendedRouteLayerCommon intendedRouteLayerCommon;
 
     /**
      * Constructor
@@ -97,7 +97,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     public void cloudDisconnected() {
         running = false;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -106,7 +106,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         // Before shutting down, attempt to broadcast a no-intended route message
         // so that other clients will remove the intended route of this ship
         broadcastIntendedRoute(null, false);
-        
+
         super.shutdown();
     }
 
@@ -191,12 +191,14 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     public void broadcastIntendedRoute() {
         broadcastIntendedRoute(routeManager.getActiveRoute(), true);
     }
-    
+
     /**
      * Broadcast intended route
      * 
-     * @param  activeRoute the active route to broadcast
-     * @param async whether to broadcast the message asynchronously or not
+     * @param activeRoute
+     *            the active route to broadcast
+     * @param async
+     *            whether to broadcast the message asynchronously or not
      */
     public void broadcastIntendedRoute(ActiveRoute activeRoute, boolean async) {
         // Sanity check
@@ -219,7 +221,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
         // send message
         LOG.debug("Broadcasting intended route");
-        
+
         Runnable broadcastMessage = new Runnable() {
             @Override
             public void run() {
@@ -228,7 +230,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 getMaritimeCloudConnection().broadcast(message, options);
             }
         };
-        
+
         if (async) {
             submitIfConnected(broadcastMessage);
         } else {
@@ -264,8 +266,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         if (obj instanceof RouteManager) {
             routeManager = (RouteManager) obj;
             routeManager.addListener(this);
-        }
-        else if (obj instanceof IntendedRouteLayerCommon) {
+        } else if (obj instanceof IntendedRouteLayerCommon) {
             intendedRouteLayerCommon = (IntendedRouteLayerCommon) obj;
         }
     }
@@ -283,7 +284,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     }
 
     /****************************************/
-    /** Intended route filtering           **/
+    /** Intended route filtering **/
     /****************************************/
 
     /**
@@ -292,32 +293,31 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     @Override
     protected String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute) {
 
-        Long otherMmsi = (filteredIntendedRoute.getMmsi1().equals(getOwnShipMmsi()))
-                ? filteredIntendedRoute.getMmsi2()
+        Long otherMmsi = (filteredIntendedRoute.getMmsi1().equals(getOwnShipMmsi())) ? filteredIntendedRoute.getMmsi2()
                 : filteredIntendedRoute.getMmsi1();
-        
-                IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
-        return String.format("Your active route comes within %s of MMSI %d at %s.", 
-                Formatter.formatDistNM(Converter.metersToNm(msg.getDistance())),
-                otherMmsi,
+
+        IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
+        return String.format("Your active route comes within %s of MMSI %d at %s.",
+                Formatter.formatDistNM(Converter.metersToNm(msg.getDistance())), otherMmsi,
                 Formatter.formatYodaTime(msg.getTime1()));
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public Long getMmsi(Route route) {
         if (route instanceof IntendedRoute) {
-            return ((IntendedRoute)route).getMmsi(); 
-        } 
-        
+            return ((IntendedRoute) route).getMmsi();
+        }
+
         // Must be the active route. Return own-ship MMSI
         return getOwnShipMmsi();
     }
-    
+
     /**
      * Returns the own-ship MMSI or -1 if undefined
+     * 
      * @return the own-ship MMSI
      */
     public Long getOwnShipMmsi() {
@@ -333,7 +333,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
         // Recalculate everything
         // Compare all routes to current active route
-        
+
         FilteredIntendedRoutes filteredIntendedRoutes = new FilteredIntendedRoutes();
 
         // Compare all intended routes against our own active route
@@ -349,30 +349,30 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
                 IntendedRoute recievedRoute = intendedRoute.getValue();
 
-                FilteredIntendedRoute filter = findTCPA(activeRoute, recievedRoute);                
-                //Try other way around
-                if (!filter.include()){
+                FilteredIntendedRoute filter = findTCPA(activeRoute, recievedRoute);
+                // Try other way around
+                if (!filter.include()) {
                     filter = findTCPA(recievedRoute, activeRoute);
                 }
-                
-                //No warnings, ignore it
-                if (filter.include()){
-    
-                    //Add the filtered route to the list
+
+                // No warnings, ignore it
+                if (filter.include()) {
+
+                    // Add the filtered route to the list
                     filteredIntendedRoutes.add(filter);
-                    
+
                 }
-                
+
             }
 
-            //Call an update
+            // Call an update
             intendedRouteLayerCommon.loadIntendedRoutes();
-            
+
         }
-        
+
         // Check if we need to raise any alerts
         checkGenerateNotifications(this.filteredIntendedRoutes, filteredIntendedRoutes);
-        
+
         // Override the old set of filtered intended route
         this.filteredIntendedRoutes = filteredIntendedRoutes;
     }
@@ -384,42 +384,40 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
      */
     @Override
     protected void applyFilter(IntendedRoute route) {
-
         // If previous intended route exist re-apply filter
 
         if (routeManager.getActiveRoute() != null) {
-            
-            FilteredIntendedRoute filter = findTCPA(routeManager.getActiveRoute(), route);            
-            //Try other way around
-            if (!filter.include()){
+
+            FilteredIntendedRoute filter = findTCPA(routeManager.getActiveRoute(), route);
+            // Try other way around
+            if (!filter.include()) {
                 filter = findTCPA(route, routeManager.getActiveRoute());
             }
-            
-            
-            //No warnings, ignore it
-            if (!filter.include()){
-                
-                //Remove it, if it exists
-                if (this.filteredIntendedRoutes.containsKey(route.getMmsi())){
+
+            // No warnings, ignore it
+            if (!filter.include()) {
+
+                // Remove it, if it exists
+                if (this.filteredIntendedRoutes.containsKey(route.getMmsi())) {
                     filteredIntendedRoutes.remove(route.getMmsi());
                     LOG.debug("Remove from filter");
                 }
-                
+
             } else {
                 // Check if we should generate notification
                 checkGenerateNotifications(filteredIntendedRoutes, filter);
-                
-                //Add the filtered route to the list
+
+                // Add the filtered route to the list
                 filteredIntendedRoutes.add(filter);
-                
-            }            
+
+            }
         }
     }
 
     @Override
     public void sendIntendedRouteChanged(boolean value) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -434,13 +432,13 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     }
 
     /**
-     * Updates settings by invoking super implementation.
-     * Additionally calls {@link #updateFilter()} to refresh the filter according to the updated settings.
+     * Updates settings by invoking super implementation. Additionally calls {@link #updateFilter()} to refresh the filter according
+     * to the updated settings.
      */
     @Override
     public void updateSettings(EnavSettings settings) {
         super.updateSettings(settings);
-        if(this.routeManager != null) {
+        if (this.routeManager != null) {
             // Reapply filter with updated settings.
             this.updateFilter();
             /*
@@ -449,5 +447,5 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             this.fireIntendedEvent(null);
         }
     }
-    
+
 }
