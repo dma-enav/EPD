@@ -57,7 +57,6 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
 
     /**
      * Constructor
-     * @param pntHandler
      */
     public MultiSourcePntHandler() {
     }
@@ -70,14 +69,22 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
     public synchronized void receive(ResilientPntData rpntData) {
         // Log significant changes
         if (this.rpntData != null && this.rpntData.getPntSource() != rpntData.getPntSource()) {
-            String desc = String.format("Changed PNT source from %s to %s", this.rpntData.getPntSource(), rpntData.getPntSource());
+            String desc = String.format("Changed PNT source from %s to %s.", this.rpntData.getPntSource(), rpntData.getPntSource());
             LOG.warn("******** " + desc);
-            sendNotification(NotificationSeverity.ALERT, "PNT Source Changed", desc);
+            if (rpntData.getPntSource() != PntSource.GPS) {
+                desc += "\nGPS has become unreliable, cross check other bridge systems which may use GPS as they may also be affected.\n"
+                      + "Systems can include: radar, gyrocompass, DSC/GMDSS, dynamic positioning system …";
+                sendNotification(NotificationSeverity.ALERT, "PNT Source Changed", desc);
+            } else {
+                sendNotification(NotificationSeverity.MESSAGE, "PNT Source Changed", desc);
+            }
         }
-        if (this.rpntData != null && this.rpntData.getJammingFlag() != rpntData.getJammingFlag()) {
-            String desc = String.format("Changed GPS jamming state from %s to %s", this.rpntData.getJammingFlag(), rpntData.getJammingFlag());
+        if (this.rpntData != null &&
+                this.rpntData.getJammingFlag() != rpntData.getJammingFlag() &&
+                rpntData.getJammingFlag() == ResilientPntData.JammingFlag.JAMMING) {
+            String desc = "Horizontal Alert Limit exceeded, position accuracy reduced, cross check!";
             LOG.warn("******** " + desc);
-            sendNotification(NotificationSeverity.WARNING, "GPS Jamming Change", desc);
+            sendNotification(NotificationSeverity.WARNING, "GPS Integrity Alert", desc);
         }
         this.rpntData = rpntData;
         

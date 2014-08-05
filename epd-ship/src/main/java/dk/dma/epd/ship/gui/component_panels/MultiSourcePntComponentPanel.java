@@ -14,21 +14,22 @@
  */
 package dk.dma.epd.ship.gui.component_panels;
 
-import java.awt.BorderLayout;
-
-import javax.swing.border.EtchedBorder;
-
 import com.bbn.openmap.gui.OMComponentPanel;
-
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.sensor.rpnt.IResilientPntDataListener;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
 import dk.dma.epd.ship.gui.panels.MultiSourcePntPanel;
+import dk.dma.epd.ship.ownship.IOwnShipListener;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
+
+import javax.swing.border.EtchedBorder;
+import java.awt.BorderLayout;
 
 /**
  * Panel that displays the status of the multi-source PNT
  */
-public class MultiSourcePntComponentPanel extends OMComponentPanel implements IResilientPntDataListener, DockableComponentPanel {
+public class MultiSourcePntComponentPanel extends OMComponentPanel implements IResilientPntDataListener, IOwnShipListener, DockableComponentPanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -60,13 +61,32 @@ public class MultiSourcePntComponentPanel extends OMComponentPanel implements IR
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void ownShipUpdated(final OwnShipHandler ownShipHandler) {
+        // Update MS PNT panel
+        msPntPanel.shipPntDataChanged(ownShipHandler.getPositionData(), ownShipHandler.getStaticData());
+    }
+
+    @Override
+    public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
+        // Update MS PNT panel
+        msPntPanel.shipPntDataChanged(null, null);
+    }
+
+    /**
      * Called when a new bean is set on the context
      * @param obj the bean
      */
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        if (msPntHandler == null && obj instanceof MultiSourcePntHandler) {
+        if (obj instanceof OwnShipHandler) {
+            ((OwnShipHandler)obj).addListener(this);
+            ownShipUpdated((OwnShipHandler) obj);
+
+        } else if (msPntHandler == null && obj instanceof MultiSourcePntHandler) {
             msPntHandler = (MultiSourcePntHandler)obj;
             msPntHandler.addResilientPntDataListener(this);
         }
@@ -78,7 +98,10 @@ public class MultiSourcePntComponentPanel extends OMComponentPanel implements IR
      */
     @Override
     public void findAndUndo(Object obj) {
-        if (obj == msPntHandler) {
+        if (obj instanceof OwnShipHandler) {
+            ((OwnShipHandler)obj).removeListener(this);
+
+        } else if (obj == msPntHandler) {
             msPntHandler.removeResilientPntDataListener(this);
             msPntHandler = null;
         }
