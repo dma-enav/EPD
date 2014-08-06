@@ -36,7 +36,7 @@ import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteCPALayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -296,9 +296,9 @@ public class ChartPanel extends ChartPanelCommon {
             mapHandler.add(intendedRouteLayer);
 
             // Create TCPA Graphics
-            intendedRouteTCPALayer = new IntendedRouteTCPALayer();
-            intendedRouteTCPALayer.setVisible(true);
-            mapHandler.add(intendedRouteTCPALayer);
+            intendedRouteCPALayer = new IntendedRouteCPALayer();
+            intendedRouteCPALayer.setVisible(true);
+            mapHandler.add(intendedRouteCPALayer);
 
         }
 
@@ -344,9 +344,9 @@ public class ChartPanel extends ChartPanelCommon {
             mapHandler.add(intendedRouteLayer);
 
             // Create TCPA Graphics
-            intendedRouteTCPALayer = new IntendedRouteTCPALayer();
-            intendedRouteTCPALayer.setVisible(true);
-            mapHandler.add(intendedRouteTCPALayer);
+            intendedRouteCPALayer = new IntendedRouteCPALayer();
+            intendedRouteCPALayer.setVisible(true);
+            mapHandler.add(intendedRouteCPALayer);
 
         }
 

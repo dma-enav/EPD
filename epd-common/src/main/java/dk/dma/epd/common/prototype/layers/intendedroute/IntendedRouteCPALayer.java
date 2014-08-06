@@ -36,7 +36,7 @@ import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
  */
-public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedRouteListener, ProjectionListener,
+public class IntendedRouteCPALayer extends EPDLayerCommon implements IIntendedRouteListener, ProjectionListener,
         IRoutesUpdateListener {
 
     private static final long serialVersionUID = 1L;
@@ -46,18 +46,18 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
      */
     protected ConcurrentHashMap<Long, IntendedRouteGraphic> intendedRoutes = new ConcurrentHashMap<>();
 
-    protected IntendedRouteTCPAInfoPanel tcpaInfoPanel = new IntendedRouteTCPAInfoPanel();
+    protected IntendedRouteCPAInfoPanel tcpaInfoPanel = new IntendedRouteCPAInfoPanel();
 
     private IntendedRouteHandlerCommon intendedRouteHandler;
 
     /**
      * Constructor
      */
-    public IntendedRouteTCPALayer() {
+    public IntendedRouteCPALayer() {
         super();
 
         // Automatically add info panels
-        registerInfoPanel(tcpaInfoPanel, IntendedRouteTCPAGraphic.class);
+        registerInfoPanel(tcpaInfoPanel, IntendedRouteCPAGraphic.class);
 
         // Register the classes the will trigger the map menu
         // registerMapMenuClasses(IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
@@ -85,7 +85,7 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
                 for (IntendedRouteFilterMessage message : filteredIntendedRoute.getFilterMessages()) {
 
                     if (!message.isNotificationOnly()) {
-                        graphics.add(new IntendedRouteTCPAGraphic(message, message == minDistMessage));
+                        graphics.add(new IntendedRouteCPAGraphic(message, message == minDistMessage));
                     }
 
                 }
@@ -135,8 +135,8 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
      */
     @Override
     protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
-        if (newClosest instanceof IntendedRouteTCPAGraphic) {
-            tcpaInfoPanel.showWpInfo((IntendedRouteTCPAGraphic) newClosest);
+        if (newClosest instanceof IntendedRouteCPAGraphic) {
+            tcpaInfoPanel.showWpInfo((IntendedRouteCPAGraphic) newClosest);
         }
         return true;
     }

@@ -39,7 +39,7 @@ import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteCPALayer;
 import dk.dma.epd.common.prototype.layers.predictor.DynamicPredictorLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
@@ -255,9 +255,9 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         intendedRouteLayer.setVisible(true);
         mapHandler.add(intendedRouteLayer);
 
-        intendedRouteTCPALayer = new IntendedRouteTCPALayer();
-        intendedRouteTCPALayer.setVisible(true);
-        mapHandler.add(intendedRouteTCPALayer);
+        intendedRouteCPALayer = new IntendedRouteCPALayer();
+        intendedRouteCPALayer.setVisible(true);
+        mapHandler.add(intendedRouteCPALayer);
 
         // Create dynamic prediction layer
         if (EPDShip.getInstance().getSettings().getNavSettings().isDynamicPrediction()) {

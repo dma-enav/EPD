@@ -27,7 +27,7 @@ import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessag
 /**
  * Graphic for intended route TCPA
  */
-public class IntendedRouteTCPAGraphic extends OMGraphicList {
+public class IntendedRouteCPAGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
     private static final boolean ALWAYS_DRAW_ENDPOINTS = true;
@@ -36,7 +36,7 @@ public class IntendedRouteTCPAGraphic extends OMGraphicList {
     private IntendedRouteFilterMessage message;
     private boolean isMinDist;
 
-    public IntendedRouteTCPAGraphic(IntendedRouteFilterMessage message, boolean isMinDist) {
+    public IntendedRouteCPAGraphic(IntendedRouteFilterMessage message, boolean isMinDist) {
 
         this.message = message;
         this.isMinDist = isMinDist;
