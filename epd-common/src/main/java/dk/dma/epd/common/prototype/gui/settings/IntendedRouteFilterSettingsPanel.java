@@ -40,7 +40,7 @@ public class IntendedRouteFilterSettingsPanel extends JPanel {
     
     public IntendedRouteFilterSettingsPanel() {
         this.setBounds(6, 260, 438, 140);
-        this.setBorder(new TitledBorder(null, "Intended Route Filter"));
+        this.setBorder(new TitledBorder(null, "CPA Route Filter"));
         this.setLayout(null);
         
         JLabel lblTimeToLive = new JLabel("Time to live (min)");
@@ -53,17 +53,17 @@ public class IntendedRouteFilterSettingsPanel extends JPanel {
         spinnerTimeToLive.setBounds(16, 20, 75, 20);
         this.add(spinnerTimeToLive);
         
-        JLabel lblFilterDistanceEpsilon = new JLabel("Filter Distance (nm)");
-        lblFilterDistanceEpsilon.setBounds(103, 47, 123, 16);
+        JLabel lblFilterDistanceEpsilon = new JLabel("Route CPA ENC Warning Distance (nm)");
+        lblFilterDistanceEpsilon.setBounds(103, 47, 200, 16);
         this.add(lblFilterDistanceEpsilon);
         
         spinnerFilterDistance = new JSpinner();
-        spinnerFilterDistance.setModel(new SpinnerNumberModel(new Double(0), new Double(0), null, new Double(0.1)));
+        spinnerFilterDistance.setModel(new SpinnerNumberModel(new Double(4), new Double(0), null, new Double(0.1)));
         spinnerFilterDistance.setBounds(16, 45, 75, 20);
         this.add(spinnerFilterDistance);
         
-        JLabel lblNotificationDistancenm = new JLabel("Notification Distance (nm)");
-        lblNotificationDistancenm.setBounds(103, 72, 166, 16);
+        JLabel lblNotificationDistancenm = new JLabel("Route CPA Notification Distance (nm)");
+        lblNotificationDistancenm.setBounds(103, 72, 200, 16);
         this.add(lblNotificationDistancenm);
         
         spinnerNotificationDistance = new JSpinner();
@@ -71,8 +71,8 @@ public class IntendedRouteFilterSettingsPanel extends JPanel {
         spinnerNotificationDistance.setBounds(16, 70, 75, 20);
         this.add(spinnerNotificationDistance);
         
-        JLabel lblAlertDistance = new JLabel("Alert Distance (nm)");
-        lblAlertDistance.setBounds(103, 97, 121, 16);
+        JLabel lblAlertDistance = new JLabel("Route CPA Alert Distance (nm)");
+        lblAlertDistance.setBounds(103, 97, 200, 16);
         this.add(lblAlertDistance);
         
         spinnerAlertDistance = new JSpinner();
