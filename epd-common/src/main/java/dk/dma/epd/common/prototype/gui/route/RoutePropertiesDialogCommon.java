@@ -605,6 +605,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             route.setEtaCalculationType((EtaCalculationType)etaCalculationTime.getSelectedItem());
             adjustStartTime();
             routeUpdated();
+
         } else if (evt.getSource() == allSpeedsBtn) {
             double speed;
             try {
@@ -622,6 +623,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             }
             adjustStartTime();
         }
+        
+        EPD.getInstance().getRouteManager()
+        .notifyListeners(RoutesUpdateEvent.ROUTE_CHANGED);
     }
 
     /** 

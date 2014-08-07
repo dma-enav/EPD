@@ -172,12 +172,10 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
             return true;
 
         } else if (newClosest instanceof WaypointCircle) {
-            System.out.println("Waypoint circle graphic");
             WaypointCircle waypointCircle = (WaypointCircle) closest;
             routeInfoPanel.showWpInfo(waypointCircle.getRoute(), waypointCircle.getWpIndex());
             return true;
         } else if (newClosest instanceof RouteLegGraphic) {
-            System.out.println("Route leg graphic");
             Point2D worldLocation = chartPanel.getMap().getProjection().inverse(evt.getPoint());
             routeInfoPanel.showLegInfo((RouteLegGraphic) newClosest, worldLocation);
             closest = dummyCircle;

@@ -26,6 +26,7 @@ import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**
  * Graphic for showing routes
@@ -111,7 +112,8 @@ public class RouteGraphic extends OMGraphicList {
                 } else {
                     float[] dash = { 1000000.0f };
 
-                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, broadLineColor, dash, SCALE);
+                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, broadLineColor, dash,
+                            SCALE);
                 }
 
                 add(routeLegGraphic);
@@ -132,27 +134,52 @@ public class RouteGraphic extends OMGraphicList {
         routeWaypoints = route.getWaypoints();
         int i = 0;
         for (RouteWaypoint routeWaypoint : routeWaypoints) {
+
+            Color waypointColor = color;
+            Color legColor = color;
+            int compareDates;
+            
+            //Do not use check if constructing a route
+            if (route.getEtas().size() > i) {
+                compareDates = route.getEtas().get(i).compareTo(PntTime.getInstance().getDate());
+
+                if (compareDates < 0) {
+                    waypointColor = Color.GRAY;
+                }
+
+            }
+
+            // We only want to color the leg if both start and end waypoint is back in time
+            if (route.getEtas().size() > i + 1) {
+
+                compareDates = route.getEtas().get(i + 1).compareTo(PntTime.getInstance().getDate());
+
+                if (compareDates < 0) {
+                    legColor = Color.GRAY;
+                }
+
+            }
+
             if (route instanceof ActiveRoute && ((ActiveRoute) route).getActiveWaypointIndex() == i) {
                 RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(route, routeIndex, i, routeWaypoint,
-                        Color.RED, 30, 30, SCALE);
+                        waypointColor, 30, 30, SCALE);
                 add(0, routeWaypointGraphicActive);
             }
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg routeLeg = routeWaypoint.getOutLeg();
-                
+
                 RouteLegGraphic routeLegGraphic;
-                if (route instanceof ActiveRoute){
-                    routeLegGraphic = new ActiveRouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, SCALE, this, i);     
-                }else{
-                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, SCALE, this, i);
+                if (route instanceof ActiveRoute) {
+                    routeLegGraphic = new ActiveRouteLegGraphic(routeLeg, routeIndex, legColor, this.routeStroke, SCALE, this, i);
+                } else {
+                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, legColor, this.routeStroke, SCALE, this, i);
                 }
-                
-                
+
                 add(routeLegGraphic);
                 routeLegs.add(0, routeLegGraphic);
             }
-            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(route, routeIndex, i, routeWaypoint, this.color,
-                    18, 18, SCALE);
+            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(route, routeIndex, i, routeWaypoint,
+                    waypointColor, 18, 18, SCALE);
             add(0, routeWaypointGraphic);
             i++;
         }
