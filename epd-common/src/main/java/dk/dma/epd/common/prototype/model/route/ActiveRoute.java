@@ -133,7 +133,7 @@ public class ActiveRoute extends Route {
         } else {
             activeWp = getBestWaypoint(route, pntData);
         }
-        
+
         changeActiveWaypoint(activeWp);
 
     }
@@ -217,7 +217,7 @@ public class ActiveRoute extends Route {
             RouteWaypoint wp = originalRoute.getWaypoints().get(0);
             safeHavenBearing = computeBearing(wp.getOutLeg());
             safeHavenLength = wp.getOutLeg().getSFLen();
-            safeHavenWidth = wp.getOutLeg().getSFWidth();
+            safeHavenWidth = wp.getOutLeg().getXtdPortMeters() + wp.getOutLeg().getXtdStarboardMeters();
             safeHavenSpeed = 0;
             safeHavenLocation = wp.getPos();
 
@@ -231,7 +231,8 @@ public class ActiveRoute extends Route {
                 if (i == originalRoute.getWaypoints().size() - 1) {
                     safeHavenBearing = computeBearing(originalRoute.getWaypoints().getLast().getInLeg());
                     safeHavenLength = getWaypoints().get(i - 1).getOutLeg().getSFLen();
-                    safeHavenWidth = getWaypoints().get(i - 1).getOutLeg().getSFWidth();
+                    safeHavenWidth = getWaypoints().get(i - 1).getOutLeg().getXtdPortMeters()
+                            + getWaypoints().get(i - 1).getOutLeg().getXtdStarboardMeters();
                     safeHavenSpeed = 0;
                     safeHavenLocation = originalRoute.getWaypoints().get(i).getPos();
                     return safeHavenLocation;
@@ -257,7 +258,8 @@ public class ActiveRoute extends Route {
 
                         safeHavenBearing = computeBearing(originalRoute.getWaypoints().get(i).getOutLeg());
                         safeHavenLength = getWaypoints().get(i).getOutLeg().getSFLen();
-                        safeHavenWidth = getWaypoints().get(i).getOutLeg().getSFWidth();
+                        safeHavenWidth = getWaypoints().get(i).getOutLeg().getXtdPortMeters()
+                                + getWaypoints().get(i).getOutLeg().getXtdStarboardMeters();
                         safeHavenSpeed = originalRoute.getWaypoints().get(i).getOutLeg().getSpeed();
 
                         return safeHavenLocation;
@@ -536,8 +538,7 @@ public class ActiveRoute extends Route {
                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
                 routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
-                routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
-                routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFWidth());
+                routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFLen());
 
                 voyageWaypoint.setRouteLeg(routeLeg);
             }
@@ -639,8 +640,7 @@ public class ActiveRoute extends Route {
                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
                 routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
-                routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
-                routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFWidth());
+                routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFLen());
                 if (currentWaypoint.getOutLeg().getHeading() == Heading.GC) {
                     routeLeg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.GC);
                 } else {

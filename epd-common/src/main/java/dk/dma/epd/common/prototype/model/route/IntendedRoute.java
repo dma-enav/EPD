@@ -134,11 +134,6 @@ public class IntendedRoute extends Route {
                         waypoint.getOutLeg().setXtdPort(cloudWaypoint.getRouteLeg().getXtdPort());
                     }
 
-                    // SF Width
-                    if (cloudWaypoint.getRouteLeg().getSFWidth() != null) {
-                        waypoint.getOutLeg().setSFWidth(cloudWaypoint.getRouteLeg().getSFWidth());
-                    }
-
                     // SF Len
                     if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
                         waypoint.getOutLeg().setSFLen(cloudWaypoint.getRouteLeg().getSFLen());

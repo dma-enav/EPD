@@ -191,7 +191,6 @@ public class Route implements Serializable {
             newRouteLeg.setXtdStarboard(routeLeg.getXtdStarboard());
             newRouteLeg.setXtdPort(routeLeg.getXtdPort());
             newRouteLeg.setSFLen(routeLeg.getSFLen());
-            newRouteLeg.setSFWidth(routeLeg.getSFWidth());
 
             newRouteLeg.setStartWp(currWaypoint);
             newRouteLeg.setEndWp(nextWaypoint);
@@ -963,7 +962,6 @@ public class Route implements Serializable {
                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
                 routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
-                routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
                 routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFLen());
 
                 voyageWaypoint.setRouteLeg(routeLeg);
@@ -1025,11 +1023,6 @@ public class Route implements Serializable {
                     // XTDP
                     if (cloudWaypoint.getRouteLeg().getXtdPort() != null) {
                         waypoint.getOutLeg().setXtdPort(cloudWaypoint.getRouteLeg().getXtdPort());
-                    }
-
-                    // SF Width
-                    if (cloudWaypoint.getRouteLeg().getSFWidth() != null) {
-                        waypoint.getOutLeg().setSFWidth(cloudWaypoint.getRouteLeg().getSFWidth());
                     }
 
                     // SF Len
