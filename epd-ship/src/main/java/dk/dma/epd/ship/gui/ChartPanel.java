@@ -256,7 +256,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         mapHandler.add(intendedRouteLayer);
 
         intendedRouteCPALayer = new IntendedRouteCPALayer();
-        intendedRouteCPALayer.setVisible(true);
+        intendedRouteLayer.addVisibilityManagedLayer(intendedRouteCPALayer);
         mapHandler.add(intendedRouteCPALayer);
 
         // Create dynamic prediction layer

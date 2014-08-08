@@ -82,10 +82,11 @@ public class IntendedRouteCPALayer extends EPDLayerCommon implements IIntendedRo
 
             for (FilteredIntendedRoute filteredIntendedRoute : intendedRouteHandler.getFilteredIntendedRoutes().values()) {
                 IntendedRouteFilterMessage minDistMessage = filteredIntendedRoute.getMinimumDistanceMessage();
+                boolean acknowledged = filteredIntendedRoute.isNotificationAcknowledged();
                 for (IntendedRouteFilterMessage message : filteredIntendedRoute.getFilterMessages()) {
 
-                    if (!message.isNotificationOnly()) {
-                        graphics.add(new IntendedRouteCPAGraphic(message, message == minDistMessage));
+                    if (!message.isNotificationOnly() && message.routesVisible()) {
+                        graphics.add(new IntendedRouteCPAGraphic(message, message == minDistMessage, acknowledged));
                     }
 
                 }

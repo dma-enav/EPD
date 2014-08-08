@@ -14,14 +14,16 @@
  */
 package dk.dma.epd.common.prototype.model.intendedroute;
 
-import org.joda.time.DateTime;
-
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.Converter;
+import org.joda.time.DateTime;
 
 public class IntendedRouteFilterMessage {
 
+    Route route1;
+    Route route2;
     Position position1;
     Position position2;
     String message;
@@ -31,7 +33,9 @@ public class IntendedRouteFilterMessage {
     DateTime time2;
     boolean notificationOnly;
 
-    public IntendedRouteFilterMessage(Position position1, Position position2, String message, int legStartIndex, int legEndIndex, boolean notificationOnly) {
+    public IntendedRouteFilterMessage(Route route1, Route route2, Position position1, Position position2, String message, int legStartIndex, int legEndIndex, boolean notificationOnly) {
+        this.route1 = route1;
+        this.route2 = route2;
         this.legStartIndex = legStartIndex;
         this.legEndIndex = legEndIndex;
         this.position1 = position1;
@@ -107,6 +111,10 @@ public class IntendedRouteFilterMessage {
      */
     public boolean isNotificationOnly() {
         return notificationOnly;
+    }
+
+    public boolean routesVisible() {
+        return route1.isVisible() && route2.isVisible();
     }
 
     /**

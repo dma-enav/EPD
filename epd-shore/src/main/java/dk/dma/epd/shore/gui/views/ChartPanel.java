@@ -297,7 +297,7 @@ public class ChartPanel extends ChartPanelCommon {
 
             // Create TCPA Graphics
             intendedRouteCPALayer = new IntendedRouteCPALayer();
-            intendedRouteCPALayer.setVisible(true);
+            intendedRouteLayer.addVisibilityManagedLayer(intendedRouteCPALayer);
             mapHandler.add(intendedRouteCPALayer);
 
         }
@@ -345,7 +345,7 @@ public class ChartPanel extends ChartPanelCommon {
 
             // Create TCPA Graphics
             intendedRouteCPALayer = new IntendedRouteCPALayer();
-            intendedRouteCPALayer.setVisible(true);
+            intendedRouteLayer.addVisibilityManagedLayer(intendedRouteCPALayer);
             mapHandler.add(intendedRouteCPALayer);
 
         }

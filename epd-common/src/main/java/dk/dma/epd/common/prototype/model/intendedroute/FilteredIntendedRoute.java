@@ -26,6 +26,7 @@ public class FilteredIntendedRoute {
 
     List<IntendedRouteFilterMessage> filterMessages;
     boolean generatedNotification;
+    boolean notificationAcknowledged;
     Long mmsi1;
     Long mmsi2;
     
@@ -135,6 +136,22 @@ public class FilteredIntendedRoute {
      */
     public void setGeneratedNotification(boolean generatedNotification) {
         this.generatedNotification = generatedNotification;
+    }
+
+    /**
+     * Returns if any associated notification has been acknowledged
+     * @return if any associated notification has been acknowledged
+     */
+    public boolean isNotificationAcknowledged() {
+        return notificationAcknowledged;
+    }
+
+    /**
+     * Sets if any associated notification has been acknowledged
+     * @param notificationAcknowledged  if any associated notification has been acknowledged
+     */
+    public void setNotificationAcknowledged(boolean notificationAcknowledged) {
+        this.notificationAcknowledged = notificationAcknowledged;
     }
 
     /**

@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.maritimecloud.core.id.MaritimeId;
 import dk.dma.enav.model.geometry.Position;
@@ -50,6 +51,7 @@ public class Notification<T, I> implements Serializable {
     protected boolean autoAcknowledge;
     protected Date date = new Date();
     protected MaritimeId targetId;
+    protected List<INotificationListener> listeners = new CopyOnWriteArrayList<>();
     
     /**
      * Constructor
@@ -215,7 +217,10 @@ public class Notification<T, I> implements Serializable {
      * @return whether the notification has been read or not
      */
     public void setRead(boolean read) {
-        this.read = read;
+        if (read != this.read) {
+            this.read = read;
+            fireNotificationUpdated();
+        }
     }
 
     /**
@@ -231,7 +236,10 @@ public class Notification<T, I> implements Serializable {
      * @return whether the notification has been acknowledged or not
      */
     public void setAcknowledged(boolean acknowledged) {
-        this.acknowledged = acknowledged;
+        if (acknowledged != this.acknowledged) {
+            this.acknowledged = acknowledged;
+            fireNotificationUpdated();
+        }
     }
     
     /**
@@ -306,5 +314,30 @@ public class Notification<T, I> implements Serializable {
         html.append(String.format("<tr><th valign='top'>Description:</th><td>%s</td></tr>", Formatter.formatHtml(description)));
         html.append("</table>");
         return html.append("</html>").toString();
+    }
+
+    /**
+     * Adds a new notification listener
+     * @param listener the listener to add
+     */
+    public void addListener(INotificationListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Removes a notification listener
+     * @param listener the listener to remove
+     */
+    public void removeListener(INotificationListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Notifies the listeners
+     */
+    protected void fireNotificationUpdated() {
+        for (INotificationListener listener : listeners) {
+            listener.notificationUpdated(this);
+        }
     }
 }

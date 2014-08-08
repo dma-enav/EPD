@@ -30,16 +30,17 @@ import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessag
 public class IntendedRouteCPAGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
-    private static final boolean ALWAYS_DRAW_ENDPOINTS = true;
     private static final float SCALE = 0.7f; // "Size" of graphics
     
     private IntendedRouteFilterMessage message;
     private boolean isMinDist;
+    private boolean acknowledged;
 
-    public IntendedRouteCPAGraphic(IntendedRouteFilterMessage message, boolean isMinDist) {
+    public IntendedRouteCPAGraphic(IntendedRouteFilterMessage message, boolean isMinDist, boolean acknowledged) {
 
         this.message = message;
         this.isMinDist = isMinDist;
+        this.acknowledged = acknowledged;
 
         this.setVague(true);
         
@@ -47,7 +48,9 @@ public class IntendedRouteCPAGraphic extends OMGraphicList {
     }
 
     private void initGraphics() {
-        if (isMinDist || ALWAYS_DRAW_ENDPOINTS) {
+        boolean emphasized = isMinDist || !acknowledged;
+
+        if (emphasized) {
             OMPoint endPoint1 = new OMPoint(message.getPosition1().getLatitude(), message.getPosition1().getLongitude(),
                     (int) (5 * SCALE));
             
@@ -71,13 +74,15 @@ public class IntendedRouteCPAGraphic extends OMGraphicList {
         OMLine broadLine = new OMLine(message.getPosition1().getLatitude(), message.getPosition1().getLongitude(), message
                 .getPosition2().getLatitude(), message.getPosition2().getLongitude(), LineType._LT_Straight);
         
-//        broadLine.setLinePaint(Color.YELLOW);
-        float alpha = 0.5f;
+
+        // Yellow bg line
+        float alpha = emphasized ? 0.5f : 0.1f;
         Color color = new Color(1, 1, 0, alpha); //Yellow 
         broadLine.setLinePaint(color);
         
         broadLine.setStroke(new BasicStroke(12.0f * SCALE, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
 
+        // Thin red line
         OMLine thinLine = new OMLine(message.getPosition1().getLatitude(), message.getPosition1().getLongitude(), message
                 .getPosition2().getLatitude(), message.getPosition2().getLongitude(), LineType._LT_Straight);
         
@@ -88,7 +93,9 @@ public class IntendedRouteCPAGraphic extends OMGraphicList {
                 new float[] { 5.0f * SCALE, 4.0f * SCALE }, // Dash pattern
                 0.0f)); // Dash phase)
 
-        thinLine.setLinePaint(Color.RED);
+        alpha = emphasized ? 1.0f : 0.2f;
+        color = new Color(1, 0, 0, alpha); //Red
+        thinLine.setLinePaint(color);
 
         add(thinLine);
         add(broadLine);
