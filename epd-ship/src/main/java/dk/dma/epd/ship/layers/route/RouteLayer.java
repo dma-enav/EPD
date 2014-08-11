@@ -58,9 +58,8 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
         // Register ship-specific classes that will trigger the map menu
         registerMapMenuClasses(RouteSuggestionGraphic.class);
 
-        // Repaint every second
-        // Hmmm - is this really necessary?
-        startTimer(1000, 1000);
+        // Repaint every five seconds, necessary for safehaven and route color
+        startTimer(5000, 5000);
     }
 
     /**
@@ -111,11 +110,11 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
             return;
         }
 
-        if (e == null) {
+//        if (e == null) {
             updateSafeHaven();
             doPrepare();
-            return;
-        }
+//            return;
+//        }
 
         graphics.clear();
 
