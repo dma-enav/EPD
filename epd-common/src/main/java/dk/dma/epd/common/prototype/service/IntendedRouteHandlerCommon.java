@@ -14,24 +14,6 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.broadcast.BroadcastListener;
-import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
-
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
@@ -48,9 +30,12 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.INotificationListener;
+import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
-import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.util.Calculator;
@@ -61,13 +46,29 @@ import dk.dma.epd.common.util.TypedValue.Speed;
 import dk.dma.epd.common.util.TypedValue.SpeedType;
 import dk.dma.epd.common.util.TypedValue.Time;
 import dk.dma.epd.common.util.TypedValue.TimeType;
+import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.broadcast.BroadcastListener;
+import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Intended route service implementation.
  * <p>
  * Listens for intended route broadcasts, and updates the vessel target when one is received.
  */
-public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
+public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon implements INotificationListener {
 
     static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandlerCommon.class);
 
@@ -328,6 +329,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             sendNotification = true;
         } else {
             newFilteredRoute.setGeneratedNotification(oldFilteredRoute.hasGeneratedNotification());
+            newFilteredRoute.setNotificationAcknowledged(oldFilteredRoute.isNotificationAcknowledged());
             sendNotification = !newFilteredRoute.hasGeneratedNotification()
                     && newFilteredRoute.isWithinDistance(NOTIFICATION_DISTANCE_EPSILON);
         }
@@ -335,7 +337,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         if (sendNotification) {
 //            System.out.println("Send notification is true");
             newFilteredRoute.setGeneratedNotification(true);
-            GeneralNotification notification = new GeneralNotification(newFilteredRoute, String.format(
+            final GeneralNotification notification = new GeneralNotification(newFilteredRoute, String.format(
                     "IntendedRouteNotificaiton_%s_%d", newFilteredRoute.getKey(), newFilteredRoute.getFilterMessages().get(0).getTime1().getMillis()));
             notification.setTitle("CPA Warning");
             notification.setDescription(formatNotificationDescription(newFilteredRoute));
@@ -347,7 +349,47 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 notification.addAlerts(new NotificationAlert(AlertType.POPUP));
             }
             notification.setLocation(newFilteredRoute.getFilterMessages().get(0).getPosition1());
+
+            // Before submitting the notification, mark any old CPA notification as acknowledged
+            acknowledgeAllCPANotifications();
+
+            // Submit the notification
             EPD.getInstance().getNotificationCenter().addNotification(notification);
+
+            // Hook up a notification listener
+            notification.addListener(this);
+        }
+    }
+
+    /**
+     * Called when the state of a notification has changed
+     * @param notification the notificaiton
+     */
+    @Override
+    public void notificationUpdated(Notification<?, ?> notification) {
+        if (notification.isAcknowledged()) {
+            FilteredIntendedRoute value = (FilteredIntendedRoute)notification.get();
+            // Get latest filtered intended route for the mmsi's
+            FilteredIntendedRoute filteredRoute = filteredIntendedRoutes.get(value.getMmsi1(), value.getMmsi2());
+            if (filteredRoute != null && !filteredRoute.isNotificationAcknowledged()) {
+                filteredRoute.setNotificationAcknowledged(true);
+                fireIntendedEvent(null);
+            }
+        }
+    }
+
+    /**
+     * Mark all intended route CPA notifications as acknowledged
+     */
+    protected void acknowledgeAllCPANotifications() {
+        // Mark all other CPA notifications as acknowledged
+        for (Notification<?,?> not : EPD.getInstance().getNotificationCenter()
+                .getPanel(NotificationType.NOTIFICATION).getNotifications()) {
+            if (!not.isAcknowledged() && not.get() != null && not.get() instanceof FilteredIntendedRoute) {
+                not.removeListener(this);
+                not.setRead(true);
+                not.setAcknowledged(true);
+            }
         }
     }
 
@@ -575,8 +617,12 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                         DecimalFormat df = new DecimalFormat("#.##");
 
-                        IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(route1CurrentPosition,
-                                route2CurrentPosition, "TCPA Warning, proxmity of " + df.format(currentDistance)
+                        IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(
+                                route1,
+                                route2,
+                                route1CurrentPosition,
+                                route2CurrentPosition,
+                                "TCPA Warning, proxmity of " + df.format(currentDistance)
                                         + " nautical miles ", 0, 0, notificationOnly);
 
                         filterMessage.setTime1(traverseTime);

@@ -433,11 +433,13 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
 
     @Override
     public void intendedRouteEvent(IntendedRoute intendedRoute) {
-        long mmsi = intendedRoute.getMmsi();
+        if (intendedRoute != null) {
+            long mmsi = intendedRoute.getMmsi();
 
-        if (sRUCommunication.containsKey(mmsi)) {
-            sRUCommunication.get(mmsi).setLastMessageRecieved(intendedRoute.getReceived());
+            if (sRUCommunication.containsKey(mmsi)) {
+                sRUCommunication.get(mmsi).setLastMessageRecieved(intendedRoute.getReceived());
+            }
+            notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
         }
-        notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
     }
 }
