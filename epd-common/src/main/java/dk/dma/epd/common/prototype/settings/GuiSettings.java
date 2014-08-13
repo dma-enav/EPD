@@ -37,6 +37,7 @@ public class GuiSettings implements Serializable {
     private boolean showDockMessage = true;
     private float mouseSelectTolerance = 5.0f;
     private boolean fullscreen;
+    private boolean useAudio = true;
     
     
     public GuiSettings() {
@@ -60,7 +61,7 @@ public class GuiSettings implements Serializable {
         showDockMessage = PropUtils.booleanFromProperties(props, PREFIX + "showDockMessage", showDockMessage);
         mouseSelectTolerance = PropUtils.floatFromProperties(props, PREFIX + "mouseSelectTolerance", mouseSelectTolerance);
         fullscreen = PropUtils.booleanFromProperties(props, PREFIX + "fullscreen", fullscreen);
-        
+        useAudio = PropUtils.booleanFromProperties(props, PREFIX + "useAudio", useAudio);
         
     }
 
@@ -75,6 +76,7 @@ public class GuiSettings implements Serializable {
         props.put(PREFIX + "showDockMessage", Boolean.toString(showDockMessage));
         props.put(PREFIX + "mouseSelectTolerance", Float.toString(mouseSelectTolerance));
         props.put(PREFIX + "fullscreen", Boolean.toString(fullscreen));
+        props.put(PREFIX + "useAudio", Boolean.toString(useAudio));
     }
 
     
@@ -148,4 +150,20 @@ public class GuiSettings implements Serializable {
     public void setFullscreen(boolean fullscreen) {
         this.fullscreen = fullscreen;
     }
+
+    /**
+     * @return the useAudio
+     */
+    public boolean isUseAudio() {
+        return useAudio;
+    }
+
+    /**
+     * @param useAudio the useAudio to set
+     */
+    public void setUseAudio(boolean useAudio) {
+        this.useAudio = useAudio;
+    }
+    
+    
 }

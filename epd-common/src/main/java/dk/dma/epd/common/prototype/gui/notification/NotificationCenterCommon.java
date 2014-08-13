@@ -199,10 +199,13 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
                 // 10 * 1000); // subsequent rate
             }
 
-            java.util.Timer warningTimer;
-            warningTimer = new java.util.Timer();
-            warningTimer.scheduleAtFixedRate(new ContinousVoiceAlerts(notification, warningTimer), 0, // initial delay
-                    10 * 1000); // subsequent rate
+            if (EPD.getInstance().getSettings().getGuiSettings().isUseAudio()) {
+                java.util.Timer warningTimer;
+                warningTimer = new java.util.Timer();
+                warningTimer.scheduleAtFixedRate(new ContinousVoiceAlerts(notification, warningTimer), 0, // initial delay
+                        10 * 1000); // subsequent rate
+
+            }
 
             // Handle system tray alerts
             if (systemTray != null && alert.hasAlertType(AlertType.SYSTEM_TRAY)) {
