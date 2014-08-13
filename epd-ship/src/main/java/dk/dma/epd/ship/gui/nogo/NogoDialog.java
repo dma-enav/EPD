@@ -88,6 +88,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
     private int sliceInMinutes = 10;
     private JLabel slicesCount;
     private Double totalDepth = 0.0;
+    private int sliceCount;
 
     public NogoDialog(JFrame parent, NogoHandler nogoHandler, OwnShipHandler ownShipHandler) {
         super(parent, "Request Nogo", true);
@@ -135,7 +136,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
         panel.add(nePtlbl);
 
         swPtlbl = new JLabel("");
-        swPtlbl.setBounds(10, 51, 134, 14);
+        swPtlbl.setBounds(10, 51, 300, 14);
         panel.add(swPtlbl);
 
         sePtlbl = new JLabel("");
@@ -300,9 +301,9 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
 
             int shipDraught = (int) ownShipHandler.getStaticData().getDraught();
 
-//            System.out.println("Pure value is " + ownShipHandler.getStaticData().getDraught());
+            // System.out.println("Pure value is " + ownShipHandler.getStaticData().getDraught());
             double draught = shipDraught / 10.0;
-//            System.out.println("Draught is " + draught);
+            // System.out.println("Draught is " + draught);
             spinnerDraught.setValue(draught);
 
         }
@@ -357,26 +358,39 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
 
                 // 1300000000
                 // 1300000
-                if (westEastDistance * northSouthDistance / 1000 < 1300000) {
+                if (!(westEastDistance * northSouthDistance / 1000 < 1300000)) {
 
-                    this.setVisible(false);
-                    nogoHandler.setNorthWestPoint(northWestPoint);
-                    nogoHandler.setSouthEastPoint(southEastPoint);
-                    double draught = this.totalDepth;
-                    nogoHandler.setDraught(draught);
-                    nogoHandler.setValidFrom((Date) spinnerTimeStart.getValue());
-                    nogoHandler.setValidTo((Date) spinnerTimeEnd.getValue());
-
-                    if (mainFrame != null) {
-                        mainFrame.getJMenuBar().getNogoLayer().setSelected(true);
-                        nogoHandler.getNogoLayer().setVisible(true);
-                    }
-                    new Thread(this).start();
-                } else {
                     nwPtlbl.setText("The area you have selected is too big");
                     nePtlbl.setText("");
                     swPtlbl.setText("");
                     sePtlbl.setText("");
+
+                } else {
+
+                    if (sliceCount > 20) {
+                        nwPtlbl.setText("Your timeframe is too large, increase time between slices");
+                        nePtlbl.setText("");
+                        swPtlbl.setText("or request a smaller time period.");
+                        sePtlbl.setText("");
+
+                    } else {
+                        this.setVisible(false);
+                        nogoHandler.setNorthWestPoint(northWestPoint);
+                        nogoHandler.setSouthEastPoint(southEastPoint);
+                        double draught = this.totalDepth;
+                        nogoHandler.setDraught(draught);
+                        nogoHandler.setValidFrom((Date) spinnerTimeStart.getValue());
+                        nogoHandler.setValidTo((Date) spinnerTimeEnd.getValue());
+
+                        if (mainFrame != null) {
+                            mainFrame.getJMenuBar().getNogoLayer().setSelected(true);
+                            nogoHandler.getNogoLayer().setVisible(true);
+                        }
+                        new Thread(this).start();
+
+                    }
+
+
                 }
             } else {
                 nwPtlbl.setText("You must select an area");
@@ -442,7 +456,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable, Ite
 
         if (useSlices) {
 
-            int sliceCount = 1;
+            sliceCount = 1;
 
             DateTime startDate = new DateTime(spinnerTimeStart.getValue());
             DateTime endDate = new DateTime(spinnerTimeEnd.getValue());
