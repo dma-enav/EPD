@@ -42,59 +42,41 @@ import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.ais.AisDialog;
+import dk.dma.epd.ship.gui.fal.FALManagerDialog;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 
 /**
  * The top buttons panel
  */
-public class TopPanel extends OMComponentPanel implements ActionListener,
-        MouseListener, HistoryNavigationPanelInterface {
+public class TopPanel extends OMComponentPanel implements ActionListener, MouseListener, HistoryNavigationPanelInterface {
 
     private static final long serialVersionUID = 1L;
 
-    private final ButtonLabel zoomInBtn = new ButtonLabel(
-            toolbarIcon("magnifier-zoom-in.png"));
-    private final ButtonLabel zoomOutBtn = new ButtonLabel(
-            toolbarIcon("magnifier-zoom-out.png"));
-    private final ButtonLabel centreBtn = new ButtonLabel(
-            toolbarIcon("arrow-in.png"));
-    private final ToggleButtonLabel autoFollowBtn = new ToggleButtonLabel(
-            toolbarIcon("arrow-curve-000-double.png"));
-    private final ButtonLabel setupBtn = new ButtonLabel(
-            toolbarIcon("wrench.png"));
-    private final ButtonLabel routeManagerBtn = new ButtonLabel(
-            toolbarIcon("marker.png"));
-    private final ButtonLabel aisDialogButton = new ButtonLabel(
-            toolbarIcon("radar.png"));
-    private final ToggleButtonLabel aisToggleName = new ToggleButtonLabel(
-            toolbarIcon("edit-letter-spacing.png"));
-    private final ToggleButtonLabel aisLayerBtn = new ToggleButtonLabel(
-            toolbarIcon("board-game.png"));
-    private final ToggleButtonLabel encBtn = new ToggleButtonLabel(
-            toolbarIcon("map-medium.png"));
-    private final ToggleButtonLabel wmsBtn = new ToggleButtonLabel(
-            toolbarIcon("map-medium.png"));
-    private final ToggleButtonLabel newRouteBtn = new ToggleButtonLabel(
-            toolbarIcon("marker--plus.png"));
-    private final ToggleButtonLabel toggleSafeHaven = new ToggleButtonLabel(
-            toolbarIcon("document-resize-actual.png"));
-    private final ToggleButtonLabel navigationMouseMode = new ToggleButtonLabel(
-            toolbarIcon("zoom.png"));
-    private final ToggleButtonLabel dragMouseMode = new ToggleButtonLabel(
-            toolbarIcon("drag.png"));
-    private final ToggleButtonLabel toggleIntendedRoute = new ToggleButtonLabel(
-            toolbarIcon("direction.png"));
-    private final ToggleButtonLabel toggleIntendedRouteFilter = new ToggleButtonLabel(
-            toolbarIcon("road-sign.png"));
-    private final ToggleButtonLabel toggleDynamicPredictorLayer = new ToggleButtonLabel(
-            toolbarIcon("dynamic-predictor.png"));
+    private final ButtonLabel zoomInBtn = new ButtonLabel(toolbarIcon("magnifier-zoom-in.png"));
+    private final ButtonLabel zoomOutBtn = new ButtonLabel(toolbarIcon("magnifier-zoom-out.png"));
+    private final ButtonLabel centreBtn = new ButtonLabel(toolbarIcon("arrow-in.png"));
+    private final ToggleButtonLabel autoFollowBtn = new ToggleButtonLabel(toolbarIcon("arrow-curve-000-double.png"));
+    private final ButtonLabel setupBtn = new ButtonLabel(toolbarIcon("wrench.png"));
+    private final ButtonLabel routeManagerBtn = new ButtonLabel(toolbarIcon("marker.png"));
+    private final ButtonLabel falManagerBtn = new ButtonLabel(toolbarIcon("fal.png", 36, 21));
+    private final ButtonLabel aisDialogButton = new ButtonLabel(toolbarIcon("radar.png"));
+    private final ToggleButtonLabel aisToggleName = new ToggleButtonLabel(toolbarIcon("edit-letter-spacing.png"));
+    private final ToggleButtonLabel aisLayerBtn = new ToggleButtonLabel(toolbarIcon("board-game.png"));
+    private final ToggleButtonLabel encBtn = new ToggleButtonLabel(toolbarIcon("map-medium.png"));
+    private final ToggleButtonLabel wmsBtn = new ToggleButtonLabel(toolbarIcon("map-medium.png"));
+    private final ToggleButtonLabel newRouteBtn = new ToggleButtonLabel(toolbarIcon("marker--plus.png"));
+    private final ToggleButtonLabel toggleSafeHaven = new ToggleButtonLabel(toolbarIcon("document-resize-actual.png"));
+    private final ToggleButtonLabel navigationMouseMode = new ToggleButtonLabel(toolbarIcon("zoom.png"));
+    private final ToggleButtonLabel dragMouseMode = new ToggleButtonLabel(toolbarIcon("drag.png"));
+    private final ToggleButtonLabel toggleIntendedRoute = new ToggleButtonLabel(toolbarIcon("direction.png"));
+    private final ToggleButtonLabel toggleIntendedRouteFilter = new ToggleButtonLabel(toolbarIcon("road-sign.png"));
+    private final ToggleButtonLabel toggleDynamicPredictorLayer = new ToggleButtonLabel(toolbarIcon("dynamic-predictor.png"));
 
     /**
      * Toggle button to enable distance circle mode.
      */
-    private final ToggleButtonLabel toggleDistanceCircleMode = new ToggleButtonLabel(
-            toolbarIcon("ruler-triangle.png"));
+    private final ToggleButtonLabel toggleDistanceCircleMode = new ToggleButtonLabel(toolbarIcon("ruler-triangle.png"));
 
     private MainFrame mainFrame;
     private AisDialog aisDialog;
@@ -105,21 +87,22 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private MouseDelegator mouseDelegator;
     private final GoBackButton goBackBtn = new GoBackButton();
     private final GoForwardButton goForwardBtn = new GoForwardButton();
-        
+
     private static int iconWidth = 16;
     private static int iconHeight = 16;
-    
+
     /**
      * A slightly hacked way of simulating a click on the aisToggleName label
      */
     private IMapMenuAction hideAisNamesAction = new IMapMenuAction() {
-        @Override public void doAction() {
+        @Override
+        public void doAction() {
             if (aisToggleName.isSelected()) {
                 aisToggleName.setSelected(false);
                 mouseReleased(new MouseEvent(aisToggleName, 0, 0L, 0, 0, 0, 0, false));
             }
-        }};
-
+        }
+    };
 
     public TopPanel() {
         super();
@@ -140,6 +123,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         setupBtn.setToolTipText("Setup");
         newRouteBtn.setToolTipText("Add a new route : Shortcut Ctrl N");
         routeManagerBtn.setToolTipText("Routes Manager : Shortcut Ctrl R");
+        falManagerBtn.setToolTipText("FAL Report Manager");
         aisDialogButton.setToolTipText("Show nearby vessels : Shortcut Ctrl A");
         aisLayerBtn.setToolTipText("Show/hide AIS targets");
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
@@ -147,7 +131,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         encBtn.setEnabled(EPDShip.getInstance().getSettings().getMapSettings().isUseEnc());
         toggleIntendedRoute.setToolTipText("Show/hide intended routes");
         toggleIntendedRouteFilter.setToolTipText("Toggle Intended Route Filter");
-        
+
         goBackBtn.setToolTipText("Go back");
         goForwardBtn.setToolTipText("Go forward");
         goBackBtn.setEnabled(false);
@@ -157,13 +141,12 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
         toggleSafeHaven.setToolTipText("Show/hide SafeHaven guidelines");
 
-        this.toggleDistanceCircleMode
-                .setToolTipText("Enable range circles mode.");
-        
+        this.toggleDistanceCircleMode.setToolTipText("Enable range circles mode.");
+
         this.toggleDynamicPredictorLayer.setToolTipText("Toggle dynamic predictor layer");
         // disable button if dynamic predictor disabled
         this.toggleDynamicPredictorLayer.setEnabled(EPDShip.getInstance().getSettings().getNavSettings().isDynamicPrediction());
-        
+
         add(goBackBtn);
         add(goForwardBtn);
         add(zoomInBtn);
@@ -177,6 +160,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(setupBtn);
         add(newRouteBtn);
         add(routeManagerBtn);
+        add(falManagerBtn);
         add(aisDialogButton);
         add(new JSeparator());
         add(aisLayerBtn);
@@ -187,7 +171,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(toggleIntendedRoute);
         add(toggleIntendedRouteFilter);
         add(this.toggleDynamicPredictorLayer);
-        
+
         Component horizontalStrut = Box.createHorizontalStrut(5);
         horizontalStrut = Box.createHorizontalStrut(5);
 
@@ -205,6 +189,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         setupBtn.addMouseListener(this);
         newRouteBtn.addMouseListener(this);
         routeManagerBtn.addMouseListener(this);
+        falManagerBtn.addMouseListener(this);
         aisDialogButton.addMouseListener(this);
         aisLayerBtn.addMouseListener(this);
         encBtn.addMouseListener(this);
@@ -219,27 +204,23 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         toggleIntendedRoute.addMouseListener(this);
         toggleIntendedRouteFilter.addMouseListener(this);
         toggleDynamicPredictorLayer.addMouseListener(this);
-        
+
         updateButtons();
     }
 
     public void updateButtons() {
-        autoFollowBtn.setSelected(EPDShip.getInstance().getSettings().getNavSettings()
-                .isAutoFollow());
+        autoFollowBtn.setSelected(EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow());
         aisLayerBtn.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isVisible());
-        encBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
-                .isEncVisible());
-        wmsBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
-                .isWmsVisible());
-        aisToggleName.setSelected(EPDShip.getInstance().getSettings().getAisSettings()
-                .isShowNameLabels());
+        encBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings().isEncVisible());
+        wmsBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings().isWmsVisible());
+        aisToggleName.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isShowNameLabels());
 
         navigationMouseMode.setSelected(true);
         // range circles mode is disabled by default.
         toggleDistanceCircleMode.setSelected(false);
-        
+
         toggleIntendedRoute.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
-        
+
         // toggle button according to value stored in settings
         toggleDynamicPredictorLayer.setSelected(EPDShip.getInstance().getSettings().getNavSettings().isDynamicPrediction());
     }
@@ -290,11 +271,11 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             intendedRouteLayer = (IntendedRouteLayerCommon) obj;
         }
     }
-    
+
     public GoBackButton getGoBackButton() {
         return this.goBackBtn;
     }
-    
+
     public GoForwardButton getGoForwardButton() {
         return this.goForwardBtn;
     }
@@ -337,21 +318,18 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     public void mouseReleased(MouseEvent e) {
 
         if (e.getSource() == autoFollowBtn) {
-            EPDShip.getInstance().getSettings().getNavSettings()
-                    .setAutoFollow(autoFollowBtn.isSelected());
+            EPDShip.getInstance().getSettings().getNavSettings().setAutoFollow(autoFollowBtn.isSelected());
             if (autoFollowBtn.isSelected()) {
                 mainFrame.getChartPanel().autoFollow();
             }
-            menuBar.getAutoFollow().setSelected(
-                    EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow());
-            
-        }
-        else if (e.getSource() == zoomInBtn) {
+            menuBar.getAutoFollow().setSelected(EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow());
+
+        } else if (e.getSource() == zoomInBtn) {
             mainFrame.getChartPanel().doZoom(0.5f);
-            
+
         } else if (e.getSource() == zoomOutBtn) {
             mainFrame.getChartPanel().doZoom(2f);
-            
+
         } else if (e.getSource() == aisLayerBtn) {
             mainFrame.getChartPanel().aisVisible(aisLayerBtn.isSelected());
             menuBar.getAisLayer().setSelected(aisLayerBtn.isSelected());
@@ -362,75 +340,74 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
         } else if (e.getSource() == wmsBtn) {
             mainFrame.getChartPanel().wmsVisible(wmsBtn.isSelected());
-            
+
         } else if (e.getSource() == routeManagerBtn) {
-            RouteManagerDialog routeManagerDialog = new RouteManagerDialog(
-                    mainFrame);
+            RouteManagerDialog routeManagerDialog = new RouteManagerDialog(mainFrame);
             routeManagerDialog.setVisible(true);
-            
+
+        } else if (e.getSource() == falManagerBtn) {
+            FALManagerDialog falManagerDialog = new FALManagerDialog(mainFrame);
+            falManagerDialog.setVisible(true);
+
         } else if (e.getSource() == setupBtn) {
             mainFrame.openSetupDialog();
-            
+
         } else if (e.getSource() == aisDialogButton) {
             aisDialog.setVisible(true);
             aisDialog.setSelection(-1, true);
-            
+
         } else if (e.getSource() == newRouteBtn) {
             if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID
                     || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID
                     || mouseDelegator.getActiveMouseModeID() == DistanceCircleMouseMode.MODE_ID) {
                 menuBar.getNewRoute().setSelected(true);
-                mainFrame.getChartPanel().setMouseMode(
-                        RouteEditMouseMode.MODE_ID);
+                mainFrame.getChartPanel().setMouseMode(RouteEditMouseMode.MODE_ID);
             } else {
-                mainFrame.getChartPanel().setMouseMode(
-                        NavigationMouseMode.MODE_ID);
+                mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
                 menuBar.getNewRoute().setSelected(false);
             }
-            
+
         } else if (e.getSource() == newRouteBtn) {
             newRoute();
-            
+
         } else if (e.getSource() == aisToggleName) {
             boolean showNameLabels = aisToggleName.isSelected();
-            EPDShip.getInstance().getSettings().getAisSettings().setShowNameLabels(showNameLabels);    
-            
+            EPDShip.getInstance().getSettings().getAisSettings().setShowNameLabels(showNameLabels);
+
         } else if (e.getSource() == toggleSafeHaven) {
             routeLayer.toggleSafeHaven();
-            
+
         } else if (e.getSource() == dragMouseMode) {
             mainFrame.getChartPanel().setMouseMode(DragMouseMode.MODE_ID);
-            
+
         } else if (e.getSource() == navigationMouseMode) {
             mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
-            
+
         } else if (e.getSource() == centreBtn) {
             mainFrame.saveCentreOnShip();
-            
+
         }
         // react on mouse click on "toggle distance circles mode"
         else if (e.getSource() == this.toggleDistanceCircleMode) {
             if (this.toggleDistanceCircleMode.isSelected()) {
-                this.mainFrame.getChartPanel().setMouseMode(
-                        CommonDistanceCircleMouseMode.MODE_ID);
+                this.mainFrame.getChartPanel().setMouseMode(CommonDistanceCircleMouseMode.MODE_ID);
             } else {
                 // go back to previously active mouse mode
                 this.mainFrame.getChartPanel().setMouseMode(
                         ((CommonDistanceCircleMouseMode) this.mainFrame.getChartPanel().getMouseDelegator().getActiveMouseMode())
                                 .getPreviousMouseMode());
             }
-            
+
         } else if (e.getSource() == toggleIntendedRoute) {
             boolean visible = toggleIntendedRoute.isSelected();
             mainFrame.getChartPanel().intendedRouteLayerVisible(visible);
             menuBar.getIntendedRouteLayer().setSelected(visible);
-        
-        }        
-        else if (e.getSource() == toggleIntendedRouteFilter) {
+
+        } else if (e.getSource() == toggleIntendedRouteFilter) {
             boolean visible = toggleIntendedRouteFilter.isSelected();
             intendedRouteLayer.toggleFilter(visible);
-        
-        } else if(e.getSource() == this.toggleDynamicPredictorLayer) {
+
+        } else if (e.getSource() == this.toggleDynamicPredictorLayer) {
             boolean visible = toggleDynamicPredictorLayer.isSelected();
             mainFrame.getChartPanel().setDynamicPredictorLayerVisibility(visible);
         }
@@ -455,7 +432,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     public ToggleButtonLabel getEncBtn() {
         return encBtn;
     }
-    
+
     public ToggleButtonLabel getIntendedRouteButton() {
         return toggleIntendedRoute;
     }
@@ -467,7 +444,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     public void zoomIn() {
         mainFrame.getChartPanel().doZoom(0.5f);
     }
-    
+
     public IMapMenuAction getHideAisNamesAction() {
         return hideAisNamesAction;
     }
@@ -483,8 +460,23 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         ImageIcon icon = EPDShip.res().folder("images/toolbar/").getCachedImageIcon(imgpath);
 
         Image img = icon.getImage();
-        Image newimg = img.getScaledInstance(iconWidth, iconHeight,
-                java.awt.Image.SCALE_DEFAULT);
+        Image newimg = img.getScaledInstance(iconWidth, iconHeight, java.awt.Image.SCALE_DEFAULT);
+        ImageIcon newImage = new ImageIcon(newimg);
+        return newImage;
+    }
+
+    /**
+     * Function for resizing the icons for the toolbar
+     * 
+     * @param imgpath
+     *            path of the image
+     * @return newimage the newly created and resized image
+     */
+    public ImageIcon toolbarIcon(String imgpath, int width, int height) {
+        ImageIcon icon = EPDShip.res().folder("images/toolbar/").getCachedImageIcon(imgpath);
+
+        Image img = icon.getImage();
+        Image newimg = img.getScaledInstance(width, height, java.awt.Image.SCALE_DEFAULT);
         ImageIcon newImage = new ImageIcon(newimg);
         return newImage;
     }
