@@ -52,7 +52,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import dk.dma.epd.ship.EPDShip;
 
 /**
@@ -64,6 +63,7 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
 
     private static final Logger LOG = LoggerFactory.getLogger(FALManagerPanel.class);
 
+    private JButton staticDataBtn = new JButton("Static Ship Data");
     private JButton newBtn = new JButton("New Report");
     private JButton propertiesBtn = new JButton("View");
     private JButton copyBtn = new JButton("Copy");
@@ -71,13 +71,13 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
     private JButton exportBtn = new JButton("Export");
     private JButton closeBtn = new JButton("Close");
 
-    private JButton[] buttons = { newBtn, propertiesBtn, copyBtn, deleteBtn, exportBtn, closeBtn };
+    private JButton[] buttons = { staticDataBtn, newBtn, propertiesBtn, copyBtn, deleteBtn, exportBtn, closeBtn };
 
     private JTable routeTable = new JTable();
     private JScrollPane routeScrollPane = new JScrollPane(routeTable);
     private FALTableModel routesTableModel;
 
-//    private RouteManager routeManager;
+    // private RouteManager routeManager;
     private FALManagerDialog falManagerDialog;
 
     private volatile File lastPath;
@@ -88,7 +88,7 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
      * @param routeManagerDialog
      */
     public FALManagerPanel(FALManagerDialog falManagerDialog) {
-        
+
         this.falManagerDialog = falManagerDialog;
 
         routesTableModel = new FALTableModel();
@@ -151,13 +151,13 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         btnPanel.add(closeBtn, new GridBagConstraints(0, buttons.length, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(0, 0, 0, 0),
                 0, 0));
 
-//        int selectRow = routeManager.getActiveRouteIndex();
-//        if (selectRow < 0 && routeManager.getRouteCount() > 0) {
-//            selectRow = 0;
-//        }
-//        if (selectRow >= 0) {
-//            routeTable.getSelectionModel().setSelectionInterval(selectRow, selectRow);
-//        }
+        // int selectRow = routeManager.getActiveRouteIndex();
+        // if (selectRow < 0 && routeManager.getRouteCount() > 0) {
+        // selectRow = 0;
+        // }
+        // if (selectRow >= 0) {
+        // routeTable.getSelectionModel().setSelectionInterval(selectRow, selectRow);
+        // }
     }
 
     /**
@@ -169,8 +169,6 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         return closeBtn;
     }
 
-
-
     /**
      * Updates the buttons states depending on the current selection
      */
@@ -178,11 +176,11 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         boolean routeSelected = routeTable.getSelectedRow() >= 0;
         boolean singleSelected = routeTable.getSelectedRows().length == 1;
         boolean activeSelected = false;
-//        for (int row : routeTable.getSelectedRows()) {
-//            if (routeManager.isActiveRoute(row)) {
-//                activeSelected = true;
-//            }
-//        }
+        // for (int row : routeTable.getSelectedRows()) {
+        // if (routeManager.isActiveRoute(row)) {
+        // activeSelected = true;
+        // }
+        // }
 
         propertiesBtn.setEnabled(singleSelected);
 
@@ -197,18 +195,18 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
      */
     public void updateTable() {
         // Record the old selection
-//        Set<Route> selection = new HashSet<>(getSelectedRoutes());
+        // Set<Route> selection = new HashSet<>(getSelectedRoutes());
 
         // Update routeTable
         routesTableModel.fireTableDataChanged();
 
         // Restore old selection
-//        for (int row = 0; row < routeTable.getRowCount(); row++) {
-//            Route route = routeManager.getRoute(row);
-//            if (selection.contains(route)) {
-//                routeTable.addRowSelectionInterval(row, row);
-//            }
-//        }
+        // for (int row = 0; row < routeTable.getRowCount(); row++) {
+        // Route route = routeManager.getRoute(row);
+        // if (selection.contains(route)) {
+        // routeTable.addRowSelectionInterval(row, row);
+        // }
+        // }
     }
 
     private void close() {
@@ -217,7 +215,7 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
 
     private void copy() {
         if (routeTable.getSelectedRow() >= 0) {
-//            routeManager.routeCopy(routeTable.getSelectedRow());
+            // routeManager.routeCopy(routeTable.getSelectedRow());
             updateTable();
         }
     }
@@ -225,17 +223,17 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
     private void properties() {
         int i = routeTable.getSelectedRow();
         if (i >= 0) {
-//            RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(falManagerDialog, EPDShip
-//                    .getInstance().getMainFrame().getChartPanel(), i);
-//            routePropertiesDialog.setVisible(true);
+            // RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(falManagerDialog, EPDShip
+            // .getInstance().getMainFrame().getChartPanel(), i);
+            // routePropertiesDialog.setVisible(true);
         }
     }
 
     private void delete() {
         int row = routeTable.getSelectedRow();
-//        for (Route route : getSelectedRoutes()) {
-//            routeManager.removeRoute(route);
-//        }
+        // for (Route route : getSelectedRoutes()) {
+        // routeManager.removeRoute(route);
+        // }
         row = Math.min(row, routeTable.getRowCount() - 1);
         if (row == -1) {
             routeTable.clearSelection();
@@ -253,7 +251,6 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
             return;
         }
 
-      
     }
 
     /**
@@ -274,6 +271,9 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         } else if (e.getSource() == newBtn) {
             FALReportingDialog dialog = new FALReportingDialog();
             dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        } else if (e.getSource() == staticDataBtn) {
+            FALStaticInformation dialog = new FALStaticInformation();
+            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         }
     }
 
@@ -290,6 +290,6 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
      */
     @Override
     public void tableChanged(TableModelEvent e) {
-        
+
     }
 }
