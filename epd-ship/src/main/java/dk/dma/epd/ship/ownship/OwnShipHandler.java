@@ -151,6 +151,21 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
     }
 
     /**
+     * Returns a computed AIS target.
+     * <p>
+     * This will be a copy of the current AIS target, except that the
+     * position data will be the computed position data as returned by
+     * {@code getPositionData()}
+     *
+     * @return a computed AIS target
+     */
+    public synchronized VesselTarget getComputedAisTarget() {
+        VesselTarget vesselTarget = new VesselTarget(aisTarget);
+        vesselTarget.setPositionData(getPositionData());
+        return vesselTarget;
+    }
+
+    /**
      * Returns the {@code VesselStaticData()} of the current AIS target, or
      * {@code null} if the AIS target is undefined.
      * 
@@ -217,6 +232,9 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable,
             }
             if (pntData.getCog() != null) {
                 pos.setCog(pntData.getCog().floatValue());
+                if (EPD.getInstance().getSettings().getSensorSettings().isMsPntTrueHeadingFromCog()) {
+                    pos.setTrueHeading(pntData.getCog().floatValue());
+                }
             }
             if (pntData.getSog() != null) {
                 pos.setSog(pntData.getSog().floatValue());

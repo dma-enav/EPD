@@ -77,6 +77,7 @@ public class ChatNotification extends Notification<ChatServiceData, MaritimeId> 
     public void setRead(boolean read) {
         this.read = this.acknowledged = read;
         get().setRead(read);
+        fireNotificationUpdated();
     }
     
     /**
@@ -86,6 +87,7 @@ public class ChatNotification extends Notification<ChatServiceData, MaritimeId> 
     public void setAcknowledged(boolean acknowledged) {
         this.read = this.acknowledged = acknowledged;
         get().setRead(acknowledged);
+        fireNotificationUpdated();
     }
     
     /**

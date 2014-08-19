@@ -58,9 +58,8 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
         // Register ship-specific classes that will trigger the map menu
         registerMapMenuClasses(RouteSuggestionGraphic.class);
 
-        // Repaint every second
-        // Hmmm - is this really necessary?
-        startTimer(1000, 1000);
+        // Repaint every five seconds, necessary for safehaven and route color
+        startTimer(5000, 5000);
     }
 
     /**
@@ -92,8 +91,7 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
                 if (activeSafeHaven) {
                     graphics.remove(safeHavenArea);
                     safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(),
-                            activeRoute.getSafeHavenWidth(),
-                            activeRoute.getSafeHavenLength());
+                            activeRoute.getSafeHavenWidth(), activeRoute.getSafeHavenLength());
                     graphics.add(safeHavenArea);
                 }
             }
@@ -112,24 +110,22 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
             return;
         }
 
-        if (e == null) {
+//        if (e == null) {
             updateSafeHaven();
             doPrepare();
-            return;
-        }
+//            return;
+//        }
 
         graphics.clear();
 
         float routeWidth = EPD.getInstance().getSettings().getNavSettings().getRouteWidth();
-        Stroke stroke = new BasicStroke(
-                routeWidth, // Width
+        Stroke stroke = new BasicStroke(routeWidth, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
                 10.0f, // Miter limit
                 new float[] { 3.0f, 10.0f }, // Dash pattern
                 0.0f);
-        Stroke activeStroke = new BasicStroke(
-                routeWidth, // Width
+        Stroke activeStroke = new BasicStroke(routeWidth, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
                 10.0f, // Miter limit
@@ -177,10 +173,10 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
 
                 if (activeSafeHaven) {
                     activeRoute.getSafeHavenLocation();
-                    
-                    safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(), activeRoute.getSafeHavenWidth(), 
-                            activeRoute.getSafeHavenLength());
-                    graphics.add(safeHavenArea);                    
+
+                    safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(),
+                            activeRoute.getSafeHavenWidth(), activeRoute.getSafeHavenLength());
+                    graphics.add(safeHavenArea);
                 }
             }
         }
@@ -205,8 +201,7 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
             graphics.add(0, metocGraphics);
         }
 
-        for (RouteSuggestionData routeSuggestion : 
-                EPDShip.getInstance().getRouteSuggestionHandler().getSortedRouteSuggestions()) {
+        for (RouteSuggestionData routeSuggestion : EPDShip.getInstance().getRouteSuggestionHandler().getSortedRouteSuggestions()) {
             if (routeSuggestion.getRoute().isVisible()) {
                 graphics.add(new RouteSuggestionGraphic(routeSuggestion, stroke));
             }
@@ -251,7 +246,7 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
         if (obj instanceof OwnShipHandler) {
             ((OwnShipHandler) obj).addListener(this);
         } else if (obj instanceof RouteSuggestionHandler) {
-            ((RouteSuggestionHandler)obj).addRouteSuggestionListener(this);
+            ((RouteSuggestionHandler) obj).addRouteSuggestionListener(this);
         }
     }
 
@@ -269,7 +264,6 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
      */
     @Override
     public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
-        
 
     }
 
@@ -280,4 +274,17 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
     public void routeUpdate() {
         routesChanged(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
     }
+
+    // /**
+    // * {@inheritDoc}
+    // */
+    // @Override
+    // protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
+    // boolean initReturn = super.initInfoPanel(infoPanel, newClosest, evt, containerPoint);
+    // if (!initReturn) {
+    //
+    //
+    // }
+    // return initReturn;
+    // }
 }

@@ -5,6 +5,8 @@ target
 .classpath
 .project
 .settings
+.idea
+*.iml
 .DS_Store
 .ownship
 /epd-ship/log

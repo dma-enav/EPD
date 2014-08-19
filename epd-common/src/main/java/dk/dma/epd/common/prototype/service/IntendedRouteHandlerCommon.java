@@ -14,23 +14,6 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.broadcast.BroadcastListener;
-import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
-
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
@@ -47,9 +30,12 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.INotificationListener;
+import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
-import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.util.Calculator;
@@ -60,14 +46,30 @@ import dk.dma.epd.common.util.TypedValue.Speed;
 import dk.dma.epd.common.util.TypedValue.SpeedType;
 import dk.dma.epd.common.util.TypedValue.Time;
 import dk.dma.epd.common.util.TypedValue.TimeType;
+import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.broadcast.BroadcastListener;
+import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Intended route service implementation.
  * <p>
  * Listens for intended route broadcasts, and updates the vessel target when one is received.
  */
-public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
-    
+public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon implements INotificationListener {
+
     static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandlerCommon.class);
 
     /**
@@ -301,8 +303,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * @param newFilteredRoutes
      *            the new set of filtered routes
      */
-    protected void checkGenerateNotifications(FilteredIntendedRoutes oldFilteredRoutes,
-            FilteredIntendedRoutes newFilteredRoutes) {
+    protected void checkGenerateNotifications(FilteredIntendedRoutes oldFilteredRoutes, FilteredIntendedRoutes newFilteredRoutes) {
         for (FilteredIntendedRoute filteredIntendedRoute : newFilteredRoutes.values()) {
             checkGenerateNotifications(oldFilteredRoutes, filteredIntendedRoute);
         }
@@ -316,8 +317,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * @param newFilteredRoute
      *            the new filtered route
      */
-    protected void checkGenerateNotifications(FilteredIntendedRoutes oldFilteredRoutes,
-            FilteredIntendedRoute newFilteredRoute) {
+    protected void checkGenerateNotifications(FilteredIntendedRoutes oldFilteredRoutes, FilteredIntendedRoute newFilteredRoute) {
+
         FilteredIntendedRoute oldFilteredRoute = oldFilteredRoutes.get(newFilteredRoute.getMmsi1(), newFilteredRoute.getMmsi2());
 
         // NB: For now, we add a notification when a new filtered intended route surfaces
@@ -328,15 +329,16 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             sendNotification = true;
         } else {
             newFilteredRoute.setGeneratedNotification(oldFilteredRoute.hasGeneratedNotification());
+            newFilteredRoute.setNotificationAcknowledged(oldFilteredRoute.isNotificationAcknowledged());
             sendNotification = !newFilteredRoute.hasGeneratedNotification()
                     && newFilteredRoute.isWithinDistance(NOTIFICATION_DISTANCE_EPSILON);
         }
 
         if (sendNotification) {
+//            System.out.println("Send notification is true");
             newFilteredRoute.setGeneratedNotification(true);
-            GeneralNotification notification = new GeneralNotification(newFilteredRoute, 
-                    String.format("IntendedRouteNotificaiton_%s_%d",
-                            newFilteredRoute.getKey(), System.currentTimeMillis()));
+            final GeneralNotification notification = new GeneralNotification(newFilteredRoute, String.format(
+                    "IntendedRouteNotificaiton_%s_%d", newFilteredRoute.getKey(), newFilteredRoute.getFilterMessages().get(0).getTime1().getMillis()));
             notification.setTitle("CPA Warning");
             notification.setDescription(formatNotificationDescription(newFilteredRoute));
             if (newFilteredRoute.isWithinDistance(ALERT_DISTANCE_EPSILON)) {
@@ -347,31 +349,73 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 notification.addAlerts(new NotificationAlert(AlertType.POPUP));
             }
             notification.setLocation(newFilteredRoute.getFilterMessages().get(0).getPosition1());
+
+            // Before submitting the notification, mark any old CPA notification as acknowledged
+            acknowledgeAllCPANotifications();
+
+            // Submit the notification
             EPD.getInstance().getNotificationCenter().addNotification(notification);
+
+            // Hook up a notification listener
+            notification.addListener(this);
+        }
+    }
+
+    /**
+     * Called when the state of a notification has changed
+     * @param notification the notificaiton
+     */
+    @Override
+    public void notificationUpdated(Notification<?, ?> notification) {
+        if (notification.isAcknowledged()) {
+            FilteredIntendedRoute value = (FilteredIntendedRoute)notification.get();
+            // Get latest filtered intended route for the mmsi's
+            FilteredIntendedRoute filteredRoute = filteredIntendedRoutes.get(value.getMmsi1(), value.getMmsi2());
+            if (filteredRoute != null && !filteredRoute.isNotificationAcknowledged()) {
+                filteredRoute.setNotificationAcknowledged(true);
+                fireIntendedEvent(null);
+            }
+        }
+    }
+
+    /**
+     * Mark all intended route CPA notifications as acknowledged
+     */
+    protected void acknowledgeAllCPANotifications() {
+        // Mark all other CPA notifications as acknowledged
+        for (Notification<?,?> not : EPD.getInstance().getNotificationCenter()
+                .getPanel(NotificationType.NOTIFICATION).getNotifications()) {
+            if (!not.isAcknowledged() && not.get() != null && not.get() instanceof FilteredIntendedRoute) {
+                not.removeListener(this);
+                not.setRead(true);
+                not.setAcknowledged(true);
+            }
         }
     }
 
     /**
      * Composes the description to include in a TCPA warning notification
      * 
-     * @param filteredIntendedRoute the filtered route to format the description for
+     * @param filteredIntendedRoute
+     *            the filtered route to format the description for
      * @return the notification description
      */
     protected abstract String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute);
-    
+
     /**
      * Returns the MMSI associated with the given route.
      * <p>
-     * The default implementation assumes that only intended routes passed along,
-     * but the ship-implementation will override to handle active routes.
+     * The default implementation assumes that only intended routes passed along, but the ship-implementation will override to
+     * handle active routes.
      * 
-     * @param route the route to return the MMSI for
+     * @param route
+     *            the route to return the MMSI for
      * @return the MMSI associated with the given route
      */
     public Long getMmsi(Route route) {
-       return ((IntendedRoute)route).getMmsi(); 
+        return ((IntendedRoute) route).getMmsi();
     }
-    
+
     /**
      * Calculates the ETA for the given way point index of the given route.
      * 
@@ -380,25 +424,21 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * @return
      */
     private DateTime getEta(Route route, int index) {
-        
-        int activeWpIndex = 
-                (route instanceof IntendedRoute)
-                ? ((IntendedRoute)route).getActiveWpIndex()
-                : ((ActiveRoute)route).getActiveWaypointIndex();
-        
+
+        int activeWpIndex = (route instanceof IntendedRoute) ? ((IntendedRoute) route).getActiveWpIndex() : ((ActiveRoute) route)
+                .getActiveWaypointIndex();
+
         // If the way point is after the active way point, rely on stored ETA's
         if (index >= activeWpIndex) {
             return new DateTime(route.getEtas().get(index));
         }
-        
+
         // Calculate backwards from the active way point
         DateTime date = new DateTime(route.getEtas().get(activeWpIndex));
         for (int j = activeWpIndex - 1; j >= index; j--) {
             RouteLeg leg = route.getWaypoints().get(j).getOutLeg();
             date = date.minus(new Dist(DistType.NAUTICAL_MILES, leg.calcRng())
-                        .withSpeed(new Speed(SpeedType.KNOTS, leg.getSpeed()))
-                        .in(TimeType.MILLISECONDS)
-                        .longValue());
+                    .withSpeed(new Speed(SpeedType.KNOTS, leg.getSpeed())).in(TimeType.MILLISECONDS).longValue());
         }
         return date;
     }
@@ -415,9 +455,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     protected FilteredIntendedRoute findTCPA(Route route1, Route route2) {
 
         // Focus on time
-        FilteredIntendedRoute filteredIntendedRoute = new FilteredIntendedRoute(
-                getMmsi(route1), 
-                getMmsi(route2));
+        FilteredIntendedRoute filteredIntendedRoute = new FilteredIntendedRoute(getMmsi(route1), getMmsi(route2));
 
         // We need to check if there's a previous waypoint, ie. we are either starting navigating or are between two waypoints
         // int route1StartWp = route1.getActiveWpIndex();
@@ -437,9 +475,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             route2StartWp = ((IntendedRoute) route2).getActiveWpIndex();
 
         }
-        
-        
-        
+
         if (route1 instanceof ActiveRoute) {
             route1StartWp = ((ActiveRoute) route1).getActiveWaypointIndex();
             route1ActiveWp = ((ActiveRoute) route1).getActiveWaypointIndex();
@@ -449,8 +485,6 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             route2StartWp = ((ActiveRoute) route2).getActiveWaypointIndex();
 
         }
-        
-        
 
         if (route1StartWp > 0) {
             route1StartWp = route1StartWp - 1;
@@ -522,8 +556,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                 double speedInLeg = route1.getWaypoints().get(i - 1).getOutLeg().getSpeed();
 
-                LOG.debug("We have travelled for how many minutes " + timeTravelledSeconds / 60 + " at speed "
-                        + speedInLeg);
+                LOG.debug("We have travelled for how many minutes " + timeTravelledSeconds / 60 + " at speed " + speedInLeg);
 
                 double distanceTravelled = Calculator.distanceAfterTimeMph(speedInLeg, timeTravelledSeconds);
 
@@ -561,7 +594,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 Position route1CurrentPosition = position;
                 Position route2CurrentPosition = route2StartPos;
 
-                int route1CurrentWaypoint = i-1;
+                int route1CurrentWaypoint = i - 1;
                 int route2CurrentWaypoint = route2StartWp;
 
                 DateTime traverseTime = route2Start;
@@ -574,9 +607,23 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                     double currentDistance = Converter.metersToNm(route1CurrentPosition.distanceTo(route2CurrentPosition,
                             CoordinateSystem.CARTESIAN));
 
-                    if (currentDistance < FILTER_DISTANCE_EPSILON) {
-                        IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(route1CurrentPosition,
-                                route2CurrentPosition, "TCPA Warning, proxmity less than " + FILTER_DISTANCE_EPSILON + " nautical miles at " + traverseTime, 0, 0);
+                    if (currentDistance < FILTER_DISTANCE_EPSILON || currentDistance < NOTIFICATION_DISTANCE_EPSILON) {
+
+                        boolean notificationOnly = false;
+
+                        if (currentDistance > FILTER_DISTANCE_EPSILON && currentDistance < NOTIFICATION_DISTANCE_EPSILON) {
+                            notificationOnly = true;
+                        }
+
+                        DecimalFormat df = new DecimalFormat("#.##");
+
+                        IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(
+                                route1,
+                                route2,
+                                route1CurrentPosition,
+                                route2CurrentPosition,
+                                "TCPA Warning, proxmity of " + df.format(currentDistance)
+                                        + " nautical miles ", 0, 0, notificationOnly);
 
                         filterMessage.setTime1(traverseTime);
                         filterMessage.setTime2(traverseTime);
@@ -591,7 +638,6 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                     traverseTime = traverseTime.plusMinutes(1);
                     route1CurrentPosition = traverseLine(route1, route1CurrentWaypoint, route1CurrentPosition, 60);
                     route2CurrentPosition = traverseLine(route2, route2CurrentWaypoint, route2CurrentPosition, 60);
-                    
 
                     if (traverseTime.isAfter(route1SegmentEnd)) {
 
@@ -612,13 +658,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             LOG.debug("We are now at waypoint " + route1CurrentWaypoint);
 
                             // Traverse a bit
-                            int missingSecs = (int)(traverseTime.toDate().getTime() - route1SegmentEnd.toDate().getTime()) / 1000;
-                            route1CurrentPosition = traverseLine(
-                                    route1, 
-                                    route1CurrentWaypoint, 
-                                    route1.getWaypoints().get(route1CurrentWaypoint).getPos(),
-                                    missingSecs);
-                            
+                            int missingSecs = (int) (traverseTime.toDate().getTime() - route1SegmentEnd.toDate().getTime()) / 1000;
+                            route1CurrentPosition = traverseLine(route1, route1CurrentWaypoint,
+                                    route1.getWaypoints().get(route1CurrentWaypoint).getPos(), missingSecs);
+
                             route1SegmentEnd = getEta(route1, route1CurrentWaypoint + 1);
 
                             // Skip to next WP start traverse
@@ -645,19 +688,25 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             // Switch to next leg
                             route2CurrentWaypoint++;
 
-                            int missingSecs = (int)(traverseTime.toDate().getTime() - route2SegmentEnd.toDate().getTime()) / 1000;
-                            route2CurrentPosition = traverseLine(
-                                    route2, 
-                                    route2CurrentWaypoint, 
-                                    route2.getWaypoints().get(route2CurrentWaypoint).getPos(),
-                                    missingSecs);
-                            
+                            int missingSecs = (int) (traverseTime.toDate().getTime() - route2SegmentEnd.toDate().getTime()) / 1000;
+                            route2CurrentPosition = traverseLine(route2, route2CurrentWaypoint,
+                                    route2.getWaypoints().get(route2CurrentWaypoint).getPos(), missingSecs);
+
                             route2SegmentEnd = getEta(route2, route2CurrentWaypoint + 1);
 
                             // Skip to next WP start traverse
                             // traverseTime = new DateTime(route2.getEtas().get(route2CurrentWaypoint));
                         }
 
+                    }
+
+                    // Are we more than 5 hours in the future then stop
+
+                    DateTime currentTime = new DateTime(PntTime.getInstance().getDate().getTime());
+
+                    if (traverseTime.isAfter(currentTime.plusHours(3))) {
+                        LOG.debug("More than 3 hours head of current time, ending checks");
+                        break;
                     }
 
                 }
@@ -678,27 +727,30 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
     /**
      * Traverses the route leg based at the given index from the given position
-     * @param route the route
-     * @param index the way point index
-     * @param currentPos the current position
-     * @param seconds the number of seconds
+     * 
+     * @param route
+     *            the route
+     * @param index
+     *            the way point index
+     * @param currentPos
+     *            the current position
+     * @param seconds
+     *            the number of seconds
      * @return the updated position
      */
     private Position traverseLine(Route route, int index, Position currentPos, int seconds) {
         RouteWaypoint wp = route.getWaypoints().get(index);
-        
-        double dist = new Speed(SpeedType.KNOTS, wp.getOutLeg().getSpeed())
-                        .forTime(new Time(TimeType.SECONDS, seconds))
-                        .in(DistType.NAUTICAL_MILES)
-                        .doubleValue();
-        
+
+        double dist = new Speed(SpeedType.KNOTS, wp.getOutLeg().getSpeed()).forTime(new Time(TimeType.SECONDS, seconds))
+                .in(DistType.NAUTICAL_MILES).doubleValue();
+
         if (wp.getHeading() == Heading.RL) {
             return traverseLineRL(currentPos, wp.calcBrg(), dist);
         } else {
             return traverseLineGC(currentPos, wp.getOutLeg().getEndWp().getPos(), dist);
         }
     }
-    
+
     /**
      * Rhumb line traversing
      * 
@@ -741,6 +793,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
     /**
      * Returns the list of intended routes
+     * 
      * @return the list of intended routes
      */
     public ConcurrentHashMap<Long, IntendedRoute> getIntendedRoutes() {
@@ -749,26 +802,27 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
     /**
      * Returns the list of filtered intended routes
+     * 
      * @return the list of filtered intended routes
      */
     public FilteredIntendedRoutes getFilteredIntendedRoutes() {
         return filteredIntendedRoutes;
     }
-    
+
     /**
-     * Updates the intended route filter settings. This base version simply updates fields.
-     * It is up to the sub class to add extra calls (e.g. {@link #updateFilter()}) in order to refresh state based on the updated settings.
+     * Updates the intended route filter settings. This base version simply updates fields. It is up to the sub class to add extra
+     * calls (e.g. {@link #updateFilter()}) in order to refresh state based on the updated settings.
      * 
      * @param settings
-     *          The Enav Settings.
+     *            The Enav Settings.
      */
     public void updateSettings(EnavSettings settings) {
-        
+
         ROUTE_TTL = settings.getRouteTimeToLive();
         FILTER_DISTANCE_EPSILON = settings.getFilterDistance();
         NOTIFICATION_DISTANCE_EPSILON = settings.getNotificationDistance();
         ALERT_DISTANCE_EPSILON = settings.getAlertDistance();
-        
+
         /*
          * A sub class should call updateFilter() or similar if it wants to react on the changes to the settings.
          */

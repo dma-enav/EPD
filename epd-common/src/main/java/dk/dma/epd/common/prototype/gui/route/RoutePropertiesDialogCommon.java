@@ -109,13 +109,13 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             " ", "Name", "Latutide", "Longtitude", 
             "Rad", "Rot", "TTG", "ETA", 
             "RNG", "BRG", "Head.", "SOG", 
-            "XTDS", "XTD P", "SF Width", "SF Len" };
+            "XTDS", "XTD P", "SF Len" };
 
     private static final int[] COL_MIN_WIDTHS = {
         25, 60, 70, 70,
         45, 30, 70, 70,
         70, 50, 40, 50,
-        50, 50, 50, 50
+        50, 50, 50
     };
     
     private static final int DELTA_START_COL_INDEX = 8;
@@ -392,8 +392,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                 case 11: return Formatter.formatSpeed(wp.getOutLeg().getSpeed());
                 case 12: return Formatter.formatMeters(wp.getOutLeg().getXtdStarboardMeters());
                 case 13: return Formatter.formatMeters(wp.getOutLeg().getXtdPortMeters());
-                case 14: return Formatter.formatMeters(wp.getOutLeg().getSFWidth());
-                case 15: return Formatter.formatTime(wp.getOutLeg().getSFLenInMilleseconds());
+                case 14: return Formatter.formatTime(wp.getOutLeg().getSFLenInMilleseconds());
                 default: return null;
                 }
             }
@@ -452,9 +451,6 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                         wp.getOutLeg().setXtdPort(parseDouble(value.toString()) / 1852.0);
                         break;
                     case 14: 
-                        wp.getOutLeg().setSFWidth(parseDouble(value.toString()));
-                        break;
-                    case 15: 
                         wp.getOutLeg().setSFLenInMilliseconds(parseTime(value.toString()));
                         break;
                     default:
@@ -605,6 +601,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             route.setEtaCalculationType((EtaCalculationType)etaCalculationTime.getSelectedItem());
             adjustStartTime();
             routeUpdated();
+
         } else if (evt.getSource() == allSpeedsBtn) {
             double speed;
             try {
@@ -622,6 +619,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             }
             adjustStartTime();
         }
+        
+        EPD.getInstance().getRouteManager()
+        .notifyListeners(RoutesUpdateEvent.ROUTE_CHANGED);
     }
 
     /** 

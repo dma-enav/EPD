@@ -25,6 +25,7 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
@@ -36,6 +37,7 @@ import dk.dma.epd.common.prototype.gui.metoc.MetocGraphic;
 import dk.dma.epd.common.prototype.gui.metoc.MetocInfoPanel;
 import dk.dma.epd.common.prototype.gui.metoc.MetocPointGraphic;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.Route;
@@ -54,41 +56,45 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
     private static final Logger LOG = LoggerFactory.getLogger(RouteLayerCommon.class);
 
     private MetocInfoPanel metocInfoPanel = new MetocInfoPanel();
-    private WaypointInfoPanel waypointInfoPanel = new WaypointInfoPanel();
-    
+    private WaypointInfoPanel routeInfoPanel = new WaypointInfoPanel();
+
     protected RouteManagerCommon routeManager;
     protected WaypointCircle selectedWp;
     protected OMGraphicList metocGraphics = new OMGraphicList();
     protected boolean arrowsVisible;
     protected MetocGraphic routeMetoc;
 
-    
+    private OMCircle dummyCircle = new OMCircle();
+    private ChartPanelCommon chartPanel;
+
     /**
      * Constructor
      */
     public RouteLayerCommon() {
         super();
-        
+
         // Register the info panels
         registerInfoPanel(metocInfoPanel, MetocPointGraphic.class);
-        registerInfoPanel(waypointInfoPanel, WaypointCircle.class);
-        
+        registerInfoPanel(routeInfoPanel, WaypointCircle.class, RouteLegGraphic.class);
+
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(WaypointCircle.class, RouteLegGraphic.class);
     }
-    
+
     /**
      * Calculate distance between displayed METOC-points projected onto the screen
-     * @param metocGraphic METOC-graphics containing METOC-points
+     * 
+     * @param metocGraphic
+     *            METOC-graphics containing METOC-points
      * @return The smallest distance between displayed METOC-points projected onto the screen
      */
-    public double calculateMetocDistance(MetocGraphic metocGraphic){
+    public double calculateMetocDistance(MetocGraphic metocGraphic) {
         List<OMGraphic> forecasts = metocGraphic.getTargets();
         double minDist = 0;
         for (int i = 0; i < forecasts.size(); i++) {
-            if(i < forecasts.size()-2){
+            if (i < forecasts.size() - 2) {
                 MetocPointGraphic metocForecastPoint = (MetocPointGraphic) forecasts.get(i);
-                MetocPointGraphic metocForecastPointNext = (MetocPointGraphic) forecasts.get(i+1);
+                MetocPointGraphic metocForecastPointNext = (MetocPointGraphic) forecasts.get(i + 1);
                 double lat = metocForecastPoint.getLat();
                 double lon = metocForecastPoint.getLon();
 
@@ -98,15 +104,15 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
                 Point2D current = getProjection().forward(lat, lon);
                 Point2D next = getProjection().forward(latnext, lonnext);
 
-                Vector2D vector = new Vector2D(current.getX(),current.getY(),next.getX(),next.getY());
+                Vector2D vector = new Vector2D(current.getX(), current.getY(), next.getX(), next.getY());
 
                 double newDist = vector.norm();
 
-                if(i == 0){
+                if (i == 0) {
                     minDist = newDist;
                 }
 
-                if(minDist > newDist){
+                if (minDist > newDist) {
                     minDist = newDist;
                 }
             }
@@ -116,17 +122,19 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
 
     /**
      * Calculate distance between each METOC-point projected onto the screen
-     * @param route The route which contains metoc data (check for this before!)
+     * 
+     * @param route
+     *            The route which contains metoc data (check for this before!)
      * @return The smallest distance between METOC-points projected onto the screen
      */
-    public double calculateMetocDistance(Route route){
-        MetocForecast routeMetoc  = route.getMetocForecast();
+    public double calculateMetocDistance(Route route) {
+        MetocForecast routeMetoc = route.getMetocForecast();
         List<MetocForecastPoint> forecasts = routeMetoc.getForecasts();
         double minDist = 0;
         for (int i = 0; i < forecasts.size(); i++) {
-            if(i < forecasts.size()-2){
+            if (i < forecasts.size() - 2) {
                 MetocForecastPoint metocForecastPoint = forecasts.get(i);
-                MetocForecastPoint metocForecastPointNext = forecasts.get(i+1);
+                MetocForecastPoint metocForecastPointNext = forecasts.get(i + 1);
                 double lat = metocForecastPoint.getLat();
                 double lon = metocForecastPoint.getLon();
 
@@ -136,15 +144,15 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
                 Point2D current = getProjection().forward(lat, lon);
                 Point2D next = getProjection().forward(latnext, lonnext);
 
-                Vector2D vector = new Vector2D(current.getX(),current.getY(),next.getX(),next.getY());
+                Vector2D vector = new Vector2D(current.getX(), current.getY(), next.getX(), next.getY());
 
                 double newDist = vector.norm();
 
-                if(i == 0){
+                if (i == 0) {
                     minDist = newDist;
                 }
 
-                if(minDist > newDist){
+                if (minDist > newDist) {
                     minDist = newDist;
                 }
             }
@@ -160,36 +168,38 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
         if (newClosest instanceof MetocPointGraphic) {
             MetocPointGraphic pointGraphic = (MetocPointGraphic) newClosest;
             MetocForecastPoint pointForecast = pointGraphic.getMetocPoint();
-            metocInfoPanel.showText(pointForecast, pointGraphic
-                    .getMetocGraphic().getRoute()
-                    .getRouteMetocSettings());
+            metocInfoPanel.showText(pointForecast, pointGraphic.getMetocGraphic().getRoute().getRouteMetocSettings());
             return true;
-            
+
         } else if (newClosest instanceof WaypointCircle) {
             WaypointCircle waypointCircle = (WaypointCircle) closest;
-            waypointInfoPanel.showWpInfo(waypointCircle.getRoute(),
-                    waypointCircle.getWpIndex());
+            routeInfoPanel.showWpInfo(waypointCircle.getRoute(), waypointCircle.getWpIndex());
+            return true;
+        } else if (newClosest instanceof RouteLegGraphic) {
+            Point2D worldLocation = chartPanel.getMap().getProjection().inverse(evt.getPoint());
+            routeInfoPanel.showLegInfo((RouteLegGraphic) newClosest, worldLocation);
+            closest = dummyCircle;
             return true;
         }
         return false;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
-        
+    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
+
         if (clickedGraphics instanceof WaypointCircle) {
             WaypointCircle wpc = (WaypointCircle) clickedGraphics;
             getMapMenu().routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
-        
+
         } else if (clickedGraphics instanceof RouteLegGraphic) {
             RouteLegGraphic rlg = (RouteLegGraphic) clickedGraphics;
             getMapMenu().routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(), evt.getPoint());
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -200,18 +210,18 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
         }
 
         if (selectedWp == null) {
-            selectedWp = (WaypointCircle)getSelectedGraphic(e, WaypointCircle.class);
+            selectedWp = (WaypointCircle) getSelectedGraphic(e, WaypointCircle.class);
         }
-        
+
         if (selectedWp != null) {
             hideInfoPanels();
-            
-            // Handle non-active route case 
+
+            // Handle non-active route case
             if (routeManager.getActiveRouteIndex() != selectedWp.getRouteIndex()) {
                 RouteWaypoint routeWaypoint = selectedWp.getRoute().getWaypoints().get(selectedWp.getWpIndex());
                 LatLonPoint pos = mapBean.getProjection().inverse(e.getPoint());
                 routeWaypoint.setPos(Position.create(pos.getLatitude(), pos.getLongitude()));
-                
+
                 // Invalidate the STCC approval flag
                 if (selectedWp.getRoute().isStccApproved()) {
                     selectedWp.getRoute().setStccApproved(false);
@@ -223,18 +233,15 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
                 }
                 routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
                 return true;
-                
+
             } else {
                 // Attempting to drag an active route, make a route copy and drag that one.
                 // NB: This case will only ever be reached for EPDShip
-                int dialogresult = JOptionPane
-                        .showConfirmDialog(
-                                EPD.getInstance().getMainFrame(),
-                                "You are trying to edit an active route \nDo you wish to make a copy to edit?",
-                                "Route Editing", JOptionPane.YES_OPTION);
+                int dialogresult = JOptionPane.showConfirmDialog(EPD.getInstance().getMainFrame(),
+                        "You are trying to edit an active route \nDo you wish to make a copy to edit?", "Route Editing",
+                        JOptionPane.YES_OPTION);
                 if (dialogresult == JOptionPane.YES_OPTION) {
-                    Route route = routeManager.getRoute(
-                            routeManager.getActiveRouteIndex()).copy();
+                    Route route = routeManager.getRoute(routeManager.getActiveRouteIndex()).copy();
                     route.setName(route.getName() + " copy");
                     routeManager.addRoute(route);
                     selectedWp = null;
@@ -245,7 +252,7 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
 
         return false;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -258,7 +265,7 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
         }
         return false;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -266,9 +273,8 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
     public synchronized OMGraphicList prepare() {
         float showArrowScale = EPD.getInstance().getSettings().getNavSettings().getShowArrowScale();
         for (OMGraphic omgraphic : graphics) {
-            if(omgraphic instanceof RouteGraphic){
-                ((RouteGraphic) omgraphic).showArrowHeads(getProjection().getScale() < 
-                        showArrowScale);
+            if (omgraphic instanceof RouteGraphic) {
+                ((RouteGraphic) omgraphic).showArrowHeads(getProjection().getScale() < showArrowScale);
             }
         }
 
@@ -276,15 +282,15 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
         for (OMGraphic omGraphic : metocList) {
             MetocGraphic metocGraphic = (MetocGraphic) omGraphic;
             Route route = metocGraphic.getRoute();
-            if(routeManager.showMetocForRoute(route)){
+            if (routeManager.showMetocForRoute(route)) {
                 double minDist = calculateMetocDistance(route);
                 int step = Math.max((int) (5.0 / minDist), 1);
                 metocGraphic.setStep(step);
-                
+
                 // temporary fix for drawing metoc information
                 // All scales will draw all metoc.
                 metocGraphic.setStep(1);
-                
+
                 metocGraphic.paintMetoc();
             }
         }
@@ -292,24 +298,30 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
         graphics.project(getProjection());
         return graphics;
     }
-    
+
     /**
      * Called when a new bean is added to the bean context
-     * @param obj the bean being added
+     * 
+     * @param obj
+     *            the bean being added
      */
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
+
         if (obj instanceof RouteManagerCommon) {
-            routeManager = (RouteManagerCommon)obj;
+            routeManager = (RouteManagerCommon) obj;
             routeManager.addListener(this);
+        } else if (obj instanceof ChartPanelCommon) {
+            chartPanel = (ChartPanelCommon) obj;
         }
     }
 
     /**
      * Called when a bean is removed from the bean context
-     * @param obj the bean being removed
+     * 
+     * @param obj
+     *            the bean being removed
      */
     @Override
     public void findAndUndo(Object obj) {

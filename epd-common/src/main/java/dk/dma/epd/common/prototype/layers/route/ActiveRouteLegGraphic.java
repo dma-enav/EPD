@@ -44,13 +44,9 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
         addCrossTrack();
     }
 
-    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor, float scale) {
-        super(routeLeg, routeIndex, color, stroke, broadLineColor, scale);
-        addCrossTrack();
-    }
-
-    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, float scale) {
-        super(routeLeg, routeIndex, color, stroke, scale);
+    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, float scale,
+            RouteGraphic routeGraphic, int legIndex) {
+        super(routeLeg, routeIndex, color, stroke, scale, routeGraphic, legIndex);
         addCrossTrack();
 
     }
@@ -117,13 +113,13 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
 
             polyPoints[j] = polyPoints[0];
             polyPoints[j + 1] = polyPoints[1];
-            
+
             int headingType = OMGraphicConstants.LINETYPE_RHUMB;
-            
-            if (this.getRouteLeg().getHeading() == Heading.GC){
+
+            if (this.getRouteLeg().getHeading() == Heading.GC) {
                 headingType = OMGraphicConstants.LINETYPE_GREATCIRCLE;
             }
-            
+
             OMPoly poly = new OMPoly(polyPoints, OMGraphicConstants.DECIMAL_DEGREES, headingType, 0);
             poly.setIsPolygon(true);
             poly.setLinePaint(clear);

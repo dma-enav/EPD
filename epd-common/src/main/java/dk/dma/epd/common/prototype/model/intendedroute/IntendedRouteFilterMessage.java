@@ -14,14 +14,16 @@
  */
 package dk.dma.epd.common.prototype.model.intendedroute;
 
-import org.joda.time.DateTime;
-
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.Converter;
+import org.joda.time.DateTime;
 
 public class IntendedRouteFilterMessage {
 
+    Route route1;
+    Route route2;
     Position position1;
     Position position2;
     String message;
@@ -29,15 +31,18 @@ public class IntendedRouteFilterMessage {
     int legEndIndex;
     DateTime time1;
     DateTime time2;
-    
-    public IntendedRouteFilterMessage(Position position1, Position position2, String message, int legStartIndex, int legEndIndex) {
+    boolean notificationOnly;
+
+    public IntendedRouteFilterMessage(Route route1, Route route2, Position position1, Position position2, String message, int legStartIndex, int legEndIndex, boolean notificationOnly) {
+        this.route1 = route1;
+        this.route2 = route2;
         this.legStartIndex = legStartIndex;
         this.legEndIndex = legEndIndex;
         this.position1 = position1;
         this.position2 = position2;
         this.message = message;
+        this.notificationOnly = notificationOnly;
     }
-
 
     public String getMessage() {
         return message;
@@ -47,21 +52,17 @@ public class IntendedRouteFilterMessage {
         this.message = message;
     }
 
-
     public Position getPosition1() {
         return position1;
     }
-
 
     public void setPosition1(Position position1) {
         this.position1 = position1;
     }
 
-
     public Position getPosition2() {
         return position2;
     }
-
 
     public void setPosition2(Position position2) {
         this.position2 = position2;
@@ -86,13 +87,14 @@ public class IntendedRouteFilterMessage {
     /**
      * Returns if the CPA position is within the given distance in nautical miles
      * 
-     * @param distance the distance in nautical miles
+     * @param distance
+     *            the distance in nautical miles
      * @return if the CPA position is within the given distance
      */
     public boolean isWithinDistance(double distance) {
         return Converter.metersToNm(getDistance()) < distance;
     }
-    
+
     /**
      * Returns the distance in meters between the two points of this message.
      * <p>
@@ -103,9 +105,30 @@ public class IntendedRouteFilterMessage {
     public double getDistance() {
         return getPosition1().distanceTo(getPosition2(), CoordinateSystem.CARTESIAN);
     }
+
+    /**
+     * @return the notificationOnly
+     */
+    public boolean isNotificationOnly() {
+        return notificationOnly;
+    }
+
+    public boolean routesVisible() {
+        return route1.isVisible() && route2.isVisible();
+    }
+
+    /**
+     * @param notificationOnly the notificationOnly to set
+     */
+    public void setNotificationOnly(boolean notificationOnly) {
+        this.notificationOnly = notificationOnly;
+    }
+
+    
+    
     
     // Severity?
     // Type?
     // Possibly options is Intersection or Proximity Alert?
-    
+
 }

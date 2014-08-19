@@ -70,6 +70,8 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
     private JSpinner spinnerMsPntPort;
     private JCheckBox chckbxStartTransponder;
     private JSpinner spinnerAisSensorRange;
+    private JSpinner spinnerMsPntHal;
+    private JCheckBox cbMsPntTrueHeadingFromCog;
 
     /**
      * Constructs a new ShipSensorSettingsPanel object.
@@ -235,7 +237,20 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
         this.textFieldMsPntHostOrSerialPort.setColumns(10);
         this.textFieldMsPntHostOrSerialPort.setBounds(135, 44, 139, 20);
         this.msPntConnectionPanel.add(this.textFieldMsPntHostOrSerialPort);
-        
+
+        JLabel lblMspPntHal = new JLabel("HAL");
+        lblMspPntHal.setBounds(17, 118, 61, 16);
+        this.msPntConnectionPanel.add(lblMspPntHal);
+
+        this.spinnerMsPntHal = new JSpinner();
+        this.spinnerMsPntHal.setEditor(new NumberEditor(this.spinnerMsPntHal, "#"));
+        this.spinnerMsPntHal.setBounds(135, 118, 139, 20);
+        this.msPntConnectionPanel.add(spinnerMsPntHal);
+
+        cbMsPntTrueHeadingFromCog = new JCheckBox("True heading = COG");
+        this.cbMsPntTrueHeadingFromCog.setBounds(300, 118, 160, 20);
+        this.msPntConnectionPanel.add(cbMsPntTrueHeadingFromCog);
+
         this.add(this.msPntConnectionPanel);
 
         
@@ -303,6 +318,8 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
         this.textFieldMsPntHostOrSerialPort.setEnabled(msPntEnabled && (msPntConType == TCP || msPntConType == SERIAL));
         this.spinnerMsPntPort.setEnabled(msPntEnabled && (msPntConType == TCP || msPntConType == UDP));
         this.textFieldMsPntFileName.setEnabled(msPntConType == FILE);
+        this.spinnerMsPntHal.setEnabled(msPntEnabled);
+        this.cbMsPntTrueHeadingFromCog.setEnabled(msPntEnabled);
     }
     
     /**
@@ -349,12 +366,14 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
                 changed(this.settings.getGpsFilename(), this.textFieldGpsFilename.getText()) ||
                 changed(this.settings.getGpsTcpOrUdpPort(), this.spinnerGpsPort.getValue()) ||
                 
-                // Check for changes made in PNT connection settings.
+                // Check for changes made in MS PNT connection settings.
                 changed(this.settings.getMsPntConnectionType(), this.comboBoxMsPntConnectionType.getSelectedItem()) ||
                 changed(this.settings.getMsPntHostOrSerialPort(), this.textFieldMsPntHostOrSerialPort.getText()) ||
                 changed(this.settings.getMsPntFilename(), this.textFieldMsPntFileName.getText()) ||
                 changed(this.settings.getMsPntTcpOrUdpPort(), this.spinnerMsPntPort.getValue()) ||
-                
+                changed(this.settings.getMsPntHal(), this.spinnerMsPntHal.getValue()) ||
+                changed(this.settings.isMsPntTrueHeadingFromCog(), this.cbMsPntTrueHeadingFromCog.isSelected()) ||
+
                 // Check for changes made in transponder settings.
                 changed(this.settings.isStartTransponder(), this.chckbxStartTransponder.isSelected()) ||
                 changed(this.settings.getAisSensorRange(), this.spinnerAisSensorRange.getValue());
@@ -389,7 +408,9 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
         this.textFieldMsPntHostOrSerialPort.setText(this.settings.getMsPntHostOrSerialPort());
         this.textFieldMsPntFileName.setText(this.settings.getMsPntFilename());
         this.spinnerMsPntPort.setValue(this.settings.getMsPntTcpOrUdpPort());
-        
+        this.spinnerMsPntHal.setValue(this.settings.getMsPntHal());
+        this.cbMsPntTrueHeadingFromCog.setSelected(settings.isMsPntTrueHeadingFromCog());
+
         // Load the transponder settings.
         this.chckbxStartTransponder.setSelected(this.settings.isStartTransponder());
         this.spinnerAisSensorRange.setValue(this.settings.getAisSensorRange());
@@ -417,7 +438,9 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
         this.settings.setMsPntHostOrSerialPort(this.textFieldMsPntHostOrSerialPort.getText());
         this.settings.setMsPntFilename(this.textFieldMsPntFileName.getText());
         this.settings.setMsPntTcpOrUdpPort((Integer) this.spinnerMsPntPort.getValue());
-        
+        this.settings.setMsPntHal((Integer) this.spinnerMsPntHal.getValue());
+        this.settings.setMsPntTrueHeadingFromCog(cbMsPntTrueHeadingFromCog.isSelected());
+
         // Saves the PNT source settings
         this.settings.setPntSource((PntSourceSetting) this.comboBoxPntSource.getSelectedItem());
         

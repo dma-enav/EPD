@@ -41,7 +41,7 @@ import dk.dma.epd.common.prototype.event.mouse.CommonRouteEditMouseMode;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteCPALayer;
 import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
 import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
@@ -83,7 +83,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected NewRouteContainerLayer newRouteContainerLayer;
     protected MsiLayerCommon msiLayer;
     protected IntendedRouteLayerCommon intendedRouteLayer;
-    protected IntendedRouteTCPALayer intendedRouteTCPALayer;
+    protected IntendedRouteCPALayer intendedRouteCPALayer;
     
     protected LayerVisibilityAdapter encVisibilityAdapter = new LayerVisibilityAdapter();
     protected HistoryListener historyListener;

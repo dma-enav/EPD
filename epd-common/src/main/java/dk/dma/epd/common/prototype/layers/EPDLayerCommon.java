@@ -84,6 +84,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
 
     private Timer timer;
     private CopyOnWriteArrayList<LayerVisiblityListener> visibilityListener = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<EPDLayerCommon> visibilityMangedLayers = new CopyOnWriteArrayList<>();
 
     /**
      * {@inheritDoc}
@@ -657,11 +658,34 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
         visibilityListener.remove(targetListener);
     }
 
+    /**
+     * Add visibility managed layer
+     *
+     * @param layer
+     */
+    public final void addVisibilityManagedLayer(EPDLayerCommon layer) {
+        visibilityMangedLayers.add(layer);
+        layer.setVisible(isVisible());
+    }
+
+    /**
+     * Remove visibility managed layer
+     *
+     * @param layer
+     */
+    public final void removeVisibilityManagedLayer(EPDLayerCommon layer) {
+        visibilityMangedLayers.remove(layer);
+    }
+
     @Override
     public void setVisible(boolean show) {
         super.setVisible(show);
 
         notifyVisibilityListeners();
+
+        for (EPDLayerCommon layer : visibilityMangedLayers) {
+            layer.setVisible(show);
+        }
     }
 
 }

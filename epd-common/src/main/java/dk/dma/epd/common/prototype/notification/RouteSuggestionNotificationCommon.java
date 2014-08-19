@@ -21,37 +21,37 @@ import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 /**
  * An base route suggestion implementation of the {@linkplain Notification} class
  */
-public class RouteSuggestionNotificationCommon extends Notification<RouteSuggestionData, Long>{
+public class RouteSuggestionNotificationCommon extends Notification<RouteSuggestionData, Long> {
 
     private static final long serialVersionUID = 1L;
-
 
     /**
      * Constructor
      * 
-     * @param routeData the strategic route data
+     * @param routeData
+     *            the strategic route data
      */
     public RouteSuggestionNotificationCommon(RouteSuggestionData routeData) {
         super(routeData, routeData.getId(), NotificationType.TACTICAL_ROUTE);
-        
-        title = String.format("Route suggestion '%s' is %s", 
-                routeData.getMessage().getRoute().getName(),
-                routeData.getStatus().toString());
-        
-        read = acknowledged = routeData.isAcknowleged();
-        location = Position.create(
-                    routeData.getMessage().getRoute().getWaypoints().get(0).getLatitude(), 
-                    routeData.getMessage().getRoute().getWaypoints().get(0).getLongitude());
-        targetId = (routeData.getMmsi() != -1) ? new MmsiId((int)routeData.getMmsi()) : null;
-    }    
 
-    
+        title = String.format("Route suggestion '%s' is %s", routeData.getMessage().getRoute().getName(), routeData.getStatus()
+                .toString());
+
+        read = acknowledged = routeData.isAcknowleged();
+        location = Position.create(routeData.getMessage().getRoute().getWaypoints().get(0).getLatitude(), routeData.getMessage()
+                .getRoute().getWaypoints().get(0).getLongitude());
+        targetId = (routeData.getMmsi() != -1) ? new MmsiId((int) routeData.getMmsi()) : null;
+    }
+
     /**
      * Sets the acknowledged flag and updates the underlying route suggestion
-     * @param acknowledged the new acknowledged state
+     * 
+     * @param acknowledged
+     *            the new acknowledged state
      */
-    @Override 
+    @Override
     public void setAcknowledged(boolean acknowledged) {
+        System.out.println("Acknowelged");
         super.setAcknowledged(acknowledged);
         get().setAcknowleged(acknowledged);
     }

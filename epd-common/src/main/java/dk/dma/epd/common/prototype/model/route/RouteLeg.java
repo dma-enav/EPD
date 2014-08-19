@@ -60,7 +60,6 @@ public class RouteLeg implements Serializable {
      */
     protected RouteWaypoint endWp;
 
-    protected double SFWidth = 500;
     protected double SFLen = 1000;
 
     public RouteLeg() {
@@ -74,21 +73,12 @@ public class RouteLeg implements Serializable {
         this.xtdPort = rll.getXtdPort();
         this.startWp = rll.getStartWp();
         this.endWp = rll.getEndWp();
-        this.SFWidth = rll.getSFWidth();
         this.SFLen = rll.getSFLen();
     }
 
     public RouteLeg(RouteWaypoint startWp, RouteWaypoint endWp) {
         this.startWp = startWp;
         this.endWp = endWp;
-    }
-
-    public double getSFWidth() {
-        return SFWidth;
-    }
-
-    public void setSFWidth(double d) {
-        SFWidth = d;
     }
 
     public double getSFLen() {
@@ -258,7 +248,6 @@ public class RouteLeg implements Serializable {
         builder.append(", xtdStarboard=");
         builder.append(xtdStarboard);
         builder.append(", SFWidth=");
-        builder.append(SFWidth);
         builder.append(", SFLen=");
         builder.append(SFLen);
         builder.append("]");
@@ -310,7 +299,6 @@ public class RouteLeg implements Serializable {
         newRouteLeg.setXtdStarboard(getXtdStarboard());
         newRouteLeg.setXtdPort(getXtdPort());
         newRouteLeg.setSFLen(getSFLen());
-        newRouteLeg.setSFWidth(getSFWidth());
 
         return newRouteLeg;
     }

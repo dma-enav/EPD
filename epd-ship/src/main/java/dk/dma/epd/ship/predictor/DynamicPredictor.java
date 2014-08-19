@@ -60,7 +60,7 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
         }
         
         // Get ais target
-        VesselTarget ownShip = ownShipHandler.getAisTarget();
+        VesselTarget ownShip = ownShipHandler.getComputedAisTarget();
         if (ownShip == null || ownShip.getAisClass() == AisClass.B) {
             return;
         }

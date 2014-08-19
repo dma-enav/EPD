@@ -191,7 +191,6 @@ public class Route implements Serializable {
             newRouteLeg.setXtdStarboard(routeLeg.getXtdStarboard());
             newRouteLeg.setXtdPort(routeLeg.getXtdPort());
             newRouteLeg.setSFLen(routeLeg.getSFLen());
-            newRouteLeg.setSFWidth(routeLeg.getSFWidth());
 
             newRouteLeg.setStartWp(currWaypoint);
             newRouteLeg.setEndWp(nextWaypoint);
@@ -210,21 +209,22 @@ public class Route implements Serializable {
         newRoute.destination = this.destination;
         newRoute.visible = this.visible;
 
+<<<<<<< HEAD
         newRoute.starttime = this.starttime == null ? PntTime.getDate() : new Date(this.starttime.getTime());
+=======
+        newRoute.starttime = this.starttime == null ? PntTime.getInstance().getDate() : new Date(this.starttime.getTime());
+>>>>>>> cfda048e3840dda72a2bd6f6160d15667836a7fd
 
         newRoute.etas = (etas != null) ? new ArrayList<Date>(etas) : new ArrayList<Date>();
 
-        
-        
-//        newRoute.ttgs = this.ttgs;
-//        newRoute.dtgs = this.dtgs;
-//        newRoute.totalTtg = this.totalTtg;
-//        newRoute.totalDtg = this.totalDtg;
+        // newRoute.ttgs = this.ttgs;
+        // newRoute.dtgs = this.dtgs;
+        // newRoute.totalTtg = this.totalTtg;
+        // newRoute.totalDtg = this.totalDtg;
 
-        
         newRoute.stccApproved = this.stccApproved;
 
-//        newRoute.calcValues(true);
+        // newRoute.calcValues(true);
 
         return newRoute;
     }
@@ -608,13 +608,11 @@ public class Route implements Serializable {
                 double speed = dtgs[wpIndex] / t;
                 wp.getOutLeg().setSpeed(speed);
             }
-        }
-        else if (etaAdjust.getType() == EtaAdjustType.ADJUST_ALL_ETA) {
+        } else if (etaAdjust.getType() == EtaAdjustType.ADJUST_ALL_ETA) {
             // Find starttime resulting in wanted ETA
             long deltaT = newEta.getTime() - etas.get(wpIndex).getTime();
             this.starttime = new Date(this.starttime.getTime() + deltaT);
-        }
-        else {
+        } else {
             // New must be between ETD and ETA
             if (wpIndex != 0 && !newEta.after(starttime)) {
                 throw new IllegalArgumentException("New ETA is not after start time");
@@ -622,26 +620,26 @@ public class Route implements Serializable {
             if (!newEta.before(getEta())) {
                 throw new IllegalArgumentException("New ETA is not after route ETA");
             }
-            
+
             // Distance to and from wp
             double distBefore = 0;
             double distAfter = 0;
-            for (int i=0; i < wpIndex; i++) {
+            for (int i = 0; i < wpIndex; i++) {
                 distBefore += dtgs[i];
             }
-            for (int i=wpIndex; i < dtgs.length; i++) {
+            for (int i = wpIndex; i < dtgs.length; i++) {
                 distAfter += dtgs[i];
             }
-            
+
             // Time before and after
             double timeBefore = Converter.millisToHours(newEta.getTime() - this.starttime.getTime());
-            double timeAfter =  Converter.millisToHours(getEta().getTime() - newEta.getTime());
-            
+            double timeAfter = Converter.millisToHours(getEta().getTime() - newEta.getTime());
+
             double speedBefore = distBefore / timeBefore;
             double speedAfter = distAfter / timeAfter;
-           
+
             // Set leg speeds
-            for (int i=0; i < waypoints.size() - 1; i++) {
+            for (int i = 0; i < waypoints.size() - 1; i++) {
                 RouteLeg leg = waypoints.get(i).getOutLeg();
                 if (i < wpIndex) {
                     leg.setSpeed(speedBefore);
@@ -649,13 +647,13 @@ public class Route implements Serializable {
                     leg.setSpeed(speedAfter);
                 }
             }
-            
+
             // If first waypoint we have to change starttime
             if (wpIndex == 0) {
                 this.starttime = newEta;
             }
         }
-        
+
         calcValues(true);
 
     }
@@ -968,7 +966,6 @@ public class Route implements Serializable {
                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
                 routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
-                routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
                 routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFLen());
 
                 voyageWaypoint.setRouteLeg(routeLeg);
@@ -1032,11 +1029,6 @@ public class Route implements Serializable {
                         waypoint.getOutLeg().setXtdPort(cloudWaypoint.getRouteLeg().getXtdPort());
                     }
 
-                    // SF Width
-                    if (cloudWaypoint.getRouteLeg().getSFWidth() != null) {
-                        waypoint.getOutLeg().setSFWidth(cloudWaypoint.getRouteLeg().getSFWidth());
-                    }
-
                     // SF Len
                     if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
                         waypoint.getOutLeg().setSFLen(cloudWaypoint.getRouteLeg().getSFLen());
@@ -1076,6 +1068,15 @@ public class Route implements Serializable {
 
     public void setEtaCalculationType(EtaCalculationType etaCalculationType) {
         this.etaCalculationType = etaCalculationType;
+    }
+    
+    
+    public double getSpeed(int id) {
+        if (waypoints.get(id).getOutLeg() != null) {
+            return waypoints.get(id).getOutLeg().getSpeed();
+        }
+
+        return 0;
     }
 
     /**
@@ -1119,5 +1120,7 @@ public class Route implements Serializable {
         }
 
     }
+
+
 
 }
