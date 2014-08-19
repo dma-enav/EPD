@@ -73,6 +73,7 @@ import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.fal.FALManager;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.notification.NotificationCenter;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
@@ -232,6 +233,9 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // Load routeManager and register as GPS data listener
         routeManager = RouteManager.loadRouteManager();
         mapHandler.add(routeManager);
+
+        falManager = FALManager.loadFALManager();
+        mapHandler.add(falManager);
 
         voctManager = VOCTManager.loadVOCTManager();
         mapHandler.add(voctManager);
@@ -744,6 +748,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         aisHandler.saveView();
         ownShipHandler.saveView();
         transponderFrame.shutdown();
+        falManager.saveToFile();
 
         // Stop the Maritime Cloud connection
         strategicRouteHandler.shutdown();
@@ -839,6 +844,11 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
     public MainFrame getMainFrame() {
         return mainFrame;
+    }
+
+    @Override
+    public FALManager getFalManager() {
+        return (FALManager) falManager;
     }
 
     /**

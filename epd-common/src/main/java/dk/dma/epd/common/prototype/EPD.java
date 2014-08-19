@@ -32,6 +32,7 @@ import net.maritimecloud.core.id.MaritimeId;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
+import dk.dma.epd.common.prototype.fal.FALManagerCommon;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
@@ -63,6 +64,7 @@ public abstract class EPD implements ISettingsListener {
     
     // Common services
     protected RouteManagerCommon routeManager;
+    protected FALManagerCommon falManager;
     protected MaritimeCloudService maritimeCloudService;
     protected ChatServiceHandlerCommon chatServiceHandler;
     protected AisHandlerCommon aisHandler;
@@ -379,6 +381,13 @@ public abstract class EPD implements ISettingsListener {
      */
     public VoctHandlerCommon getVoctHandler() {
         return voctHandler;
+    }
+
+    /**
+     * @return the falManager
+     */
+    public FALManagerCommon getFalManager() {
+        return falManager;
     }
     
     

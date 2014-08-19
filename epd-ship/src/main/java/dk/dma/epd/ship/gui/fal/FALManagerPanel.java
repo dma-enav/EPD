@@ -27,17 +27,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -47,21 +40,17 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.fal.FALManager;
+import dk.dma.epd.ship.fal.FALReport;
 
 /**
- * Main panel of the route manager dialog
+ * Main panel of the fal manager dialog
  */
 public class FALManagerPanel extends JPanel implements ActionListener, ListSelectionListener, TableModelListener {
 
     private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(FALManagerPanel.class);
 
     private JButton staticDataBtn = new JButton("Static Ship Data");
     private JButton newBtn = new JButton("New Report");
@@ -73,35 +62,35 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
 
     private JButton[] buttons = { staticDataBtn, newBtn, propertiesBtn, copyBtn, deleteBtn, exportBtn, closeBtn };
 
-    private JTable routeTable = new JTable();
-    private JScrollPane routeScrollPane = new JScrollPane(routeTable);
-    private FALTableModel routesTableModel;
+    private JTable falTable = new JTable();
+    private JScrollPane falScrollPane = new JScrollPane(falTable);
+    private FALTableModel falTableModel;
 
-    // private RouteManager routeManager;
+    private FALManager falManager;
     private FALManagerDialog falManagerDialog;
-
-    private volatile File lastPath;
 
     /**
      * Constructor
      * 
-     * @param routeManagerDialog
+     * @param FALManagerDialog
      */
     public FALManagerPanel(FALManagerDialog falManagerDialog) {
 
+        falManager = EPDShip.getInstance().getFalManager();
+
         this.falManagerDialog = falManagerDialog;
 
-        routesTableModel = new FALTableModel();
-        routesTableModel.addTableModelListener(this);
-        routeTable.setModel(routesTableModel);
-        routeTable.getColumnModel().getColumn(0).setPreferredWidth(175);
-        routeTable.getColumnModel().getColumn(1).setPreferredWidth(175);
-        routeTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+        falTableModel = new FALTableModel();
+        falTableModel.addTableModelListener(this);
+        falTable.setModel(falTableModel);
+        falTable.getColumnModel().getColumn(0).setPreferredWidth(175);
+        falTable.getColumnModel().getColumn(1).setPreferredWidth(175);
+        falTable.getColumnModel().getColumn(2).setPreferredWidth(50);
 
-        routeTable.setShowHorizontalLines(false);
-        routeTable.setFillsViewportHeight(true);
-        routeTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        routeTable.addMouseListener(new MouseAdapter() {
+        falTable.setShowHorizontalLines(false);
+        falTable.setFillsViewportHeight(true);
+        falTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        falTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
@@ -110,10 +99,10 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
             }
         });
 
-        routeScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        routeScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        falScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        falScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        routeTable.getSelectionModel().addListSelectionListener(this);
+        falTable.getSelectionModel().addListSelectionListener(this);
 
         for (JButton btn : buttons) {
             btn.addActionListener(this);
@@ -134,7 +123,7 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
 
         JPanel btnPanel = new JPanel(new GridBagLayout());
 
-        add(routeScrollPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, NORTH, BOTH, new Insets(5, 5, 5, 5), 0, 0));
+        add(falScrollPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, NORTH, BOTH, new Insets(5, 5, 5, 5), 0, 0));
         add(btnPanel, new GridBagConstraints(1, 0, 1, 1, 0.0, 1.0, NORTH, VERTICAL, new Insets(5, 5, 5, 5), 0, 0));
 
         // All all buttons bar the close button
@@ -151,13 +140,6 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         btnPanel.add(closeBtn, new GridBagConstraints(0, buttons.length, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(0, 0, 0, 0),
                 0, 0));
 
-        // int selectRow = routeManager.getActiveRouteIndex();
-        // if (selectRow < 0 && routeManager.getRouteCount() > 0) {
-        // selectRow = 0;
-        // }
-        // if (selectRow >= 0) {
-        // routeTable.getSelectionModel().setSelectionInterval(selectRow, selectRow);
-        // }
     }
 
     /**
@@ -173,40 +155,25 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
      * Updates the buttons states depending on the current selection
      */
     private void updateButtons() {
-        boolean routeSelected = routeTable.getSelectedRow() >= 0;
-        boolean singleSelected = routeTable.getSelectedRows().length == 1;
+        boolean falReportSelected = falTable.getSelectedRow() >= 0;
+        boolean singleSelected = falTable.getSelectedRows().length == 1;
         boolean activeSelected = false;
-        // for (int row : routeTable.getSelectedRows()) {
-        // if (routeManager.isActiveRoute(row)) {
-        // activeSelected = true;
-        // }
-        // }
 
         propertiesBtn.setEnabled(singleSelected);
 
         copyBtn.setEnabled(singleSelected);
-        deleteBtn.setEnabled(routeSelected && !activeSelected);
+        deleteBtn.setEnabled(falReportSelected && !activeSelected);
 
         exportBtn.setEnabled(singleSelected);
     }
 
     /**
-     * Called when the underlying set of routes has been changed
+     * Called when the underlying set of fal reports has been changed
      */
     public void updateTable() {
-        // Record the old selection
-        // Set<Route> selection = new HashSet<>(getSelectedRoutes());
 
-        // Update routeTable
-        routesTableModel.fireTableDataChanged();
-
-        // Restore old selection
-        // for (int row = 0; row < routeTable.getRowCount(); row++) {
-        // Route route = routeManager.getRoute(row);
-        // if (selection.contains(route)) {
-        // routeTable.addRowSelectionInterval(row, row);
-        // }
-        // }
+        // Update falTable
+        falTableModel.fireTableDataChanged();
     }
 
     private void close() {
@@ -214,40 +181,43 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
     }
 
     private void copy() {
-        if (routeTable.getSelectedRow() >= 0) {
-            // routeManager.routeCopy(routeTable.getSelectedRow());
+        if (falTable.getSelectedRow() >= 0) {
+            FALReport newFal = new FALReport(falManager.getFalReports().get(falTable.getSelectedRow()));
+
+            falManager.getFalReports().add(newFal);
+
             updateTable();
         }
     }
 
     private void properties() {
-        int i = routeTable.getSelectedRow();
+        int i = falTable.getSelectedRow();
         if (i >= 0) {
-            // RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(falManagerDialog, EPDShip
-            // .getInstance().getMainFrame().getChartPanel(), i);
-            // routePropertiesDialog.setVisible(true);
+            FALReportingDialog dialog = new FALReportingDialog(falManager, falManager.getFalReports().get(i).getId());
+            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         }
     }
 
     private void delete() {
-        int row = routeTable.getSelectedRow();
-        // for (Route route : getSelectedRoutes()) {
-        // routeManager.removeRoute(route);
-        // }
-        row = Math.min(row, routeTable.getRowCount() - 1);
+        int row = falTable.getSelectedRow();
+
+        row = Math.min(row, falTable.getRowCount() - 1);
         if (row == -1) {
-            routeTable.clearSelection();
+            falTable.clearSelection();
         } else {
-            routeTable.getSelectionModel().setSelectionInterval(row, row);
+            falManager.getFalReports().remove(row);
+            falTable.getSelectionModel().setSelectionInterval(row, row);
+            updateTable();
+            updateButtons();
         }
     }
 
     private void exportToFile() {
-        exportToFile(routeTable.getSelectedRow());
+        exportToFile(falTable.getSelectedRow());
     }
 
-    private void exportToFile(int routeId) {
-        if (routeId < 0) {
+    private void exportToFile(int falId) {
+        if (falId < 0) {
             return;
         }
 
@@ -269,10 +239,10 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         } else if (e.getSource() == exportBtn) {
             exportToFile();
         } else if (e.getSource() == newBtn) {
-            FALReportingDialog dialog = new FALReportingDialog();
+            FALReportingDialog dialog = new FALReportingDialog(falManager, -1);
             dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         } else if (e.getSource() == staticDataBtn) {
-            FALStaticInformation dialog = new FALStaticInformation();
+            FALStaticInformationDialog dialog = new FALStaticInformationDialog(falManager);
             dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         }
     }

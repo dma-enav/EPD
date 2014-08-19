@@ -19,23 +19,23 @@ import javax.swing.table.AbstractTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.ship.EPDShip;
+
 /**
  * Table model for RouteManagerDialog
  */
 public class FALTableModel extends AbstractTableModel {
-    
+
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(FALTableModel.class);
-    
-    private static final String[] COLUMN_NAMES = {"Name", "Date", "Type"};
-    
-    
-    
+
+    private static final String[] COLUMN_NAMES = { "Name", "Date", "Type" };
+
     public FALTableModel() {
         super();
-        
+
     }
-    
+
     @Override
     public String getColumnName(int column) {
         return COLUMN_NAMES[column];
@@ -48,29 +48,30 @@ public class FALTableModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return 0;
+        return EPDShip.getInstance().getFalManager().getFalReports().size();
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        
+
         switch (columnIndex) {
-        case 0: return "Uh what do we use";
-        case 1: return "Voyage between 11/10/2014 and 15/10/2014";
-        case 2: return "Arrival";
+        case 0:
+            return EPDShip.getInstance().getFalManager().getFalReports().get(rowIndex).getFalReportName();
+        case 1:
+            return EPDShip.getInstance().getFalManager().getFalReports().get(rowIndex).getFalform1()
+                    .getDateAndTimeOfArrivalDepature();
+        case 2:
+            if (EPDShip.getInstance().getFalManager().getFalReports().get(rowIndex).getFalform1().isArrival()) {
+                return "Arrival";
+            }
+            return "Depature";
+
         default:
             LOG.error("Unknown column " + columnIndex);
             return new String("");
         }
     }
-    
 
-    
-    // @Override
-    // public boolean isCellEditable(int rowIndex, int columnIndex) {
-    // return false;
-    // }
-    
     @Override
     public Class<?> getColumnClass(int columnIndex) {
         return getValueAt(0, columnIndex).getClass();
