@@ -442,7 +442,7 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
             return true;
         }
         long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
         Date metocDate = route.getMetocForecast().getCreated();
         if (now.getTime() - metocDate.getTime() > metocTtl) {
             return true;
@@ -461,7 +461,7 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
         if (route.getMetocForecast() != null) {
             // Determine if METOC info is old
             long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
-            Date now = PntTime.getInstance().getDate();
+            Date now = PntTime.getDate();
             Date metocDate = route.getMetocForecast().getCreated();
             if (now.getTime() - metocDate.getTime() > metocTtl) {
                 return false;
@@ -516,7 +516,7 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
         // Find the age of the current METOC
         long metocAge = Long.MAX_VALUE;
         if (getActiveRoute().getMetocForecast() != null) {
-            Date now = PntTime.getInstance().getDate();
+            Date now = PntTime.getDate();
             metocAge = now.getTime() - getActiveRoute().getMetocForecast().getCreated().getTime();
         }
         // Check if minimum time since last update has passed

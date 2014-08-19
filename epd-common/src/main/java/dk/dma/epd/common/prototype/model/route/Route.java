@@ -209,7 +209,7 @@ public class Route implements Serializable {
         newRoute.destination = this.destination;
         newRoute.visible = this.visible;
 
-        newRoute.starttime = this.starttime == null ? PntTime.getInstance().getDate() : new Date(this.starttime.getTime());
+        newRoute.starttime = this.starttime == null ? PntTime.getDate() : new Date(this.starttime.getTime());
 
         newRoute.etas = (etas != null) ? new ArrayList<Date>(etas) : new ArrayList<Date>();
 
@@ -419,7 +419,7 @@ public class Route implements Serializable {
 
     public void adjustStartTime() {
         if (starttime == null) {
-            setStarttime(PntTime.getInstance().getDate());
+            setStarttime(PntTime.getDate());
         }
     }
 
@@ -553,7 +553,7 @@ public class Route implements Serializable {
         etas = new ArrayList<>();
         Date etaStart = starttime;
         if (etaStart == null) {
-            etaStart = PntTime.getInstance().getDate();
+            etaStart = PntTime.getDate();
         }
         long eta = etaStart.getTime();
         etas.add(new Date(eta));

@@ -56,7 +56,7 @@ public class WaypointInfoPanel extends InfoPanel {
         }
 
         if (eta != null) {
-            ttg = eta.getTime() - PntTime.getInstance().getDate().getTime();
+            ttg = eta.getTime() - PntTime.getDate().getTime();
             if (ttg < 0) {
                 ttg = null;
             }

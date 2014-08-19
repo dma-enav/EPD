@@ -165,7 +165,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         // Update target
         atonTarget.update(msg21);
         // Update last received
-        atonTarget.setLastReceived(PntTime.getInstance().getDate());
+        atonTarget.setLastReceived(PntTime.getDate());
         // Update status
         atonTarget.setStatus(AisTarget.Status.OK);
         publishUpdate(atonTarget);
@@ -251,7 +251,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         mobileTarget.addPastTrackPosition(positionData.getPos());
         
         // Update last received
-        mobileTarget.setLastReceived(PntTime.getInstance().getDate());
+        mobileTarget.setLastReceived(PntTime.getDate());
         
         // Update status
         mobileTarget.setStatus(AisTarget.Status.OK);
@@ -309,7 +309,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             sarTarget.setMmsi(mmsi);
             sarTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
             sarTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
-            sarTarget.setFirstReceived(PntTime.getInstance().getDate());
+            sarTarget.setFirstReceived(PntTime.getDate());
             sarTargets.put(mmsi, sarTarget);
         }
         // Update old
@@ -435,7 +435,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
      * Update status of all targets
      */
     protected final void updateStatus() {
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
         List<Long> deadTargets = new ArrayList<>();
 
         // Go through all vessel targets

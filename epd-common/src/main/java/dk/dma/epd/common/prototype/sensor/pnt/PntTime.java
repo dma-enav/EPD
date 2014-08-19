@@ -58,7 +58,7 @@ public final class PntTime extends MapHandlerChild implements IPntSensorListener
      * 
      * @return date
      */
-    public synchronized Date getDate() {
+    private synchronized Date _getDate() {
         return new Date(new Date().getTime() - offset);
     }
 
@@ -74,6 +74,10 @@ public final class PntTime extends MapHandlerChild implements IPntSensorListener
         synchronized (PntTime.class) {
             return instance;
         }
+    }
+    
+    public static Date getDate() {
+        return getInstance()._getDate();
     }
 
 }

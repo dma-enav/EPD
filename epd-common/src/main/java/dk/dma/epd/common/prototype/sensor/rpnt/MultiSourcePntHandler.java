@@ -104,7 +104,7 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
         notification.setSeverity(severity);
         notification.setTitle(title);
         notification.setDescription(desc);
-        notification.setDate(PntTime.getInstance().getDate());
+        notification.setDate(PntTime.getDate());
         notification.addAlerts(new NotificationAlert(AlertType.POPUP, AlertType.SYSTEM_TRAY, AlertType.BEEP));
         EPD.getInstance().getNotificationCenter().addNotification(notification);
     }

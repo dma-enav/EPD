@@ -79,7 +79,7 @@ public class SartDetailsDialog extends JDialog implements Runnable {
      */
     private void showDetails() {
         StringBuilder str = new StringBuilder();
-        Date now = PntTime.getInstance().getDate();
+        Date now = PntTime.getDate();
         Date lastReceived = sarTarget.getLastReceived();
         Date firstReceived = sarTarget.getFirstReceived();
         long elapsedLast = now.getTime() - lastReceived.getTime();

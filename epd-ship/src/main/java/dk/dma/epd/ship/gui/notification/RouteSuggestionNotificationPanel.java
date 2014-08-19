@@ -501,7 +501,7 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
             str.append(" / " + Formatter.formatDegrees(brg, 2));
             Long ttg = null;
             if (route.getEtas().get(0) != null) {
-                ttg = route.getEtas().get(0).getTime() - PntTime.getInstance().getDate().getTime();
+                ttg = route.getEtas().get(0).getTime() - PntTime.getDate().getTime();
             }
             if (ttg != null && ttg < 0) {
                 ttg = null;

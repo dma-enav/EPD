@@ -19,6 +19,7 @@ import java.util.Date;
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**
  * A maritime cloud service used for sending messages between maritime entities such as ship and shore.
@@ -47,7 +48,7 @@ public class ChatService {
         public ChatServiceMessage(String message, boolean ownMessage) {
             this.message = message;
             this.ownMessage = ownMessage;
-            this.sendDate = new Date();
+            this.sendDate = PntTime.getDate();
         }
 
         public String getMessage() {

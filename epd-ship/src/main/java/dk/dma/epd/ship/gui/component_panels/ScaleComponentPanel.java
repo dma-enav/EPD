@@ -15,7 +15,6 @@
 package dk.dma.epd.ship.gui.component_panels;
 
 import java.awt.BorderLayout;
-import java.util.Date;
 import java.util.Locale;
 
 import javax.swing.border.EtchedBorder;
@@ -36,14 +35,12 @@ public class ScaleComponentPanel extends OMComponentPanel implements Runnable, P
      */
     private static final long serialVersionUID = 1L;
     private final ScalePanel scalePanel = new ScalePanel();
-    private PntTime gnssTime;
     private ChartPanel chartPanel;
     
     public ScaleComponentPanel(){
         super();
         
 //        this.setMinimumSize(new Dimension(10, 25));
-        
         scalePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
         setBorder(null);
         setLayout(new BorderLayout(0, 0));
@@ -67,14 +64,11 @@ public class ScaleComponentPanel extends OMComponentPanel implements Runnable, P
     @Override
     public void run() {
         while (true) {
-            if (gnssTime != null) {
-                Date now = gnssTime.getDate();
-                scalePanel.getTimeLabel().setText(Formatter.formatLongDateTime(now));
-            }
-            
+            scalePanel.getTimeLabel().setText(Formatter.formatLongDateTime(PntTime.getDate()));
             try {
                 Thread.sleep(500);
-            } catch (InterruptedException e) { }
+            } catch (InterruptedException e) {
+            }
         }
         
     }
@@ -82,9 +76,6 @@ public class ScaleComponentPanel extends OMComponentPanel implements Runnable, P
     
     @Override
     public void findAndInit(Object obj) {
-        if (gnssTime == null && obj instanceof PntTime) {
-            gnssTime = (PntTime)obj;
-        }
         if (obj instanceof ChartPanel) {
             chartPanel = (ChartPanel)obj;
             chartPanel.getMap().addProjectionListener(this);

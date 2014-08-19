@@ -147,7 +147,7 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
             // Inject the current position
             activeRoute.update(pntHandler.getCurrentData());
             // Set start time to now
-            activeRoute.setStarttime(PntTime.getInstance().getDate());
+            activeRoute.setStarttime(PntTime.getDate());
         }
 
         // If the dock isn't visible should it show it?
