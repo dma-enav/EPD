@@ -14,23 +14,22 @@
  */
 package dk.dma.epd.ship.gui.menuitems;
 
-import java.util.ArrayList;
 import java.util.Date;
 
-import dk.dma.epd.common.prototype.gui.MapMenuCommon;
-import dk.dma.epd.common.prototype.gui.dialogs.ISimpleConfirmDialogListener;
-import dk.dma.epd.common.prototype.gui.dialogs.SimpleConfirmDialog;
+import javax.swing.JOptionPane;
+
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
+import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.ship.EPDShip;
 
-public class RouteActivateToggle extends RouteMenuItem implements ISimpleConfirmDialogListener {
+public class RouteActivateToggle extends RouteMenuItem {
 
     private static final long serialVersionUID = 1L;
-    private MapMenuCommon parentMenu;
 
-    public RouteActivateToggle(MapMenuCommon parentMenu) {
-        this.parentMenu = parentMenu;
+    public RouteActivateToggle() {
+
     }
 
     @Override
@@ -39,34 +38,34 @@ public class RouteActivateToggle extends RouteMenuItem implements ISimpleConfirm
         if (EPDShip.getInstance().getRouteManager().getActiveRouteIndex() == routeIndex) {
             EPDShip.getInstance().getRouteManager().deactivateRoute();
         } else {
-
             Date waypointEndDate = EPDShip.getInstance().getRouteManager().getRoute(routeIndex).getEtas()
                     .get(EPDShip.getInstance().getRouteManager().getRoute(routeIndex).getEtas().size() - 1);
 
-            if (waypointEndDate.compareTo(PntTime.getInstance().getDate()) < 0) {
-                ArrayList<ISimpleConfirmDialogListener> diaListeners = new ArrayList<ISimpleConfirmDialogListener>();
-                diaListeners.add(this);
-                SimpleConfirmDialog
-                        .showSimpleConfirmDialog(
-                                "Activate Route",
-                                "The planned ETAS of the route is in the past, \n recommend you update the route ETAs before activating.\n Do you still wish to activate it?",
-                                diaListeners, parentMenu.getLatestVisibleLocation());
+            if (waypointEndDate.compareTo(PntTime.getDate()) < 0) {
+                String[] options = { "Adjust ETA's", "Activate", "Cancel" };
+                int chosen = JOptionPane
+                        .showOptionDialog(
+                                this,
+                                "The planned ETAs of the route is in the past, \n recommend you adjust the route ETAs before activating.",
+                                "Activate route", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                                options[0]);
+                System.out.println("chosen: " + chosen);
+                switch (chosen) {
+                case 0:
+                    RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(EPD.getInstance()
+                            .getMainFrame(), EPDShip.getInstance().getMainFrame().getChartPanel(), routeIndex);
+                    routePropertiesDialog.setVisible(true);
+                    break;
+                case 1:
+                    EPDShip.getInstance().getRouteManager().activateRoute(routeIndex);
+                    break;
+                default:
+                    break;
+                }
             } else {
                 EPDShip.getInstance().getRouteManager().activateRoute(routeIndex);
             }
-
         }
-
     }
 
-    @Override
-    public void onNoClicked() {
-        // User cancelled route deletion, do nothing.
-    }
-
-    @Override
-    public void onYesClicked() {
-        // User confirmed route deletion
-        EPDShip.getInstance().getRouteManager().activateRoute(routeIndex);
-    }
 }

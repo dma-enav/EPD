@@ -120,7 +120,7 @@ public class MapMenu extends MapMenuCommon {
         sendToSTCC = new SendToSTCC("Send to STCC...");
         sendToSTCC.addActionListener(this);
 
-        routeActivateToggle = new RouteActivateToggle(this);
+        routeActivateToggle = new RouteActivateToggle();
         routeActivateToggle.addActionListener(this);
 
         monaLisaRouteRequest = new MonaLisaRouteRequest(
