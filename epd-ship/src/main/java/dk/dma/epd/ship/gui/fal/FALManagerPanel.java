@@ -27,9 +27,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -43,6 +45,7 @@ import javax.swing.event.TableModelListener;
 
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.fal.FALManager;
+import dk.dma.epd.ship.fal.FALPDFGenerator;
 import dk.dma.epd.ship.fal.FALReport;
 
 /**
@@ -223,8 +226,21 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
             return;
         }
 
-        
-        
+        // Select the Path
+        final JFileChooser fc = new JFileChooser();
+        int returnVal = fc.showSaveDialog(this);
+
+
+        // User selected a spot
+        if (returnVal == 0) {
+            File file = fc.getSelectedFile();
+            FALPDFGenerator falPDFGenerator = new FALPDFGenerator();
+            falPDFGenerator.generateFal1Form(EPDShip.getInstance().getFalManager().getFalReports().get(falId).getFalform1(),
+                    file.getAbsolutePath() + ".pdf");
+        } else {
+            // Do nothing
+        }
+
     }
 
     /**
