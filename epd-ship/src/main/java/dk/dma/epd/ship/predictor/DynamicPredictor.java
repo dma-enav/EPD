@@ -53,7 +53,6 @@ public class DynamicPredictor extends MapHandlerChild implements IOwnShipListene
 
     @Override
     public void ownShipUpdated(OwnShipHandler ownShipHandler) {
-        LOG.info("Own ship data has changed");
         if (dynamicPredictorHandler == null) {
             LOG.error("No dynamic predictor handler found");
             return;
