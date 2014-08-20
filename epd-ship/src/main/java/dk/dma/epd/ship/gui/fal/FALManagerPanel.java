@@ -213,6 +213,8 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
     }
 
     private void exportToFile() {
+
+        // Generate PDF based on report
         exportToFile(falTable.getSelectedRow());
     }
 
@@ -221,6 +223,8 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
             return;
         }
 
+        
+        
     }
 
     /**

@@ -97,8 +97,19 @@ public class FALReportingDialog extends JDialog implements ActionListener, Chang
         initFromStatic();
 
         if (id != -1) {
-            loadFalData();
+            loadFalData(id);
         }
+    }
+
+    /**
+     * @param id
+     *            the id to import from
+     */
+    public void importFALReport(long id) {
+        if (id != -1) {
+            loadFalData(id);
+        }
+
     }
 
     private void initGUI() {
@@ -836,7 +847,7 @@ public class FALReportingDialog extends JDialog implements ActionListener, Chang
 
     }
 
-    private void loadFalData() {
+    private void loadFalData(long id) {
         FALReport falReport = EPDShip.getInstance().getFalManager().getFalReportWithID(id);
 
         falReportNameField.setText(falReport.getFalReportName());
@@ -1004,6 +1015,10 @@ public class FALReportingDialog extends JDialog implements ActionListener, Chang
     }
 
     private void importFALReport() {
+
+        FALImportSelectionDialog selectionDialog = new FALImportSelectionDialog(this);
+
+        selectionDialog.setVisible(true);
 
     }
 
