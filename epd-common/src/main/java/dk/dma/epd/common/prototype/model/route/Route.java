@@ -27,6 +27,7 @@ import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Converter;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * Route class
@@ -153,7 +154,7 @@ public class Route implements Serializable {
     public Route copy() {
 
         Route newRoute = new Route();
-        newRoute.setEtaCalculationType(etaCalculationType);
+        
         LinkedList<RouteWaypoint> waypoints = new LinkedList<>();
         for (RouteWaypoint routeWaypoint : this.waypoints) {
             RouteWaypoint newRouteWaypoint = routeWaypoint.copy();
@@ -208,20 +209,18 @@ public class Route implements Serializable {
         newRoute.departure = this.departure;
         newRoute.destination = this.destination;
         newRoute.visible = this.visible;
+        newRoute.stccApproved = this.stccApproved;
+        newRoute.safeHaven = this.safeHaven;
+        newRoute.setEtaCalculationType(etaCalculationType);
 
-        newRoute.starttime = this.starttime == null ? PntTime.getDate() : new Date(this.starttime.getTime());
+        newRoute.starttime = this.starttime == null ? null : new Date(this.starttime.getTime());
 
         newRoute.etas = (etas != null) ? new ArrayList<Date>(etas) : new ArrayList<Date>();
-
-        // newRoute.ttgs = this.ttgs;
-        // newRoute.dtgs = this.dtgs;
-        // newRoute.totalTtg = this.totalTtg;
-        // newRoute.totalDtg = this.totalDtg;
-
-        newRoute.stccApproved = this.stccApproved;
-
-        // newRoute.calcValues(true);
-
+        newRoute.ttgs = (this.ttgs != null) ? Arrays.copyOf(this.ttgs, this.ttgs.length) : null;
+        newRoute.dtgs = (this.dtgs != null) ? Arrays.copyOf(this.dtgs, this.dtgs.length) : null;
+        newRoute.totalTtg = this.totalTtg;
+        newRoute.totalDtg = this.totalDtg;
+        
         return newRoute;
     }
 
@@ -280,7 +279,8 @@ public class Route implements Serializable {
         newRoute.departure = this.destination;
         newRoute.destination = this.departure;
         newRoute.visible = this.visible;
-        newRoute.starttime = this.starttime;
+        newRoute.safeHaven = this.safeHaven;
+        newRoute.setEtaCalculationType(etaCalculationType);
 
         adjustStartTime();
         calcValues(true);
