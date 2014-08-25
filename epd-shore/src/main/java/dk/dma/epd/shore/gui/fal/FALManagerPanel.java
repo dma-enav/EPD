@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.gui.fal;
+package dk.dma.epd.shore.gui.fal;
 
 import static java.awt.GridBagConstraints.BOTH;
 import static java.awt.GridBagConstraints.HORIZONTAL;
@@ -30,7 +30,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -45,8 +44,8 @@ import javax.swing.event.TableModelListener;
 
 import dk.dma.enav.model.fal.FALReport;
 import dk.dma.epd.common.util.FALPDFGenerator;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.fal.FALManager;
+import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.fal.FALManager;
 
 /**
  * Main panel of the fal manager dialog
@@ -80,7 +79,7 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
      */
     public FALManagerPanel(FALManagerDialog falManagerDialog) {
 
-        falManager = EPDShip.getInstance().getFalManager();
+        falManager = EPDShore.getInstance().getFalManager();
 
         this.falManagerDialog = falManagerDialog;
 
@@ -197,9 +196,10 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
 
     private void properties() {
         int i = falTable.getSelectedRow();
+
         if (i >= 0) {
-            FALReportingDialog dialog = new FALReportingDialog(falManager, falManager.getFalReports().get(i).getId(), true);
-            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            // FALReportingDialog dialog = new FALReportingDialog(falManager, falManager.getFalReports().get(i).getId(), false);
+            // dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         }
     }
 
@@ -236,7 +236,7 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         if (returnVal == 0) {
             File file = fc.getSelectedFile();
             FALPDFGenerator falPDFGenerator = new FALPDFGenerator();
-            falPDFGenerator.generateFal1Form(EPDShip.getInstance().getFalManager().getFalReports().get(falId).getFalform1(),
+            falPDFGenerator.generateFal1Form(EPDShore.getInstance().getFalManager().getFalReports().get(falId).getFalform1(),
                     file.getAbsolutePath() + ".pdf");
         } else {
             // Do nothing
@@ -259,16 +259,8 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
             delete();
         } else if (e.getSource() == exportBtn) {
             exportToFile();
-        } else if (e.getSource() == newBtn) {
-            FALReportingDialog dialog = new FALReportingDialog(falManager, -1, true);
-            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        } else if (e.getSource() == staticDataBtn) {
-            FALStaticInformationDialog dialog = new FALStaticInformationDialog(falManager);
-            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         } else if (e.getSource() == sendFAL) {
-            TransmitFALReportDialog dialog = new TransmitFALReportDialog(falManagerDialog);
-            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            dialog.setSelectedFALReport(EPDShip.getInstance().getFalManager().getFalReports().get(falTable.getSelectedRow()));
+
         }
     }
 

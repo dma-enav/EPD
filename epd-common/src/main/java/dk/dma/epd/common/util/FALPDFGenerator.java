@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.fal;
+package dk.dma.epd.common.util;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,6 +22,8 @@ import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
+
+import dk.dma.enav.model.fal.FALForm1;
 
 public class FALPDFGenerator {
 

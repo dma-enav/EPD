@@ -66,10 +66,12 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
+import dk.dma.epd.shore.fal.FALManager;
 import dk.dma.epd.shore.gui.notification.NotificationCenter;
 import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.shore.service.FALHandler;
 import dk.dma.epd.shore.service.IntendedRouteHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
@@ -107,7 +109,7 @@ public final class EPDShore extends EPD {
 
     // Maritime Cloud services
     private IntendedRouteHandlerCommon intendedRouteHandler;
-    private VoctHandler voctHandler;
+    // private VoctHandler voctHandler;
 
     /**
      * Event dispatcher used to notify listeners of voyage changes.
@@ -190,6 +192,9 @@ public final class EPDShore extends EPD {
         routeManager = RouteManager.loadRouteManager();
         beanHandler.add(routeManager);
 
+        falManager = FALManager.loadFALManager();
+        beanHandler.add(falManager);
+
         // To be changed to load similar to routeManager
         // voyageManager = new VoyageManager();
         voyageManager = VoyageManager.loadVoyageManager();
@@ -220,7 +225,7 @@ public final class EPDShore extends EPD {
         beanHandler.add(intendedRouteHandler);
 
         // Create the route suggestion handler
-//        routeSuggestionHandler = new RouteSuggestionHandler();
+        // routeSuggestionHandler = new RouteSuggestionHandler();
         routeSuggestionHandler = RouteSuggestionHandler.loadRouteSuggestionHandler();
         beanHandler.add(routeSuggestionHandler);
 
@@ -268,7 +273,10 @@ public final class EPDShore extends EPD {
         voctManager = new VOCTManager();
         beanHandler.add(voctManager);
         voctManager.loadVOCTManager();
-        
+
+        // Create FAL Handler
+        falHandler = new FALHandler();
+        beanHandler.add(falHandler);
 
         // Create embedded transponder frame
         transponderFrame = new TransponderFrame(getHomePath().resolve("transponder.xml").toString(), true, mainFrame);
@@ -372,6 +380,7 @@ public final class EPDShore extends EPD {
         msiHandler.saveToFile();
         aisHandler.saveView();
         transponderFrame.shutdown();
+        falManager.saveToFile();
 
         // Maritime cloud services
         maritimeCloudService.stop();
@@ -504,6 +513,12 @@ public final class EPDShore extends EPD {
     public MainFrame getMainFrame() {
         return mainFrame;
     }
+    
+    @Override
+    public FALManager getFalManager() {
+        return (FALManager) falManager;
+    }
+
 
     /**
      * Returns the MMSI of the shore center, or null if not defined
@@ -732,7 +747,7 @@ public final class EPDShore extends EPD {
      * @return the voctHandler
      */
     public VoctHandler getVoctHandler() {
-        return voctHandler;
+        return (VoctHandler) voctHandler;
     }
 
     /**
@@ -744,4 +759,5 @@ public final class EPDShore extends EPD {
     public static Resources res() {
         return Resources.get(EPDShore.class);
     }
+
 }

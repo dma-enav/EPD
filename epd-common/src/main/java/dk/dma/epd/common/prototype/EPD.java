@@ -42,6 +42,7 @@ import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.FALHandlerCommon;
 import dk.dma.epd.common.prototype.service.MaritimeCloudService;
 import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
@@ -50,18 +51,17 @@ import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 
 /**
- * Abstract super class for the main system, i.e either 
- * {@code EPDShore} or {@code EPDShip}
+ * Abstract super class for the main system, i.e either {@code EPDShore} or {@code EPDShip}
  */
 public abstract class EPD implements ISettingsListener {
-    
-    protected static EPD instance;    
+
+    protected static EPD instance;
     protected Settings settings;
     protected SystemTrayCommon systemTray;
     protected Properties properties = new Properties();
     protected volatile boolean restart;
     protected volatile Path homePath;
-    
+
     // Common services
     protected RouteManagerCommon routeManager;
     protected FALManagerCommon falManager;
@@ -74,59 +74,61 @@ public abstract class EPD implements ISettingsListener {
     protected RouteSuggestionHandlerCommon routeSuggestionHandler;
     protected IdentityHandler identityHandler;
     protected VoctHandlerCommon voctHandler;
+    protected FALHandlerCommon falHandler;
 
     /**
      * Constructor
      */
     protected EPD() {
         instance = this;
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 if (restart) {
                     restartApp();
                 }
-            }});
+            }
+        });
     }
-    
+
     /**
-     * Factory method that returns a reference to the current {@code EPD}
-     * system, i.e. either {@code EPDShore} or {@code EPDShip}.
+     * Factory method that returns a reference to the current {@code EPD} system, i.e. either {@code EPDShore} or {@code EPDShip}.
      * 
      * @return a reference to the current {@code EPD} system
      */
     public static EPD getInstance() {
         return instance;
     }
-    
+
     /**
-     * Returns a {@linkplain Resource} instance which loads resource from
-     * the same class-loader/jar-file as the {@code EPD} class.
+     * Returns a {@linkplain Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPD} class.
      * 
      * @return a new {@linkplain Resource} instance
      */
     public static Resources res() {
-       return Resources.get(EPD.class); 
+        return Resources.get(EPD.class);
     }
-    
+
     /**
-     * Returns the path to the home folder, used for settings,
-     * persisted data, etc.
+     * Returns the path to the home folder, used for settings, persisted data, etc.
+     * 
      * @return the path to the home folder
      */
     public abstract Path getHomePath();
-    
+
     /**
      * Returns the settings associated with the EPD system
+     * 
      * @return the settings associated with the EPD system
      */
     public Settings getSettings() {
         return settings;
     }
-    
+
     /**
      * Returns the properties
+     * 
      * @return - properties
      */
     public Properties getProperties() {
@@ -157,17 +159,19 @@ public abstract class EPD implements ISettingsListener {
      * Starts the sensors as defined in the {@linkplain SensorSettings} and hook up listeners
      */
     protected abstract void startSensors();
-    
+
     /**
      * Stops all sensors and remove listeners
      */
     protected abstract void stopSensors();
-    
+
     /**
      * Stop {@code sensor} and wait at most {@code timeout} ms for it to terminate.
      * 
-     * @param sensor the sensor to stop
-     * @param timeout the time in ms to wait for the sensor to termine
+     * @param sensor
+     *            the sensor to stop
+     * @param timeout
+     *            the time in ms to wait for the sensor to termine
      * @return if the sensor was terminated
      */
     protected boolean stopSensor(NmeaSensor sensor, long timeout) {
@@ -175,26 +179,28 @@ public abstract class EPD implements ISettingsListener {
         if (sensor == null) {
             return true;
         }
-    
+
         sensor.stop();
         long t0 = System.currentTimeMillis();
         while (!sensor.hasTerminated() && System.currentTimeMillis() - t0 < timeout) {
-            try { 
-                Thread.sleep(100); 
+            try {
+                Thread.sleep(100);
             } catch (Exception ex) {
             }
         }
         return sensor.hasTerminated();
     }
-   
+
     /**
      * Returns a reference to the main frame of the application
+     * 
      * @return a reference to the main frame of the application
      */
     public abstract MainFrameCommon getMainFrame();
-    
+
     /**
      * Returns the system tray
+     * 
      * @return the system tray
      */
     public SystemTrayCommon getSystemTray() {
@@ -203,6 +209,7 @@ public abstract class EPD implements ISettingsListener {
 
     /**
      * Returns a reference to the chat service
+     * 
      * @return a reference to the chat service
      */
     public ChatServiceHandlerCommon getChatServiceHandler() {
@@ -211,6 +218,7 @@ public abstract class EPD implements ISettingsListener {
 
     /**
      * Returns a reference to the AIS handler
+     * 
      * @return a reference to the AIS handler
      */
     public AisHandlerCommon getAisHandler() {
@@ -219,73 +227,80 @@ public abstract class EPD implements ISettingsListener {
 
     /**
      * Return the msiHandler
+     * 
      * @return - MsiHandler
      */
     public MsiHandler getMsiHandler() {
         return msiHandler;
     }
-    
+
     public RouteManagerCommon getRouteManager() {
         return routeManager;
     }
-    
+
     public StrategicRouteHandlerCommon getStrategicRouteHandler() {
         return strategicRouteHandler;
     }
-    
+
     public RouteSuggestionHandlerCommon getRouteSuggestionHandler() {
         return routeSuggestionHandler;
     }
-    
+
     public MaritimeCloudService getMaritimeCloudService() {
         return maritimeCloudService;
     }
-    
-    public IdentityHandler getIdentityHandler(){
+
+    public IdentityHandler getIdentityHandler() {
         return identityHandler;
     }
-    
+
     /**
      * Returns a reference to the notification center
+     * 
      * @return a reference to the notification center
      */
     public NotificationCenterCommon getNotificationCenter() {
         return notificationCenter;
     }
-    
+
     /**
      * Returns the current position of the EPD system
+     * 
      * @return the current position of the EPD system
      */
     public abstract Position getPosition();
-    
+
     /**
      * Returns the MMSI of the EPD system
+     * 
      * @return the MMSI of the EPD system
      */
     public abstract Long getMmsi();
 
     /**
      * Returns the maritime id of the EPD system
+     * 
      * @return the maritime id of the EPD system
      */
     public abstract MaritimeId getMaritimeId();
-    
+
     /**
      * Returns the default shore mouse mode service list
+     * 
      * @return the default shore mouse mode service list
      */
     public abstract String[] getDefaultMouseModeServiceList();
-    
+
     /**
      * Call this method to terminate the application
-     * @param restart whether to restart or not
+     * 
+     * @param restart
+     *            whether to restart or not
      */
     public abstract void closeApp(boolean restart);
-    
+
     /**
-     * Restarts the application.
-     * This is called from the shutdown hook
+     * Restarts the application. This is called from the shutdown hook
      */
     private void restartApp() {
         List<String> cmd = new ArrayList<>();
@@ -296,36 +311,28 @@ public abstract class EPD implements ISettingsListener {
         cmd.add("-cp");
         cmd.add(ManagementFactory.getRuntimeMXBean().getClassPath());
         cmd.add(getClass().getName());
-        
+
         // If homePath is defined, add it as the runtime argument
         if (homePath != null) {
             cmd.add(homePath.toString());
         }
-       
+
         try {
             System.out.println("Re-launching using command:\n  " + cmd);
             ProcessBuilder builder = new ProcessBuilder(cmd);
             builder.start();
         } catch (IOException e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
     }
-    
+
     /**
-     * Informs the user that EPD is already running.
-     * Prompts whether to restart or bail
+     * Informs the user that EPD is already running. Prompts whether to restart or bail
      */
     protected void handleEpdAlreadyRunning() {
-        int result = JOptionPane.showOptionDialog(
-                null, 
-                "One application instance already running.\n"
-                    + "Either close or restart with caps-lock on\nto select a different home folder.", 
-                "Error",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.ERROR_MESSAGE,
-                null,
-                new Object[] { "Close", "Restart" },
-                null);
+        int result = JOptionPane.showOptionDialog(null, "One application instance already running.\n"
+                + "Either close or restart with caps-lock on\nto select a different home folder.", "Error",
+                JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, new Object[] { "Close", "Restart" }, null);
         if (result == JOptionPane.NO_OPTION) {
             // Restart
             restart = true;
@@ -334,22 +341,25 @@ public abstract class EPD implements ISettingsListener {
         }
         System.exit(1);
     }
-    
+
     /**
      * Returns the application icon
+     * 
      * @return the application icon
      */
     public Image getAppIcon() {
-        ImageIcon icon =  Resources.get(getInstance().getClass()).getCachedImageIcon("/images/appicon.png");
+        ImageIcon icon = Resources.get(getInstance().getClass()).getCachedImageIcon("/images/appicon.png");
         if (icon != null) {
             return icon.getImage();
         }
         return null;
-    }    
+    }
 
     /**
      * Returns the application icon scaled to the given size
-     * @param size the size of the app icon
+     * 
+     * @param size
+     *            the size of the app icon
      * @return the application icon scaled to the given size
      */
     public Image getAppIcon(int size) {
@@ -358,14 +368,14 @@ public abstract class EPD implements ISettingsListener {
             return appIcon.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH);
         }
         return null;
-    }    
-    
+    }
+
     /**
-     * If Key caps is pressed during start up, and if so,
-     * asks the user for a home path.<br>
+     * If Key caps is pressed during start up, and if so, asks the user for a home path.<br>
      * Otherwise, the {@code defaultHomePath} is returned
      * 
-     * @param defaultHomePath the default home path
+     * @param defaultHomePath
+     *            the default home path
      * @return the chosen home path
      */
     protected Path determineHomePath(Path defaultHomePath) {
@@ -373,7 +383,7 @@ public abstract class EPD implements ISettingsListener {
             return HomePathDialog.determineHomePath(defaultHomePath);
         }
         // Caps-lock not on, return default home path
-        return defaultHomePath;  
+        return defaultHomePath;
     }
 
     /**
@@ -389,6 +399,12 @@ public abstract class EPD implements ISettingsListener {
     public FALManagerCommon getFalManager() {
         return falManager;
     }
-    
-    
+
+    /**
+     * @return the falHandler
+     */
+    public FALHandlerCommon getFalHandler() {
+        return falHandler;
+    }
+
 }

@@ -73,10 +73,9 @@ public class ToolBar extends JInternalFrame {
     public int height;
     private static int iconWidth = 16;
     private static int iconHeight = 16;
-    private Border toolPaddingBorder = BorderFactory.createMatteBorder(3, 3, 3,
-            3, new Color(83, 83, 83));
-    private Border toolInnerEtchedBorder = BorderFactory.createEtchedBorder(
-            EtchedBorder.LOWERED, new Color(37, 37, 37), new Color(52, 52, 52));
+    private Border toolPaddingBorder = BorderFactory.createMatteBorder(3, 3, 3, 3, new Color(83, 83, 83));
+    private Border toolInnerEtchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(37, 37, 37), new Color(
+            52, 52, 52));
 
     final JLabel enc = new JLabel(toolbarIcon("images/toolbar/map-medium.png"));
 
@@ -107,8 +106,7 @@ public class ToolBar extends JInternalFrame {
 
         // Strip off window looks
         setRootPaneCheckingEnabled(false);
-        ((javax.swing.plaf.basic.BasicInternalFrameUI) this.getUI())
-                .setNorthPane(null);
+        ((javax.swing.plaf.basic.BasicInternalFrameUI) this.getUI()).setNorthPane(null);
         this.setBorder(null);
 
         // Create the top movehandler (for dragging)
@@ -116,13 +114,10 @@ public class ToolBar extends JInternalFrame {
         moveHandler.setForeground(new Color(200, 200, 200));
         moveHandler.setOpaque(true);
         moveHandler.setBackground(Color.DARK_GRAY);
-        moveHandler.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0,
-                new Color(30, 30, 30)));
+        moveHandler.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(30, 30, 30)));
         moveHandler.setFont(new Font("Arial", Font.BOLD, 9));
-        moveHandler.setPreferredSize(new Dimension(toolItemSize
-                * toolItemColumns, moveHandlerHeight));
-        ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this,
-                mainFrame);
+        moveHandler.setPreferredSize(new Dimension(toolItemSize * toolItemColumns, moveHandlerHeight));
+        ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this, mainFrame);
         moveHandler.addMouseListener(mml);
         moveHandler.addMouseMotionListener(mml);
 
@@ -135,8 +130,7 @@ public class ToolBar extends JInternalFrame {
         // Tool group: Map tools
         mapToolItems = new ToolItemGroup();
 
-        this.select = new JLabel(
-                toolbarIcon("images/toolbar/select.png"));
+        this.select = new JLabel(toolbarIcon("images/toolbar/select.png"));
         getSelectBtn().addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 setActiveToolItem(getSelectBtn(), mapToolItems);
@@ -174,14 +168,14 @@ public class ToolBar extends JInternalFrame {
         });
         zoom.setToolTipText("Zoom mouse mode");
         mapToolItems.addToolItem(zoom);
-        
+
         // Tool: Distance Circle
         final JLabel distanceCircle = new JLabel(toolbarIcon("images/toolbar/ruler-triangle.png"));
         distanceCircle.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 setActiveToolItem(distanceCircle, mapToolItems);
-                
+
                 for (JMapFrame frame : mainFrame.getMapWindows()) {
                     frame.getChartPanel().setMouseMode(CommonDistanceCircleMouseMode.MODE_ID);
                 }
@@ -203,8 +197,7 @@ public class ToolBar extends JInternalFrame {
         final ToolItemGroup layerToolItems = new ToolItemGroup();
 
         // Tool: WMS layer
-        final JLabel wms = new JLabel(
-                toolbarIcon("images/toolbar/wms_small.png"));
+        final JLabel wms = new JLabel(toolbarIcon("images/toolbar/wms_small.png"));
         wms.setName("wms");
         wms.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -238,8 +231,7 @@ public class ToolBar extends JInternalFrame {
         }
 
         // Tool: MSI layer
-        final JLabel msi = new JLabel(
-                toolbarIcon("images/toolbar/msi_symbol_16.png"));
+        final JLabel msi = new JLabel(toolbarIcon("images/toolbar/msi_symbol_16.png"));
         msi.setName("msi");
         msi.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -261,14 +253,14 @@ public class ToolBar extends JInternalFrame {
         });
         msi.setToolTipText("Show/hide maritime safety information");
         layerToolItems.addToolItem(msi);
-        
+
         // Button which will toggle vessel names on or off.
         final JLabel aisToggle = new JLabel(toolbarIcon("images/toolbar/edit-letter-spacing.png"));
         aisToggle.addMouseListener(new MouseAdapter() {
-            
+
             // Initialize with ship visibility.
             private boolean isPressed = settings.getAisSettings().isShowNameLabels();
-            
+
             /**
              * {@inheritDoc}
              */
@@ -282,8 +274,8 @@ public class ToolBar extends JInternalFrame {
                     isPressed = false;
                     // Update visibility of the vessel names.
                     toggleVesselNames(isPressed);
-                    
-                // If names are not shown.
+
+                    // If names are not shown.
                 } else if (!isPressed) {
                     // set button to on.
                     setActiveToolItem(aisToggle, layerToolItems);
@@ -296,9 +288,9 @@ public class ToolBar extends JInternalFrame {
 
             /**
              * Updates the visibility of vessel names.
+             * 
              * @param showLabels
-             *          Sets visibility of vessel names to
-             *          the passed value. 
+             *            Sets visibility of vessel names to the passed value.
              */
             private void toggleVesselNames(boolean showLabels) {
                 // For each JMapFrame which is used in the mainFrame.
@@ -310,9 +302,9 @@ public class ToolBar extends JInternalFrame {
                 settings.getAisSettings().setShowNameLabels(showLabels);
             }
         });
-        
+
         if (settings.getAisSettings().isShowNameLabels()) {
-            setActiveToolItem(aisToggle, layerToolItems);            
+            setActiveToolItem(aisToggle, layerToolItems);
         }
         aisToggle.setToolTipText("Show/hide AIS names");
         layerToolItems.addToolItem(aisToggle);
@@ -360,10 +352,9 @@ public class ToolBar extends JInternalFrame {
         } catch (Exception e) {
             System.out.println("failed to load enc dongle");
         }
-        
+
         // Tool: MSI layer
-        final JLabel intendedRoutes = new JLabel(
-                toolbarIcon("images/toolbar/direction.png"));
+        final JLabel intendedRoutes = new JLabel(toolbarIcon("images/toolbar/direction.png"));
         intendedRoutes.setName("intended routes");
         intendedRoutes.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -384,7 +375,6 @@ public class ToolBar extends JInternalFrame {
         if (settings.getCloudSettings().isShowIntendedRoute()) {
             setActiveToolItem(intendedRoutes, layerToolItems);
         }
-        
 
         // Set that the layer tools can have more than 1 active tool item at a
         // time
@@ -399,8 +389,7 @@ public class ToolBar extends JInternalFrame {
         routeToolItems = new ToolItemGroup();
 
         // Tool: Routes
-        final JLabel routes = new JLabel(
-                toolbarIcon("images/toolbar/routes.png"));
+        final JLabel routes = new JLabel(toolbarIcon("images/toolbar/routes.png"));
         routes.setName("routes");
         routes.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -409,8 +398,7 @@ public class ToolBar extends JInternalFrame {
 
             public void mouseReleased(MouseEvent e) {
                 setInactiveToolItem(routes);
-                mainFrame.getRouteManagerDialog().setVisible(
-                        !mainFrame.getRouteManagerDialog().isVisible());
+                mainFrame.getRouteManagerDialog().setVisible(!mainFrame.getRouteManagerDialog().isVisible());
             }
         });
         routes.setToolTipText("Routes Manager");
@@ -435,6 +423,22 @@ public class ToolBar extends JInternalFrame {
         newRoute.setToolTipText("Add route");
         routeToolItems.addToolItem(newRoute);
 
+        // Tool: FAL Manager
+        final JLabel falManager = new JLabel(toolbarIcon("images/toolbar/fal.png", 36, 21));
+        falManager.setName("falmanager");
+        falManager.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                setActiveToolItem(falManager, routeToolItems);
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                setInactiveToolItem(falManager);
+                mainFrame.getFalManagerDialog().setVisible(!mainFrame.getFalManagerDialog().isVisible());
+            }
+        });
+        falManager.setToolTipText("FAL Manager");
+        routeToolItems.addToolItem(falManager);
+
         // Set that the layer tools can have more than 1 active tool item at a
         // time
         routeToolItems.setSingleEnable(false);
@@ -445,9 +449,7 @@ public class ToolBar extends JInternalFrame {
         masterPanel = new JPanel(new BorderLayout());
         masterPanel.add(moveHandler, BorderLayout.NORTH);
         masterPanel.add(buttonPanel, BorderLayout.SOUTH);
-        masterPanel.setBorder(BorderFactory.createEtchedBorder(
-                EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45,
-                        45)));
+        masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45, 45)));
         this.getContentPane().add(masterPanel);
 
         // And finally refresh the toolbar
@@ -473,8 +475,7 @@ public class ToolBar extends JInternalFrame {
             routeCreation = false;
 
             for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                mainFrame.getMapWindows().get(i).getChartPanel()
-                        .setMouseMode(mainFrame.getMouseMode());
+                mainFrame.getMapWindows().get(i).getChartPanel().setMouseMode(mainFrame.getMouseMode());
             }
 
             // Save route?
@@ -491,8 +492,7 @@ public class ToolBar extends JInternalFrame {
             routeCreation = true;
 
             for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                mainFrame.getMapWindows().get(i).getChartPanel()
-                        .setMouseMode(RouteEditMouseMode.MODEID);
+                mainFrame.getMapWindows().get(i).getChartPanel().setMouseMode(RouteEditMouseMode.MODEID);
             }
 
             // Deactivate other map tools
@@ -507,8 +507,7 @@ public class ToolBar extends JInternalFrame {
 
     public void endRoute() {
 
-        NewRouteContainerLayer newRouteLayer = EPDShore.getInstance()
-                .getMainFrame().getActiveChartPanel()
+        NewRouteContainerLayer newRouteLayer = EPDShore.getInstance().getMainFrame().getActiveChartPanel()
                 .getNewRouteContainerLayer();
 
         // Route saved
@@ -521,39 +520,29 @@ public class ToolBar extends JInternalFrame {
                 if (routeWaypoint.getOutLeg() != null) {
                     RouteLeg outLeg = routeWaypoint.getOutLeg();
 
-                    double xtd = EPDShore.getInstance().getSettings()
-                            .getNavSettings().getDefaultXtd();
+                    double xtd = EPDShore.getInstance().getSettings().getNavSettings().getDefaultXtd();
                     outLeg.setXtdPort(xtd);
                     outLeg.setXtdStarboard(xtd);
                     outLeg.setHeading(Heading.RL);
-                    outLeg.setSpeed(EPDShore.getInstance().getSettings()
-                            .getNavSettings().getDefaultSpeed());
+                    outLeg.setSpeed(EPDShore.getInstance().getSettings().getNavSettings().getDefaultSpeed());
                 }
-                routeWaypoint.setTurnRad(EPDShore.getInstance().getSettings()
-                        .getNavSettings().getDefaultTurnRad());
+                routeWaypoint.setTurnRad(EPDShore.getInstance().getSettings().getNavSettings().getDefaultTurnRad());
                 routeWaypoint.setName(String.format("WP_%03d", i));
                 i++;
             }
             route.calcValues(true);
 
-            EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
-                    .getRouteManager().addRoute(route);
-            EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
-                    .getRouteManager().notifyListeners(null);
+            EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager().addRoute(route);
+            EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager().notifyListeners(null);
         }
 
-        for (int i = 0; i < EPDShore.getInstance().getMainFrame()
-                .getMapWindows().size(); i++) {
-            EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
-                    .getChartPanel().getRouteEditLayer().doPrepare();
-            EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
-                    .getChartPanel().getNewRouteContainerLayer().getWaypoints()
+        for (int i = 0; i < EPDShore.getInstance().getMainFrame().getMapWindows().size(); i++) {
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel().getRouteEditLayer().doPrepare();
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel().getNewRouteContainerLayer().getWaypoints()
                     .clear();
-            EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
-                    .getChartPanel().getNewRouteContainerLayer()
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel().getNewRouteContainerLayer()
                     .getRouteGraphics().clear();
-            EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
-                    .getChartPanel().getNewRouteContainerLayer().doPrepare();
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel().getNewRouteContainerLayer().doPrepare();
         }
 
     }
@@ -577,8 +566,7 @@ public class ToolBar extends JInternalFrame {
 
         // Set active tool
         toolItem.setBackground(new Color(55, 55, 55));
-        toolItem.setBorder(BorderFactory.createCompoundBorder(
-                toolPaddingBorder, toolInnerEtchedBorder));
+        toolItem.setBorder(BorderFactory.createCompoundBorder(toolPaddingBorder, toolInnerEtchedBorder));
         toolItem.setOpaque(true);
     }
 
@@ -598,8 +586,23 @@ public class ToolBar extends JInternalFrame {
 
         ImageIcon icon = EPDShore.res().getCachedImageIcon(imgpath);
         Image img = icon.getImage();
-        Image newimg = img.getScaledInstance(iconWidth, iconHeight,
-                java.awt.Image.SCALE_DEFAULT);
+        Image newimg = img.getScaledInstance(iconWidth, iconHeight, java.awt.Image.SCALE_DEFAULT);
+        ImageIcon newImage = new ImageIcon(newimg);
+        return newImage;
+    }
+
+    /**
+     * Function for resizing the icons for the toolbar
+     * 
+     * @param imgpath
+     *            path of the image
+     * @return newimage the newly created and resized image
+     */
+    public ImageIcon toolbarIcon(String imgpath, int width, int height) {
+        ImageIcon icon = EPDShore.res().getCachedImageIcon(imgpath);
+
+        Image img = icon.getImage();
+        Image newimg = img.getScaledInstance(width, height, java.awt.Image.SCALE_DEFAULT);
         ImageIcon newImage = new ImageIcon(newimg);
         return newImage;
     }
@@ -650,8 +653,7 @@ public class ToolBar extends JInternalFrame {
             group.setLayout(new GridLayout(0, toolItemColumns));
             group.setOpaque(false);
 
-            double temp = (double) toolItemGroups.get(i).getToolItems().size()
-                    / (double) toolItemColumns;
+            double temp = (double) toolItemGroups.get(i).getToolItems().size() / (double) toolItemColumns;
             int innerHeight = (int) (Math.ceil(temp) * (toolItemSize - 3));
 
             height = height + (int) (Math.ceil(temp) * (toolItemSize - 1));
@@ -687,8 +689,7 @@ public class ToolBar extends JInternalFrame {
 
         // And finally set the size and repaint it
         buttonPanel.setSize(width, innerHeight - buttonPanelOffset);
-        buttonPanel.setPreferredSize(new Dimension(width, innerHeight
-                - buttonPanelOffset));
+        buttonPanel.setPreferredSize(new Dimension(width, innerHeight - buttonPanelOffset));
         this.setSize(width, height);
         this.revalidate();
         this.repaint();
@@ -719,15 +720,15 @@ public class ToolBar extends JInternalFrame {
     public JLabel getSelectBtn() {
         return this.select;
     }
-    
+
     public JLabel getZoomBtn() {
         return this.zoom;
     }
-    
+
     public JLabel getDragBtn() {
         return this.drag;
     }
-    
+
     public ToolItemGroup getMapToolItems() {
         return this.mapToolItems;
     }

@@ -86,6 +86,7 @@ import dk.dma.epd.ship.predictor.DynamicPredictorHandler;
 import dk.dma.epd.ship.predictor.DynamicPredictorSentenceParser;
 import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.ship.service.FALHandler;
 import dk.dma.epd.ship.service.IntendedRouteHandler;
 import dk.dma.epd.ship.service.RouteSuggestionHandler;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
@@ -288,6 +289,10 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // Create VOCT handler
         voctHandler = new VoctHandler();
         mapHandler.add(voctHandler);
+
+        // Create FAL Handler
+        falHandler = new FALHandler();
+        mapHandler.add(falHandler);
 
         // Start sensors
         startSensors();
@@ -904,6 +909,13 @@ public final class EPDShip extends EPD implements IOwnShipListener {
      */
     public RouteSuggestionHandler getRouteSuggestionHandler() {
         return (RouteSuggestionHandler) routeSuggestionHandler;
+    }
+
+    /**
+     * @return the falHandler
+     */
+    public FALHandler getFalHandler() {
+        return (FALHandler) falHandler;
     }
 
     /**

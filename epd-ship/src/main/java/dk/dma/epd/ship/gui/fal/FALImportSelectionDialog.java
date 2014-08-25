@@ -187,7 +187,9 @@ public class FALImportSelectionDialog extends JDialog implements ActionListener,
 
             int selectedIndex = routeTable.getSelectedRow();
 
-            parent.importFALReport(EPDShip.getInstance().getFalManager().getFalReports().get(selectedIndex).getId());
+            if (selectedIndex >= 0) {
+                parent.importFALReport(EPDShip.getInstance().getFalManager().getFalReports().get(selectedIndex).getId());
+            }
 
             this.dispose();
 

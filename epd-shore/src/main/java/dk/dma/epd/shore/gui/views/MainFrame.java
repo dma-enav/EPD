@@ -37,6 +37,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.SelectMouseMode;
+import dk.dma.epd.shore.gui.fal.FALManagerDialog;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.settings.EPDGuiSettings;
@@ -68,6 +69,8 @@ public class MainFrame extends MainFrameCommon {
     private boolean toolbarsLocked;
     private ToolBar toolbar = new ToolBar(this);
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
+    private FALManagerDialog falManagerDialog = new FALManagerDialog(this);
+
     private SendRouteDialog sendRouteDialog = new SendRouteDialog(this);
     private SRUManagerDialog sruManagerDialog = new SRUManagerDialog(this);
 
@@ -455,6 +458,13 @@ public class MainFrame extends MainFrameCommon {
         return routeManagerDialog;
     }
 
+    /**
+     * @return the falManagerDialog
+     */
+    public FALManagerDialog getFalManagerDialog() {
+        return falManagerDialog;
+    }
+
     public String getMouseMode() {
         return mouseMode;
     }
@@ -511,8 +521,7 @@ public class MainFrame extends MainFrameCommon {
                 this.getMapWindows().remove(i);
             }
         }
-        
-        
+
         for (int i = 0; i < this.getMapWindows().size(); i++) {
             if (this.getMapWindows().get(i).getType() == MapFrameType.SAR_Tracking) {
                 this.getMapWindows().remove(i);

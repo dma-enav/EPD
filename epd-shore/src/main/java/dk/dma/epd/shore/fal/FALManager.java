@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.fal;
+package dk.dma.epd.shore.fal;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,10 +33,6 @@ import dk.dma.epd.common.prototype.fal.FALManagerCommon;
 
 public class FALManager extends FALManagerCommon {
 
-    private StaticFalShipData staticShipData = new StaticFalShipData();
-
-    private static final String FAL_SHIP = EPD.getInstance().getHomePath().resolve(".falship").toString();
-
     private static final String FAL_REPORTS = EPD.getInstance().getHomePath().resolve(".fal").toString();
 
     private static final Logger LOG = LoggerFactory.getLogger(FALManager.class);
@@ -55,20 +51,6 @@ public class FALManager extends FALManagerCommon {
     public static FALManager loadFALManager() {
 
         FALManager manager = new FALManager();
-
-        // Load the static data
-        try (FileInputStream fileIn = new FileInputStream(FAL_SHIP); ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
-            StaticFalShipData staticFalShipDataLoaded = (StaticFalShipData) objectIn.readObject();
-            manager.setStaticShipData(staticFalShipDataLoaded);
-
-            LOG.info("Ship FAL data Loaded");
-        } catch (FileNotFoundException e) {
-            // Not an error
-        } catch (Exception e) {
-            LOG.error("Failed to load fal static ship file: " + e.getMessage());
-            // Delete possible corrupted or old file
-            new File(FAL_SHIP).delete();
-        }
 
         // Load all stored fal reports
         try (FileInputStream fileIn = new FileInputStream(FAL_REPORTS); ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
@@ -95,30 +77,6 @@ public class FALManager extends FALManagerCommon {
         } catch (IOException e) {
             LOG.error("Failed to save FAL reports: " + e.getMessage());
         }
-    }
-
-    public synchronized void saveStaticData() {
-        try (FileOutputStream fileOut = new FileOutputStream(FAL_SHIP);
-                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
-            objectOut.writeObject(staticShipData);
-        } catch (IOException e) {
-            LOG.error("Failed to save FAL data: " + e.getMessage());
-        }
-    }
-
-    /**
-     * @return the staticShipData
-     */
-    public StaticFalShipData getStaticShipData() {
-        return staticShipData;
-    }
-
-    /**
-     * @param staticShipData
-     *            the staticShipData to set
-     */
-    public void setStaticShipData(StaticFalShipData staticShipData) {
-        this.staticShipData = staticShipData;
     }
 
     /**
