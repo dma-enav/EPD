@@ -32,6 +32,7 @@ import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.LayerToggleWindow;
+import dk.dma.epd.shore.gui.views.menuitems.RequestFALFromShip;
 import dk.dma.epd.shore.gui.views.menuitems.RouteEditEndRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
@@ -67,6 +68,7 @@ public class MapMenu extends MapMenuCommon {
     private RouteEditEndRoute routeEditEndRoute;
     private SendRouteToShip sendRouteToShip;
     private SendRouteFromRoute setRouteExchangeRoute;
+    private RequestFALFromShip requestFalFromShip;
 
     private VoyageHandlingLegInsertWaypoint voyageHandlingLegInsertWaypoint;
     private VoyageHandlingWaypointDelete voyageHandlingWaypointDelete;
@@ -119,6 +121,9 @@ public class MapMenu extends MapMenuCommon {
         sendRouteToShip = new SendRouteToShip("Send Route to vessel...");
         sendRouteToShip.addActionListener(this);
 
+        requestFalFromShip = new RequestFALFromShip("Request FAL Report...");
+        requestFalFromShip.addActionListener(this);
+
         routeRequestMetoc.setEnabled(false);
 
         voyageDelete = new VoyageDeleteMenuItem("Delete Voyage");
@@ -161,7 +166,7 @@ public class MapMenu extends MapMenuCommon {
         // Layer Toggling Window
         layerTogglingWindow = new LayerToggleWindow("Show Layer Menu");
         layerTogglingWindow.addActionListener(this);
-        
+
         toggleShowStatusArea = new ToggleShowStatusArea("Show Status");
         toggleShowStatusArea.addActionListener(this);
     }
@@ -186,14 +191,9 @@ public class MapMenu extends MapMenuCommon {
         hidePastTracks.setAisHandler(aisHandler);
 
         if (jMapFrame.getLayerTogglingPanel() != null) {
-            layerTogglingWindow.setText(
-                    jMapFrame.getLayerTogglingPanel().isVisible() 
-                    ? "Hide Layer Menu" 
-                    : "Show Layer Menu");
+            layerTogglingWindow.setText(jMapFrame.getLayerTogglingPanel().isVisible() ? "Hide Layer Menu" : "Show Layer Menu");
         }
-        toggleShowStatusArea.setText(
-                EPDShore.getInstance().getMainFrame().getStatusArea().isVisible() 
-                ? "Hide Status Window" 
+        toggleShowStatusArea.setText(EPDShore.getInstance().getMainFrame().getStatusArea().isVisible() ? "Hide Status Window"
                 : "Show Status Window");
 
         if (alone) {
@@ -245,6 +245,11 @@ public class MapMenu extends MapMenuCommon {
                 .shipAvailableForRouteSuggestion(vesselTarget.getMmsi()));
 
         add(sendRouteToShip);
+
+        requestFalFromShip.setMSSI(vesselTarget.getMmsi());
+        requestFalFromShip.setEnabled(EPDShore.getInstance().getChatServiceHandler().availableForChat(vesselTarget.getMmsi()));
+
+        add(requestFalFromShip);
 
         hideAisTargetName.setVesselTargetGraphic(vesselTargetGraphic);
         hideAisTargetName.setIAisTargetListener(this.aisLayer);
@@ -463,15 +468,8 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
-    public void voyageWaypointMenu(
-            VoyageHandlingLayer voyageHandlingLayer, 
-            MapBean mapBean, 
-            Voyage voyage, 
-            boolean waypoint, 
-            Route route, 
-            RouteLeg routeLeg,
-            Point point, 
-            int routeWayPointIndex) {
+    public void voyageWaypointMenu(VoyageHandlingLayer voyageHandlingLayer, MapBean mapBean, Voyage voyage, boolean waypoint,
+            Route route, RouteLeg routeLeg, Point point, int routeWayPointIndex) {
 
         removeAll();
 

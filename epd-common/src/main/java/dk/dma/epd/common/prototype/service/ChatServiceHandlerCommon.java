@@ -130,7 +130,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
      * @param mmsi the MMSI of the ship to search for
      * @return if the MMSI supports chat
      */
-    public boolean availableForChat(int mmsi) {
+    public boolean availableForChat(long mmsi) {
         return MaritimeCloudUtils.findServiceWithMmsi(chatServiceList, mmsi) != null;
     }
 

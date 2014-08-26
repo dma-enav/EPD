@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.gui.fal;
+package dk.dma.epd.shore.gui.fal;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -36,9 +36,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import dk.dma.epd.ship.EPDShip;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.service.ChatServiceData;
 
-public class FALImportSelectionDialog extends JDialog implements ActionListener, ListSelectionListener, TableModelListener,
+public class FALSelectRequestShipDialog extends JDialog implements ActionListener, ListSelectionListener, TableModelListener,
         MouseListener {
 
     /**
@@ -46,21 +50,21 @@ public class FALImportSelectionDialog extends JDialog implements ActionListener,
      */
     private static final long serialVersionUID = 1L;
     private final JPanel contentPanel = new JPanel();
-    private JTable routeTable;
-    private FALImportTableModel routesTableModel;
+    private JTable vesselNameTable;
+    private FALSelectRequestShipTableModel routesTableModel;
     private ListSelectionModel routeSelectionModel;
 
     JButton okButton;
     JButton cancelButton;
-    FALReportingDialog parent;
+    FALManagerDialog parent;
 
-    public FALImportSelectionDialog(FALReportingDialog parent) {
-        super(parent, "Import FAL Report", true);
+    public FALSelectRequestShipDialog(FALManagerDialog falManagerDialog) {
+        super(falManagerDialog, "Request FAL Report", true);
 
-        this.parent = parent;
+        this.parent = falManagerDialog;
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(falManagerDialog);
         // setResizable(false);
 
         // setBounds(100, 100, 450, 300);
@@ -69,20 +73,20 @@ public class FALImportSelectionDialog extends JDialog implements ActionListener,
         contentPanel.setLayout(new FlowLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-        routeTable = new JTable();
-        routesTableModel = new FALImportTableModel();
+        vesselNameTable = new JTable();
+        routesTableModel = new FALSelectRequestShipTableModel();
         routesTableModel.addTableModelListener(this);
-        routeTable.setShowHorizontalLines(false);
-        routeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        vesselNameTable.setShowHorizontalLines(false);
+        vesselNameTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        routeSelectionModel = routeTable.getSelectionModel();
+        routeSelectionModel = vesselNameTable.getSelectionModel();
         routeSelectionModel.addListSelectionListener(this);
-        routeTable.setSelectionModel(routeSelectionModel);
-        routeTable.addMouseListener(this);
+        vesselNameTable.setSelectionModel(routeSelectionModel);
+        vesselNameTable.addMouseListener(this);
 
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         {
-            JScrollPane scrollPane = new JScrollPane(routeTable);
+            JScrollPane scrollPane = new JScrollPane(vesselNameTable);
             scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
             scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             contentPanel.add(scrollPane);
@@ -94,7 +98,7 @@ public class FALImportSelectionDialog extends JDialog implements ActionListener,
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
             getContentPane().add(buttonPane, BorderLayout.SOUTH);
             {
-                okButton = new JButton("Import");
+                okButton = new JButton("Send FAL Request");
                 okButton.addActionListener(this);
                 buttonPane.add(okButton);
                 getRootPane().setDefaultButton(okButton);
@@ -106,24 +110,26 @@ public class FALImportSelectionDialog extends JDialog implements ActionListener,
             }
         }
 
-        routeTable.setModel(routesTableModel);
+        vesselNameTable.setModel(routesTableModel);
         for (int i = 0; i < 1; i++) {
             if (i == 1) {
-                routeTable.getColumnModel().getColumn(i).setPreferredWidth(10);
+                vesselNameTable.getColumnModel().getColumn(i).setPreferredWidth(10);
             } else {
-                routeTable.getColumnModel().getColumn(i).setPreferredWidth(290);
+                vesselNameTable.getColumnModel().getColumn(i).setPreferredWidth(290);
             }
         }
 
         updateTable();
+
+        setVisible(true);
     }
 
     public void updateTable() {
-        int selectedRow = routeTable.getSelectedRow();
+        int selectedRow = vesselNameTable.getSelectedRow();
         // Update routeTable
         routesTableModel.fireTableDataChanged();
         // routeTable.doLayout();
-        if (selectedRow >= 0 && selectedRow < routeTable.getRowCount()) {
+        if (selectedRow >= 0 && selectedRow < vesselNameTable.getRowCount()) {
             routeSelectionModel.setSelectionInterval(selectedRow, selectedRow);
         }
     }
@@ -185,10 +191,10 @@ public class FALImportSelectionDialog extends JDialog implements ActionListener,
 
         if (arg0.getSource() == okButton) {
 
-            int selectedIndex = routeTable.getSelectedRow();
+            int selectedIndex = vesselNameTable.getSelectedRow();
 
             if (selectedIndex >= 0) {
-                parent.importFALReport(EPDShip.getInstance().getFalManager().getFalReports().get(selectedIndex).getId());
+                sendRequest();
             }
 
             this.dispose();
@@ -196,13 +202,35 @@ public class FALImportSelectionDialog extends JDialog implements ActionListener,
         }
 
     }
-    
-    
+
+    private void sendRequest() {
+
+        int selectedIndex = vesselNameTable.getSelectedRow();
+        if (selectedIndex >= 0) {
+
+            MaritimeId id = EPD.getInstance().getChatServiceHandler().getChatServiceList().get(selectedIndex).getId();
+
+            int mmsi = Integer.parseInt(id.toString().split("mmsi://")[1]);
+
+            ChatServiceData chatData = EPD.getInstance().getChatServiceHandler().getChatServiceData(new MmsiId(mmsi));
+
+            // Sanity check
+            if (chatData == null) {
+                return;
+            }
+
+            String msg = "Please Transmit a FAL report";
+
+            NotificationSeverity severity = NotificationSeverity.MESSAGE;
+
+            EPD.getInstance().getChatServiceHandler().sendChatMessage(chatData.getId(), msg, severity);
+        }
+    }
+
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
 
         setOpacity((float) 0.95);
     }
-
 }

@@ -97,8 +97,8 @@ public class MaritimeCloudUtils {
      *            the MMSI of the service to find
      * @return the matching service or null if not found
      */
-    public static <E, T> ServiceEndpoint<E, T> findServiceWithMmsi(List<ServiceEndpoint<E, T>> serviceList, int mmsi) {
-        return findServiceWithId(serviceList, new MmsiId(mmsi));
+    public static <E, T> ServiceEndpoint<E, T> findServiceWithMmsi(List<ServiceEndpoint<E, T>> serviceList, long mmsi) {
+        return findServiceWithId(serviceList, new MmsiId((int) mmsi));
     }
 
     /**

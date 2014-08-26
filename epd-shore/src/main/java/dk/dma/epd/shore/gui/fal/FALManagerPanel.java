@@ -251,6 +251,7 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
             exportToFile();
         } else if (e.getSource() == requestFAL) {
 
+            new FALSelectRequestShipDialog(falManagerDialog);
         }
     }
 
