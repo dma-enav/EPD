@@ -27,6 +27,7 @@ import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
+import de.micromata.opengis.kml.v_2_2_0.MultiGeometry;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import de.micromata.opengis.kml.v_2_2_0.Point;
 import dk.dma.enav.model.geometry.Position;
@@ -82,12 +83,13 @@ public class KmlParser {
         }
         List<Feature> features = null;
         if (folder != null) {
-            features = folder.getFeature();            
+            features = folder.getFeature();
         } else {
             features = doc.getFeature();
-        }        
+        }
         List<String> wpNames = new ArrayList<>();
         List<Position> positions = new ArrayList<>();
+
         for (Feature folderFeature : features) {
             if (!(folderFeature instanceof Placemark)) {
                 continue;
@@ -110,6 +112,37 @@ public class KmlParser {
                 }
             }
         }
+
+        // If no positions were found it's possible that it only contains a LineString inside a MultiGeometry object (Special AU case)
+        if (positions.size() == 0) {
+
+            for (Feature folderFeature : features) {
+                if (!(folderFeature instanceof Placemark)) {
+                    continue;
+                }
+                Placemark plMark = (Placemark) folderFeature;
+
+                Geometry geometry = plMark.getGeometry();
+
+                if (geometry instanceof MultiGeometry) {
+
+                    MultiGeometry multiGeo = (MultiGeometry) geometry;
+                    List<Geometry> subGeometry = multiGeo.getGeometry();
+
+                    for (int i = 0; i < subGeometry.size(); i++) {
+                        if (subGeometry.get(i) instanceof LineString) {
+                            routeName = plMark.getName();
+                            List<Coordinate> coords = ((LineString) subGeometry.get(i)).getCoordinates();
+                            for (Coordinate coordinate : coords) {
+                                wpNames.add(RouteLoader.makeWpName(wpNames.size() + 1));
+                                positions.add(Position.create(coordinate.getLatitude(), coordinate.getLongitude()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println("Positions Size is " + positions.size());
 
         RouteLeg lastLeg = null;
         for (int i = 0; i < positions.size(); i++) {
