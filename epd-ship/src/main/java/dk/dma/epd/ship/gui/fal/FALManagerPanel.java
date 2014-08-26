@@ -189,7 +189,7 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         if (falTable.getSelectedRow() >= 0) {
             FALReport newFal = new FALReport(falManager.getFalReports().get(falTable.getSelectedRow()));
 
-            falManager.getFalReports().add(newFal);
+            falManager.addFALReport(newFal);
 
             updateTable();
         }
@@ -210,7 +210,7 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         if (row == -1) {
             falTable.clearSelection();
         } else {
-            falManager.getFalReports().remove(row);
+            falManager.removeFALReport(row);
             falTable.getSelectionModel().setSelectionInterval(row, row);
             updateTable();
             updateButtons();

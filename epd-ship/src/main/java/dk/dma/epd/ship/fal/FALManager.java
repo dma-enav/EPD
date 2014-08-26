@@ -130,12 +130,23 @@ public class FALManager extends FALManagerCommon {
 
     public void replaceFalReport(FALReport falreport) {
         for (int i = 0; i < falReports.size(); i++) {
-
             if (falReports.get(i).getId() == falreport.getId()) {
                 falReports.set(i, falreport);
+                break;
             }
-
         }
+
+        saveToFile();
+    }
+
+    public void addFALReport(FALReport falReport) {
+        falReports.add(falReport);
+        saveToFile();
+    }
+
+    public void removeFALReport(int index) {
+        falReports.remove(index);
+        saveToFile();
     }
 
     /**

@@ -34,6 +34,7 @@ import dk.dma.enav.model.voct.DatumPointSARISDTO;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.FALReportingService;
 import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportMessage;
 import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportReply;
@@ -44,6 +45,11 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.service.FALHandlerCommon;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
@@ -110,12 +116,24 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
                                 InvocationCallback.Context<FALReportingService.FALReportReply> context) {
 
                             // LOG.info("Shore received a VOCT reply");
-                            System.out.println("Received a FAL report from Ship! " + message.getFalReport().getFalReportName());
+                            System.out.println("Received a FAL report from Ship! " + message.getFalReport());
 
                             MaritimeId caller = context.getCaller();
                             long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
 
-                            falManager.getFalReports().add(message.getFalReport());
+                            falManager.addFALReport(message.getFalReport());
+
+                            String type = "departure";
+
+                            if (message.getFalReport().getFalform1().isArrival()) {
+                                type = "arrival";
+                            }
+
+                            String desc = "New FAL Report from vessel " + message.getFalReport().getReportOwner() + " recieved at "
+                                    + message.getSentDate() + " regarding an " + type;
+                            sendNotification(NotificationSeverity.MESSAGE, "New FAL Report Recieved from "
+                                    + message.getFalReport().getReportOwner(), desc);
+
                         }
                     }).awaitRegistered(4, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
@@ -127,6 +145,26 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
         running = true;
         new Thread(this).start();
         // }
+    }
+
+    /**
+     * Sends a new notification to the notification center with the given parameters
+     * 
+     * @param severity
+     *            the notification severity
+     * @param title
+     *            the title
+     * @param desc
+     *            the description
+     */
+    private void sendNotification(NotificationSeverity severity, String title, String desc) {
+        GeneralNotification notification = new GeneralNotification();
+        notification.setSeverity(severity);
+        notification.setTitle(title);
+        notification.setDescription(desc);
+        notification.setDate(PntTime.getDate());
+        notification.addAlerts(new NotificationAlert(AlertType.POPUP, AlertType.SYSTEM_TRAY, AlertType.BEEP));
+        EPD.getInstance().getNotificationCenter().addNotification(notification);
     }
 
     private void fetchVOCTMessageList() {

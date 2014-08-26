@@ -42,7 +42,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import dk.dma.enav.model.fal.FALReport;
 import dk.dma.epd.common.util.FALPDFGenerator;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.fal.FALManager;
@@ -54,16 +53,13 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
 
     private static final long serialVersionUID = 1L;
 
-    private JButton staticDataBtn = new JButton("Static Ship Data");
-    private JButton newBtn = new JButton("New Report");
     private JButton propertiesBtn = new JButton("View");
-    private JButton copyBtn = new JButton("Copy");
     private JButton deleteBtn = new JButton("Delete");
     private JButton exportBtn = new JButton("Export");
     private JButton closeBtn = new JButton("Close");
-    private JButton sendFAL = new JButton("Send FAL Report");
+    private JButton requestFAL = new JButton("Request FAL Report");
 
-    private JButton[] buttons = { staticDataBtn, newBtn, propertiesBtn, copyBtn, deleteBtn, exportBtn, sendFAL, closeBtn };
+    private JButton[] buttons = { propertiesBtn, deleteBtn, exportBtn, requestFAL, closeBtn };
 
     private JTable falTable = new JTable();
     private JScrollPane falScrollPane = new JScrollPane(falTable);
@@ -87,8 +83,9 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         falTableModel.addTableModelListener(this);
         falTable.setModel(falTableModel);
         falTable.getColumnModel().getColumn(0).setPreferredWidth(175);
-        falTable.getColumnModel().getColumn(1).setPreferredWidth(175);
-        falTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+        falTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+        falTable.getColumnModel().getColumn(2).setPreferredWidth(125);
+        falTable.getColumnModel().getColumn(3).setPreferredWidth(50);
 
         falTable.setShowHorizontalLines(false);
         falTable.setFillsViewportHeight(true);
@@ -136,12 +133,18 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
 
         // Add a filler
         btnPanel.add(new JLabel(" "), new GridBagConstraints(0, buttons.length - 1, 1, 1, 0.0, 1.0, NORTH, VERTICAL, new Insets(0,
-                0, 0, 0), 0, 0));
+                0, 5, 0), 0, 0));
+
+        GridBagConstraints requestFALBtnGrid = new GridBagConstraints();
+        requestFALBtnGrid.insets = new Insets(0, 0, 5, 0);
+        requestFALBtnGrid.gridx = 0;
+        requestFALBtnGrid.gridy = 5;
+        btnPanel.add(requestFAL, requestFALBtnGrid);
 
         // Add the close button
         closeBtn.setMinimumSize(new Dimension(100, 20));
-        btnPanel.add(closeBtn, new GridBagConstraints(0, buttons.length, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(0, 0, 0, 0),
-                0, 0));
+
+        btnPanel.add(closeBtn, new GridBagConstraints(0, 6, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 
     }
 
@@ -164,11 +167,10 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
 
         propertiesBtn.setEnabled(singleSelected);
 
-        copyBtn.setEnabled(singleSelected);
         deleteBtn.setEnabled(falReportSelected && !activeSelected);
 
         exportBtn.setEnabled(singleSelected);
-        sendFAL.setEnabled(singleSelected);
+
     }
 
     /**
@@ -184,22 +186,12 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
         falManagerDialog.dispose();
     }
 
-    private void copy() {
-        if (falTable.getSelectedRow() >= 0) {
-            FALReport newFal = new FALReport(falManager.getFalReports().get(falTable.getSelectedRow()));
-
-            falManager.getFalReports().add(newFal);
-
-            updateTable();
-        }
-    }
-
     private void properties() {
         int i = falTable.getSelectedRow();
 
         if (i >= 0) {
-            // FALReportingDialog dialog = new FALReportingDialog(falManager, falManager.getFalReports().get(i).getId(), false);
-            // dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            new FALReportingDialog(falManager, falManager.getFalReports().get(i).getId(), false);
+
         }
     }
 
@@ -253,13 +245,11 @@ public class FALManagerPanel extends JPanel implements ActionListener, ListSelec
             close();
         } else if (e.getSource() == propertiesBtn) {
             properties();
-        } else if (e.getSource() == copyBtn) {
-            copy();
         } else if (e.getSource() == deleteBtn) {
             delete();
         } else if (e.getSource() == exportBtn) {
             exportToFile();
-        } else if (e.getSource() == sendFAL) {
+        } else if (e.getSource() == requestFAL) {
 
         }
     }

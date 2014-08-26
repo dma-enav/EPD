@@ -19,6 +19,7 @@ import javax.swing.table.AbstractTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
 
 /**
@@ -29,7 +30,7 @@ public class FALTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(FALTableModel.class);
 
-    private static final String[] COLUMN_NAMES = { "From", "Date", "Type" };
+    private static final String[] COLUMN_NAMES = { "From", "Recieve Date", "Report Date", "Type" };
 
     public FALTableModel() {
         super();
@@ -49,6 +50,7 @@ public class FALTableModel extends AbstractTableModel {
     @Override
     public int getRowCount() {
         return EPDShore.getInstance().getFalManager().getFalReports().size();
+        // return 0;
     }
 
     @Override
@@ -58,9 +60,12 @@ public class FALTableModel extends AbstractTableModel {
         case 0:
             return EPDShore.getInstance().getFalManager().getFalReports().get(rowIndex).getReportOwner();
         case 1:
+            return Formatter
+                    .formatShortDateTime(EPDShore.getInstance().getFalManager().getFalReports().get(rowIndex).getSentDate());
+        case 2:
             return EPDShore.getInstance().getFalManager().getFalReports().get(rowIndex).getFalform1()
                     .getDateAndTimeOfArrivalDepature();
-        case 2:
+        case 3:
             if (EPDShore.getInstance().getFalManager().getFalReports().get(rowIndex).getFalform1().isArrival()) {
                 return "Arrival";
             }

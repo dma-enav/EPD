@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.gui.fal;
+package dk.dma.epd.shore.gui.fal;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -43,19 +43,15 @@ import javax.swing.event.ChangeListener;
 import dk.dma.enav.model.fal.FALForm1;
 import dk.dma.enav.model.fal.FALReport;
 import dk.dma.epd.common.util.FALPDFGenerator;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.fal.FALManager;
-import dk.dma.epd.ship.fal.StaticFalShipData;
+import dk.dma.epd.shore.fal.FALManager;
 
 public class FALReportingDialog extends JDialog implements ActionListener, ChangeListener {
 
     private static final long serialVersionUID = 1L;
     private final JPanel FalForm1Panel = new JPanel();
 
-    private JButton importBtn;
-    private JButton resetButton;
     private JButton printBtn;
-    private JButton saveButton;
+    private JButton closeButton;
 
     private JCheckBox chckbxArrival;
     private JCheckBox chckbxDepature;
@@ -97,12 +93,13 @@ public class FALReportingDialog extends JDialog implements ActionListener, Chang
         this.id = id;
 
         initGUI();
-        initFromStatic();
 
         if (id != -1) {
             loadFalData(id, ediable);
             printBtn.setEnabled(true);
         }
+
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     }
 
     /**
@@ -128,29 +125,20 @@ public class FALReportingDialog extends JDialog implements ActionListener, Chang
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
             getContentPane().add(buttonPane, BorderLayout.SOUTH);
-            {
-                importBtn = new JButton("Import");
-                buttonPane.add(importBtn);
-            }
-            {
-                resetButton = new JButton("Reset All");
-                buttonPane.add(resetButton);
-            }
+
             {
                 printBtn = new JButton("Export/Print");
                 buttonPane.add(printBtn);
                 printBtn.setEnabled(false);
             }
             {
-                saveButton = new JButton("Save and Close");
-                buttonPane.add(saveButton);
-                getRootPane().setDefaultButton(saveButton);
+                closeButton = new JButton("Close");
+                buttonPane.add(closeButton);
+                getRootPane().setDefaultButton(closeButton);
             }
 
-            importBtn.addActionListener(this);
-            resetButton.addActionListener(this);
             printBtn.addActionListener(this);
-            saveButton.addActionListener(this);
+            closeButton.addActionListener(this);
         }
         getContentPane().add(FalForm1Panel, BorderLayout.CENTER);
         FalForm1Panel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -812,23 +800,6 @@ public class FALReportingDialog extends JDialog implements ActionListener, Chang
         this.pack();
     }
 
-    private void initFromStatic() {
-        StaticFalShipData staticData = falManager.getStaticShipData();
-
-        certificateOfRegistryField.setText(staticData.getCertificateOfRegistry());
-        callsignField.setText(staticData.getCallSign());
-
-        flagStateField.setText(staticData.getFlagStateOfShip());
-        grossTonnageField.setText(staticData.getGrossTonnage());
-        imoField.setText(staticData.getImoNumber());
-        shipsAgentsField.setText(staticData.getNameAndContactDetalsOfShipsAgent());
-        nameAndTypeField.setText(staticData.getNameAndTypeOfShip());
-        nameOfMasterField.setText(staticData.getNameOfMaster());
-
-        netTonnageField.setText(staticData.getNetTonnage());
-
-    };
-
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
@@ -839,22 +810,20 @@ public class FALReportingDialog extends JDialog implements ActionListener, Chang
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
-        if (arg0.getSource() == importBtn) {
-            importFALReport();
+        if (arg0.getSource() == printBtn) {
 
-        } else if (arg0.getSource() == resetButton) {
-            resetAllFields();
-        } else if (arg0.getSource() == printBtn) {
-            saveFALReport();
             print();
-        } else if (arg0.getSource() == saveButton) {
-            saveFALReport();
+        } else if (arg0.getSource() == closeButton) {
+            this.dispose();
         }
 
     }
 
     private void loadFalData(long id, boolean editable) {
-        FALReport falReport = EPDShip.getInstance().getFalManager().getFalReportWithID(id);
+
+        editable = false;
+
+        FALReport falReport = falManager.getFalReportWithID(id);
 
         falReportNameField.setText(falReport.getFalReportName());
         falReportNameField.setEditable(editable);
@@ -935,123 +904,14 @@ public class FALReportingDialog extends JDialog implements ActionListener, Chang
         shipWasteRequirementsField.setText(falForm1.getShipWasteRequirements());
         shipWasteRequirementsField.setEditable(editable);
 
-    }
-
-    private void saveFALReport() {
-
-        // Do we create new or overwrite?
-
-        FALReport falReport = null;
-
-        if (id == -1) {
-
-            falReport = new FALReport(System.currentTimeMillis());
-        } else {
-
-            falReport = EPDShip.getInstance().getFalManager().getFalReportWithID(id);
-        }
-
-        if (EPDShip.getInstance().getOwnShipHandler().getStaticData() != null) {
-            falReport.setReportOwner(EPDShip.getInstance().getOwnShipHandler().getStaticData().getName());
-        } else {
-            falReport.setReportOwner(EPDShip.getInstance().getOwnShipHandler().getMmsi() + "");
-        }
-
-        falReport.setFalReportName(falReportNameField.getText());
-
-        FALForm1 falForm1 = new FALForm1();
-
-        falForm1.setArrival(chckbxArrival.isSelected());
-
-        falForm1.setNameAndTypeOfShip(nameAndTypeField.getText());
-
-        falForm1.setImoNumber(imoField.getText());
-        falForm1.setCallSign(callsignField.getText());
-        falForm1.setVoyageNumber(voyageNumberField.getText());
-        falForm1.setPortOfArrivalDeapture(arrivalDepatureField.getText());
-        falForm1.setDateAndTimeOfArrivalDepature(dateAndTimeField.getText());
-        falForm1.setFlagStateOfShip(flagStateField.getText());
-        falForm1.setNameOfMaster(nameOfMasterField.getText());
-        falForm1.setLastPortOfCall(lastNextPortField.getText());
-        falForm1.setCertificateOfRegistry(certificateOfRegistryField.getText());
-        falForm1.setGrossTonnage(grossTonnageField.getText());
-        falForm1.setNetTonnage(netTonnageField.getText());
-        falForm1.setPositionOfTheShip(positionOfShipInPortField.getText());
-        falForm1.setSignature(signatureField.getText());
-        falForm1.setNumberOfCrew(numberOfCrewField.getText());
-        falForm1.setNumberOfPassengers(numberOfPassengersField.getText());
-        falForm1.setNameAndContactDetalsOfShipsAgent(shipsAgentsField.getText());
-        falForm1.setBriefParticulars(voyageParticularsField.getText());
-        falForm1.setBriefDescriptionOfCargo(cargoDescriptionField.getText());
-        falForm1.setRemarks(remarksField.getText());
-        falForm1.setShipWasteRequirements(shipWasteRequirementsField.getText());
-
-        falReport.setFalform1(falForm1);
-
-        if (id == -1) {
-            EPDShip.getInstance().getFalManager().addFALReport(falReport);
-        } else {
-            EPDShip.getInstance().getFalManager().replaceFalReport(falReport);
-        }
-
-        this.dispose();
-
-    }
-
-    private void resetAllFields() {
-        falReportNameField.setText("");
-
-        chckbxArrival.setSelected(false);
-        chckbxDepature.setSelected(false);
-
-        nameAndTypeField.setText("");
-
-        imoField.setText("");
-
-        callsignField.setText("");
-
-        voyageNumberField.setText("");
-
-        arrivalDepatureField.setText("");
-
-        dateAndTimeField.setText("");
-
-        flagStateField.setText("");
-
-        nameOfMasterField.setText("");
-
-        lastNextPortField.setText("");
-
-        certificateOfRegistryField.setText("");
-
-        grossTonnageField.setText("");
-
-        netTonnageField.setText("");
-
-        positionOfShipInPortField.setText("");
-
-        signatureField.setText("");
-
-        numberOfCrewField.setText("");
-
-        numberOfPassengersField.setText("");
-
-        shipsAgentsField.setText("");
-
-        voyageParticularsField.setText("");
-
-        cargoDescriptionField.setText("");
-
-        remarksField.setText("");
-
-        shipWasteRequirementsField.setText("");
+        this.setTitle("FAL Report from " + falReport.getReportOwner());
     }
 
     private void print() {
 
         if (id > 0) {
 
-            FALReport falReport = EPDShip.getInstance().getFalManager().getFalReportWithID(id);
+            FALReport falReport = falManager.getFalReportWithID(id);
 
             // Select the Path
             final JFileChooser fc = new JFileChooser();
@@ -1066,14 +926,6 @@ public class FALReportingDialog extends JDialog implements ActionListener, Chang
                 // Do nothing
             }
         }
-    }
-
-    private void importFALReport() {
-
-        FALImportSelectionDialog selectionDialog = new FALImportSelectionDialog(this);
-
-        selectionDialog.setVisible(true);
-
     }
 
     @Override

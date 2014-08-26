@@ -15,39 +15,24 @@
 package dk.dma.epd.ship.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
-import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.ServiceEndpoint;
-import net.maritimecloud.net.service.invocation.InvocationCallback;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.fal.FALReport;
 import dk.dma.epd.common.prototype.enavcloud.FALReportingService;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportMessage;
 import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportReply;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
-import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.service.FALHandlerCommon;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
-import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
-import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.fal.FALManager;
-import dk.dma.epd.ship.service.voct.VOCTManager;
 
 /**
  * Ship specific intended route service implementation.
@@ -150,7 +135,11 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
     }
 
     public void sendFALReport(long id, String message, FALReport falReport) {
+        falReport.setSentDate(new Date());
         FALReportMessage falMessage = new FALReportMessage();
+        falMessage.setFalReport(falReport);
+        falMessage.setSentDate(new Date());
+
         boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) id), falMessage, this);
     }
 

@@ -91,9 +91,11 @@ public class FALManager extends FALManagerCommon {
 
             if (falReports.get(i).getId() == falreport.getId()) {
                 falReports.set(i, falreport);
+                break;
             }
 
         }
+        saveToFile();
     }
 
     /**
@@ -113,5 +115,15 @@ public class FALManager extends FALManagerCommon {
 
         }
         return null;
+    }
+
+    public void addFALReport(FALReport falReport) {
+        falReports.add(falReport);
+        saveToFile();
+    }
+
+    public void removeFALReport(int index) {
+        falReports.remove(index);
+        saveToFile();
     }
 }
