@@ -42,12 +42,16 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 public class MultiSourcePntHandler extends MapHandlerChild implements IResilientPntSensorListener {
     
     private static final Logger LOG = LoggerFactory.getLogger(MultiSourcePntHandler.class);
-    
+    private static final int HPL_HYSTERESIS_LIMIT = 3;
+
     @GuardedBy("this")
     private ResilientPntData rpntData;
     
     @GuardedBy("this")
     private PntMessage pntMessage;
+
+    private boolean hasIssuedHplAlert;
+    private int hplHysteresisCnt;
 
     @GuardedBy("this")
     private final CopyOnWriteArrayList<IPntSensorListener> pntListeners = new CopyOnWriteArrayList<>();
@@ -60,32 +64,57 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
      */
     public MultiSourcePntHandler() {
     }
-    
+
+    /**
+     * Returns the HAL
+     * @return the HAL
+     */
+    protected int getHal() {
+        return EPD.getInstance().getSettings().getSensorSettings().getMsPntHal();
+    }
+
+
     /**
      * Called upon receiving a new {@code ResilientPntData} update
      * @param rpntData the new {@code ResilientPntData} data
      */
     @Override
     public synchronized void receive(ResilientPntData rpntData) {
-        // Log significant changes
+
+        // Send notification when the PNT source changes
         if (this.rpntData != null && this.rpntData.getPntSource() != rpntData.getPntSource()) {
             String desc = String.format("Changed PNT source from %s to %s.", this.rpntData.getPntSource(), rpntData.getPntSource());
             LOG.warn("******** " + desc);
             if (rpntData.getPntSource() != PntSource.GPS) {
                 desc += "\nGPS has become unreliable, cross check other bridge systems which may use GPS as they may also be affected.\n"
                       + "Systems can include: radar, gyrocompass, DSC/GMDSS, dynamic positioning system …";
-                sendNotification(NotificationSeverity.ALERT, "PNT Source Changed", desc);
+                sendNotification(NotificationSeverity.MESSAGE, "PNT Source Changed", desc);
             } else {
                 sendNotification(NotificationSeverity.MESSAGE, "PNT Source Changed", desc);
             }
         }
-        if (this.rpntData != null &&
-                this.rpntData.getJammingFlag() != rpntData.getJammingFlag() &&
-                rpntData.getJammingFlag() == ResilientPntData.JammingFlag.JAMMING) {
+
+        // Hysteresis is implemented by requiring 3 readings of HPL > HAL before sending an alert.
+        // Similarly, it requires 3 reading with HPL < HAL to reset the HPL alert flag
+        if (rpntData.getHpl() > getHal()) {
+            hplHysteresisCnt = Math.min(hplHysteresisCnt + 1, HPL_HYSTERESIS_LIMIT);
+        } else {
+            hplHysteresisCnt = Math.max(hplHysteresisCnt - 1, 0);
+        }
+
+        // Send notification when HPL > HAL
+        if (!hasIssuedHplAlert && hplHysteresisCnt == HPL_HYSTERESIS_LIMIT) {
+
             String desc = "Horizontal Alert Limit exceeded, position accuracy reduced, cross check!";
             LOG.warn("******** " + desc);
-            sendNotification(NotificationSeverity.WARNING, "GPS Integrity Alert", desc);
+            sendNotification(NotificationSeverity.ALERT, "GPS Integrity Alert", desc);
+            hasIssuedHplAlert = true;
+
+        } else if (hasIssuedHplAlert && hplHysteresisCnt == 0) {
+            // Reset the alert flag
+            hasIssuedHplAlert = false;
         }
+
         this.rpntData = rpntData;
         
         // Publish the update to all listeners
@@ -105,7 +134,10 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
         notification.setTitle(title);
         notification.setDescription(desc);
         notification.setDate(PntTime.getDate());
-        notification.addAlerts(new NotificationAlert(AlertType.POPUP, AlertType.SYSTEM_TRAY, AlertType.BEEP));
+        notification.addAlerts(
+                severity == NotificationSeverity.ALERT
+                ? new NotificationAlert(AlertType.POPUP, AlertType.SYSTEM_TRAY, AlertType.BEEP)
+                : new NotificationAlert(AlertType.POPUP));
         EPD.getInstance().getNotificationCenter().addNotification(notification);
     }
     

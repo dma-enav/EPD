@@ -23,8 +23,8 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.sensor.nmea.PntSource;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
-import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData.JammingFlag;
 import dk.dma.epd.ship.EPDShip;
 
 import java.awt.BasicStroke;
@@ -47,12 +47,12 @@ public class RpntErrorGraphic  extends OMGraphicList {
     private static final long serialVersionUID  = 298296212706297238L;
     private static final float STROKE_WIDTH     = 1.5f;
     
-    private static final Color COLOR_ERROR_ELLIPSE_ERROR   = new Color(100, 200, 100);
+    private static final Color COLOR_ERROR_ELLIPSE_ERROR   = new Color(200, 100, 100);
     private static final Color COLOR_ERROR_ELLIPSE_OK      = new Color(100, 200, 100);
     private static final Color COLOR_HPL_CIRCLE            = new Color(100, 100, 200);
-    private static final Paint PAINT_JAMMING
+    private static final Paint PAINT_ELORAN
         = GraphicsUtil.generateTexturePaint(
-                        "Jamming", 
+                        "eLoran",
                         new Font("Segoe UI", Font.PLAIN, 11), 
                         new Color(255, 255, 255, 100), 
                         new Color(0, 0, 0, 20), 
@@ -134,7 +134,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
         int hal = EPD.getInstance().getSettings().getSensorSettings().getMsPntHal();
 
         // Update the UI
-        hplCicle.setFillPaint(rpntData.getJammingFlag() != JammingFlag.OK ? PAINT_JAMMING : null);
+        hplCicle.setFillPaint(rpntData.getPntSource() != PntSource.GPS ? PAINT_ELORAN : null);
         hplCicle.setRadius(
                 rpntData.getHpl(),
                 Length.METER);

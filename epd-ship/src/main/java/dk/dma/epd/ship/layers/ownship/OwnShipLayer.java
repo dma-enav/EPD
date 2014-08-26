@@ -118,7 +118,7 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
      *            the {@code OwnShipHandler}
      */
     @Override
-    public void ownShipUpdated(OwnShipHandler ownShipHandler) {
+    public synchronized void ownShipUpdated(OwnShipHandler ownShipHandler) {
         if (ownShipHandler == null || !ownShipHandler.isPositionDefined()) {
             return;
         }
