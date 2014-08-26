@@ -185,7 +185,7 @@ public class MultiSourcePntPanel extends DockablePanel {
 
         } else {
             lblPntSource.setText(rpntData.getPntSource().toString());
-            lblJamming.setText(rpntData.getJammingFlag().toString());
+            lblJamming.setText(rpntData.getHpl() > getHal() ? "Alert" : "OK");
             lblHpl.setText(Formatter.formatMeters(rpntData.getHpl(), 1));
             lblErrorMajorAxis.setText(Formatter.formatMeters(rpntData.getErrorEllipse().getMajorAxis(), 1));
             lblErrorMinorAxis.setText(Formatter.formatMeters(rpntData.getErrorEllipse().getMinorAxis(), 1));
@@ -193,6 +193,15 @@ public class MultiSourcePntPanel extends DockablePanel {
         }
 
         rpntErrorMeter.repaint();
+    }
+
+    /**
+     * Returns the HAL
+     * @return the HAL
+     */
+    protected int getHal() {
+        // NP check to support testing
+        return EPD.getInstance() == null ? 25 : EPD.getInstance().getSettings().getSensorSettings().getMsPntHal();
     }
 
     /**
@@ -266,15 +275,6 @@ public class MultiSourcePntPanel extends DockablePanel {
             setSize(size);
             
             center.setLocation((double)s / 2d, (double)s / 2d);
-        }
-
-        /**
-         * Returns the HAL
-         * @return the HAL
-         */
-        private int getHal() {
-            // NP check to support testing
-            return EPD.getInstance() == null ? 25 : EPD.getInstance().getSettings().getSensorSettings().getMsPntHal();
         }
 
         /**
