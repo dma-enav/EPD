@@ -60,7 +60,7 @@ public class NoGoWorker extends Thread {
     @Override
     public void run() {
 
-        LOG.info("NoGo Worker " + id + " has started its request");
+        LOG.info("NoGo Worker has started its request");
 
         if (shoreServices == null) {
             nogoHandler.noNetworkConnection();
@@ -84,7 +84,7 @@ public class NoGoWorker extends Thread {
 
                 // Store results
 
-                nogoHandler.nogoWorkerCompleted(id, nogoResponse);
+                nogoHandler.nogoRequestCompleted(nogoResponse);
             } else {
                 NogoResponseSlices nogoResponse = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom,
                         validTo, slices);
@@ -97,10 +97,10 @@ public class NoGoWorker extends Thread {
                     return;
                 }
 
-                // Store results
-                for (int i = 0; i < nogoResponse.getResponses().size(); i++) {
-                    nogoHandler.nogoWorkerCompleted(i, nogoResponse.getResponses().get(i));
-                }
+                // Store the responses
+                nogoHandler.nogoRequestCompleted(nogoResponse);
+
+                LOG.info("NoGo Worker has completed its request");
 
             }
         } catch (ShoreServiceException e) {

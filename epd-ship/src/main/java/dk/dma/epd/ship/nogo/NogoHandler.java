@@ -38,6 +38,7 @@ import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
 import dk.frv.enav.common.xml.nogo.response.NogoResponse;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
+import dk.frv.enav.common.xml.nogoslices.response.NogoResponseSlices;
 
 /**
  * Component for handling NOGO areas
@@ -70,7 +71,7 @@ public class NogoHandler extends MapHandlerChild {
 
     private NoGoComponentPanel nogoPanel;
 
-    int completedRequests;
+    // int completedSlices;
 
     private boolean requestInProgress;
 
@@ -182,24 +183,6 @@ public class NogoHandler extends MapHandlerChild {
 
             nogoWorker.start();
 
-            completedRequests = 0;
-
-            // createWorker(nogoData.size()).run();
-
-            // // Create the workers
-            // for (int i = 1; i < nogoData.size(); i++) {
-            // // System.out.println("Next worker " + i);
-            // NoGoWorker nogoWorker = new NoGoWorker(this, this.shoreServices, i);
-            // nogoWorker.setValues(draught, northWestPoint, southEastPoint, nogoData.get(i).getValidFrom(), nogoData.get(i)
-            // .getValidTo());
-            //
-            // nogoWorker.run();
-            // // System.out.println("Run created for " + i);
-            // }
-
-            // } else {
-
-            //
         }
     }
 
@@ -228,31 +211,52 @@ public class NogoHandler extends MapHandlerChild {
         }
     }
 
-    public synchronized void nogoWorkerCompleted(int i, NogoResponse response) {
+    public synchronized void nogoRequestCompleted(NogoResponseSlices nogoResponses) {
 
-        completedRequests = completedRequests + 1;
+        LOG.info("NoGo Worker has completed its request");
 
-//        System.out.println("NoGo worker " + i + " has completed its request");
+        int completedSlices = 0;
 
-        NoGoDataEntry dataEntry = nogoData.get(i);
+        for (int i = 0; i < nogoResponses.getResponses().size(); i++) {
+            NogoResponse response = nogoResponses.getResponses().get(i);
+
+            completedSlices = completedSlices + 1;
+
+            NoGoDataEntry dataEntry = nogoData.get(i);
+
+            dataEntry.setNogoPolygons(response.getPolygons());
+            dataEntry.setNoGoMessage(response.getNoGoMessage());
+            dataEntry.setNoGoErrorCode(response.getNoGoErrorCode());
+
+            // Special handling of slices
+            if (this.useSlices) {
+                nogoPanel.requestCompletedMultiple(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(),
+                        dataEntry.getValidFrom(), dataEntry.getValidTo(), draught, i);
+                updateLayerMultipleResult(i);
+
+                nogoPanel.setCompletedSlices(completedSlices, nogoData.size());
+            } else {
+                nogoPanel.requestCompletedSingle(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), validFrom, validTo,
+                        draught);
+
+                updateLayerSingleResult();
+            }
+
+        }
+
+    }
+
+    public synchronized void nogoRequestCompleted(NogoResponse response) {
+
+        NoGoDataEntry dataEntry = nogoData.get(0);
 
         dataEntry.setNogoPolygons(response.getPolygons());
         dataEntry.setNoGoMessage(response.getNoGoMessage());
         dataEntry.setNoGoErrorCode(response.getNoGoErrorCode());
 
-        // Special handling of slices
-        if (this.useSlices) {
-            nogoPanel.requestCompletedMultiple(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), dataEntry.getValidFrom(),
-                    dataEntry.getValidTo(), draught, i);
-            updateLayerMultipleResult(i);
+        nogoPanel.requestCompletedSingle(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), validFrom, validTo, draught);
 
-            nogoPanel.setCompletedSlices(completedRequests, nogoData.size());
-        } else {
-            nogoPanel
-                    .requestCompletedSingle(dataEntry.getNoGoErrorCode(), dataEntry.getNogoPolygons(), validFrom, validTo, draught);
-
-            updateLayerSingleResult();
-        }
+        updateLayerSingleResult();
 
     }
 
@@ -281,53 +285,6 @@ public class NogoHandler extends MapHandlerChild {
         // Single result returned
         nogoLayer.singleResultCompleted(nogoData.get(0));
     }
-
-    // private boolean poll() throws ShoreServiceException {
-    //
-    // if (shoreServices == null) {
-    // return false;
-    // }
-    //
-    // // Date date = new Date();
-    // // Send a rest to shoreServices for NoGo
-    // // System.out.println(draught);
-    // // System.out.println(northWestPoint);
-    // // System.out.println(southEastPoint);
-    // // System.out.println(validFrom);
-    // // System.out.println(validTo);
-    //
-    // if (useSlices) {
-    //
-    // } else {
-    //
-    // }
-    //
-    // NogoResponse nogoResponse = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
-    //
-    // System.out.println("Response 1");
-    // NogoResponse nogoResponse2 = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
-    // System.out.println("Response 2");
-    // NogoResponse nogoResponse3 = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
-    // System.out.println("Response 3");
-    // NogoResponse nogoResponse4 = shoreServices.nogoPoll(draught, northWestPoint, southEastPoint, validFrom, validTo);
-    // System.out.println("Response 4");
-    //
-    // // nogoPolygons = nogoResponse.getPolygons();
-    // validFrom = nogoResponse.getValidFrom();
-    // validTo = nogoResponse.getValidTo();
-    // noGoErrorCode = nogoResponse.getNoGoErrorCode();
-    // noGoMessage = nogoResponse.getNoGoMessage();
-    //
-    // // System.out.println(nogoResponse.getNoGoErrorCode());
-    // // System.out.println(nogoResponse.getNoGoMessage());
-    // // System.out.println(nogoResponse.getPolygons().size());
-    //
-    // if (nogoResponse == null || nogoResponse.getPolygons() == null) {
-    // return false;
-    // }
-    // return true;
-    //
-    // }
 
     public Double getDraught() {
         return draught;
