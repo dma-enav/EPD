@@ -51,7 +51,6 @@ public class RouteSuggestionNotificationCommon extends Notification<RouteSuggest
      */
     @Override
     public void setAcknowledged(boolean acknowledged) {
-        System.out.println("Acknowelged");
         super.setAcknowledged(acknowledged);
         get().setAcknowleged(acknowledged);
     }

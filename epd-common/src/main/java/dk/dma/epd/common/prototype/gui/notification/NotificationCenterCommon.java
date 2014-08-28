@@ -565,10 +565,6 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
 
         public void run() {
 
-            if (notification == null) {
-                System.out.println("its null now");
-            }
-
             // System.out.println("Run beep " + notification.isRead());
             if (!notification.isRead()) {
 

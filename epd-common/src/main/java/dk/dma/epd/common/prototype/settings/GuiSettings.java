@@ -37,7 +37,7 @@ public class GuiSettings implements Serializable {
     private boolean showDockMessage = true;
     private float mouseSelectTolerance = 5.0f;
     private boolean fullscreen;
-    private boolean useAudio = true;
+    protected boolean useAudio = true;
     
     
     public GuiSettings() {

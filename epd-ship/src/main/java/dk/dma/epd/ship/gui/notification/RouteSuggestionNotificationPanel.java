@@ -348,7 +348,12 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
      */
     @Override
     public void acknowledgeNotification(RouteSuggestionNotification notification) {
+        
         if (notification != null && !notification.isAcknowledged()) {
+            
+            notification.setAcknowledged(true);
+            notification.setRead(true); // Implied by acknowledged
+            
             RouteSuggestionHandler routeSuggestionHandler = EPDShip.getInstance().getRouteSuggestionHandler();
             RouteSuggestionData routeSuggestion = notification.get();
             // NB: routeSuggestionHandler.setRouteSuggestionAcknowledged() will automatically trigger a table refresh

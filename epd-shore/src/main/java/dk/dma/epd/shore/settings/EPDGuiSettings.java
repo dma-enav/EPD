@@ -16,6 +16,8 @@ package dk.dma.epd.shore.settings;
 
 import java.util.Properties;
 
+import com.bbn.openmap.util.PropUtils;
+
 import dk.dma.epd.common.prototype.settings.GuiSettings;
 
 /**
@@ -27,6 +29,7 @@ public class EPDGuiSettings extends GuiSettings {
 
     private String workspace = "";
     private String PREFIX = super.getPrefix();
+    private boolean useAudio;
 
     /**
      * Constructor
@@ -35,25 +38,26 @@ public class EPDGuiSettings extends GuiSettings {
         super();
     }
 
-
     /**
      * Read the properties element and set the internal variables
+     * 
      * @param props
      */
     public void readProperties(Properties props) {
         workspace = props.getProperty(PREFIX + "workspace");
+        useAudio = PropUtils.booleanFromProperties(props, PREFIX + "useAudio", useAudio);
         super.readProperties(props);
     }
 
     /**
-     * Set the properties to the value from the internal, usually called
-     * when saving settings to file
+     * Set the properties to the value from the internal, usually called when saving settings to file
+     * 
      * @param props
      */
     public void setProperties(Properties props) {
         props.put(PREFIX + "workspace", workspace);
-        
         super.setProperties(props);
+        props.put(PREFIX + "useAudio", Boolean.toString(useAudio));
     }
 
     public String getWorkspace() {
@@ -63,4 +67,21 @@ public class EPDGuiSettings extends GuiSettings {
     public void setWorkspace(String workspace) {
         this.workspace = workspace;
     }
+
+    /**
+     * @return the useAudio
+     */
+    public boolean isUseAudio() {
+        return useAudio;
+    }
+
+    /**
+     * @param useAudio the useAudio to set
+     */
+    public void setUseAudio(boolean useAudio) {
+        this.useAudio = useAudio;
+    }
+    
+    
+    
 }
