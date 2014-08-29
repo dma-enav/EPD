@@ -45,20 +45,15 @@ public class AisTargetPanel extends JPanel {
     private final JLabel dstLabel = new JLabel("N/A");
     private final JLabel brgLabel = new JLabel("N/A");
     private final JCheckBox intendedRouteCheckbox = new JCheckBox("");
-    private final JLabel intendedRouteTitelLabel = new JLabel(
-            "Show Intended Route  ");
-    private final JCheckBox dynamicNoGoCheckbox = new JCheckBox("");
-    private final JLabel dynamicNogoTitelLabel = new JLabel("Show Dynamic NoGo  ");
+    private final JLabel intendedRouteTitelLabel = new JLabel("Show Intended Route  ");
 
     public AisTargetPanel() {
 
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 10, 10, 0 };
-        gridBagLayout.rowHeights = new int[] { 20, 16, 16, 0, 0, 0, 0, 0, 0, 0,
-                10 };
+        gridBagLayout.rowHeights = new int[] { 20, 16, 16, 0, 0, 0, 0, 0, 0, 0, 10 };
         gridBagLayout.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-        gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+        gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
         setLayout(gridBagLayout);
         aisTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         aisTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -195,20 +190,6 @@ public class AisTargetPanel extends JPanel {
         gbc_IntendedRouteTitelLabel.gridy = 8;
         add(intendedRouteTitelLabel, gbc_IntendedRouteTitelLabel);
 
-        GridBagConstraints gbc_dynamicNoGoCheckbox = new GridBagConstraints();
-        gbc_dynamicNoGoCheckbox.anchor = GridBagConstraints.NORTH;
-        gbc_dynamicNoGoCheckbox.insets = new Insets(0, 0, 0, 5);
-        gbc_dynamicNoGoCheckbox.gridx = 0;
-        gbc_dynamicNoGoCheckbox.gridy = 9;
-        add(dynamicNoGoCheckbox, gbc_dynamicNoGoCheckbox);
-
-        dynamicNogoTitelLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        dynamicNogoTitelLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        GridBagConstraints gbc_dynamicNogoTitelLabel = new GridBagConstraints();
-        gbc_dynamicNogoTitelLabel.anchor = GridBagConstraints.NORTHWEST;
-        gbc_dynamicNogoTitelLabel.gridx = 1;
-        gbc_dynamicNogoTitelLabel.gridy = 9;
-        add(dynamicNogoTitelLabel, gbc_dynamicNogoTitelLabel);
     }
 
     public JLabel getNameLabel() {
@@ -246,15 +227,5 @@ public class AisTargetPanel extends JPanel {
     public JLabel getIntendedRouteTitelLabel() {
         return intendedRouteTitelLabel;
     }
-
-    public JCheckBox getDynamicNoGoCheckbox() {
-        return dynamicNoGoCheckbox;
-    }
-
-    public JLabel getDynamicNogoTitelLabel() {
-        return dynamicNogoTitelLabel;
-    }
-    
-    
 
 }
