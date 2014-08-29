@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteMessage;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoutes;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
@@ -42,6 +41,7 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.settings.handlers.IIntendedRouteHandlerSettingsObserver;
 
@@ -68,7 +68,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     private RouteManager routeManager;
     private boolean running;
 
-    private IntendedRouteLayerCommon intendedRouteLayerCommon;
+    private IntendedRouteLayer intendedRouteLayer;
 
     /**
      * Constructor
@@ -266,8 +266,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         if (obj instanceof RouteManager) {
             routeManager = (RouteManager) obj;
             routeManager.addListener(this);
-        } else if (obj instanceof IntendedRouteLayerCommon) {
-            intendedRouteLayerCommon = (IntendedRouteLayerCommon) obj;
+        } else if (obj instanceof IntendedRouteLayer) {
+            intendedRouteLayer = (IntendedRouteLayer) obj;
         }
     }
 
@@ -366,7 +366,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             }
 
             // Call an update
-            intendedRouteLayerCommon.loadIntendedRoutes();
+            intendedRouteLayer.loadIntendedRoutes();
 
         }
 

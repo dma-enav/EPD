@@ -108,4 +108,14 @@ public class IntendedRouteCPAGraphic extends OMGraphicList {
         return message;
     }
 
+    /**
+     * @return the acknowledged
+     */
+    public boolean isAcknowledged() {
+        return acknowledged;
+    }
+    
+    
+    
+
 }

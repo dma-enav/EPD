@@ -38,7 +38,6 @@ import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteCPALayer;
 import dk.dma.epd.common.prototype.layers.predictor.DynamicPredictorLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
@@ -66,6 +65,7 @@ import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
+import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
@@ -97,13 +97,16 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     private VoctLayer voctLayer;
     private CommonRulerLayer rulerLayer;
     private DynamicPredictorLayer dynamicPredictorLayer;
-
+    private IntendedRouteLayer intendedRouteLayer;
+    
     private TopPanel topPanel;
     private VOCTManager voctManager;
     private ActiveWaypointComponentPanel activeWaypointPanel;
     private NogoDialog nogoDialog;
     protected PntData pntData;
 
+    
+    
     /**
      * Constructor
      * 
@@ -251,7 +254,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         mapHandler.add(ownShipLayer);
 
         // Create Intended Route Layer
-        intendedRouteLayer = new IntendedRouteLayerCommon();
+        intendedRouteLayer = new IntendedRouteLayer();
         intendedRouteLayer.setVisible(true);
         mapHandler.add(intendedRouteLayer);
 
@@ -396,7 +399,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
             if (topPanel != null) {
                 topPanel.updateButtons();
             }
-            
+
             super.zoomTo(waypoints);
         }
     }

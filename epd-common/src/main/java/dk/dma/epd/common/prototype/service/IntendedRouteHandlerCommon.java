@@ -335,10 +335,11 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         }
 
         if (sendNotification) {
-//            System.out.println("Send notification is true");
+            // System.out.println("Send notification is true");
             newFilteredRoute.setGeneratedNotification(true);
             final GeneralNotification notification = new GeneralNotification(newFilteredRoute, String.format(
-                    "IntendedRouteNotificaiton_%s_%d", newFilteredRoute.getKey(), newFilteredRoute.getFilterMessages().get(0).getTime1().getMillis()));
+                    "IntendedRouteNotificaiton_%s_%d", newFilteredRoute.getKey(), newFilteredRoute.getFilterMessages().get(0)
+                            .getTime1().getMillis()));
             notification.setTitle("CPA Warning");
             notification.setDescription(formatNotificationDescription(newFilteredRoute));
             if (newFilteredRoute.isWithinDistance(ALERT_DISTANCE_EPSILON)) {
@@ -363,12 +364,14 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
     /**
      * Called when the state of a notification has changed
-     * @param notification the notificaiton
+     * 
+     * @param notification
+     *            the notificaiton
      */
     @Override
     public void notificationUpdated(Notification<?, ?> notification) {
         if (notification.isAcknowledged()) {
-            FilteredIntendedRoute value = (FilteredIntendedRoute)notification.get();
+            FilteredIntendedRoute value = (FilteredIntendedRoute) notification.get();
             // Get latest filtered intended route for the mmsi's
             FilteredIntendedRoute filteredRoute = filteredIntendedRoutes.get(value.getMmsi1(), value.getMmsi2());
             if (filteredRoute != null && !filteredRoute.isNotificationAcknowledged()) {
@@ -383,8 +386,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      */
     protected void acknowledgeAllCPANotifications() {
         // Mark all other CPA notifications as acknowledged
-        for (Notification<?,?> not : EPD.getInstance().getNotificationCenter()
-                .getPanel(NotificationType.NOTIFICATION).getNotifications()) {
+        for (Notification<?, ?> not : EPD.getInstance().getNotificationCenter().getPanel(NotificationType.NOTIFICATION)
+                .getNotifications()) {
             if (!not.isAcknowledged() && not.get() != null && not.get() instanceof FilteredIntendedRoute) {
                 not.removeListener(this);
                 not.setRead(true);
@@ -617,13 +620,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                         DecimalFormat df = new DecimalFormat("#.##");
 
-                        IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(
-                                route1,
-                                route2,
-                                route1CurrentPosition,
-                                route2CurrentPosition,
-                                "TCPA Warning, proxmity of " + df.format(currentDistance)
-                                        + " nautical miles ", 0, 0, notificationOnly);
+                        IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(route1, route2,
+                                route1CurrentPosition, route2CurrentPosition, "TCPA Warning, proxmity of "
+                                        + df.format(currentDistance) + " nautical miles ", 0, 0, notificationOnly);
 
                         filterMessage.setTime1(traverseTime);
                         filterMessage.setTime2(traverseTime);
@@ -702,7 +701,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                     // Are we more than 5 hours in the future then stop
 
-                    DateTime currentTime = new DateTime(PntTime.getInstance().getDate().getTime());
+                    PntTime.getInstance();
+                    DateTime currentTime = new DateTime(PntTime.getDate().getTime());
 
                     if (traverseTime.isAfter(currentTime.plusHours(3))) {
                         LOG.debug("More than 3 hours head of current time, ending checks");

@@ -137,7 +137,11 @@ public class IntendedRouteCPALayer extends EPDLayerCommon implements IIntendedRo
     @Override
     protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
         if (newClosest instanceof IntendedRouteCPAGraphic) {
-            tcpaInfoPanel.showWpInfo((IntendedRouteCPAGraphic) newClosest);
+
+            IntendedRouteCPAGraphic cpaGraphics = (IntendedRouteCPAGraphic) newClosest;
+
+            tcpaInfoPanel.showWpInfo(cpaGraphics);
+
         }
         return true;
     }

@@ -79,7 +79,6 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
     }
 
     public synchronized void saveToFile() {
-        System.out.println("SAVE TO FILE");
         try (FileOutputStream fileOut = new FileOutputStream(SRU_FILE);
                 ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
             objectOut.writeObject(srus);

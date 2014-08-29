@@ -138,10 +138,11 @@ public class RouteGraphic extends OMGraphicList {
             Color waypointColor = color;
             Color legColor = color;
             int compareDates;
-            
-            //Do not use check if constructing a route
+
+            // Do not use check if constructing a route
             if (route.getEtas().size() > i) {
-                compareDates = route.getEtas().get(i).compareTo(PntTime.getInstance().getDate());
+                PntTime.getInstance();
+                compareDates = route.getEtas().get(i).compareTo(PntTime.getDate());
 
                 if (compareDates < 0) {
                     waypointColor = Color.GRAY;
@@ -152,7 +153,8 @@ public class RouteGraphic extends OMGraphicList {
             // We only want to color the leg if both start and end waypoint is back in time
             if (route.getEtas().size() > i + 1) {
 
-                compareDates = route.getEtas().get(i + 1).compareTo(PntTime.getInstance().getDate());
+                PntTime.getInstance();
+                compareDates = route.getEtas().get(i + 1).compareTo(PntTime.getDate());
 
                 if (compareDates < 0) {
                     legColor = Color.GRAY;

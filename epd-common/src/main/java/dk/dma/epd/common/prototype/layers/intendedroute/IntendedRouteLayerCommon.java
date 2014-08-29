@@ -54,10 +54,10 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
 
     protected IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
 
-    private ChartPanelCommon chartPanel;
+    protected ChartPanelCommon chartPanel;
     private AisHandlerCommon aisHandler;
     private IntendedRouteHandlerCommon intendedRouteHandler;
-    private OMCircle dummyCircle = new OMCircle();
+    protected OMCircle dummyCircle = new OMCircle();
 
     private boolean useFilter;
 

@@ -62,7 +62,7 @@ import dk.dma.epd.common.prototype.layers.util.LayerVisiblityListener;
 public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements MapMouseListener {
 
     private static final long serialVersionUID = 1L;
-    
+
     /** Whether or not to hide the glass panel when info panels are hidden **/
     private static final boolean HIDE_GLASS_PANEL = false;
 
@@ -261,7 +261,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
                 if (HIDE_GLASS_PANEL) {
                     getGlassPanel().setVisible(false);
                 }
-                
+
                 // Allow custom handling of right-clicks by sub-classes
                 handleMouseClick(clickedGraphics, evt);
                 return true;
@@ -344,30 +344,30 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
 
         if (!infoPanels.isEmpty()) {
             OMGraphic newClosest = getSelectedGraphic(infoPanelsGraphics, evt, infoPanels.getGraphicsList());
-            
+
             if (newClosest != null && newClosest.isVisible()) {
-                
+
                 InfoPanel infoPanel = infoPanels.getInfoPanel(newClosest.getClass());
-                
+
                 // Register the distance between the mouse position and the closest graphics
-                infoPanel.setMouseDist(newClosest.distance(evt.getPoint().getX(), evt.getPoint().getY()));                
-                
-                if (newClosest != closest) {                    
+                infoPanel.setMouseDist(newClosest.distance(evt.getPoint().getX(), evt.getPoint().getY()));
+
+                if (newClosest != closest) {
                     closest = newClosest;
                     Point containerPoint = convertPoint(evt.getPoint());
 
                     infoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                    
+
                     // Allow custom initialization by sub-classes
                     if (initInfoPanel(infoPanel, newClosest, evt, containerPoint)) {
                         infoPanel.setVisible(true);
                         getGlassPanel().setVisible(true);
                     }
-                    
+
                     // Hides all but the info panel closest to the mouse point
                     checkInfoPanelVisiblity();
                 }
-                                
+
                 return true;
             } else if (newClosest == null) {
                 closest = null;
@@ -385,7 +385,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
         InfoPanel closestInfoPanel = null;
         for (Component component : getGlassPanel().getComponents()) {
             if (component instanceof InfoPanel && component.isVisible()) {
-                InfoPanel infoPanel = (InfoPanel)component;
+                InfoPanel infoPanel = (InfoPanel) component;
                 if (closestInfoPanel != null && infoPanel.getMouseDist() < closestInfoPanel.getMouseDist()) {
                     closestInfoPanel.setVisible(false);
                     closestInfoPanel = infoPanel;

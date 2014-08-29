@@ -21,6 +21,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
@@ -103,6 +104,7 @@ public class WaypointInfoPanel extends InfoPanel {
         Route routeData = legGraphic.getRouteGraphic().getRoute();
 
         RouteWaypoint startWp = legGraphic.getRouteLeg().getStartWp();
+        RouteLeg leg = startWp.getOutLeg();
 
         Position startPos = startWp.getPos();
         Position midPos = Position.create(worldLocation.getY(), worldLocation.getX());
@@ -112,11 +114,11 @@ public class WaypointInfoPanel extends InfoPanel {
         double hdg = Calculator.bearing(startPos, endPos, legGraphic.getRouteLeg().getHeading());
         Date startEta = routeData.getEtas().get(legIndex);
 
-        Date midEta = new Date((long) (midRange / routeData.getSpeed(legIndex) * 3600000 + startEta.getTime()));
+        Date midEta = new Date((long) (midRange / leg.getSpeed() * 3600000 + startEta.getTime()));
 
         StringBuilder str = new StringBuilder();
         str.append("<html>");
-        str.append("<b>Intended route leg</b><br/>");
+        str.append("<b>Active route leg</b><br/>");
         str.append("<table border='0' cellpadding='2'>");
         str.append("<tr><td>Length:</td><td>" + Formatter.formatDistNM(range) + "</td></tr>");
         str.append("<tr><td>Heading:</td><td>" + Formatter.formatDegrees(hdg, 0) + "</td></tr>");

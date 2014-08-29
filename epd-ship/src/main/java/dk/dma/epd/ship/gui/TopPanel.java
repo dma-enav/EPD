@@ -35,7 +35,6 @@ import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.gui.GoBackButton;
 import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -44,6 +43,7 @@ import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.fal.FALManagerDialog;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
+import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 
 /**
@@ -82,7 +82,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
     private AisDialog aisDialog;
     private MenuBar menuBar;
     private RouteLayer routeLayer;
-    private IntendedRouteLayerCommon intendedRouteLayer;
+    private IntendedRouteLayer intendedRouteLayer;
 
     private MouseDelegator mouseDelegator;
     private final GoBackButton goBackBtn = new GoBackButton();
@@ -267,8 +267,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         if (obj instanceof RouteLayer) {
             routeLayer = (RouteLayer) obj;
         }
-        if (obj instanceof IntendedRouteLayerCommon) {
-            intendedRouteLayer = (IntendedRouteLayerCommon) obj;
+        if (obj instanceof IntendedRouteLayer) {
+            intendedRouteLayer = (IntendedRouteLayer) obj;
         }
     }
 
