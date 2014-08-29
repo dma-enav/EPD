@@ -19,47 +19,64 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.ais.message.AisMessage;
 import dk.dma.ais.message.AisPositionMessage;
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.util.function.Consumer;
 
 /**
  * Utility for collecting tracks from AIS feed.
  */
-public class TrackCollector implements Consumer<AisMessage> {
-
-    static final Logger LOG = LoggerFactory.getLogger(TrackCollector.class);
-
-    private long mmsi;
-    private List<TimePoint> track = new ArrayList<TimePoint>();
-
+public class TrackCollector implements Consumer<AisMessage>{
+    
+    private static final double FIXED_SPEED = (12.0 * 1852.0) / 3600.0; // 12 knots
+    
+    private final long mmsi;
+    private final List<TimePoint> track = new ArrayList<>();
+    private Position lastPos;
+    private Date time;
+    
     public TrackCollector(long mmsi) {
         this.mmsi = mmsi;
+        this.time = new Date();
     }
 
     @Override
     public void accept(AisMessage aisMessage) {
+        Date timestamp = null;
         if (aisMessage.getUserId() != mmsi) {
             return;
         }
         if (!(aisMessage instanceof AisPositionMessage)) {
             return;
         }
-        Date timestamp = aisMessage.getVdm().getTimestamp();
+        if (aisMessage.getSourceTag() != null) {
+            timestamp = aisMessage.getSourceTag().getTimestamp();            
+        }
+        
+        AisPositionMessage posMessage = (AisPositionMessage)aisMessage;
+        Position pos = posMessage.getPos().getGeoLocation();
+        
+        //System.out.println("----");
+        //System.out.println("time     : " + time);
         if (timestamp == null) {
-            LOG.error("No timestamp in GH source tag for position message: " + aisMessage.getVdm().getOrgLinesJoined());
-            return;
-        }
-
-        AisPositionMessage posMessage = (AisPositionMessage) aisMessage;
-        if (posMessage.isPositionValid()) {
-            track.add(new TimePoint(posMessage.getPos().getGeoLocation(), timestamp));
-        }
+            // We will try to calculate the time
+            if (lastPos == null) {
+                timestamp = time;
+            } else {
+                double t = lastPos.rhumbLineDistanceTo(pos) / FIXED_SPEED;
+                timestamp = new Date(time.getTime() + (long)(t * 1000));
+            }            
+        }        
+        //System.out.println("timestamp: " + timestamp);
+        time = timestamp;
+        lastPos = pos;
+        
+        
+        TimePoint point = new TimePoint(pos, timestamp);
+        track.add(point);
     }
-
+    
     public List<TimePoint> getSortedTrack() {
         Collections.sort(track);
         return track;
