@@ -28,15 +28,11 @@ import java.awt.TrayIcon.MessageType;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -62,8 +58,6 @@ import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.common.prototype.notification.RouteSuggestionNotificationCommon;
-import dk.dma.epd.common.prototype.notification.StrategicRouteNotificationCommon;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
 import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
@@ -110,6 +104,8 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     // Maximized/minimized handling
     protected boolean maximized = true;
     protected int saveDeltaWidth;
+
+    private VoiceAlertTimers voiceAlertTimers = new VoiceAlertTimers();
 
     /**
      * Constructor
@@ -200,10 +196,14 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
             }
 
             if (EPD.getInstance().getSettings().getGuiSettings().isUseAudio()) {
-                java.util.Timer warningTimer;
-                warningTimer = new java.util.Timer();
-                warningTimer.scheduleAtFixedRate(new ContinousVoiceAlerts(notification, warningTimer), 0, // initial delay
-                        10 * 1000); // subsequent rate
+
+                VoiceAlertTimer voiceAlertTimer = new VoiceAlertTimer(notification, voiceAlertTimers);
+                voiceAlertTimers.addVoiceAlert(voiceAlertTimer);
+
+                // java.util.Timer warningTimer;
+                // warningTimer = new java.util.Timer();
+                // warningTimer.scheduleAtFixedRate(new ContinousVoiceAlerts(notification, warningTimer), 0, // initial delay
+                // 10 * 1000); // subsequent rate
 
             }
 
@@ -554,72 +554,4 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         chatPanel.refreshNotifications();
     }
 
-    class ContinousVoiceAlerts extends TimerTask {
-        Notification<?, ?> notification;
-        java.util.Timer warningTimer;
-
-        public ContinousVoiceAlerts(Notification<?, ?> notification, java.util.Timer warningTimer) {
-            this.notification = notification;
-            this.warningTimer = warningTimer;
-        }
-
-        public void run() {
-
-            // System.out.println("Run beep " + notification.isRead());
-            if (!notification.isRead()) {
-
-                // toolkit.beep();
-
-                URL audioClip = EPD.res().folder("audio/").getResource("warning.wav");
-
-                if (notification instanceof ChatNotification) {
-                    audioClip = EPD.res().folder("audio/").getResource("messagewarning.wav");
-                }
-                if (notification instanceof GeneralNotification) {
-                    if (notification.getTitle().contains("CPA Warning")) {
-
-                        // System.out.println("Active intended route index is " +
-                        // EPD.getInstance().getRouteManager().getActiveRouteIndex());
-                        if (EPD.getInstance().getRouteManager().getActiveRouteIndex() < 0) {
-                            notification.setRead(true);
-                            warningTimer.cancel();
-                            return;
-                        } else {
-                            audioClip = EPD.res().folder("audio/").getResource("tcpawarning.wav");
-                        }
-
-                    }
-                }
-
-                if (notification instanceof RouteSuggestionNotificationCommon) {
-                    audioClip = EPD.res().folder("audio/").getResource("tacticalroute.wav");
-
-                }
-
-                if (notification instanceof StrategicRouteNotificationCommon) {
-
-                    audioClip = EPD.res().folder("audio/").getResource("strategicroute.wav");
-
-                }
-
-                try {
-                    Clip clip = AudioSystem.getClip();
-                    clip.open(AudioSystem.getAudioInputStream(audioClip));
-                    clip.start();
-
-                    if (notification.getTitle().contains("Intended")) {
-                        // Only play once
-                        warningTimer.cancel();
-                    }
-
-                } catch (Exception exc) {
-                    exc.printStackTrace(System.out);
-                }
-            } else {
-                warningTimer.cancel();
-                // System.out.println("Killing timer");
-            }
-
-        }
-    }
 }

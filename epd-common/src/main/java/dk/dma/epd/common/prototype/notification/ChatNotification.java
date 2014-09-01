@@ -105,4 +105,7 @@ public class ChatNotification extends Notification<ChatServiceData, MaritimeId> 
     public String getTargetType() {
         return NameUtils.getType(getId());
     }
+    
+    
+    
 }
