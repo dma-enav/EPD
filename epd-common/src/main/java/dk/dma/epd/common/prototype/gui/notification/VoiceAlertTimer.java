@@ -134,6 +134,8 @@ class ContinousVoiceAlerts extends TimerTask {
     private void killTimer() {
         warningTimer.cancel();
         if (clip != null) {
+            clip.drain();
+            clip.stop();
             clip.flush();
             clip.close();
         }

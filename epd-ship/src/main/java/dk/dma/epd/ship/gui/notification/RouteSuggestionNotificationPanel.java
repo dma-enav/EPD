@@ -42,6 +42,7 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
+import net.maritimecloud.core.id.MmsiId;
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
@@ -53,8 +54,10 @@ import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.service.ChatServiceData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.NameUtils;
 import dk.dma.epd.ship.EPDShip;
@@ -169,7 +172,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         replyPanel.getNotedBtn().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handleNoted();
+                handleWait();
             }
         });
 
@@ -261,13 +264,30 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     /**
      * Flags the current strategic route as noted
      */
-    private void handleNoted() {
+    private void handleWait() {
+
         RouteSuggestionNotification notification = getSelectedNotification();
         if (notification != null) {
-            EPDShip.getInstance()
-                    .getRouteSuggestionHandler()
-                    .sendRouteSuggestionReply(notification.getId(), RouteSuggestionStatus.WAIT,
-                            replyPanel.getMessageTxtField().getText());
+            // EPDShip.getInstance()
+            // .getRouteSuggestionHandler()
+            // .sendRouteSuggestionReply(notification.getId(), RouteSuggestionStatus.WAIT,
+            // replyPanel.getMessageTxtField().getText());
+
+            long mmsi = EPDShip.getInstance().getRouteSuggestionHandler().getRouteSuggestion(notification.getId()).getMmsi();
+
+            ChatServiceData chatData = EPD.getInstance().getChatServiceHandler().getChatServiceData(new MmsiId((int) mmsi));
+
+            // Sanity check
+            if (chatData == null) {
+                return;
+            }
+
+            String msg = "Cannot reply to the tactical route suggestion at this time. Please standby for a reply";
+
+            NotificationSeverity severity = NotificationSeverity.MESSAGE;
+
+            EPD.getInstance().getChatServiceHandler().sendChatMessage(chatData.getId(), msg, severity);
+
             EPDShip.getInstance().getNotificationCenter().setVisible(false);
         }
     }
@@ -348,12 +368,12 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
      */
     @Override
     public void acknowledgeNotification(RouteSuggestionNotification notification) {
-        
+
         if (notification != null && !notification.isAcknowledged()) {
-            
+
             notification.setAcknowledged(true);
             notification.setRead(true); // Implied by acknowledged
-            
+
             RouteSuggestionHandler routeSuggestionHandler = EPDShip.getInstance().getRouteSuggestionHandler();
             RouteSuggestionData routeSuggestion = notification.get();
             // NB: routeSuggestionHandler.setRouteSuggestionAcknowledged() will automatically trigger a table refresh
@@ -550,7 +570,7 @@ class RouteSuggestionReplyView extends JPanel {
 
     JButton acceptBtn = new JButton("Accept", EPD.res().getCachedImageIcon("images/notifications/tick.png"));;
     JButton rejectBtn = new JButton("Reject", EPD.res().getCachedImageIcon("images/notifications/cross.png"));
-    JButton notedBtn = new JButton("Wait", EPD.res().getCachedImageIcon("images/notifications/flag-blue.png"));
+    JButton waitBtn = new JButton("Wait", EPD.res().getCachedImageIcon("images/notifications/flag-blue.png"));
     JTextArea messageTxtField = new JTextArea();
 
     /**
@@ -577,7 +597,7 @@ class RouteSuggestionReplyView extends JPanel {
 
         btnPanel.add(acceptBtn, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
         btnPanel.add(rejectBtn, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
-        btnPanel.add(notedBtn, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
+        btnPanel.add(waitBtn, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
     }
 
     public JButton getAcceptBtn() {
@@ -589,7 +609,7 @@ class RouteSuggestionReplyView extends JPanel {
     }
 
     public JButton getNotedBtn() {
-        return notedBtn;
+        return waitBtn;
     }
 
     public JTextArea getMessageTxtField() {

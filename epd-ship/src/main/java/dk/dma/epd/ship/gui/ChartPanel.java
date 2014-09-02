@@ -206,11 +206,6 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         voctLayer.setVisible(true);
         mapHandler.add(voctLayer);
 
-        // Create route layer
-        routeLayer = new RouteLayer();
-        routeLayer.setVisible(true);
-        mapHandler.add(routeLayer);
-
         ScaleDisplayLayer scaleDisplay = new ScaleDisplayLayer();
         scaleDisplay.setVisible(true);
         mapHandler.add(scaleDisplay);
@@ -253,6 +248,11 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         ownShipLayer.setVisible(true);
         mapHandler.add(ownShipLayer);
 
+        // Create route layer
+        routeLayer = new RouteLayer();
+        routeLayer.setVisible(true);
+        mapHandler.add(routeLayer);
+        
         // Create Intended Route Layer
         intendedRouteLayer = new IntendedRouteLayer();
         intendedRouteLayer.setVisible(true);
