@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<TSH_Route RtVersion="3" RtName="RT 3">
+  <WayPoints WPCount="11">
+    <WayPoint WPName="" LegType="0" Lat="3223.29948" Lon="37.97537" />
+    <WayPoint WPName="" LegType="0" Lat="3219.80580" Lon="22.10796" TurnRadius="0.300000" />
+    <WayPoint WPName="" LegType="0" Lat="3218.68665" Lon="21.37529" TurnRadius="0.300000" />
+    <WayPoint WPName="" LegType="0" Lat="3217.23482" Lon="20.24900" TurnRadius="0.300000" />
+    <WayPoint WPName="" LegType="0" Lat="3215.93935" Lon="18.38117" TurnRadius="0.300000" />
+    <WayPoint WPName="" LegType="0" Lat="3214.63796" Lon="16.59077" TurnRadius="0.300000" />
+    <WayPoint WPName="" LegType="0" Lat="3213.42068" Lon="14.34518" TurnRadius="0.300000" />
+    <WayPoint WPName="" LegType="0" Lat="3212.98514" Lon="10.59228" TurnRadius="0.300000" />
+    <WayPoint WPName="" LegType="0" Lat="3213.95780" Lon="6.84357" TurnRadius="0.300000" />
+    <WayPoint WPName="" LegType="0" Lat="3214.84508" Lon="3.57429" TurnRadius="0.300000" />
+    <WayPoint WPName="" LegType="0" Lat="3215.32044" Lon="1.67242" />
+  </WayPoints>
+
+  <Calculations CalcCount="1">
+    <Calculation CalcName="NTProCalc" CalcDone="0">
+      <WayPointExs>        
+        <WayPointEx ETA="0" ETD="0" Speed="6.900000" />
+        <WayPointEx ETA="1659960003" ETD="1659960003" Speed="6.900000" TotalTime="0.062626" />
+        <WayPointEx ETA="1659960651" ETD="1659960651" Speed="6.900000" TotalTime="0.070119" />
+        <WayPointEx ETA="1659961512" ETD="1659961512" Speed="6.900000" TotalTime="0.080089" />
+        <WayPointEx ETA="1659962431" ETD="1659962431" Speed="6.900000" TotalTime="0.090718" />
+        <WayPointEx ETA="1659963335" ETD="1659963335" Speed="6.900000" TotalTime="0.101190" />
+        <WayPointEx ETA="1659964307" ETD="1659964307" Speed="6.900000" TotalTime="0.112437" />
+        <WayPointEx ETA="1659965529" ETD="1659965529" Speed="6.900000" TotalTime="0.126583" />
+        <WayPointEx ETA="1659966837" ETD="1659966837" Speed="6.900000" TotalTime="0.141716" />
+        <WayPointEx ETA="1659967986" ETD="1659967986" Speed="6.900000" TotalTime="0.155013" />
+        <WayPointEx ETA="1659968645" ETD="1659968645" Speed="6.900000" TotalTime="0.162647" />
+      </WayPointExs>
+    </Calculation>
+  </Calculations>
+
+  <NTPro>
+<Comment>Ship:River-sea ship 9 (Dis.3787t)
+Creation Date:  2014-08-30 11:56
+Modification Date: 2014-08-30 11:56
+</Comment>
+    <Area Name="ACCSEAS_5_WilsonRouen" />
+    <Ship Type="River-sea ship 9 (Dis.3787t)" />
+    <CreateDate Date="41881.492720" />
+    <ModifDate Date="41881.497465" />
+  </NTPro>
+</TSH_Route>

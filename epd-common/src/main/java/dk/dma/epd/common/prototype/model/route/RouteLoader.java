@@ -56,11 +56,11 @@ public class RouteLoader {
         return route;
     }
 
-    @SuppressWarnings("resource")
     public static Route loadSimple(File file) throws RouteLoadException {
         Route route = new Route();
+        BufferedReader reader = null;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            reader = new BufferedReader(new FileReader(file));
             boolean firstLine = true;
             String line = null;
             String formatErrorMsg = "Unrecognized route format";
@@ -166,10 +166,16 @@ public class RouteLoader {
             }
             // Remove leg from last waypoint
             route.getWaypoints().getLast().setOutLeg(null);
-            reader.close();
         } catch (IOException e) {
             LOG.error("Failed to load route file: " + e.getMessage());
             throw new RouteLoadException("Error reading route file");
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                }
+            }
         }
 
         return route;
@@ -210,7 +216,7 @@ public class RouteLoader {
             RouteLeg lastLeg = null;
 
             // Iterate thorugh waypoints
-            for (int i = 1; i < waypoints.getLength(); i++) {
+            for (int i = 0; i < waypoints.getLength(); i++) {
                 // Get waypoint element
                 Element wpElem = (Element) waypoints.item(i);
 
@@ -223,6 +229,7 @@ public class RouteLoader {
                 if (lastLeg != null) {
                     lastLeg.setEndWp(wp);
                 }
+                lastLeg = outLeg;
 
                 // Set defaults
                 wp.setSpeed(navSettings.getDefaultSpeed());
@@ -243,10 +250,8 @@ public class RouteLoader {
                 if (lat == null || lon == null) {
                     throw new RouteLoadException("Missing latitude/longitude for WP " + wp.getName());
                 }
-                // TODO recalculation from unknown format
-                if (lat > 180 || lon > 90) {
-                    throw new RouteLoadException("RT3 position projection is unknown");
-                }
+                lat /= 60.0;
+                lon /= 60.0;
                 wp.setPos(Position.create(lat, lon));
 
                 // Turn rad
@@ -278,6 +283,33 @@ public class RouteLoader {
             }
 
             route.getWaypoints().getLast().setOutLeg(null);
+            
+            NodeList wpsExList = null;
+            NodeList calculationsList = doc.getElementsByTagName("Calculations");
+            if (calculationsList != null && calculationsList.getLength() >= 1) {
+                Element calculationsNode = (Element) calculationsList.item(0);
+                NodeList calculationList = calculationsNode.getElementsByTagName("Calculation");
+                if (calculationList != null) {
+                    for (int i = 0; i < calculationList.getLength(); i++) {
+                        Element calculationElem = (Element) calculationList.item(i);
+                        wpsExList = calculationElem.getElementsByTagName("WayPointEx");
+                    }
+                }
+            }
+
+            if (wpsExList != null && wpsExList.getLength() > 0) {
+                if (wpsExList.getLength() != route.getWaypoints().size()) {
+                    throw new RouteLoadException("Wrong number of WayPointEx entries: " + wpsExList.getLength());
+                }
+                for (int i = 0; i < wpsExList.getLength() - 1; i++) {
+                    Element wpExElem = (Element) wpsExList.item(i);
+                    // Get speed
+                    Double speed = ParseUtils.parseDouble(wpExElem.getAttribute("Speed"));
+                    if (speed != null && speed > 0) {
+                        route.getWaypoints().get(i).getOutLeg().setSpeed(speed);
+                    }
+                }
+            }            
 
         } catch (IOException e) {
             LOG.error("Failed to load RT3 route file: " + e.getMessage());
