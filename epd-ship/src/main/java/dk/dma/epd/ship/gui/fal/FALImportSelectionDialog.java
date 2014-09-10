@@ -202,7 +202,12 @@ public class FALImportSelectionDialog extends JDialog implements ActionListener,
     public void setVisible(boolean visible) {
         super.setVisible(visible);
 
-        setOpacity((float) 0.95);
+        try {
+            setOpacity((float) 0.95);
+        } catch (Exception E) {
+            System.out.println("Failed to set opacity, ignore");
+        }
+
     }
 
 }

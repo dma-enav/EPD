@@ -39,8 +39,8 @@ import com.bbn.openmap.gui.WindowSupport;
  * <p>
  * The funcitonality is copied more or less verbatim from {@linkplain ComponentFrame}.
  */
-public abstract class ComponentDialog extends JDialog 
-    implements PropertyConsumer, BeanContextChild, BeanContextMembershipListener, LightMapHandlerChild {
+public abstract class ComponentDialog extends JDialog implements PropertyConsumer, BeanContextChild, BeanContextMembershipListener,
+        LightMapHandlerChild {
 
     private static final long serialVersionUID = 1L;
 
@@ -54,13 +54,20 @@ public abstract class ComponentDialog extends JDialog
 
     /**
      * Constructor
+     * 
      * @param window
-     * @param title the title
+     * @param title
+     *            the title
      */
     protected ComponentDialog(Window window, String title, ModalityType type) {
         super(window, title, type);
-        
-        setOpacity((float) 0.95);
+
+        try {
+            setOpacity((float) 0.95);
+        } catch (Exception E) {
+            System.out.println("Failed to set opacity, ignore");
+        }
+
     }
 
     protected WindowSupport windowSupport;
@@ -186,5 +193,5 @@ public abstract class ComponentDialog extends JDialog
     public void setIsolated(boolean isolated) {
         this.isolated = isolated;
     }
-    
+
 }

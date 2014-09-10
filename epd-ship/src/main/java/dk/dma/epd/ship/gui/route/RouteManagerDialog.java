@@ -31,11 +31,13 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
 
     private static final long serialVersionUID = 1L;
 
-    private  RouteManagerPanel routePanel;
+    private RouteManagerPanel routePanel;
 
     /**
      * Constructor
-     * @param parent the parent frame
+     * 
+     * @param parent
+     *            the parent frame
      */
     public RouteManagerDialog(JFrame parent) {
         super(parent, "Route Manager", false);
@@ -48,15 +50,17 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
         routePanel = new RouteManagerPanel(this);
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(routePanel, BorderLayout.CENTER);
-        
+
         EPD.getInstance().getRouteManager().addListener(this);
-        
+
         getRootPane().setDefaultButton(routePanel.getCloseButton());
-    
-        setOpacity((float) 0.95);
 
+        try {
+            setOpacity((float) 0.95);
+        } catch (Exception E) {
+            System.out.println("Failed to set opacity, ignore");
+        }
 
-        
     }
 
     /**
@@ -66,41 +70,36 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
     public void routesChanged(RoutesUpdateEvent e) {
         routePanel.updateTable();
     }
-    
+
     @Override
-    public void setVisible(boolean visible){
+    public void setVisible(boolean visible) {
         super.setVisible(visible);
 
-        setOpacity((float) 0.95);
-        
-//        
-//        getRootPane ().setOpaque (false);
-//        
-//        getContentPane ().setBackground(new Color (48, 48, 48, 200));
-        
-        
-//        routePanel.getRootPane ().setOpaque (false);
-//        routePanel.setBackground(new Color (48, 48, 48, 200));
-    
-        
-    
-    }
-    
-    @Override
-    public void setLocation(int x, int y){
-        super.setLocation(x, y);
-//        this.repaint();
-//        getRootPane ().setOpaque (false);
-//        getContentPane ().setBackground(new Color (48, 48, 48, 200));
-        
-//        System.out.println("Set location yo");
+        try {
+            setOpacity((float) 0.95);
+        } catch (Exception E) {
+            System.out.println("Failed to set opacity, ignore");
+        }
 
-//
-//        if (routePanel != null){
-//            routePanel.getRootPane ().setOpaque (false);
-//            routePanel.setBackground(new Color (48, 48, 48, 200));
-//        }
-        
+
+
     }
-    
+
+    @Override
+    public void setLocation(int x, int y) {
+        super.setLocation(x, y);
+        // this.repaint();
+        // getRootPane ().setOpaque (false);
+        // getContentPane ().setBackground(new Color (48, 48, 48, 200));
+
+        // System.out.println("Set location yo");
+
+        //
+        // if (routePanel != null){
+        // routePanel.getRootPane ().setOpaque (false);
+        // routePanel.setBackground(new Color (48, 48, 48, 200));
+        // }
+
+    }
+
 }
