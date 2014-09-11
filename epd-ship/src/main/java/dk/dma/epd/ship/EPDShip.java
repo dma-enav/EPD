@@ -128,7 +128,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
     // Maritime Cloud services
     private IntendedRouteHandler intendedRouteHandler;
-    private String optionalTitle = "stuff";
+    private String optionalTitle = "";
 
     // private VoctHandler voctHandler;
 
