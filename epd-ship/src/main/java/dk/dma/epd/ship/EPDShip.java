@@ -128,6 +128,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
     // Maritime Cloud services
     private IntendedRouteHandler intendedRouteHandler;
+    private String optionalTitle = "stuff";
 
     // private VoctHandler voctHandler;
 
@@ -154,6 +155,12 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
         if (!StringUtils.isEmpty(path)) {
             homePath = Paths.get(path);
+
+            try {
+                optionalTitle = " - " + path.split("epd-ship")[1];
+            } catch (Exception e) {
+
+            }
         } else {
             homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-ship"));
         }
@@ -579,7 +586,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         JFrame.setDefaultLookAndFeelDecorated(false);
 
         // Create and set up the main window
-        mainFrame = new MainFrame();
+        mainFrame = new MainFrame(optionalTitle);
         mainFrame.setVisible(true);
 
         // Create the system tray

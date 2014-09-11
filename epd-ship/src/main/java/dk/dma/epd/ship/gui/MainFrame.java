@@ -59,7 +59,7 @@ import dk.dma.epd.ship.settings.EPDGuiSettings;
 public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     private static final long serialVersionUID = 1L;
-    
+
     private static final String TITLE = "EPD-ship " + VersionInfo.getVersion();
     protected static final int SENSOR_PANEL_WIDTH = 190;
 
@@ -93,8 +93,8 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     /**
      * Constructor
      */
-    public MainFrame() {
-        super(TITLE);
+    public MainFrame(String optionalTitle) {
+        super(TITLE+optionalTitle);
         initGUI();
     }
 
@@ -215,7 +215,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         // Init AIS dialog
         aisDialog = new AisDialog(this);
         mapHandler.add(aisDialog);
-        
+
         bottomStatusDialog = new BottomPanelStatusDialog();
 
         // Init Send Strategic Route dialog
@@ -256,7 +256,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     @Override
     public void saveSettings() {
         super.saveSettings();
-        
+
         // Save map settings
         chartPanel.saveSettings();
     }
@@ -283,63 +283,51 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         setupDialog.setVisible(true);
         return setupDialog;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public Action getAboutAction() {
         Action aboutEpdShip = new AbstractAction("About EPD-ship", new ImageIcon(EPD.getInstance().getAppIcon(16))) {
-            
+
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 final ImageIcon icon = new ImageIcon(EPD.getInstance().getAppIcon(45));
-                
+
                 final StringBuilder aboutText = new StringBuilder();
-                aboutText.append("The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\n");
+                aboutText
+                        .append("The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\n");
                 aboutText.append("The user manual is available from e-navigation.net\n\n");
                 aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
                 aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
                 aboutText.append("Build date: " + VersionInfo.getBuildDate() + "\n");
                 aboutText.append("Home path: " + EPD.getInstance().getHomePath());
-                
-                JOptionPane
-                .showMessageDialog(
-                        MainFrame.this,
-                        aboutText.toString(),
-                        "About the EPD-ship", JOptionPane.OK_OPTION, icon);
+
+                JOptionPane.showMessageDialog(MainFrame.this, aboutText.toString(), "About the EPD-ship", JOptionPane.OK_OPTION,
+                        icon);
             }
         };
         return aboutEpdShip;
     }
-    
+
     /**
      * Returns the list of dockable component panels
+     * 
      * @return the list of dockable component panels
      */
     public List<DockableComponentPanel> getDockableComponentPanels() {
-        return Arrays.asList(
-                (DockableComponentPanel)chartPanel,
-                scalePanel,
-                ownShipPanel,
-                gpsPanel,
-                cursorPanel,
-                activeWaypointPanel,
-                aisComponentPanel,
-                nogoPanel,
-                sarPanel,
-                msPntComponentPanel,
-                stccComponentPanel,
-                safeHavenPanel
-              );
+        return Arrays.asList((DockableComponentPanel) chartPanel, scalePanel, ownShipPanel, gpsPanel, cursorPanel,
+                activeWaypointPanel, aisComponentPanel, nogoPanel, sarPanel, msPntComponentPanel, stccComponentPanel,
+                safeHavenPanel);
     }
 
     /*******************************/
-    /** Getters and setters       **/
+    /** Getters and setters **/
     /*******************************/
-    
+
     public ChartPanel getChartPanel() {
         return chartPanel;
     }
@@ -351,11 +339,11 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     public BottomPanelStatusDialog getBottomPanelStatusDialog() {
         return this.bottomStatusDialog;
     }
-    
+
     public DockableComponents getDockableComponents() {
         return dockableComponents;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -367,5 +355,5 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     public SendStrategicRouteDialog getSendStrategicRouteDialog() {
         return sendStrategicRouteDialog;
     }
-    
+
 }

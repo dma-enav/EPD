@@ -358,45 +358,47 @@ public class ActiveRoute extends Route {
         boolean inWpCircle = false;
         double xtd = currentLeg.getMaxXtd() == null ? 0.0 : currentLeg.getMaxXtd();
         double radius = Math.max(xtd, wpCircleMin);
-        if (activeWpRng < radius) {
-            inWpCircle = true;
-        }
+        if (activeWpRng != null) {
 
-        // If heading for last wp and in circle, we finish route - hack for
-        // waiting 1 cycle to check if in circle
-        if (isLastWp()) {
-            if (lastWpCounter > 0) {
-                if (inWpCircle) {
-                    return ActiveWpSelectionResult.ROUTE_FINISHED;
+            if (activeWpRng < radius) {
+                inWpCircle = true;
+            }
+
+            // If heading for last wp and in circle, we finish route - hack for
+            // waiting 1 cycle to check if in circle
+            if (isLastWp()) {
+                if (lastWpCounter > 0) {
+                    if (inWpCircle) {
+                        return ActiveWpSelectionResult.ROUTE_FINISHED;
+                    } else {
+                        return ActiveWpSelectionResult.NO_CHANGE;
+                    }
                 } else {
-                    return ActiveWpSelectionResult.NO_CHANGE;
+                    lastWpCounter++;
                 }
-            } else {
-                lastWpCounter++;
+                return ActiveWpSelectionResult.NO_CHANGE;
             }
-            return ActiveWpSelectionResult.NO_CHANGE;
-        }
 
-        // Calculate distance from ship to next waypoint
-        RouteLeg nextLeg = getActiveWp().getOutLeg();
-        double nextWpRng = Calculator.range(currentPntData.getPosition(), nextLeg.getEndWp().getPos(), nextLeg.getHeading());
+            // Calculate distance from ship to next waypoint
+            RouteLeg nextLeg = getActiveWp().getOutLeg();
+            double nextWpRng = Calculator.range(currentPntData.getPosition(), nextLeg.getEndWp().getPos(), nextLeg.getHeading());
 
-        if (inWpCircle) {
-            // If closer to next wp than the dist between wp's, we change
-            if (nextWpRng < getWpRng(activeWaypointIndex)) {
-                changeActiveWaypoint(activeWaypointIndex + 1);
-                return ActiveWpSelectionResult.CHANGED;
-            }
-        } else {
-            // Some temporary fallback when we are really off course and not doing sar
-            if (!searchPattern && relaxedWpChange) {
-                if (2 * nextWpRng < getWpRng(activeWaypointIndex)) {
+            if (inWpCircle) {
+                // If closer to next wp than the dist between wp's, we change
+                if (nextWpRng < getWpRng(activeWaypointIndex)) {
                     changeActiveWaypoint(activeWaypointIndex + 1);
                     return ActiveWpSelectionResult.CHANGED;
                 }
+            } else {
+                // Some temporary fallback when we are really off course and not doing sar
+                if (!searchPattern && relaxedWpChange) {
+                    if (2 * nextWpRng < getWpRng(activeWaypointIndex)) {
+                        changeActiveWaypoint(activeWaypointIndex + 1);
+                        return ActiveWpSelectionResult.CHANGED;
+                    }
+                }
             }
         }
-
         return ActiveWpSelectionResult.NO_CHANGE;
     }
 

@@ -43,9 +43,9 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         ProjectionListener {
 
     private static final long serialVersionUID = 1L;
-    
+
     /** Refresh the intended route every 30 seconds **/
-    private static final int REPAINT_TIME = 30; 
+    private static final int REPAINT_TIME = 30;
 
     /**
      * Map from MMSI to intended route graphic.
@@ -127,10 +127,13 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
      */
     @Override
     public void intendedRouteEvent(IntendedRoute intendedRoute) {
-        if(intendedRoute == null) {
+        if (intendedRoute == null) {
+            
+            //Used when settings are changed - repaint
+            loadIntendedRoutes();
             return;
         }
-        
+
         // No route connected - remove it from graphics
         if (!intendedRoute.hasRoute()) {
             IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(intendedRoute.getMmsi());
@@ -302,11 +305,11 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
 
         // Reload all routes
         loadIntendedRoutes();
+//        intendedRouteHandler.fireIntendedEvent(null);
     }
 
     public boolean isUseFilter() {
         return useFilter;
     }
 
-    
 }

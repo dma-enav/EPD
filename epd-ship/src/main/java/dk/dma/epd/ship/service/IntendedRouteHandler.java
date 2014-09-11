@@ -445,6 +445,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
              * Fire dummy event such that any listening IntendedRouteTCPALayer will redraw TCPAs.
              */
             this.fireIntendedEvent(null);
+            
         }
     }
 
