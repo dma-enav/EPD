@@ -36,6 +36,7 @@ public class CloudSettings  implements Serializable {
     // Intended route settings
     private boolean broadcastIntendedRoute = true;
     private boolean showIntendedRoute = true;
+    private boolean intendedRouteFilterOn = true;
     private int timeBetweenBroadCast = 1;
     private int adaptionTime = 1;
 
@@ -61,6 +62,7 @@ public class CloudSettings  implements Serializable {
         this.timeBetweenBroadCast = PropUtils.intFromProperties(props, PREFIX + "timeBetweenBroadCast", this.timeBetweenBroadCast);
         this.adaptionTime = PropUtils.intFromProperties(props, PREFIX + "adaptionTime", this.adaptionTime);
         showIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "showIntendedRoute", showIntendedRoute);
+        intendedRouteFilterOn = PropUtils.booleanFromProperties(props, PREFIX + "intendedRouteFilterOn", intendedRouteFilterOn);
     }
     
     /**
@@ -81,6 +83,7 @@ public class CloudSettings  implements Serializable {
         props.put(PREFIX + "timeBetweenBroadCast", Integer.toString(this.timeBetweenBroadCast));
         props.put(PREFIX + "adaptionTime",Integer.toString(adaptionTime));
         props.put(PREFIX + "showIntendedRoute", Boolean.toString(showIntendedRoute));
+        props.put(PREFIX + "intendedRouteFilterOn", Boolean.toString(intendedRouteFilterOn));
     }
     
     /**
@@ -140,4 +143,13 @@ public class CloudSettings  implements Serializable {
     public void setAdaptionTime(int adaptionTime) {
         this.adaptionTime = adaptionTime;
     }
+    
+    public boolean isIntendedRouteFilterOn() {
+        return intendedRouteFilterOn;
+    }
+    
+    public void setIntendedRouteFilterOn(boolean intendedRouteFilterOn) {
+        this.intendedRouteFilterOn = intendedRouteFilterOn;
+    }
+    
 }

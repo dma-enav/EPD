@@ -30,6 +30,7 @@ import javax.swing.JSeparator;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.HistoryNavigationPanelInterface;
 import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.gui.GoBackButton;
@@ -220,6 +221,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         toggleDistanceCircleMode.setSelected(false);
 
         toggleIntendedRoute.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+        
+        toggleIntendedRouteFilter.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isIntendedRouteFilterOn());
 
         // toggle button according to value stored in settings
         toggleDynamicPredictorLayer.setSelected(EPDShip.getInstance().getSettings().getNavSettings().isDynamicPrediction());
@@ -399,12 +402,14 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
             }
 
         } else if (e.getSource() == toggleIntendedRoute) {
-            boolean visible = toggleIntendedRoute.isSelected();
+            boolean visible = toggleIntendedRoute.isSelected();            
             mainFrame.getChartPanel().intendedRouteLayerVisible(visible);
             menuBar.getIntendedRouteLayer().setSelected(visible);
+            EPD.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(visible);
 
         } else if (e.getSource() == toggleIntendedRouteFilter) {
             boolean visible = toggleIntendedRouteFilter.isSelected();
+            EPD.getInstance().getSettings().getCloudSettings().setIntendedRouteFilterOn(visible);
             intendedRouteLayer.toggleFilter(visible);
 
         } else if (e.getSource() == this.toggleDynamicPredictorLayer) {
