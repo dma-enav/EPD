@@ -38,7 +38,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
     private static final float SCALE = 0.6f; // "Size" of graphics
-    private static final int TTL = 600; // Time to live of graphics, i.e. 10 minutes
+    private static final int TTL = 600; // Time to live of graphics, i.e. 10
+                                        // minutes
 
     /**
      * Valid colors for intended routes
@@ -61,9 +62,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
 
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
     private List<WpCircle> routeWps = new ArrayList<>();
-    
+
     private PlannedPositionGraphic plannedPositionArea = new PlannedPositionGraphic();
-    
 
     /**
      * Constructor
@@ -76,18 +76,24 @@ public class IntendedRouteGraphic extends OMGraphicList {
     /**
      * Creates a new route leg line
      * 
-     * @param index the route leg index
-     * @param start the start position
-     * @param end the end position
-     * @param heading the heading of the leg
+     * @param index
+     *            the route leg index
+     * @param start
+     *            the start position
+     * @param end
+     *            the end position
+     * @param heading
+     *            the heading of the leg
      */
-    private void makeLegLine(int index, Position start, Position end, Heading heading) {
-        IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this, false, start, end, heading, routeColor, SCALE);
+    private void makeLegLine(int index, Position start, Position end,
+            Heading heading) {
+        IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this,
+                false, start, end, heading, routeColor, SCALE);
         leg.setArrows(arrowsVisible);
         routeLegs.add(leg);
         add(leg);
     }
-    
+
     /**
      * Creates a new route circle
      * 
@@ -99,14 +105,15 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private void makeWpCircle(int index, Position wp) {
 
         if (intendedRoute.getActiveWpIndex() == index) {
-            ActiveIntendedRouteWpCircle activeWpCircle = new ActiveIntendedRouteWpCircle(this, index, wp.getLatitude(),
-                    wp.getLongitude(), routeColor, SCALE);
+            ActiveIntendedRouteWpCircle activeWpCircle = new ActiveIntendedRouteWpCircle(
+                    this, index, wp.getLatitude(), wp.getLongitude(),
+                    routeColor, SCALE);
             add(activeWpCircle);
             routeWps.add(activeWpCircle);
         }
 
-        IntendedRouteWpCircle wpCircle = new IntendedRouteWpCircle(this, index, wp.getLatitude(), wp.getLongitude(), routeColor,
-                SCALE);
+        IntendedRouteWpCircle wpCircle = new IntendedRouteWpCircle(this, index,
+                wp.getLatitude(), wp.getLongitude(), routeColor, SCALE);
 
         routeWps.add(wpCircle);
         add(wpCircle);
@@ -153,20 +160,28 @@ public class IntendedRouteGraphic extends OMGraphicList {
      */
     public synchronized void updateVesselPosition(Position vesselPos) {
 
-        if ((vesselPos == null && this.vesselPos != null) || !vesselPos.equals(this.vesselPos)) {
+        if ((vesselPos == null && this.vesselPos != null)
+                || !vesselPos.equals(this.vesselPos)) {
             this.vesselPos = vesselPos;
             renderIntendedRoute();
+        }
+        if (!this.isVisible()) {
+            plannedPositionArea.setVisible(false);
+        } else {
+            plannedPositionArea.setVisible(true);
         }
     }
 
     /**
-     * Called when the graphics should be updated with the current intended route
+     * Called when the graphics should be updated with the current intended
+     * route
      */
     public synchronized void updateIntendedRoute() {
         updateIntendedRoute(intendedRoute);
-                
-        //Update planned position
-        plannedPositionArea.moveSymbol(intendedRoute.getPlannedPosition(), intendedRoute.getPlannedPositionBearing(), 1000, 500);
+
+        // Update planned position
+        plannedPositionArea.moveSymbol(intendedRoute.getPlannedPosition(),
+                intendedRoute.getPlannedPositionBearing(), 1000, 500);
     }
 
     /**
@@ -194,8 +209,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
         clear();
         routeLegs = new ArrayList<>();
         routeWps = new ArrayList<>();
-        
-        //Re-add planned position
+
+        // Re-add planned position
         add(plannedPositionArea);
 
         // Handle empty route
@@ -208,32 +223,37 @@ public class IntendedRouteGraphic extends OMGraphicList {
         for (RouteWaypoint wp : intendedRoute.getWaypoints()) {
             // Make way point circle
             makeWpCircle(x, wp.getPos());
-            
+
             // Make the leg
             RouteLeg leg = wp.getOutLeg();
             if (leg != null) {
-                makeLegLine(x + 1, leg.getStartWp().getPos(), leg.getEndWp().getPos(), leg.getHeading());
+                makeLegLine(x + 1, leg.getStartWp().getPos(), leg.getEndWp()
+                        .getPos(), leg.getHeading());
             }
-            
+
             x++;
         }
 
         // Update leg to first way point
         if (vesselPos != null) {
-            
+
             // Attempt to set the heading of this leg to that
             // of the in-leg of the active way point
             Heading heading = Heading.RL;
             if (intendedRoute.getActiveWaypoint().getInLeg() != null) {
-                heading = intendedRoute.getActiveWaypoint().getInLeg().getHeading();
+                heading = intendedRoute.getActiveWaypoint().getInLeg()
+                        .getHeading();
             }
             Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
-            activeWpLine = new IntendedRouteLegGraphic(0, this, true, vesselPos, activeWpPos, heading, routeColor, SCALE);            
+            activeWpLine = new IntendedRouteLegGraphic(0, this, true,
+                    vesselPos, activeWpPos, heading, routeColor, SCALE);
             add(activeWpLine);
         }
 
-        // Adjust the transparency of the color depending on the last-received time for the route
-        long secondsSinceReceived = (PntTime.getInstance().getDate().getTime() - intendedRoute.getReceived().getTime()) / 1000L;
+        // Adjust the transparency of the color depending on the last-received
+        // time for the route
+        long secondsSinceReceived = (PntTime.getInstance().getDate().getTime() - intendedRoute
+                .getReceived().getTime()) / 1000L;
 
         if (secondsSinceReceived < TTL) {
             float factor = 1.0f - (float) secondsSinceReceived / (float) TTL;
@@ -243,11 +263,12 @@ public class IntendedRouteGraphic extends OMGraphicList {
         } else {
             setVisible(false);
         }
-        
+
     }
 
     /**
-     * Adjusts the saturation and opacity of the color according to the parameters
+     * Adjusts the saturation and opacity of the color according to the
+     * parameters
      * 
      * @param col
      *            the color to adjust
@@ -258,7 +279,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
      * @return the result
      */
     private Color adjustColor(Color col, float saturation, float opacity) {
-        float[] hsb = Color.RGBtoHSB(col.getRed(), col.getGreen(), col.getBlue(), null);
+        float[] hsb = Color.RGBtoHSB(col.getRed(), col.getGreen(),
+                col.getBlue(), null);
         hsb[1] = (float) Math.max(Math.min(hsb[1] * saturation, 1.0), 0.0);
         col = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
         int alpha = (int) Math.max(Math.min(255.0 * opacity, 255.0), 0.0);
@@ -271,7 +293,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
     @Override
     public void render(Graphics g) {
         Graphics2D image = (Graphics2D) g;
-        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
     }
 

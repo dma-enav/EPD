@@ -14,12 +14,15 @@
  */
 package dk.dma.epd.common.prototype.notification;
 
+import org.joda.time.DateTime;
+
 /**
  * Class that can be used for general notifications
  */
 public class GeneralNotification extends Notification<Object, Object> {
-    
+
     private static final long serialVersionUID = 1L;
+    private DateTime optionalDateTimeOfAlertRelevance;
 
     /**
      * Designated constructor
@@ -31,7 +34,20 @@ public class GeneralNotification extends Notification<Object, Object> {
     public GeneralNotification(Object value, Object id, NotificationType type) {
         super(value, id, type);
     }
-    
+
+    /**
+     * Designated constructor
+     * 
+     * @param value
+     * @param id
+     * @param type
+     */
+    public GeneralNotification(Object value, Object id,
+            DateTime notificationRelevantTime) {
+        super(value, id, NotificationType.NOTIFICATION);
+        optionalDateTimeOfAlertRelevance = notificationRelevantTime;
+    }
+
     /**
      * Constructor
      * 
@@ -41,11 +57,19 @@ public class GeneralNotification extends Notification<Object, Object> {
     public GeneralNotification(Object value, Object id) {
         this(value, id, NotificationType.NOTIFICATION);
     }
-    
+
     /**
      * Constructor
      */
     public GeneralNotification() {
         this(null, System.currentTimeMillis(), NotificationType.NOTIFICATION);
     }
+
+    /**
+     * @return the optionalDateTimeOfAlertRelevance
+     */
+    public DateTime getOptionalDateTimeOfAlertRelevance() {
+        return optionalDateTimeOfAlertRelevance;
+    }
+
 }

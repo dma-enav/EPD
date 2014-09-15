@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.ImageIcon;
 
+import org.joda.time.DateTime;
+
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
@@ -28,7 +30,8 @@ import dk.dma.epd.common.text.Formatter;
 /**
  * A panel for general notifications
  */
-public class GeneralNotificationPanel extends NotificationPanel<GeneralNotification> {
+public class GeneralNotificationPanel extends
+        NotificationPanel<GeneralNotification> {
 
     private static final long serialVersionUID = 1L;
 
@@ -83,26 +86,48 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
 
                 switch (columnIndex) {
                 case 0:
-                    return !notification.isRead() ? ICON_UNREAD : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
+                    return !notification.isRead() ? ICON_UNREAD : (notification
+                            .isAcknowledged() ? ICON_ACKNOWLEDGED : null);
                 case 1:
                     return notification.getSeverity() == NotificationSeverity.ALERT ? ICON_ALERT
-                            : (notification.getSeverity() == NotificationSeverity.WARNING ? ICON_WARNING : null);
+                            : (notification.getSeverity() == NotificationSeverity.WARNING ? ICON_WARNING
+                                    : null);
                 case 2:
-                    return Formatter.formatShortDateTimeNoTz(notification.getDate());
+                    return Formatter.formatShortDateTimeNoTz(notification
+                            .getDate());
                 case 3:
                     return notification.getTitle();
                 case 4:
-                    long timeLeft = notification.getDate().getTime() - PntTime.getInstance().getDate().getTime();
 
-//                    System.out.println("Notification Date: "+ notification.getDate() + " In Mili: " +  notification.getDate().getTime());
-//                    System.out.println("Current Date: "+  PntTime.getInstance().getDate() + " In Mili: " +  PntTime.getInstance().getDate().getTime());
-                    
-                    String timeLeftStr = String.format(
-                            "%d min, %d sec",
-                            TimeUnit.MILLISECONDS.toMinutes(timeLeft),
-                            TimeUnit.MILLISECONDS.toSeconds(timeLeft) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeLeft)));
+                    if (notification instanceof GeneralNotification) {
+                        DateTime notificationTime = ((GeneralNotification) notification)
+                                .getOptionalDateTimeOfAlertRelevance();
 
-                    return timeLeftStr;
+                        long timeLeft = notificationTime.getMillis()
+                                - PntTime.getDate().getTime();
+
+                        timeLeft = Math.abs(timeLeft);
+
+                        String timeLeftStr = String
+                                .format("%d min, %d sec",
+                                        TimeUnit.MILLISECONDS
+                                                .toMinutes(timeLeft),
+                                        TimeUnit.MILLISECONDS
+                                                .toSeconds(timeLeft)
+                                                - TimeUnit.MINUTES
+                                                        .toSeconds(TimeUnit.MILLISECONDS
+                                                                .toMinutes(timeLeft)));
+
+                        return timeLeftStr;
+
+                        // DateTime currentTime = new DateTime(PntTime.getDate()
+                        // .getTime());
+                        // return org.joda.time.Minutes.minutesBetween(
+                        // currentTime, notificationTime) + " minutes";
+                    } else {
+                        return "Unknown";
+                    }
+
                 default:
                 }
                 return null;
@@ -132,7 +157,8 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
 /**
  * The detail panel for general notifications
  */
-class GeneralNotificationDetailPanel extends NotificationDetailPanel<GeneralNotification> {
+class GeneralNotificationDetailPanel extends
+        NotificationDetailPanel<GeneralNotification> {
 
     private static final long serialVersionUID = 1L;
 

@@ -48,18 +48,21 @@ import dk.dma.epd.ship.settings.handlers.IIntendedRouteHandlerSettingsObserver;
 /**
  * Ship specific intended route service implementation.
  * <p>
- * Listens for changes to the active route and broadcasts it. Also broadcasts the route periodically.
+ * Listens for changes to the active route and broadcasts it. Also broadcasts
+ * the route periodically.
  * <p>
  * Improvements:
  * <ul>
  * <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
  * </ul>
  */
-public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable,
-        IIntendedRouteHandlerSettingsObserver {
+public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements
+        IRoutesUpdateListener, Runnable, IIntendedRouteHandlerSettingsObserver {
 
-    private static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandler.class);
-    private static long BROADCAST_TIME = 60; // Broadcast intended route every minute for now
+    private static final Logger LOG = LoggerFactory
+            .getLogger(IntendedRouteHandler.class);
+    private static long BROADCAST_TIME = 60; // Broadcast intended route every
+                                             // minute for now
     private static long ADAPTIVE_TIME = 60 * 10; // Set to 10 minutes?
     private static final int BROADCAST_RADIUS = Integer.MAX_VALUE;
 
@@ -103,7 +106,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
      */
     @Override
     public synchronized void shutdown() {
-        // Before shutting down, attempt to broadcast a no-intended route message
+        // Before shutting down, attempt to broadcast a no-intended route
+        // message
         // so that other clients will remove the intended route of this ship
         broadcastIntendedRoute(null, false);
 
@@ -130,9 +134,11 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
                     // Here we handle the periodical broadcasts
                     DateTime calculatedTimeOfLastSend = new DateTime();
-                    calculatedTimeOfLastSend = calculatedTimeOfLastSend.minus(BROADCAST_TIME * 1000L);
+                    calculatedTimeOfLastSend = calculatedTimeOfLastSend
+                            .minus(BROADCAST_TIME * 1000L);
 
-                    // Do we need to rebroadcast based on the broadcast time setting
+                    // Do we need to rebroadcast based on the broadcast time
+                    // setting
                     if (calculatedTimeOfLastSend.isAfter(lastSend)) {
                         LOG.debug("Periodically rebroadcasting");
                         broadcastIntendedRoute();
@@ -140,28 +146,40 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                     } else if (lastTransmitActiveWp != null) {
 
                         // We check for the adaptive route broadcast here
-                        // We need to compare lastTransmitActiveWp which is the last stored
+                        // We need to compare lastTransmitActiveWp which is the
+                        // last stored
                         // ETA of the waypoint we sent to the current one
-                        DateTime currentActiveWaypointETA = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());
+                        DateTime currentActiveWaypointETA = new DateTime(
+                                routeManager.getActiveRoute()
+                                        .getActiveWaypointEta());
 
-                        // LOG.debug("The ETA at last transmission was : " + lastTransmitActiveWp);
-                        // LOG.debug("It is now                        : " + currentActiveWaypointETA);
+                        // LOG.debug("The ETA at last transmission was : " +
+                        // lastTransmitActiveWp);
+                        // LOG.debug("It is now                        : " +
+                        // currentActiveWaypointETA);
 
                         // //It can either be before or after
                         //
-                        if (currentActiveWaypointETA.isAfter(lastTransmitActiveWp)
-                                || currentActiveWaypointETA.isBefore(lastTransmitActiveWp)) {
+                        if (currentActiveWaypointETA
+                                .isAfter(lastTransmitActiveWp)
+                                || currentActiveWaypointETA
+                                        .isBefore(lastTransmitActiveWp)) {
 
                             long etaTimeChange;
 
                             // Is it before?
-                            if (currentActiveWaypointETA.isAfter(lastTransmitActiveWp)) {
+                            if (currentActiveWaypointETA
+                                    .isAfter(lastTransmitActiveWp)) {
 
-                                etaTimeChange = currentActiveWaypointETA.minus(lastTransmitActiveWp.getMillis()).getMillis();
+                                etaTimeChange = currentActiveWaypointETA.minus(
+                                        lastTransmitActiveWp.getMillis())
+                                        .getMillis();
 
                                 // Must be after
                             } else {
-                                etaTimeChange = currentActiveWaypointETA.plus(lastTransmitActiveWp.getMillis()).getMillis();
+                                etaTimeChange = currentActiveWaypointETA.plus(
+                                        lastTransmitActiveWp.getMillis())
+                                        .getMillis();
                             }
 
                             if (etaTimeChange > ADAPTIVE_TIME * 1000L) {
@@ -170,7 +188,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                                 lastSend = new DateTime();
                             }
 
-                            // LOG.debug("ETA has changed with " + etaTimeChange + " mili seconds" );
+                            // LOG.debug("ETA has changed with " + etaTimeChange
+                            // + " mili seconds" );
 
                         }
 
@@ -202,7 +221,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
      */
     public void broadcastIntendedRoute(ActiveRoute activeRoute, boolean async) {
         // Sanity check
-        if (!running || routeManager == null || getMaritimeCloudConnection() == null) {
+        if (!running || routeManager == null
+                || getMaritimeCloudConnection() == null) {
             return;
         }
 
@@ -210,10 +230,12 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         final IntendedRouteBroadcast message = new IntendedRouteBroadcast();
 
         if (activeRoute != null) {
-            PartialRouteFilter filter = EPDShip.getInstance().getSettings().getCloudSettings().getIntendedRouteFilter();
+            PartialRouteFilter filter = EPDShip.getInstance().getSettings()
+                    .getCloudSettings().getIntendedRouteFilter();
             activeRoute.getPartialRouteData(filter, message);
 
-            lastTransmitActiveWp = new DateTime(activeRoute.getActiveWaypointEta());
+            lastTransmitActiveWp = new DateTime(
+                    activeRoute.getActiveWaypointEta());
 
         } else {
             message.setRoute(new IntendedRouteMessage());
@@ -244,8 +266,10 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         if (e != null) {
-            if (e.is(RoutesUpdateEvent.ACTIVE_ROUTE_UPDATE, RoutesUpdateEvent.ACTIVE_ROUTE_FINISHED,
-                    RoutesUpdateEvent.ROUTE_ACTIVATED, RoutesUpdateEvent.ROUTE_DEACTIVATED)) {
+            if (e.is(RoutesUpdateEvent.ACTIVE_ROUTE_UPDATE,
+                    RoutesUpdateEvent.ACTIVE_ROUTE_FINISHED,
+                    RoutesUpdateEvent.ROUTE_ACTIVATED,
+                    RoutesUpdateEvent.ROUTE_DEACTIVATED)) {
 
                 lastSend = new DateTime();
                 broadcastIntendedRoute();
@@ -291,15 +315,27 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
      * {@inheritDoc}
      */
     @Override
-    protected String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute) {
+    protected String formatNotificationDescription(
+            FilteredIntendedRoute filteredIntendedRoute) {
 
-        Long otherMmsi = (filteredIntendedRoute.getMmsi1().equals(getOwnShipMmsi())) ? filteredIntendedRoute.getMmsi2()
+        Long otherMmsi = (filteredIntendedRoute.getMmsi1()
+                .equals(getOwnShipMmsi())) ? filteredIntendedRoute.getMmsi2()
                 : filteredIntendedRoute.getMmsi1();
 
-        IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
-        return String.format("Your active route comes within %s of MMSI %d at %s.",
-                Formatter.formatDistNM(Converter.metersToNm(msg.getDistance())), otherMmsi,
-                Formatter.formatYodaTime(msg.getTime1()));
+        IntendedRouteFilterMessage msg = filteredIntendedRoute
+                .getMinimumDistanceMessage();
+
+        String actor = "MMSI " + otherMmsi;
+        if (EPDShip.getInstance().getIdentityHandler().getActor(otherMmsi) != null) {
+            actor = EPDShip.getInstance().getIdentityHandler()
+                    .getActor(otherMmsi).getName();
+        }
+
+        return String
+                .format("Your active route comes within %s of vessel %s at %s.",
+                        Formatter.formatDistNM(Converter.metersToNm(msg
+                                .getDistance())), actor, Formatter
+                                .formatYodaTime(msg.getTime1()));
     }
 
     /**
@@ -343,13 +379,15 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             // The route we're comparing against
             ActiveRoute activeRoute = routeManager.getActiveRoute();
 
-            Iterator<Entry<Long, IntendedRoute>> it = intendedRoutes.entrySet().iterator();
+            Iterator<Entry<Long, IntendedRoute>> it = intendedRoutes.entrySet()
+                    .iterator();
             while (it.hasNext()) {
                 Entry<Long, IntendedRoute> intendedRoute = it.next();
 
                 IntendedRoute recievedRoute = intendedRoute.getValue();
 
-                FilteredIntendedRoute filter = findTCPA(activeRoute, recievedRoute);
+                FilteredIntendedRoute filter = findTCPA(activeRoute,
+                        recievedRoute);
                 // Try other way around
                 if (!filter.include()) {
                     filter = findTCPA(recievedRoute, activeRoute);
@@ -371,7 +409,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         }
 
         // Check if we need to raise any alerts
-        checkGenerateNotifications(this.filteredIntendedRoutes, filteredIntendedRoutes);
+        checkGenerateNotifications(this.filteredIntendedRoutes,
+                filteredIntendedRoutes);
 
         // Override the old set of filtered intended route
         this.filteredIntendedRoutes = filteredIntendedRoutes;
@@ -388,7 +427,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
         if (routeManager.getActiveRoute() != null) {
 
-            FilteredIntendedRoute filter = findTCPA(routeManager.getActiveRoute(), route);
+            FilteredIntendedRoute filter = findTCPA(
+                    routeManager.getActiveRoute(), route);
             // Try other way around
             if (!filter.include()) {
                 filter = findTCPA(route, routeManager.getActiveRoute());
@@ -432,8 +472,9 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     }
 
     /**
-     * Updates settings by invoking super implementation. Additionally calls {@link #updateFilter()} to refresh the filter according
-     * to the updated settings.
+     * Updates settings by invoking super implementation. Additionally calls
+     * {@link #updateFilter()} to refresh the filter according to the updated
+     * settings.
      */
     @Override
     public void updateSettings(EnavSettings settings) {
@@ -442,10 +483,11 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             // Reapply filter with updated settings.
             this.updateFilter();
             /*
-             * Fire dummy event such that any listening IntendedRouteTCPALayer will redraw TCPAs.
+             * Fire dummy event such that any listening IntendedRouteTCPALayer
+             * will redraw TCPAs.
              */
             this.fireIntendedEvent(null);
-            
+
         }
     }
 

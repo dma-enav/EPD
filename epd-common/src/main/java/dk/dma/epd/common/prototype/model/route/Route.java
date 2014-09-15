@@ -796,7 +796,7 @@ public class Route implements Serializable {
             // TODO: Add new waypoint between two waypoints
         }
 
-        if (position != null) {
+        if (position != null && wp != null) {
 
             wp.setPos(position);
 

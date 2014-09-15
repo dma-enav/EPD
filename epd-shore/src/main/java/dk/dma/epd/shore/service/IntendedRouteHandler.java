@@ -25,6 +25,7 @@ import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
+import dk.dma.epd.shore.EPDShore;
 
 /**
  * Shore specific intended route service implementation.
@@ -46,15 +47,33 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
      * {@inheritDoc}
      */
     @Override
-    protected String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute) {
-        IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
-        return String.format("The routes of MMSI %d and %d come within %s of each other at %s.", 
-                filteredIntendedRoute.getMmsi1(),
-                filteredIntendedRoute.getMmsi2(),
-                Formatter.formatDistNM(Converter.metersToNm(msg.getDistance())),
-                Formatter.formatYodaTime(msg.getTime1()));
+    protected String formatNotificationDescription(
+            FilteredIntendedRoute filteredIntendedRoute) {
+        IntendedRouteFilterMessage msg = filteredIntendedRoute
+                .getMinimumDistanceMessage();
+
+        String actor1 = "MMSI: " + filteredIntendedRoute.getMmsi1();
+        String actor2 = "MMSI: " + filteredIntendedRoute.getMmsi2();
+
+        if (EPDShore.getInstance().getIdentityHandler()
+                .getActor(filteredIntendedRoute.getMmsi1()) != null) {
+            actor1 = EPDShore.getInstance().getIdentityHandler()
+                    .getActor(filteredIntendedRoute.getMmsi1()).getName();
+        }
+
+        if (EPDShore.getInstance().getIdentityHandler()
+                .getActor(filteredIntendedRoute.getMmsi2()) != null) {
+            actor2 = EPDShore.getInstance().getIdentityHandler()
+                    .getActor(filteredIntendedRoute.getMmsi1()).getName();
+        }
+
+        return String
+                .format("The routes of vessels %s and %s come within %s of each other at %s.",
+                        actor1, actor2, Formatter.formatDistNM(Converter
+                                .metersToNm(msg.getDistance())), Formatter
+                                .formatYodaTime(msg.getTime1()));
     }
-    
+
     /**
      * Update all filters
      */
@@ -68,15 +87,18 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
 
         // Compare all intended routes against all other intended routes
 
-        Iterator<Entry<Long, IntendedRoute>> outerIterator = intendedRoutes.entrySet().iterator();
+        Iterator<Entry<Long, IntendedRoute>> outerIterator = intendedRoutes
+                .entrySet().iterator();
         while (outerIterator.hasNext()) {
             Entry<Long, IntendedRoute> intendedRoute = outerIterator.next();
 
             IntendedRoute route1 = intendedRoute.getValue();
 
-            Iterator<Entry<Long, IntendedRoute>> innerIterator = intendedRoutes.entrySet().iterator();
+            Iterator<Entry<Long, IntendedRoute>> innerIterator = intendedRoutes
+                    .entrySet().iterator();
             while (innerIterator.hasNext()) {
-                Entry<Long, IntendedRoute> intendedRoute2 = innerIterator.next();
+                Entry<Long, IntendedRoute> intendedRoute2 = innerIterator
+                        .next();
 
                 IntendedRoute route2 = intendedRoute2.getValue();
 
@@ -94,7 +116,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
         }
 
         // Check if we need to raise any alerts
-        checkGenerateNotifications(this.filteredIntendedRoutes, filteredIntendedRoutes);
+        checkGenerateNotifications(this.filteredIntendedRoutes,
+                filteredIntendedRoutes);
 
         // Override the old set of filtered intended route
         this.filteredIntendedRoutes = filteredIntendedRoutes;
@@ -109,14 +132,15 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
     protected void applyFilter(IntendedRoute route) {
         updateFilter();
     }
-    
+
     @Override
     public void updateSettings(EnavSettings settings) {
         super.updateSettings(settings);
         // re apply filter with new values
         this.updateFilter();
         /*
-         * Fire dummy event such that any listening IntendedRouteTCPALayer will redraw TCPAs.
+         * Fire dummy event such that any listening IntendedRouteTCPALayer will
+         * redraw TCPAs.
          */
         this.fireIntendedEvent(null);
     }

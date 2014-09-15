@@ -31,9 +31,13 @@ public class IntendedRouteFilterMessage {
     int legEndIndex;
     DateTime time1;
     DateTime time2;
-    boolean notificationOnly;
-
-    public IntendedRouteFilterMessage(Route route1, Route route2, Position position1, Position position2, String message, int legStartIndex, int legEndIndex, boolean notificationOnly) {
+    IntendedRouteFilterType filterType;
+    
+    public enum IntendedRouteFilterType {
+        ALERT, FILTERONLY, ENC, ALERTANDENC
+    }
+    
+    public IntendedRouteFilterMessage(Route route1, Route route2, Position position1, Position position2, String message, int legStartIndex, int legEndIndex, IntendedRouteFilterType filterType) {
         this.route1 = route1;
         this.route2 = route2;
         this.legStartIndex = legStartIndex;
@@ -41,7 +45,7 @@ public class IntendedRouteFilterMessage {
         this.position1 = position1;
         this.position2 = position2;
         this.message = message;
-        this.notificationOnly = notificationOnly;
+        this.filterType = filterType;
     }
 
     public String getMessage() {
@@ -106,24 +110,28 @@ public class IntendedRouteFilterMessage {
         return getPosition1().distanceTo(getPosition2(), CoordinateSystem.CARTESIAN);
     }
 
-    /**
-     * @return the notificationOnly
-     */
-    public boolean isNotificationOnly() {
-        return notificationOnly;
-    }
+
 
     public boolean routesVisible() {
         return route1.isVisible() && route2.isVisible();
     }
 
     /**
-     * @param notificationOnly the notificationOnly to set
+     * @return the filterType
      */
-    public void setNotificationOnly(boolean notificationOnly) {
-        this.notificationOnly = notificationOnly;
+    public IntendedRouteFilterType getFilterType() {
+        return filterType;
     }
 
+    /**
+     * @param filterType the filterType to set
+     */
+    public void setFilterType(IntendedRouteFilterType filterType) {
+        this.filterType = filterType;
+    }
+
+
+    
     
     
     

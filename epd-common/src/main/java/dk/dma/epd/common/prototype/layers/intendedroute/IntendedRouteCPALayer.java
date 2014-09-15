@@ -26,6 +26,7 @@ import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
+import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage.IntendedRouteFilterType;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -36,8 +37,8 @@ import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
  */
-public class IntendedRouteCPALayer extends EPDLayerCommon implements IIntendedRouteListener, ProjectionListener,
-        IRoutesUpdateListener {
+public class IntendedRouteCPALayer extends EPDLayerCommon implements
+        IIntendedRouteListener, ProjectionListener, IRoutesUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -60,7 +61,8 @@ public class IntendedRouteCPALayer extends EPDLayerCommon implements IIntendedRo
         registerInfoPanel(tcpaInfoPanel, IntendedRouteCPAGraphic.class);
 
         // Register the classes the will trigger the map menu
-        // registerMapMenuClasses(IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
+        // registerMapMenuClasses(IntendedRouteWpCircle.class,
+        // IntendedRouteLegGraphic.class);
 
         // Starts the repaint timer, which runs every minute
         // The initial delay is 100ms and is used to batch up repaints()
@@ -80,13 +82,20 @@ public class IntendedRouteCPALayer extends EPDLayerCommon implements IIntendedRo
         synchronized (graphics) {
             graphics.clear();
 
-            for (FilteredIntendedRoute filteredIntendedRoute : intendedRouteHandler.getFilteredIntendedRoutes().values()) {
-                IntendedRouteFilterMessage minDistMessage = filteredIntendedRoute.getMinimumDistanceMessage();
-                boolean acknowledged = filteredIntendedRoute.isNotificationAcknowledged();
-                for (IntendedRouteFilterMessage message : filteredIntendedRoute.getFilterMessages()) {
+            for (FilteredIntendedRoute filteredIntendedRoute : intendedRouteHandler
+                    .getFilteredIntendedRoutes().values()) {
+                IntendedRouteFilterMessage minDistMessage = filteredIntendedRoute
+                        .getMinimumDistanceMessage();
+                boolean acknowledged = filteredIntendedRoute
+                        .isNotificationAcknowledged();
+                for (IntendedRouteFilterMessage message : filteredIntendedRoute
+                        .getFilterMessages()) {
 
-                    if (!message.isNotificationOnly() && message.routesVisible()) {
-                        graphics.add(new IntendedRouteCPAGraphic(message, message == minDistMessage, acknowledged));
+                    if ((message.getFilterType() == IntendedRouteFilterType.ALERTANDENC || message
+                            .getFilterType() == IntendedRouteFilterType.ENC)
+                            && message.routesVisible()) {
+                        graphics.add(new IntendedRouteCPAGraphic(message,
+                                message == minDistMessage, acknowledged));
                     }
 
                 }
@@ -135,7 +144,8 @@ public class IntendedRouteCPALayer extends EPDLayerCommon implements IIntendedRo
      * {@inheritDoc}
      */
     @Override
-    protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
+    protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest,
+            MouseEvent evt, Point containerPoint) {
         if (newClosest instanceof IntendedRouteCPAGraphic) {
 
             IntendedRouteCPAGraphic cpaGraphics = (IntendedRouteCPAGraphic) newClosest;
