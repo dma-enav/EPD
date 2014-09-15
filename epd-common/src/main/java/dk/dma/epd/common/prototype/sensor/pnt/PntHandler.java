@@ -36,7 +36,7 @@ import dk.dma.epd.common.util.Util;
 @ThreadSafe
 public class PntHandler extends MapHandlerChild implements IPntSensorListener, IStatusComponent, Runnable {
 
-    private static final long PNT_TIMEOUT = 60 * 1000; // 1 min
+    private static final long PNT_TIMEOUT = 30 * 1000; // 30 secs
     private CopyOnWriteArrayList<IPntDataListener> listeners = new CopyOnWriteArrayList<>();
     @GuardedBy("this")
     private PntData currentData = new PntData();
