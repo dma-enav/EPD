@@ -171,6 +171,8 @@ public class SensorSettings implements Serializable {
 
     private int replaySpeedup = 1;
     private Date replayStartDate;
+    
+    private boolean useTimeFromPnt = true;
 
     /**
      * Constructor
@@ -229,6 +231,7 @@ public class SensorSettings implements Serializable {
             }
         }
         pntSource = PntSourceSetting.parseString(props.getProperty(PREFIX + "pntSource", pntSource.name()));
+        useTimeFromPnt = PropUtils.booleanFromProperties(props, PREFIX + "useTimeFromPnt", useTimeFromPnt);
     }
 
     /**
@@ -271,6 +274,7 @@ public class SensorSettings implements Serializable {
         }
         props.put(PREFIX + "replayStartDate", replayStartStr);
         props.put(PREFIX + "pntSource", pntSource.name());
+        props.put(PREFIX + "useTimeFromPnt", Boolean.toString(useTimeFromPnt));
     }
 
     /**
@@ -502,6 +506,14 @@ public class SensorSettings implements Serializable {
     
     public void setStartPredictionGenerator(boolean startPredictionGenerator) {
         this.startPredictionGenerator = startPredictionGenerator;
+    }
+    
+    public boolean isUseTimeFromPnt() {
+        return useTimeFromPnt;
+    }
+    
+    public void setUseTimeFromPnt(boolean useTimeFromPnt) {
+        this.useTimeFromPnt = useTimeFromPnt;
     }
 
 }

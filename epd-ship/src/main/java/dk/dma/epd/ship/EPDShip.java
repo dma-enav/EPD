@@ -200,7 +200,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         startRiskHandler();
 
         // Enable PNT timer by adding it to bean context
-        PntTime.init();
+        PntTime.init(settings.getSensorSettings().isUseTimeFromPnt());
         mapHandler.add(PntTime.getInstance());
 
         // Start position handler and add to bean context

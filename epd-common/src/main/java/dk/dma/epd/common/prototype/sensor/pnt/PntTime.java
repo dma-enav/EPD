@@ -33,19 +33,24 @@ import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 public final class PntTime extends MapHandlerChild implements IPntSensorListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(PntTime.class);
-
+    
     private volatile long offset;
     private static PntTime instance;
+    private final boolean useTimeFromPnt;
 
-    private PntTime() {
+    private PntTime(boolean useTimeFromPnt) {
+        this.useTimeFromPnt = useTimeFromPnt;
 
     }
 
     /**
-     * Receive GNSS time update
+     * Receive PNT time update
      */
     @Override
     public void receive(PntMessage pntMessage) {
+        if (!useTimeFromPnt) {
+            return;
+        }
         if (pntMessage == null || pntMessage.getTime() == null) {
             return;
         }
@@ -62,12 +67,16 @@ public final class PntTime extends MapHandlerChild implements IPntSensorListener
         return new Date(new Date().getTime() - offset);
     }
 
-    public static void init() {
+    public static void init(boolean useTimeFromPnt) {
         synchronized (PntTime.class) {
             if (instance == null) {
-                instance = new PntTime();
+                instance = new PntTime(useTimeFromPnt);
             }
         }
+    }
+    
+    public static void init() {
+        init(true);
     }
 
     public static PntTime getInstance() {

@@ -175,7 +175,7 @@ public final class EPDShore extends EPD {
         }
 
         // Enable GPS timer by adding it to bean context
-        PntTime.init();
+        PntTime.init(settings.getSensorSettings().isUseTimeFromPnt());
         beanHandler.add(PntTime.getInstance());
 
         // aisHandler = new AisHandlerCommon();
