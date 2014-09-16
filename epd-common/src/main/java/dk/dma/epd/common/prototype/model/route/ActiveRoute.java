@@ -623,10 +623,12 @@ public class ActiveRoute extends Route {
         // Pre-compute the start and end ETA's for the partial route
         Date startDate = null, endDate = null;
         if (filter.getType() == FilterType.MINUTES) {
-            startDate = new Date(getActiveWaypointEta().getTime()
-                    - filter.getBackward() * 1000L * 60L);
-            endDate = new Date(getActiveWaypointEta().getTime()
-                    + filter.getForward() * 1000L * 60L);
+            Date activeWpEta = getActiveWaypointEta();
+            if (activeWpEta == null) {
+                return broadcast;
+            }
+            startDate = new Date(activeWpEta.getTime() - filter.getBackward() * 1000L * 60L);
+            endDate = new Date(activeWpEta.getTime() + filter.getForward() * 1000L * 60L);
         }
 
         // Pre-compute the ranges to the active way point measured along the
