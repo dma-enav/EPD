@@ -60,9 +60,6 @@ public class RouteManager extends RouteManagerCommon implements
 
     private volatile PntHandler pntHandler;
 
-    // Used in startup when reactivating a previously active route
-    private int tempActiveRouteIndex = -1;
-
     @GuardedBy("routeSuggestions")
     private List<RouteSuggestionData> routeSuggestions = new LinkedList<>();
 
@@ -225,7 +222,7 @@ public class RouteManager extends RouteManagerCommon implements
             manager.activeRoute = routeStore.getActiveRoute();
             manager.activeRouteIndex = routeStore.getActiveRouteIndex();
 
-            manager.setTempActiveRouteIndex(routeStore.getActiveRouteIndex());
+            // manager.setTempActiveRouteIndex(routeStore.getActiveRouteIndex());
             // activeRouteIndex = routeStore.getActiveRouteIndex();
 
             if (routeStore.getActiveRouteIndex() > -1) {
@@ -270,13 +267,13 @@ public class RouteManager extends RouteManagerCommon implements
 
             // Found pnt handler, will activate route now to find best WP match
             // of current position
-            if (tempActiveRouteIndex > -1) {
+//            if (tempActiveRouteIndex > -1) {
 
-                activateRoute(tempActiveRouteIndex);
+//                activateRoute(tempActiveRouteIndex);
 
             }
         }
-    }
+//    }
 
     /**
      * {@inheritDoc}
@@ -300,12 +297,5 @@ public class RouteManager extends RouteManagerCommon implements
 
     }
 
-    /**
-     * @param tempActiveRouteIndex
-     *            the tempActiveRouteIndex to set
-     */
-    public void setTempActiveRouteIndex(int tempActiveRouteIndex) {
-        this.tempActiveRouteIndex = tempActiveRouteIndex;
-    }
 
 }

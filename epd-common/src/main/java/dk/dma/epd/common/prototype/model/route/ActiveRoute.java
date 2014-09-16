@@ -73,7 +73,8 @@ public class ActiveRoute extends Route {
      */
     protected Long speedActiveWpTtg;
     /**
-     * A special TTG that cannot be null Assumes that intended speed will be reached soon
+     * A special TTG that cannot be null Assumes that intended speed will be
+     * reached soon
      */
     protected Long plannedActiveWpTtg;
     /**
@@ -152,8 +153,9 @@ public class ActiveRoute extends Route {
     }
 
     /**
-     * Get's the most optimal route choice Wwe take bearing and distance into account and select the best match. It will never
-     * select a waypoint behind itself.
+     * Get's the most optimal route choice Wwe take bearing and distance into
+     * account and select the best match. It will never select a waypoint behind
+     * itself.
      */
     private int getBestWaypoint(Route route, PntData pntData) {
 
@@ -166,7 +168,8 @@ public class ActiveRoute extends Route {
         for (int i = 0; i <= route.getWaypoints().size() - 1; i++) {
             Position wpPos = route.getWaypoints().get(i).getPos();
             double distance = pntData.getPosition().rhumbLineDistanceTo(wpPos);
-            double angle = Math.abs(pntData.getCog() - pntData.getPosition().rhumbLineBearingTo(wpPos));
+            double angle = Math.abs(pntData.getCog()
+                    - pntData.getPosition().rhumbLineBearingTo(wpPos));
             if (angle >= 90) {
                 continue;
             }
@@ -192,7 +195,8 @@ public class ActiveRoute extends Route {
     }
 
     /**
-     * Computes the bearing of the route leg using its start and end position and its heading
+     * Computes the bearing of the route leg using its start and end position
+     * and its heading
      * 
      * @param leg
      *            the leg to compute the bearing for
@@ -203,7 +207,8 @@ public class ActiveRoute extends Route {
         if (leg == null || leg.getStartWp() == null || leg.getEndWp() == null) {
             return 0.0;
         }
-        return Calculator.bearing(leg.getStartWp().getPos(), leg.getEndWp().getPos(), leg.getHeading());
+        return Calculator.bearing(leg.getStartWp().getPos(), leg.getEndWp()
+                .getPos(), leg.getHeading());
     }
 
     public synchronized Position getSafeHavenLocation() {
@@ -217,7 +222,8 @@ public class ActiveRoute extends Route {
             RouteWaypoint wp = originalRoute.getWaypoints().get(0);
             safeHavenBearing = computeBearing(wp.getOutLeg());
             safeHavenLength = wp.getOutLeg().getSFLen();
-            safeHavenWidth = wp.getOutLeg().getXtdPortMeters() + wp.getOutLeg().getXtdStarboardMeters();
+            safeHavenWidth = wp.getOutLeg().getXtdPortMeters()
+                    + wp.getOutLeg().getXtdStarboardMeters();
             safeHavenSpeed = 0;
             safeHavenLocation = wp.getPos();
 
@@ -229,38 +235,64 @@ public class ActiveRoute extends Route {
                 // We haven't found the match so we must be at the end of the
                 // route
                 if (i == originalRoute.getWaypoints().size() - 1) {
-                    safeHavenBearing = computeBearing(originalRoute.getWaypoints().getLast().getInLeg());
-                    safeHavenLength = getWaypoints().get(i - 1).getOutLeg().getSFLen();
-                    safeHavenWidth = getWaypoints().get(i - 1).getOutLeg().getXtdPortMeters()
-                            + getWaypoints().get(i - 1).getOutLeg().getXtdStarboardMeters();
+                    safeHavenBearing = computeBearing(originalRoute
+                            .getWaypoints().getLast().getInLeg());
+                    safeHavenLength = getWaypoints().get(i - 1).getOutLeg()
+                            .getSFLen();
+                    safeHavenWidth = getWaypoints().get(i - 1).getOutLeg()
+                            .getXtdPortMeters()
+                            + getWaypoints().get(i - 1).getOutLeg()
+                                    .getXtdStarboardMeters();
                     safeHavenSpeed = 0;
-                    safeHavenLocation = originalRoute.getWaypoints().get(i).getPos();
+                    safeHavenLocation = originalRoute.getWaypoints().get(i)
+                            .getPos();
                     return safeHavenLocation;
                 } else {
 
                     // We should be beyond this
                     if (currentTime > originalRoute.getEtas().get(i).getTime()
-                            && currentTime < originalRoute.getEtas().get(i + 1).getTime()) {
+                            && currentTime < originalRoute.getEtas().get(i + 1)
+                                    .getTime()) {
 
-                        // How long have we been sailing between these way points?
-                        long secondsSailTime = (currentTime - originalRoute.getEtas().get(i).getTime()) / 1000;
+                        // How long have we been sailing between these way
+                        // points?
+                        long secondsSailTime = (currentTime - originalRoute
+                                .getEtas().get(i).getTime()) / 1000;
 
-                        double distanceTravelledNauticalMiles = Converter.milesToNM(Calculator.distanceAfterTimeMph(originalRoute
-                                .getWaypoints().get(i).getOutLeg().getSpeed(), secondsSailTime));
+                        double distanceTravelledNauticalMiles = Converter
+                                .milesToNM(Calculator.distanceAfterTimeMph(
+                                        originalRoute.getWaypoints().get(i)
+                                                .getOutLeg().getSpeed(),
+                                        secondsSailTime));
 
                         if (this.getWaypoints().get(i).getOutLeg().getHeading() == Heading.GC) {
-                            safeHavenLocation = Calculator.findPosition(this.getWaypoints().get(i).getPos(), this.getWaypoints()
-                                    .get(i + 1).getPos(), Converter.nmToMeters(distanceTravelledNauticalMiles));
+                            safeHavenLocation = Calculator
+                                    .findPosition(
+                                            this.getWaypoints().get(i).getPos(),
+                                            this.getWaypoints().get(i + 1)
+                                                    .getPos(),
+                                            Converter
+                                                    .nmToMeters(distanceTravelledNauticalMiles));
                         } else {
-                            safeHavenLocation = Calculator.findPosition(this.getWaypoints().get(i).getPos(), this.getWaypoints()
-                                    .get(i).getOutLeg().calcBrg(), Converter.nmToMeters(distanceTravelledNauticalMiles));
+                            safeHavenLocation = Calculator
+                                    .findPosition(
+                                            this.getWaypoints().get(i).getPos(),
+                                            this.getWaypoints().get(i)
+                                                    .getOutLeg().calcBrg(),
+                                            Converter
+                                                    .nmToMeters(distanceTravelledNauticalMiles));
                         }
 
-                        safeHavenBearing = computeBearing(originalRoute.getWaypoints().get(i).getOutLeg());
-                        safeHavenLength = getWaypoints().get(i).getOutLeg().getSFLen();
-                        safeHavenWidth = getWaypoints().get(i).getOutLeg().getXtdPortMeters()
-                                + getWaypoints().get(i).getOutLeg().getXtdStarboardMeters();
-                        safeHavenSpeed = originalRoute.getWaypoints().get(i).getOutLeg().getSpeed();
+                        safeHavenBearing = computeBearing(originalRoute
+                                .getWaypoints().get(i).getOutLeg());
+                        safeHavenLength = getWaypoints().get(i).getOutLeg()
+                                .getSFLen();
+                        safeHavenWidth = getWaypoints().get(i).getOutLeg()
+                                .getXtdPortMeters()
+                                + getWaypoints().get(i).getOutLeg()
+                                        .getXtdStarboardMeters();
+                        safeHavenSpeed = originalRoute.getWaypoints().get(i)
+                                .getOutLeg().getSpeed();
 
                         return safeHavenLocation;
                     }
@@ -285,11 +317,14 @@ public class ActiveRoute extends Route {
         speed = pntData.getSog();
 
         // Calculate brg and rng to active waypoint
-        activeWpRng = Calculator.range(pntData.getPosition(), activeWaypoint.getPos(), currentLeg.getHeading());
-        activeWpBrg = Calculator.bearing(pntData.getPosition(), activeWaypoint.getPos(), currentLeg.getHeading());
+        activeWpRng = Calculator.range(pntData.getPosition(),
+                activeWaypoint.getPos(), currentLeg.getHeading());
+        activeWpBrg = Calculator.bearing(pntData.getPosition(),
+                activeWaypoint.getPos(), currentLeg.getHeading());
 
         // Calculate planned TTG to active waypoint
-        plannedActiveWpTtg = Math.round(activeWpRng / currentLeg.getSpeed() * 60 * 60 * 1000);
+        plannedActiveWpTtg = Math.round(activeWpRng / currentLeg.getSpeed()
+                * 60 * 60 * 1000);
 
         // Calculate TTG to active waypoint based on current speed
         // We use a sensible min speed
@@ -319,7 +354,8 @@ public class ActiveRoute extends Route {
         }
 
         // Determine TTG to active waypoint
-        long ttg = (this.etaCalculationType == EtaCalculationType.PLANNED_SPEED) ? plannedActiveWpTtg : speedActiveWpTtg;
+        long ttg = (this.etaCalculationType == EtaCalculationType.PLANNED_SPEED) ? plannedActiveWpTtg
+                : speedActiveWpTtg;
 
         totalTtg = ttg;
         totalDtg = activeWpRng;
@@ -328,7 +364,8 @@ public class ActiveRoute extends Route {
             // Dynamic speed
             if (this.etaCalculationType == EtaCalculationType.DYNAMIC_SPEED
                     || ((this.etaCalculationType == EtaCalculationType.HYBRID) && i == this.activeWaypointIndex)) {
-                this.ttgs[i] = this.waypoints.get(i).getOutLeg().calcTtg(this.speed);
+                this.ttgs[i] = this.waypoints.get(i).getOutLeg()
+                        .calcTtg(this.speed);
             } else {
                 // Planned speed
                 this.ttgs[i] = this.waypoints.get(i).getOutLeg().calcTtg();
@@ -356,7 +393,8 @@ public class ActiveRoute extends Route {
 
         // Calculate if in Wp circle
         boolean inWpCircle = false;
-        double xtd = currentLeg.getMaxXtd() == null ? 0.0 : currentLeg.getMaxXtd();
+        double xtd = currentLeg.getMaxXtd() == null ? 0.0 : currentLeg
+                .getMaxXtd();
         double radius = Math.max(xtd, wpCircleMin);
         if (activeWpRng != null) {
 
@@ -381,7 +419,8 @@ public class ActiveRoute extends Route {
 
             // Calculate distance from ship to next waypoint
             RouteLeg nextLeg = getActiveWp().getOutLeg();
-            double nextWpRng = Calculator.range(currentPntData.getPosition(), nextLeg.getEndWp().getPos(), nextLeg.getHeading());
+            double nextWpRng = Calculator.range(currentPntData.getPosition(),
+                    nextLeg.getEndWp().getPos(), nextLeg.getHeading());
 
             if (inWpCircle) {
                 // If closer to next wp than the dist between wp's, we change
@@ -390,7 +429,8 @@ public class ActiveRoute extends Route {
                     return ActiveWpSelectionResult.CHANGED;
                 }
             } else {
-                // Some temporary fallback when we are really off course and not doing sar
+                // Some temporary fallback when we are really off course and not
+                // doing sar
                 if (!searchPattern && relaxedWpChange) {
                     if (2 * nextWpRng < getWpRng(activeWaypointIndex)) {
                         changeActiveWaypoint(activeWaypointIndex + 1);
@@ -419,12 +459,14 @@ public class ActiveRoute extends Route {
     }
 
     public synchronized Date getActiveWaypointEta() {
-        Long ttg = (this.etaCalculationType == EtaCalculationType.PLANNED_SPEED) ? plannedActiveWpTtg : speedActiveWpTtg;
+        Long ttg = (this.etaCalculationType == EtaCalculationType.PLANNED_SPEED) ? plannedActiveWpTtg
+                : speedActiveWpTtg;
         if (ttg == null) {
             return null;
         }
 
-        // If we have just activated the route ie. wp 0, and the route start date is in the future do not recalculate the first eta
+        // If we have just activated the route ie. wp 0, and the route start
+        // date is in the future do not recalculate the first eta
         if (getActiveWaypointIndex() == 0) {
             DateTime start = new DateTime(origStarttime);
             if (start.isAfterNow()) {
@@ -502,7 +544,8 @@ public class ActiveRoute extends Route {
     }
 
     public synchronized Long getActiveWpTtg() {
-        return (this.etaCalculationType == EtaCalculationType.PLANNED_SPEED) ? plannedActiveWpTtg : speedActiveWpTtg;
+        return (this.etaCalculationType == EtaCalculationType.PLANNED_SPEED) ? plannedActiveWpTtg
+                : speedActiveWpTtg;
     }
 
     public synchronized RouteLeg getCurrentLeg() {
@@ -530,7 +573,8 @@ public class ActiveRoute extends Route {
 
             voyageWaypoint.setEta(etas.get(i));
             voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
-            voyageWaypoint.setLongitude(currentWaypoint.getPos().getLongitude());
+            voyageWaypoint
+                    .setLongitude(currentWaypoint.getPos().getLongitude());
             voyageWaypoint.setRot(currentWaypoint.getRot());
             voyageWaypoint.setTurnRad(currentWaypoint.getTurnRad());
 
@@ -539,7 +583,8 @@ public class ActiveRoute extends Route {
                 dk.dma.enav.model.voyage.RouteLeg routeLeg = new dk.dma.enav.model.voyage.RouteLeg();
                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
-                routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
+                routeLeg.setXtdStarboard(currentWaypoint.getOutLeg()
+                        .getXtdStarboard());
                 routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFLen());
 
                 voyageWaypoint.setRouteLeg(routeLeg);
@@ -559,7 +604,8 @@ public class ActiveRoute extends Route {
     }
 
     /**
-     * Returns the intended route broadcast, based on the parameters passed along
+     * Returns the intended route broadcast, based on the parameters passed
+     * along
      * 
      * @param filter
      *            the filter to apply to extract the partial route
@@ -567,7 +613,8 @@ public class ActiveRoute extends Route {
      *            the result to update. If null, a new instance is created.
      * @return the partial route
      */
-    public synchronized IntendedRouteBroadcast getPartialRouteData(PartialRouteFilter filter, IntendedRouteBroadcast broadcast) {
+    public synchronized IntendedRouteBroadcast getPartialRouteData(
+            PartialRouteFilter filter, IntendedRouteBroadcast broadcast) {
 
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
         List<Date> originalEtas = new ArrayList<>();
@@ -576,22 +623,29 @@ public class ActiveRoute extends Route {
         // Pre-compute the start and end ETA's for the partial route
         Date startDate = null, endDate = null;
         if (filter.getType() == FilterType.MINUTES) {
-            startDate = new Date(getActiveWaypointEta().getTime() - filter.getBackward() * 1000L * 60L);
-            endDate = new Date(getActiveWaypointEta().getTime() + filter.getForward() * 1000L * 60L);
+            startDate = new Date(getActiveWaypointEta().getTime()
+                    - filter.getBackward() * 1000L * 60L);
+            endDate = new Date(getActiveWaypointEta().getTime()
+                    + filter.getForward() * 1000L * 60L);
         }
 
-        // Pre-compute the ranges to the active way point measured along the route
+        // Pre-compute the ranges to the active way point measured along the
+        // route
         double[] distanceToActiveWaypoints = null;
         if (filter.getType() == FilterType.METERS) {
             distanceToActiveWaypoints = new double[waypoints.size()];
             distanceToActiveWaypoints[activeWaypointIndex] = 0.0;
             for (int i = activeWaypointIndex - 1; i >= 0; i--) {
-                double dist = waypoints.get(i).getPos().rhumbLineDistanceTo(waypoints.get(i + 1).getPos());
-                distanceToActiveWaypoints[i] = distanceToActiveWaypoints[i + 1] + dist;
+                double dist = waypoints.get(i).getPos()
+                        .rhumbLineDistanceTo(waypoints.get(i + 1).getPos());
+                distanceToActiveWaypoints[i] = distanceToActiveWaypoints[i + 1]
+                        + dist;
             }
             for (int i = activeWaypointIndex + 1; i < waypoints.size(); i++) {
-                double dist = waypoints.get(i).getPos().rhumbLineDistanceTo(waypoints.get(i - 1).getPos());
-                distanceToActiveWaypoints[i] = distanceToActiveWaypoints[i - 1] + dist;
+                double dist = waypoints.get(i).getPos()
+                        .rhumbLineDistanceTo(waypoints.get(i - 1).getPos());
+                distanceToActiveWaypoints[i] = distanceToActiveWaypoints[i - 1]
+                        + dist;
             }
         }
 
@@ -602,20 +656,26 @@ public class ActiveRoute extends Route {
             // Check if the way point should be included
             if (filter.getType() == FilterType.MINUTES) {
                 Date currentWaypointEta = etas.get(i);
-                if ((i < activeWaypointIndex - 1 && currentWaypointEta.before(startDate))
-                        || (i > activeWaypointIndex + 1 && currentWaypointEta.after(endDate))) {
+                if ((i < activeWaypointIndex - 1 && currentWaypointEta
+                        .before(startDate))
+                        || (i > activeWaypointIndex + 1 && currentWaypointEta
+                                .after(endDate))) {
                     continue;
                 }
 
             } else if (filter.getType() == FilterType.METERS) {
-                if ((i < activeWaypointIndex - 1 && distanceToActiveWaypoints[i] > filter.getBackward())
-                        || (i > activeWaypointIndex + 1 && distanceToActiveWaypoints[i] > filter.getForward())) {
+                if ((i < activeWaypointIndex - 1 && distanceToActiveWaypoints[i] > filter
+                        .getBackward())
+                        || (i > activeWaypointIndex + 1 && distanceToActiveWaypoints[i] > filter
+                                .getForward())) {
                     continue;
                 }
 
             } else if (filter.getType() == FilterType.COUNT) {
-                if ((i < activeWaypointIndex - Math.max(1, filter.getBackward()))
-                        || (i > activeWaypointIndex + Math.max(1, filter.getForward()))) {
+                if ((i < activeWaypointIndex
+                        - Math.max(1, filter.getBackward()))
+                        || (i > activeWaypointIndex
+                                + Math.max(1, filter.getForward()))) {
                     continue;
                 }
             }
@@ -632,7 +692,8 @@ public class ActiveRoute extends Route {
 
             voyageWaypoint.setEta(etas.get(i));
             voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
-            voyageWaypoint.setLongitude(currentWaypoint.getPos().getLongitude());
+            voyageWaypoint
+                    .setLongitude(currentWaypoint.getPos().getLongitude());
             voyageWaypoint.setRot(currentWaypoint.getRot());
             voyageWaypoint.setTurnRad(currentWaypoint.getTurnRad());
 
@@ -641,7 +702,8 @@ public class ActiveRoute extends Route {
                 dk.dma.enav.model.voyage.RouteLeg routeLeg = new dk.dma.enav.model.voyage.RouteLeg();
                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
-                routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
+                routeLeg.setXtdStarboard(currentWaypoint.getOutLeg()
+                        .getXtdStarboard());
                 routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFLen());
                 if (currentWaypoint.getOutLeg().getHeading() == Heading.GC) {
                     routeLeg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.GC);
@@ -656,7 +718,8 @@ public class ActiveRoute extends Route {
 
         // Since this may be a partial route, make sure the last out-leg is null
         if (!voyageRoute.getWaypoints().isEmpty()) {
-            Waypoint lastWaypoint = voyageRoute.getWaypoints().get(voyageRoute.getWaypoints().size() - 1);
+            Waypoint lastWaypoint = voyageRoute.getWaypoints().get(
+                    voyageRoute.getWaypoints().size() - 1);
             if (lastWaypoint.getRouteLeg() != null) {
                 lastWaypoint.setRouteLeg(null);
             }
