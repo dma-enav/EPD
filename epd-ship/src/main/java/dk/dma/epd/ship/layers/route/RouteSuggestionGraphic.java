@@ -26,6 +26,8 @@ import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 
@@ -38,13 +40,21 @@ public class RouteSuggestionGraphic extends OMGraphicList {
 
     private List<RouteWaypoint> routeWaypoints;
     private RouteSuggestionData routeSuggestion;
-    
+
     private Stroke stroke;
 
-    public RouteSuggestionGraphic(RouteSuggestionData routeSuggestion, Stroke stroke) {
+    public RouteSuggestionGraphic(RouteSuggestionData routeSuggestion,
+            Stroke stroke) {
         this.routeSuggestion = routeSuggestion;
         this.stroke = stroke;
-        
+
+        stroke = new BasicStroke(6f, // Width
+                BasicStroke.CAP_SQUARE, // End cap
+                BasicStroke.JOIN_MITER, // Join style
+                10.0f, // Miter limit
+                new float[] { 3.0f, 10.0f }, // Dash pattern
+                0.0f);
+
         routeWaypoints = routeSuggestion.getRoute().getWaypoints();
         initGraphics();
         setVague(true);
@@ -52,12 +62,18 @@ public class RouteSuggestionGraphic extends OMGraphicList {
 
     public void initGraphics() {
 
-        Stroke backgroundStroke = new BasicStroke(
-                10.0f,                      // Width
-                BasicStroke.CAP_ROUND,      // End cap
-                BasicStroke.JOIN_MITER,     // Join style
-                10.0f,                      // Miter limit
-                null,                       // Dash pattern
+        Stroke backgroundStroke = new BasicStroke(10.0f, // Width
+                BasicStroke.CAP_ROUND, // End cap
+                BasicStroke.JOIN_MITER, // Join style
+                10.0f, // Miter limit
+                null, // Dash pattern
+                0.0f);
+
+        stroke = new BasicStroke(3.0f, // Width
+                BasicStroke.CAP_SQUARE, // End cap
+                BasicStroke.JOIN_MITER, // Join style
+                10.0f, // Miter limit
+                new float[] { 3.0f, 10.0f }, // Dash pattern
                 0.0f);
 
         RouteWaypoint prevPoint = null;
@@ -65,19 +81,31 @@ public class RouteSuggestionGraphic extends OMGraphicList {
         for (RouteWaypoint geoLocation : routeWaypoints) {
             nextPoint = geoLocation;
             if (prevPoint != null) {
-                OMLine leg = new OMLine(prevPoint.getPos().getLatitude(), prevPoint.getPos().getLongitude(), nextPoint.getPos().getLatitude(), nextPoint.getPos()
-                        .getLongitude(), OMGraphicConstants.LINETYPE_RHUMB);
+                OMLine leg = new OMLine(prevPoint.getPos().getLatitude(),
+                        prevPoint.getPos().getLongitude(), nextPoint.getPos()
+                                .getLatitude(), nextPoint.getPos()
+                                .getLongitude(),
+                        OMGraphicConstants.LINETYPE_RHUMB);
                 leg.setStroke(stroke);
-                leg.setLinePaint(new Color(183, 68, 237, 255));
+                leg.setLinePaint(new Color(0, 0, 0, 120));
                 add(leg);
+
+                OMLine legBackground = new OMLine(prevPoint.getPos()
+                        .getLatitude(), prevPoint.getPos().getLongitude(),
+                        nextPoint.getPos().getLatitude(), nextPoint.getPos()
+                                .getLongitude(),
+                        OMGraphicConstants.LINETYPE_RHUMB);
+                legBackground.setStroke(backgroundStroke);
                 
-                if (!routeSuggestion.isReplied()) {
-                    OMLine legBackground = new OMLine(prevPoint.getPos().getLatitude(), prevPoint.getPos().getLongitude(), nextPoint.getPos().getLatitude(),
-                            nextPoint.getPos().getLongitude(), OMGraphicConstants.LINETYPE_RHUMB);
-                    legBackground.setStroke(backgroundStroke);
-                    legBackground.setLinePaint(new Color(42, 172, 12, 120));                
-                    add(legBackground);
+                if (routeSuggestion.getStatus() == RouteSuggestionStatus.PENDING) {
+                    legBackground.setLinePaint(new Color(251, 253, 57, 120));
+                };
+                
+                if (routeSuggestion.getStatus() == RouteSuggestionStatus.ACCEPTED) {
+                    legBackground.setLinePaint(new Color(42, 172, 12, 120));
                 }
+
+                add(legBackground);
             }
             prevPoint = nextPoint;
         }
@@ -90,7 +118,8 @@ public class RouteSuggestionGraphic extends OMGraphicList {
     @Override
     public void render(Graphics gr) {
         Graphics2D image = (Graphics2D) gr;
-        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
     }
 }

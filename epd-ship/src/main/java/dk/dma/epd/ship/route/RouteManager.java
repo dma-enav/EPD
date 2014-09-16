@@ -49,13 +49,19 @@ import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
  * Manager for handling a collection of routes and active route
  */
 @ThreadSafe
-public class RouteManager extends RouteManagerCommon implements IPntDataListener {
+public class RouteManager extends RouteManagerCommon implements
+        IPntDataListener {
 
     private static final long serialVersionUID = -9019124285849351709L;
-    private static final String ROUTES_FILE = EPD.getInstance().getHomePath().resolve(".routes").toString();
-    private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
+    private static final String ROUTES_FILE = EPD.getInstance().getHomePath()
+            .resolve(".routes").toString();
+    private static final Logger LOG = LoggerFactory
+            .getLogger(RouteManager.class);
 
     private volatile PntHandler pntHandler;
+
+    // Used in startup when reactivating a previously active route
+    private int tempActiveRouteIndex = -1;
 
     @GuardedBy("routeSuggestions")
     private List<RouteSuggestionData> routeSuggestions = new LinkedList<>();
@@ -141,34 +147,48 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
             activeRoute = new ActiveRoute(route, pntHandler.getCurrentData());
 
             // Set the minimum WP circle radius
-            activeRoute.setWpCircleMin(EPDShip.getInstance().getSettings().getNavSettings().getMinWpRadius());
+            activeRoute.setWpCircleMin(EPDShip.getInstance().getSettings()
+                    .getNavSettings().getMinWpRadius());
             // Set relaxed WP change
-            activeRoute.setRelaxedWpChange(EPDShip.getInstance().getSettings().getNavSettings().isRelaxedWpChange());
+            activeRoute.setRelaxedWpChange(EPDShip.getInstance().getSettings()
+                    .getNavSettings().isRelaxedWpChange());
             // Inject the current position
             activeRoute.update(pntHandler.getCurrentData());
             // Set start time to now
             activeRoute.setStarttime(PntTime.getDate());
         }
 
-        // If the dock isn't visible should it show it?
-        if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("Active Waypoint")) {
+        // Is the GUI created and active yet
 
-            // Show it display the message?
-            if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
-                new ShowDockableDialog(EPDShip.getInstance().getMainFrame(), dock_type.ROUTE);
-            } else {
+        if (EPDShip.getInstance().getMainFrame() != null) {
 
-                if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                    EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("Active Waypoint");
-                    EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
+            // If the dock isn't visible should it show it?
+            if (!EPDShip.getInstance().getMainFrame().getDockableComponents()
+                    .isDockVisible("Active Waypoint")) {
+
+                // Show it display the message?
+                if (EPDShip.getInstance().getSettings().getGuiSettings()
+                        .isShowDockMessage()) {
+                    new ShowDockableDialog(
+                            EPDShip.getInstance().getMainFrame(),
+                            dock_type.ROUTE);
+                } else {
+
+                    if (EPDShip.getInstance().getSettings().getGuiSettings()
+                            .isAlwaysOpenDock()) {
+                        EPDShip.getInstance().getMainFrame()
+                                .getDockableComponents()
+                                .openDock("Active Waypoint");
+                        EPDShip.getInstance().getMainFrame().getJMenuBar()
+                                .refreshDockableMenu();
+                    }
+
+                    // It shouldn't display message but take a default action
+
                 }
 
-                // It shouldn't display message but take a default action
-
             }
-
         }
-
         // Notify listeners
         notifyListeners(RoutesUpdateEvent.ROUTE_ACTIVATED);
     }
@@ -190,17 +210,27 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
     /**************************************/
 
     /**
-     * Loads and instantiates a {@code RouteManager} from the default routes file.
+     * Loads and instantiates a {@code RouteManager} from the default routes
+     * file.
      * 
      * @return the new route manager
      */
     public static RouteManager loadRouteManager() {
         RouteManager manager = new RouteManager();
-        try (FileInputStream fileIn = new FileInputStream(ROUTES_FILE); ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
+
+        try (FileInputStream fileIn = new FileInputStream(ROUTES_FILE);
+                ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
             RouteStore routeStore = (RouteStore) objectIn.readObject();
             manager.setRoutes(routeStore.getRoutes());
             manager.activeRoute = routeStore.getActiveRoute();
             manager.activeRouteIndex = routeStore.getActiveRouteIndex();
+
+            manager.setTempActiveRouteIndex(routeStore.getActiveRouteIndex());
+            // activeRouteIndex = routeStore.getActiveRouteIndex();
+
+            if (routeStore.getActiveRouteIndex() > -1) {
+                manager.deactivateRoute();
+            }
 
         } catch (FileNotFoundException e) {
             // Not an error
@@ -237,6 +267,14 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
         if (pntHandler == null && obj instanceof PntHandler) {
             pntHandler = (PntHandler) obj;
             pntHandler.addListener(this);
+
+            // Found pnt handler, will activate route now to find best WP match
+            // of current position
+            if (tempActiveRouteIndex > -1) {
+
+                activateRoute(tempActiveRouteIndex);
+
+            }
         }
     }
 
@@ -255,6 +293,19 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
     public void notifyListeners(RoutesUpdateEvent e) {
         super.notifyListeners(e);
 
-        EPDShip.getInstance().getVoctManager().saveToFile();
+        if (EPDShip.getInstance().getVoctHandler() != null) {
+            EPDShip.getInstance().getVoctManager().saveToFile();
+
+        }
+
     }
+
+    /**
+     * @param tempActiveRouteIndex
+     *            the tempActiveRouteIndex to set
+     */
+    public void setTempActiveRouteIndex(int tempActiveRouteIndex) {
+        this.tempActiveRouteIndex = tempActiveRouteIndex;
+    }
+
 }

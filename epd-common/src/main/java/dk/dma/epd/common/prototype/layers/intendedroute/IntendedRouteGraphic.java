@@ -252,7 +252,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
 
         // Adjust the transparency of the color depending on the last-received
         // time for the route
-        long secondsSinceReceived = (PntTime.getInstance().getDate().getTime() - intendedRoute
+        long secondsSinceReceived = (PntTime.getDate().getTime() - intendedRoute
                 .getReceived().getTime()) / 1000L;
 
         if (secondsSinceReceived < TTL) {
