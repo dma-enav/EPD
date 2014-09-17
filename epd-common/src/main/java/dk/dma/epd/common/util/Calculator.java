@@ -124,7 +124,7 @@ public class Calculator {
         System.out.println("Hours sailed is CALC " + hoursSailed);
         
         // double milesPrSecond = (mph / 60.0) / 60.0;
-        return (mph * hoursSailed);
+        return mph * hoursSailed;
     }
 
     public static Position findPosition(Position startingLocation,

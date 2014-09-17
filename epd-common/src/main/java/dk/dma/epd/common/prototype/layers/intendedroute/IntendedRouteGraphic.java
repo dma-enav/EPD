@@ -143,12 +143,24 @@ public class IntendedRouteGraphic extends OMGraphicList {
      * @param color
      *            the color to use
      */
-    private void updateColor(Color color) {
+    private void updateColor(Color color) {        
+        int i = 0;
         for (IntendedRouteLegGraphic routeLeg : routeLegs) {
-            routeLeg.setLinePaint(color);
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeLeg.setLinePaint(adjustColor(COLORS[1], 0.3f, 0.9f));
+            } else {
+                routeLeg.setLinePaint(color);
+            }
+            i++;
         }
+        i = 0;
         for (WpCircle routeWp : routeWps) {
-            routeWp.setLinePaint(color);
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeWp.setLinePaint(adjustColor(COLORS[1], 0.3f, 0.9f));
+            } else {
+                routeWp.setLinePaint(color);
+            } 
+            i++;
         }
         if (activeWpLine != null) {
             activeWpLine.setLinePaint(color);
