@@ -431,9 +431,9 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements
                     routeManager.getActiveRoute(), route);
             
             // Try other way around or dont
-//            if (!filter.include()) {
-//                filter = findTCPA(route, routeManager.getActiveRoute());
-//            }
+            if (!filter.include()) {
+                filter = findTCPA(route, routeManager.getActiveRoute());
+            }
 
             // No warnings, ignore it
             if (!filter.include()) {
