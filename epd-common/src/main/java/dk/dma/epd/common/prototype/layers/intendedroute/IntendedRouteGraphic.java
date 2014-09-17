@@ -147,7 +147,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         int i = 0;
         for (IntendedRouteLegGraphic routeLeg : routeLegs) {
             if (i < intendedRoute.getActiveWpIndex()) {
-                routeLeg.setLinePaint(adjustColor(COLORS[1], 0.3f, 0.9f));
+                routeLeg.setLinePaint(adjustColor(color, 0.3f, 0.9f));
             } else {
                 routeLeg.setLinePaint(color);
             }
@@ -156,7 +156,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         i = 0;
         for (WpCircle routeWp : routeWps) {
             if (i < intendedRoute.getActiveWpIndex()) {
-                routeWp.setLinePaint(adjustColor(COLORS[1], 0.3f, 0.9f));
+                routeWp.setLinePaint(adjustColor(color, 0.3f, 0.9f));
             } else {
                 routeWp.setLinePaint(color);
             } 
