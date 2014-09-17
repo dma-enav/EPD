@@ -47,10 +47,6 @@ public class PlannedPositionGraphic extends OMGraphicList {
     private Rectangle hatchFillRectangle;
     private BufferedImage hatchFill;
 
-    
-    
-    
-    
     private RotationalPoly vessel;
     private Paint paint = Color.GRAY;
     private Stroke stroke = new BasicStroke(2.0f);
@@ -58,8 +54,6 @@ public class PlannedPositionGraphic extends OMGraphicList {
 
     public PlannedPositionGraphic() {
 
-        
-        
         hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D big = hatchFill.createGraphics();
         Composite originalComposite = big.getComposite();
@@ -70,22 +64,19 @@ public class PlannedPositionGraphic extends OMGraphicList {
 
         hatchFillRectangle = new Rectangle(0, 0, 10, 10);
         big.setComposite(originalComposite);
-        
-        
-        
+
         int[] vesselX = { 0, 5, -5, 0 };
         int[] vesselY = { -10, 5, 5, -10 };
         vessel = new RotationalPoly(vesselX, vesselY, stroke, paint);
-        
-        
+
         vessel.setFillPaint(new Color(0, 0, 0, 1));
         vessel.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
-        
+
         add(vessel);
     }
 
     public void update(double lat, double lon, int units, double heading) {
-        
+
         vessel.setLocation(lat, lon, units, heading);
     }
 
@@ -97,23 +88,27 @@ public class PlannedPositionGraphic extends OMGraphicList {
     public void setLinePaint(Paint paint) {
         vessel.setLinePaint(paint);
     }
-    
- 
 
-    public void moveSymbol(Position pos, double bearing, double width, double height) {
+    public void moveSymbol(Position pos, double bearing, double width,
+            double height) {
 
         if (pos != null) {
-              double hdgR = Math.toRadians(bearing);
-            
-            vessel.setLocation(pos.getLatitude(), pos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, hdgR);
-            
+            double hdgR = Math.toRadians(bearing);
+
+            vessel.setLocation(pos.getLatitude(), pos.getLongitude(),
+                    OMGraphicConstants.DECIMAL_DEGREES, hdgR);
+
             this.setVisible(true);
-        }else{
+        } else {
             this.setVisible(false);
         }
 
+        if (this.isVisible()) {
+            vessel.setVisible(true);
+        } else {
+            vessel.setVisible(false);
+        }
     }
-
 
     /**
      * Turn on anti-aliasing
@@ -121,7 +116,8 @@ public class PlannedPositionGraphic extends OMGraphicList {
     @Override
     public void render(Graphics g) {
         Graphics2D image = (Graphics2D) g;
-        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
     }
 }

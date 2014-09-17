@@ -63,14 +63,16 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
     private List<WpCircle> routeWps = new ArrayList<>();
 
-    private PlannedPositionGraphic plannedPositionArea = new PlannedPositionGraphic();
+//    private PlannedPositionGraphic plannedPositionArea = new PlannedPositionGraphic();
 
     /**
      * Constructor
      */
     public IntendedRouteGraphic() {
         super();
-        add(plannedPositionArea);
+        
+        //Temp fix for disabling planned position Area
+//        add(plannedPositionArea);
     }
 
     /**
@@ -166,9 +168,9 @@ public class IntendedRouteGraphic extends OMGraphicList {
             renderIntendedRoute();
         }
         if (!this.isVisible()) {
-            plannedPositionArea.setVisible(false);
+//            plannedPositionArea.setVisible(false);
         } else {
-            plannedPositionArea.setVisible(true);
+//            plannedPositionArea.setVisible(true);
         }
     }
 
@@ -180,8 +182,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
         updateIntendedRoute(intendedRoute);
 
         // Update planned position
-        plannedPositionArea.moveSymbol(intendedRoute.getPlannedPosition(),
-                intendedRoute.getPlannedPositionBearing(), 1000, 500);
+//        plannedPositionArea.moveSymbol(intendedRoute.getPlannedPosition(),
+//                intendedRoute.getPlannedPositionBearing(), 1000, 500);
     }
 
     /**
@@ -211,7 +213,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         routeWps = new ArrayList<>();
 
         // Re-add planned position
-        add(plannedPositionArea);
+//        add(plannedPositionArea);
 
         // Handle empty route
         if (intendedRoute == null || !intendedRoute.hasRoute()) {

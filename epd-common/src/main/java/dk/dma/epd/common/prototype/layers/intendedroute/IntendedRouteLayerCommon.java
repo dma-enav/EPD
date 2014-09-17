@@ -39,8 +39,8 @@ import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
  */
-public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTargetListener, IIntendedRouteListener,
-        ProjectionListener {
+public class IntendedRouteLayerCommon extends EPDLayerCommon implements
+        IAisTargetListener, IIntendedRouteListener, ProjectionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -66,14 +66,17 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
      */
     public IntendedRouteLayerCommon() {
         super();
-        
-        this.useFilter = EPD.getInstance().getSettings().getCloudSettings().isIntendedRouteFilterOn();
+
+        this.useFilter = EPD.getInstance().getSettings().getCloudSettings()
+                .isIntendedRouteFilterOn();
 
         // Automatically add info panels
-        registerInfoPanel(intendedRouteInfoPanel, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
+        registerInfoPanel(intendedRouteInfoPanel, IntendedRouteWpCircle.class,
+                IntendedRouteLegGraphic.class);
 
         // Register the classes the will trigger the map menu
-        registerMapMenuClasses(IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
+        registerMapMenuClasses(IntendedRouteWpCircle.class,
+                IntendedRouteLegGraphic.class);
 
         // Starts the repaint timer, which runs every 30 seconds
         // The initial delay is 100ms and is used to batch up repaints()
@@ -89,32 +92,40 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
     @Override
     public void targetUpdated(AisTarget aisTarget) {
         // Sanity checks
-        if (aisHandler == null || intendedRouteHandler == null || !(aisTarget instanceof VesselTarget)) {
+        if (aisHandler == null || intendedRouteHandler == null
+                || !(aisTarget instanceof VesselTarget)) {
             return;
         }
 
         // Look up the intended route
-        IntendedRoute intendedRoute = intendedRouteHandler.getIntendedRoute(aisTarget.getMmsi());
-        IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(aisTarget.getMmsi());
+        IntendedRoute intendedRoute = intendedRouteHandler
+                .getIntendedRoute(aisTarget.getMmsi());
+        IntendedRouteGraphic intendedRouteGraphic = intendedRoutes
+                .get(aisTarget.getMmsi());
         if (intendedRoute == null || intendedRouteGraphic == null) {
             return;
         }
 
-        // Update the intended route name and vessel position from the VesselTarget
-        VesselTarget vessel = aisHandler.getVesselTarget(intendedRoute.getMmsi());
+        // Update the intended route name and vessel position from the
+        // VesselTarget
+        VesselTarget vessel = aisHandler.getVesselTarget(intendedRoute
+                .getMmsi());
         if (vessel != null) {
             if (vessel.getStaticData() != null) {
-                intendedRouteGraphic.setName(vessel.getStaticData().getTrimmedName());
+                intendedRouteGraphic.setName(vessel.getStaticData()
+                        .getTrimmedName());
             }
 
             // Update the graphics
-            intendedRouteGraphic.updateVesselPosition(vessel.getPositionData().getPos());
+            intendedRouteGraphic.updateVesselPosition(vessel.getPositionData()
+                    .getPos());
             doPrepare();
 
         }
     }
 
-    private void removeIntendedRoute(IntendedRouteGraphic intendedRouteGraphics, long mmsi) {
+    private void removeIntendedRoute(
+            IntendedRouteGraphic intendedRouteGraphics, long mmsi) {
         synchronized (graphics) {
             graphics.remove(intendedRouteGraphics);
         }
@@ -130,31 +141,37 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
     @Override
     public void intendedRouteEvent(IntendedRoute intendedRoute) {
         if (intendedRoute == null) {
-            
-            //Used when settings are changed - repaint
+
+            // Used when settings are changed - repaint
             loadIntendedRoutes();
             return;
         }
 
         // No route connected - remove it from graphics
         if (!intendedRoute.hasRoute()) {
-            IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(intendedRoute.getMmsi());
+            IntendedRouteGraphic intendedRouteGraphic = intendedRoutes
+                    .get(intendedRoute.getMmsi());
 
             // Should always be defined, but better check...
             if (intendedRouteGraphic != null) {
-                removeIntendedRoute(intendedRouteGraphic, intendedRoute.getMmsi());
+                removeIntendedRoute(intendedRouteGraphic,
+                        intendedRoute.getMmsi());
             }
         } else {
 
             // An update is required
             if (intendedRoutes.containsKey(intendedRoute.getMmsi())) {
-                IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(intendedRoute.getMmsi());
+                IntendedRouteGraphic intendedRouteGraphic = intendedRoutes
+                        .get(intendedRoute.getMmsi());
 
                 // Should always be defined, but better check...
                 if (intendedRouteGraphic != null) {
 
-                    // Check for filter - route could have changed and should not be shown
-                    if (useFilter && intendedRouteHandler.getFilteredIntendedRoutes().containsKey(intendedRoute.getMmsi())
+                    // Check for filter - route could have changed and should
+                    // not be shown
+                    if (useFilter
+                            && intendedRouteHandler.getFilteredIntendedRoutes()
+                                    .containsKey(intendedRoute.getMmsi())
                             || !useFilter) {
                         // Update the graphics
                         intendedRouteGraphic.updateIntendedRoute(intendedRoute);
@@ -163,20 +180,25 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
                         restartTimer();
 
                     } else {
-                        removeIntendedRoute(intendedRouteGraphic, intendedRoute.getMmsi());
+                        removeIntendedRoute(intendedRouteGraphic,
+                                intendedRoute.getMmsi());
                     }
 
                 }
             } else {
 
                 // Adding it
-                if (useFilter && intendedRouteHandler.getFilteredIntendedRoutes().containsKey(intendedRoute.getMmsi())
+                if (useFilter
+                        && intendedRouteHandler.getFilteredIntendedRoutes()
+                                .containsKey(intendedRoute.getMmsi())
                         || !useFilter) {
 
                     IntendedRouteGraphic intendedRouteGraphic = new IntendedRouteGraphic();
 
-                    // add the new intended route graphic to the set of managed intended route graphics
-                    intendedRoutes.put(intendedRoute.getMmsi(), intendedRouteGraphic);
+                    // add the new intended route graphic to the set of managed
+                    // intended route graphics
+                    intendedRoutes.put(intendedRoute.getMmsi(),
+                            intendedRouteGraphic);
                     synchronized (graphics) {
                         graphics.add(intendedRouteGraphic);
                     }
@@ -184,6 +206,8 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
                     // Update the graphics
                     intendedRouteGraphic.updateIntendedRoute(intendedRoute);
                     intendedRouteGraphic.showArrowHeads(showArrowHeads());
+
+                    intendedRouteGraphic.setVisible(intendedRoute.isVisible());
 
                     // Cause imminent repaint
                     restartTimer();
@@ -200,7 +224,8 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
      */
     @Override
     protected void timerAction() {
-        for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes.values()) {
+        for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes
+                .values()) {
             intendedRouteGraphic.updateIntendedRoute();
         }
 
@@ -216,7 +241,8 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         if (getProjection() != null) {
 
             boolean showArrowHeads = showArrowHeads();
-            for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes.values()) {
+            for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes
+                    .values()) {
                 intendedRouteGraphic.showArrowHeads(showArrowHeads);
             }
         }
@@ -245,10 +271,12 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
     }
 
     /**
-     * Upon creating a new layer, we need to load the intended routes held by the intended route handler
+     * Upon creating a new layer, we need to load the intended routes held by
+     * the intended route handler
      */
     public void loadIntendedRoutes() {
-        for (IntendedRoute intendedRoute : intendedRouteHandler.fetchIntendedRoutes()) {
+        for (IntendedRoute intendedRoute : intendedRouteHandler
+                .fetchIntendedRoutes()) {
             intendedRouteEvent(intendedRoute);
         }
     }
@@ -257,13 +285,17 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
      * {@inheritDoc}
      */
     @Override
-    protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
+    protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest,
+            MouseEvent evt, Point containerPoint) {
         if (newClosest instanceof IntendedRouteWpCircle) {
-            intendedRouteInfoPanel.showWpInfo((IntendedRouteWpCircle) newClosest);
+            intendedRouteInfoPanel
+                    .showWpInfo((IntendedRouteWpCircle) newClosest);
         } else {
             // lets user see ETA continually along route leg
-            Point2D worldLocation = chartPanel.getMap().getProjection().inverse(evt.getPoint());
-            intendedRouteInfoPanel.showLegInfo((IntendedRouteLegGraphic) newClosest, worldLocation);
+            Point2D worldLocation = chartPanel.getMap().getProjection()
+                    .inverse(evt.getPoint());
+            intendedRouteInfoPanel.showLegInfo(
+                    (IntendedRouteLegGraphic) newClosest, worldLocation);
             closest = dummyCircle;
         }
         return true;
@@ -286,13 +318,15 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
     }
 
     /**
-     * Returns whether or not to show arrow heads on the route legs, which depends on the current projection
+     * Returns whether or not to show arrow heads on the route legs, which
+     * depends on the current projection
      * 
      * @return whether or not to show arrow heads on the route legs
      */
     private boolean showArrowHeads() {
         if (getProjection() != null) {
-            return getProjection().getScale() < EPD.getInstance().getSettings().getNavSettings().getShowArrowScale();
+            return getProjection().getScale() < EPD.getInstance().getSettings()
+                    .getNavSettings().getShowArrowScale();
         }
         return false;
     }
@@ -307,7 +341,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
 
         // Reload all routes
         loadIntendedRoutes();
-//        intendedRouteHandler.fireIntendedEvent(null);
+        // intendedRouteHandler.fireIntendedEvent(null);
     }
 
     public boolean isUseFilter() {

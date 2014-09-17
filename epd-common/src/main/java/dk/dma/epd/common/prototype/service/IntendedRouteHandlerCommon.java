@@ -97,6 +97,7 @@ public abstract class IntendedRouteHandlerCommon extends
     protected List<IIntendedRouteListener> listeners = new CopyOnWriteArrayList<>();
 
     private AisHandlerCommon aisHandler;
+    private boolean intendedRouteIsVisible = true;
 
     /**
      * Constructor
@@ -199,6 +200,8 @@ public abstract class IntendedRouteHandlerCommon extends
 
         }
 
+        intendedRoute.setVisible(intendedRouteIsVisible);
+
         // Fire event
         fireIntendedEvent(intendedRoute);
 
@@ -241,7 +244,9 @@ public abstract class IntendedRouteHandlerCommon extends
         for (IntendedRoute intendedRoute : intendedRoutes.values()) {
             intendedRoute.setVisible(false);
             fireIntendedEvent(intendedRoute);
+
         }
+        intendedRouteIsVisible = false;
     }
 
     /**
@@ -252,6 +257,7 @@ public abstract class IntendedRouteHandlerCommon extends
             intendedRoute.setVisible(true);
             fireIntendedEvent(intendedRoute);
         }
+        intendedRouteIsVisible = true;
     }
 
     /****************************************/
