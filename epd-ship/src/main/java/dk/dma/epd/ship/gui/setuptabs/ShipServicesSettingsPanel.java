@@ -91,7 +91,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         DefaultComboBoxModel<String> defaultComboBox = new DefaultComboBoxModel<String>();
         defaultComboBox.addElement("Distance");
         defaultComboBox.addElement("Time");
-        defaultComboBox.addElement("Number of way points");
+        defaultComboBox.addElement("Number of waypoints");
         
         // Add the panel
         this.add(generalPanel);
@@ -102,7 +102,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         JPanel intendedRoutePanel = new JPanel();
         intendedRoutePanel.setBounds(6, 128, 438, 120);
         intendedRoutePanel.setBorder(new TitledBorder(
-                null, "Intended Route"));
+                null, "Intended Route Broadcast"));
         intendedRoutePanel.setLayout(null);
         
         JLabel lblForward = new JLabel("Forward:");
@@ -256,7 +256,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
                 // Changes in enav settings.
                 changed(this.enavSettings.getRouteTimeToLive(), 
                         TimeUnit.MINUTES.toMillis(this.intendedRouteFilterSettingsPanel.getTimeToLive())) ||
-                changed(this.enavSettings.getNotificationDistance(), this.intendedRouteFilterSettingsPanel.getNotificationDistance()) ||
+                changed(this.enavSettings.getMarkerDistance(), this.intendedRouteFilterSettingsPanel.getMarkerDistance()) ||
                 changed(this.enavSettings.getAlertDistance(), this.intendedRouteFilterSettingsPanel.getAlertDistance()) ||
                 changed(this.enavSettings.getFilterDistance(), this.intendedRouteFilterSettingsPanel.getFilterDistance());
         
@@ -321,10 +321,10 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         }
         
         // Load intended route filter settings.
-        this.intendedRouteFilterSettingsPanel.setFilterDistance(this.enavSettings.getFilterDistance());
+        this.intendedRouteFilterSettingsPanel.setMarkerDistance(this.enavSettings.getMarkerDistance());
         this.intendedRouteFilterSettingsPanel.setTimeToLive(this.enavSettings.getRouteTimeToLive());
         this.intendedRouteFilterSettingsPanel.setAlertDistance(this.enavSettings.getAlertDistance());
-        this.intendedRouteFilterSettingsPanel.setNotificationDistance(this.enavSettings.getNotificationDistance());
+        this.intendedRouteFilterSettingsPanel.setFilterDistance(this.enavSettings.getFilterDistance());
     }
 
     /**
@@ -356,7 +356,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         // Save enav settings.
         this.enavSettings.setFilterDistance(this.intendedRouteFilterSettingsPanel.getFilterDistance());
         this.enavSettings.setAlertDistance(this.intendedRouteFilterSettingsPanel.getAlertDistance());
-        this.enavSettings.setNotificationDistance(this.intendedRouteFilterSettingsPanel.getNotificationDistance());
+        this.enavSettings.setMarkerDistance(this.intendedRouteFilterSettingsPanel.getMarkerDistance());
         this.enavSettings.setRouteTimeToLive(TimeUnit.MINUTES.toMillis(this.intendedRouteFilterSettingsPanel.getTimeToLive()));
         
     }

@@ -66,9 +66,9 @@ public class EnavSettings implements Serializable {
     private int monaLisaPort = 80;
     
     private long routeTimeToLive = 10 * 60 * 1000; // 10 minutes.
-    private double filterDistance = 0.5;
-    private double notificationDistance = 0.5; // Nautical miles.
-    private double alertDistance = 0.3; // Nautical miles.
+    private double filterDistance = 1;
+    private double markerDistance = 0.5; // Nautical miles.
+    private double alertDistance; // Nautical miles.
     
     public EnavSettings() {
         
@@ -102,7 +102,7 @@ public class EnavSettings implements Serializable {
         
         this.setRouteTimeToLive(PropUtils.longFromProperties(props, PREFIX + "routeTimeToLive", this.getRouteTimeToLive()));
         this.setFilterDistance(PropUtils.doubleFromProperties(props, PREFIX + "filterDistance", this.getFilterDistance()));
-        this.setNotificationDistance(PropUtils.doubleFromProperties(props, PREFIX + "notificationDistance", this.getNotificationDistance()));
+        this.setMarkerDistance(PropUtils.doubleFromProperties(props, PREFIX + "markerDistance", this.getMarkerDistance()));
         this.setAlertDistance(PropUtils.doubleFromProperties(props, PREFIX + "alertDistance", this.getAlertDistance()));
         
         // Temporary hack to move away from enav.frv.dk to service.e-navigation.net
@@ -139,7 +139,7 @@ public class EnavSettings implements Serializable {
         props.put(PREFIX + "monaLisaPort", Integer.toString(monaLisaPort));
         props.put(PREFIX + "routeTimeToLive", Long.toString(this.getRouteTimeToLive()));
         props.put(PREFIX + "filterDistance", Double.toString(this.getFilterDistance()));
-        props.put(PREFIX + "notificationDistance", Double.toString(this.getNotificationDistance()));
+        props.put(PREFIX + "markerDistance", Double.toString(this.getMarkerDistance()));
         props.put(PREFIX + "alertDistance", Double.toString(this.getAlertDistance()));
     }
 
@@ -327,12 +327,12 @@ public class EnavSettings implements Serializable {
         this.alertDistance = alertDistance;
     }
 
-    public double getNotificationDistance() {
-        return notificationDistance;
+    public double getMarkerDistance() {
+        return markerDistance;
     }
 
-    public void setNotificationDistance(double notificationDistance) {
-        this.notificationDistance = notificationDistance;
+    public void setMarkerDistance(double markerDistance) {
+        this.markerDistance = markerDistance;
     }
 
     public double getFilterDistance() {

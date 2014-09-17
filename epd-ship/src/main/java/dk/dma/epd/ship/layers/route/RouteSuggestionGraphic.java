@@ -26,7 +26,6 @@ import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -99,7 +98,7 @@ public class RouteSuggestionGraphic extends OMGraphicList {
                 
                 if (routeSuggestion.getStatus() == RouteSuggestionStatus.PENDING) {
                     legBackground.setLinePaint(new Color(251, 253, 57, 120));
-                };
+                }
                 
                 if (routeSuggestion.getStatus() == RouteSuggestionStatus.ACCEPTED) {
                     legBackground.setLinePaint(new Color(42, 172, 12, 120));
