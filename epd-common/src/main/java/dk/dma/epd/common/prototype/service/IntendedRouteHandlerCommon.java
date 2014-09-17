@@ -545,11 +545,11 @@ public abstract class IntendedRouteHandlerCommon extends
         }
 
         if (route1StartWp > 0) {
-            route1StartWp = route1StartWp - 1;
+//            route1StartWp = route1StartWp - 1;
         }
 
         if (route2StartWp > 0) {
-            route2StartWp = route2StartWp - 1;
+//            route2StartWp = route2StartWp - 1;
         }
 
         // Should the comparison even be made
