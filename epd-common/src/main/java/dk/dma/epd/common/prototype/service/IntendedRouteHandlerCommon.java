@@ -692,44 +692,48 @@ public abstract class IntendedRouteHandlerCommon extends
                             || currentDistance <= ALERT_DISTANCE_EPSILON
                             || currentDistance <= FILTER_DISTANCE_EPSILON) {
 
-                        IntendedRouteFilterType filterType = IntendedRouteFilterType.FILTERONLY;
+                        if (traverseTime.isAfter(PntTime.getDate().getTime())) {
 
-                        // Top level filter only, no msg or graphics
-                        // if (currentDistance <= FILTER_DISTANCE_EPSILON) {
-                        // filterType = IntendedRouteFilterType.FILTERONLY;
-                        // }
+                            IntendedRouteFilterType filterType = IntendedRouteFilterType.FILTERONLY;
 
-                        // We want an ENC graphics but no warning
-                        if (currentDistance <= ENC_DISTANCE_EPSILON) {
-                            filterType = IntendedRouteFilterType.ENC;
+                            // Top level filter only, no msg or graphics
+                            // if (currentDistance <= FILTER_DISTANCE_EPSILON) {
+                            // filterType = IntendedRouteFilterType.FILTERONLY;
+                            // }
+
+                            // We want an ENC graphics but no warning
+                            if (currentDistance <= ENC_DISTANCE_EPSILON) {
+                                filterType = IntendedRouteFilterType.ENC;
+                            }
+
+                            // We want an alert
+                            if (currentDistance <= ALERT_DISTANCE_EPSILON) {
+                                filterType = IntendedRouteFilterType.ALERT;
+                            }
+
+                            // We want both
+                            if (currentDistance <= ALERT_DISTANCE_EPSILON
+                                    && currentDistance <= ENC_DISTANCE_EPSILON) {
+                                filterType = IntendedRouteFilterType.ALERT;
+                            }
+
+                            DecimalFormat df = new DecimalFormat("#.##");
+
+                            IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(
+                                    route1, route2, route1CurrentPosition,
+                                    route2CurrentPosition,
+                                    "TCPA Warning, proxmity of "
+                                            + df.format(currentDistance)
+                                            + " nautical miles ", 0, 0,
+                                    filterType);
+
+                            filterMessage.setTime1(traverseTime);
+                            filterMessage.setTime2(traverseTime);
+
+                            filteredIntendedRoute.getFilterMessages().add(
+                                    filterMessage);
+                            LOG.debug("Adding warning");
                         }
-
-                        // We want an alert
-                        if (currentDistance <= ALERT_DISTANCE_EPSILON) {
-                            filterType = IntendedRouteFilterType.ALERT;
-                        }
-
-                        // We want both
-                        if (currentDistance <= ALERT_DISTANCE_EPSILON
-                                && currentDistance <= ENC_DISTANCE_EPSILON) {
-                            filterType = IntendedRouteFilterType.ALERT;
-                        }
-
-                        DecimalFormat df = new DecimalFormat("#.##");
-
-                        IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(
-                                route1, route2, route1CurrentPosition,
-                                route2CurrentPosition,
-                                "TCPA Warning, proxmity of "
-                                        + df.format(currentDistance)
-                                        + " nautical miles ", 0, 0, filterType);
-
-                        filterMessage.setTime1(traverseTime);
-                        filterMessage.setTime2(traverseTime);
-
-                        filteredIntendedRoute.getFilterMessages().add(
-                                filterMessage);
-                        LOG.debug("Adding warning");
                     } else {
                         LOG.debug("Found distance of " + currentDistance
                                 + " at " + traverseTime);
@@ -831,9 +835,7 @@ public abstract class IntendedRouteHandlerCommon extends
 
                     }
 
-                    // Are we more than 5 hours in the future then stop
-
-                    PntTime.getInstance();
+                    // Are we more than x hours in the future then stop
                     DateTime currentTime = new DateTime(PntTime.getDate()
                             .getTime());
 

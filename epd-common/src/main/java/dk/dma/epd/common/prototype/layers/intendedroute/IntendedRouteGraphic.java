@@ -63,16 +63,17 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
     private List<WpCircle> routeWps = new ArrayList<>();
 
-//    private PlannedPositionGraphic plannedPositionArea = new PlannedPositionGraphic();
+    // private PlannedPositionGraphic plannedPositionArea = new
+    // PlannedPositionGraphic();
 
     /**
      * Constructor
      */
     public IntendedRouteGraphic() {
         super();
-        
-        //Temp fix for disabling planned position Area
-//        add(plannedPositionArea);
+
+        // Temp fix for disabling planned position Area
+        // add(plannedPositionArea);
     }
 
     /**
@@ -90,7 +91,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private void makeLegLine(int index, Position start, Position end,
             Heading heading) {
         IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this,
-                false, start, end, heading, routeColor, SCALE);
+                false, start, end, heading, routeColor, SCALE, false);
         leg.setArrows(arrowsVisible);
         routeLegs.add(leg);
         add(leg);
@@ -168,9 +169,9 @@ public class IntendedRouteGraphic extends OMGraphicList {
             renderIntendedRoute();
         }
         if (!this.isVisible()) {
-//            plannedPositionArea.setVisible(false);
+            // plannedPositionArea.setVisible(false);
         } else {
-//            plannedPositionArea.setVisible(true);
+            // plannedPositionArea.setVisible(true);
         }
     }
 
@@ -182,8 +183,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
         updateIntendedRoute(intendedRoute);
 
         // Update planned position
-//        plannedPositionArea.moveSymbol(intendedRoute.getPlannedPosition(),
-//                intendedRoute.getPlannedPositionBearing(), 1000, 500);
+        // plannedPositionArea.moveSymbol(intendedRoute.getPlannedPosition(),
+        // intendedRoute.getPlannedPositionBearing(), 1000, 500);
     }
 
     /**
@@ -213,12 +214,29 @@ public class IntendedRouteGraphic extends OMGraphicList {
         routeWps = new ArrayList<>();
 
         // Re-add planned position
-//        add(plannedPositionArea);
+        // add(plannedPositionArea);
 
         // Handle empty route
         if (intendedRoute == null || !intendedRoute.hasRoute()) {
             setVisible(false);
             return;
+        }
+
+        // Update leg to first way point
+        if (vesselPos != null) {
+
+            // Attempt to set the heading of this leg to that
+            // of the in-leg of the active way point
+            Heading heading = Heading.RL;
+            if (intendedRoute.getActiveWaypoint().getInLeg() != null) {
+                heading = intendedRoute.getActiveWaypoint().getInLeg()
+                        .getHeading();
+            }
+            Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
+            activeWpLine = new IntendedRouteLegGraphic(0, this, true,
+                    vesselPos, activeWpPos, heading, routeColor, SCALE, true);
+
+            add(activeWpLine);
         }
 
         int x = 0;
@@ -234,22 +252,6 @@ public class IntendedRouteGraphic extends OMGraphicList {
             }
 
             x++;
-        }
-
-        // Update leg to first way point
-        if (vesselPos != null) {
-
-            // Attempt to set the heading of this leg to that
-            // of the in-leg of the active way point
-            Heading heading = Heading.RL;
-            if (intendedRoute.getActiveWaypoint().getInLeg() != null) {
-                heading = intendedRoute.getActiveWaypoint().getInLeg()
-                        .getHeading();
-            }
-            Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
-            activeWpLine = new IntendedRouteLegGraphic(0, this, true,
-                    vesselPos, activeWpPos, heading, routeColor, SCALE);
-            add(activeWpLine);
         }
 
         // Adjust the transparency of the color depending on the last-received

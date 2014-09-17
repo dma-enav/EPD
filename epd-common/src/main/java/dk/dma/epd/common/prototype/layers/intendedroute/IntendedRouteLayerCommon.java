@@ -291,12 +291,24 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements
             intendedRouteInfoPanel
                     .showWpInfo((IntendedRouteWpCircle) newClosest);
         } else {
-            // lets user see ETA continually along route leg
-            Point2D worldLocation = chartPanel.getMap().getProjection()
-                    .inverse(evt.getPoint());
-            intendedRouteInfoPanel.showLegInfo(
-                    (IntendedRouteLegGraphic) newClosest, worldLocation);
-            closest = dummyCircle;
+
+            int legIndex = ((IntendedRouteLegGraphic) newClosest).getIndex();
+            IntendedRoute routeData = ((IntendedRouteLegGraphic) (IntendedRouteLegGraphic) newClosest)
+                    .getIntendedRouteGraphic().getIntendedRoute();
+
+            if (legIndex - 1 < routeData.getActiveWpIndex()
+                    && !((IntendedRouteLegGraphic) newClosest).isActiveWpLine()) {
+                return false;
+            } else {
+                // lets user see ETA continually along route leg
+                Point2D worldLocation = chartPanel.getMap().getProjection()
+                        .inverse(evt.getPoint());
+                intendedRouteInfoPanel.showLegInfo(
+                        (IntendedRouteLegGraphic) newClosest, worldLocation);
+                closest = dummyCircle;
+
+            }
+
         }
         return true;
     }

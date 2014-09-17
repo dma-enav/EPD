@@ -17,8 +17,11 @@ package dk.dma.epd.common.prototype.layers.intendedroute;
 import java.awt.geom.Point2D;
 import java.util.Date;
 
+import org.joda.time.DateTime;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
@@ -35,7 +38,8 @@ public class IntendedRouteInfoPanel extends InfoPanel {
     }
 
     public void showWpInfo(IntendedRouteWpCircle wpCircle) {
-        IntendedRoute routeData = wpCircle.getIntendedRouteGraphic().getIntendedRoute();
+        IntendedRoute routeData = wpCircle.getIntendedRouteGraphic()
+                .getIntendedRoute();
         if (routeData == null) {
             showText("");
             return;
@@ -45,9 +49,11 @@ public class IntendedRouteInfoPanel extends InfoPanel {
         str.append("<b>Intended route waypoint</b><br/>");
         str.append(wpCircle.getIntendedRouteGraphic().getName() + "<br/>");
         str.append("<table border='0' cellpadding='2'>");
-        str.append("<tr><td>Route age:</td><td>" + getAge(routeData.getReceived()) + "</td></tr>");
-        str.append("<tr><td>ETA:</td><td>" + Formatter.formatShortDateTime(routeData.getEtas().get(wpCircle.getIndex()))
-                + "</td></tr>");
+        str.append("<tr><td>Route age:</td><td>"
+                + getAge(routeData.getReceived()) + "</td></tr>");
+        str.append("<tr><td>ETA:</td><td>"
+                + Formatter.formatShortDateTime(routeData.getEtas().get(
+                        wpCircle.getIndex())) + "</td></tr>");
         str.append("</table>");
         str.append("</html>");
 
@@ -56,76 +62,196 @@ public class IntendedRouteInfoPanel extends InfoPanel {
     }
 
     private String getAge(Date received) {
-        return Formatter.formatTimeShort(PntTime.getDate().getTime() - received.getTime()) + " (mm:ss)";
+        return Formatter.formatTimeShort(PntTime.getDate().getTime()
+                - received.getTime())
+                + " (mm:ss)";
     }
 
-    public void showLegInfo(IntendedRouteLegGraphic legGraphic, Point2D worldLocation) {
-        int legIndex = legGraphic.getIndex();
-        if (legIndex == 0) {
-            return;
+    public void showLegInfo(IntendedRouteLegGraphic legGraphic,
+            Point2D worldLocation) {
+        IntendedRoute routeData = ((IntendedRouteLegGraphic) legGraphic)
+                .getIntendedRouteGraphic().getIntendedRoute();
+
+        RouteWaypoint startWp;
+
+        Position startPos;
+        Position midPos;
+        double midRange;
+        Date startEta;
+
+        DateTime intendedRouteETA = null;
+
+        if (legGraphic.isActiveWpLine()) {
+
+            startPos = EPD.getInstance().getAisHandler()
+                    .getVesselTarget(routeData.getMmsi()).getPositionData()
+                    .getPos();
+
+            midPos = Position
+                    .create(worldLocation.getY(), worldLocation.getX());
+
+            midRange = Calculator.range(startPos, midPos, Heading.RL);
+
+            startEta = PntTime.getDate();
+
+            Date endEta = routeData.getEtas().get(routeData.getActiveWpIndex());
+
+            long milisecondsTravelTime = endEta.getTime() - startEta.getTime();
+
+            Position endPosition = routeData.getWaypoints()
+                    .get(routeData.getActiveWpIndex()).getPos();
+
+            double lengthToTravel = Calculator.range(startPos, endPosition,
+                    Heading.RL);
+
+            double speed = (lengthToTravel / milisecondsTravelTime) * 1000 * 60 * 60;
+
+            intendedRouteETA = new DateTime(
+                    (long) (midRange / speed * 3600000 + startEta.getTime()));
+
+        } else {
+            startWp = routeData.getWaypoints()
+                    .get(routeData.getActiveWpIndex());
+            RouteLeg leg;
+            leg = startWp.getOutLeg();
+
+            startPos = startWp.getPos();
+
+            midPos = Position
+                    .create(worldLocation.getY(), worldLocation.getX());
+            midRange = Calculator.range(startPos, midPos, leg.getHeading());
+
+            startEta = routeData.getEtas().get(routeData.getActiveWpIndex());
+
+            intendedRouteETA = new DateTime((long) (midRange / leg.getSpeed()
+                    * 3600000 + startEta.getTime()));
+
         }
-        IntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getIntendedRoute();
-        RouteWaypoint startWp = routeData.getWaypoints().get(legIndex - 1);
-        RouteLeg leg = startWp.getOutLeg();
 
-        Position startPos = startWp.getPos();
-        Position midPos = Position.create(worldLocation.getY(), worldLocation.getX());
-        Position endPos = leg.getEndWp().getPos();
-        double range = Calculator.range(startPos, endPos, leg.getHeading());
-        double midRange = Calculator.range(startPos, midPos, leg.getHeading());
-        double hdg = Calculator.bearing(startPos, endPos, leg.getHeading());
-        Date startEta = routeData.getEtas().get(legIndex - 1);
+        // double range = Calculator.range(startPos, endPos, leg.getHeading());
+        // double midRange = Calculator.range(startPos, midPos,
+        // leg.getHeading());
+        // double hdg = Calculator.bearing(startPos, endPos, leg.getHeading());
 
-        Date midEta = new Date((long) (midRange / leg.getSpeed() * 3600000 + startEta.getTime()));
+        // Date midEta = new Date(
+        // (long) (midRange / leg.getSpeed() * 3600000 + startEta
+        // .getTime()));
 
         StringBuilder str = new StringBuilder();
         str.append("<html>");
         str.append("<b>Intended route leg</b><br/>");
         str.append(legGraphic.getIntendedRouteGraphic().getName() + "<br/>");
         str.append("<table border='0' cellpadding='2'>");
-        str.append("<tr><td>Route age:</td><td>" + getAge(routeData.getReceived()) + "</td></tr>");
-        str.append("<tr><td>Length:</td><td>" + Formatter.formatDistNM(range) + "</td></tr>");
-        str.append("<tr><td>Heading:</td><td>" + Formatter.formatDegrees(hdg, 0) + "</td></tr>");
-        str.append("<tr><td>Speed:</td><td>" + Formatter.formatSpeed(leg.getSpeed()) + "</td></tr>");
-        str.append("<tr><td>ETA here:</td><td>" + Formatter.formatShortDateTime(midEta) + "</td></tr>");
+
+        str.append("<tr><td>ETA here:</td><td>"
+                + Formatter.formatShortDateTime(new Date(intendedRouteETA
+                        .getMillis())) + "</td></tr>");
+
         str.append("</table>");
         str.append("</html>");
 
         showText(str.toString());
     }
 
-    public void showLegInfo(IntendedRouteLegGraphic legGraphic, Point2D worldLocation, Position intendedRoutePosition) {
+    public void showLegInfo(IntendedRouteLegGraphic legGraphic,
+            Point2D worldLocation, Position intendedRoutePosition) {
         int legIndex = legGraphic.getIndex();
-        if (legIndex == 0) {
+        IntendedRoute routeData = ((IntendedRouteLegGraphic) legGraphic)
+                .getIntendedRouteGraphic().getIntendedRoute();
+
+        if (legIndex - 1 < routeData.getActiveWpIndex()
+                && !legGraphic.isActiveWpLine()) {
+            showText("");
             return;
         }
-        IntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getIntendedRoute();
-        RouteWaypoint startWp = routeData.getWaypoints().get(legIndex - 1);
-        RouteLeg leg = startWp.getOutLeg();
 
-        Position startPos = startWp.getPos();
-        Position midPos = Position.create(worldLocation.getY(), worldLocation.getX());
-        Position endPos = leg.getEndWp().getPos();
-        double range = Calculator.range(startPos, endPos, leg.getHeading());
-        double midRange = Calculator.range(startPos, midPos, leg.getHeading());
-        double hdg = Calculator.bearing(startPos, endPos, leg.getHeading());
-        Date startEta = routeData.getEtas().get(legIndex - 1);
+        RouteWaypoint startWp;
 
-        double distanceRoutes = Calculator.range(midPos, intendedRoutePosition, Heading.RL);
+        Position startPos;
+        Position midPos;
+        double midRange;
+        Date startEta;
 
-        Date midEta = new Date((long) (midRange / leg.getSpeed() * 3600000 + startEta.getTime()));
+        DateTime intendedRouteETA = null;
+
+        if (legGraphic.isActiveWpLine()) {
+            // System.out.println("Active WP Line");
+            // leg = startWp.getOutLeg();
+
+            // if (EPD.getInstance().getAisHandler()
+            // .getVesselTarget(routeData.getMmsi()).getPositionData()
+            // .getSog() <= 0) {
+            //
+            // return;
+            //
+            // }
+
+            startPos = EPD.getInstance().getAisHandler()
+                    .getVesselTarget(routeData.getMmsi()).getPositionData()
+                    .getPos();
+
+            midPos = Position
+                    .create(worldLocation.getY(), worldLocation.getX());
+
+            midRange = Calculator.range(startPos, midPos, Heading.RL);
+
+            startEta = PntTime.getDate();
+
+            Date endEta = routeData.getEtas().get(routeData.getActiveWpIndex());
+
+            long milisecondsTravelTime = endEta.getTime() - startEta.getTime();
+
+            Position endPosition = routeData.getWaypoints()
+                    .get(routeData.getActiveWpIndex()).getPos();
+
+            double lengthToTravel = Calculator.range(startPos, endPosition,
+                    Heading.RL);
+
+            double speed = (lengthToTravel / milisecondsTravelTime) * 1000 * 60 * 60;
+
+            intendedRouteETA = new DateTime(
+                    (long) (midRange / speed * 3600000 + startEta.getTime()));
+
+        } else {
+            startWp = routeData.getWaypoints()
+                    .get(routeData.getActiveWpIndex());
+            RouteLeg leg;
+            leg = startWp.getOutLeg();
+
+            startPos = startWp.getPos();
+            midPos = Position
+                    .create(worldLocation.getY(), worldLocation.getX());
+            midRange = Calculator.range(startPos, midPos, leg.getHeading());
+
+            startEta = routeData.getEtas().get(routeData.getActiveWpIndex());
+
+            intendedRouteETA = new DateTime((long) (midRange / leg.getSpeed()
+                    * 3600000 + startEta.getTime()));
+
+        }
+
+        // double range = Calculator.range(startPos, endPos, leg.getHeading());
+        // double midRange = Calculator.range(startPos, midPos,
+        // leg.getHeading());
+        // double hdg = Calculator.bearing(startPos, endPos, leg.getHeading());
+
+        double distanceRoutes = Calculator.range(midPos, intendedRoutePosition,
+                Heading.RL);
+
+        // Date midEta = new Date(
+        // (long) (midRange / leg.getSpeed() * 3600000 + startEta
+        // .getTime()));
 
         StringBuilder str = new StringBuilder();
         str.append("<html>");
         str.append("<b>Intended route leg</b><br/>");
         str.append(legGraphic.getIntendedRouteGraphic().getName() + "<br/>");
         str.append("<table border='0' cellpadding='2'>");
-        str.append("<tr><td>Route age:</td><td>" + getAge(routeData.getReceived()) + "</td></tr>");
-        str.append("<tr><td>Length:</td><td>" + Formatter.formatDistNM(range) + "</td></tr>");
-        str.append("<tr><td>Heading:</td><td>" + Formatter.formatDegrees(hdg, 0) + "</td></tr>");
-        str.append("<tr><td>Speed:</td><td>" + Formatter.formatSpeed(leg.getSpeed()) + "</td></tr>");
-        str.append("<tr><td>ETA here:</td><td>" + Formatter.formatShortDateTime(midEta) + "</td></tr>");
-        str.append("<tr><td>Distance Between Routes:</td><td>" + Formatter.formatDistNM(distanceRoutes) + "</td></tr>");
+        str.append("<tr><td>ETA here:</td><td>"
+                + Formatter.formatShortDateTime(new Date(intendedRouteETA
+                        .getMillis())) + "</td></tr>");
+        str.append("<tr><td>Distance Between Routes:</td><td>"
+                + Formatter.formatDistNM(distanceRoutes) + "</td></tr>");
         str.append("</table>");
         str.append("</html>");
 
