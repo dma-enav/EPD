@@ -120,9 +120,6 @@ public class Calculator {
         // " Seconds");
         double hoursSailed = (seconds / 60.0) / 60.0;
 
-        System.out.println("Speed is CALC " + mph);
-        System.out.println("Hours sailed is CALC " + hoursSailed);
-        
         // double milesPrSecond = (mph / 60.0) / 60.0;
         return (mph * hoursSailed);
     }

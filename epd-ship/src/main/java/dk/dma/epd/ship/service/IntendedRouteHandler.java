@@ -429,10 +429,11 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements
 
             FilteredIntendedRoute filter = findTCPA(
                     routeManager.getActiveRoute(), route);
-            // Try other way around
-            if (!filter.include()) {
-                filter = findTCPA(route, routeManager.getActiveRoute());
-            }
+            
+            // Try other way around or dont
+//            if (!filter.include()) {
+//                filter = findTCPA(route, routeManager.getActiveRoute());
+//            }
 
             // No warnings, ignore it
             if (!filter.include()) {
