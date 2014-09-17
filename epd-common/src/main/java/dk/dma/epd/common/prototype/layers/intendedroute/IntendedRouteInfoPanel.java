@@ -250,7 +250,7 @@ public class IntendedRouteInfoPanel extends InfoPanel {
         str.append("<tr><td>ETA here:</td><td>"
                 + Formatter.formatShortDateTime(new Date(intendedRouteETA
                         .getMillis())) + "</td></tr>");
-        str.append("<tr><td>Distance Between Routes:</td><td>"
+        str.append("<tr><td>Distance:</td><td>"
                 + Formatter.formatDistNM(distanceRoutes) + "</td></tr>");
         str.append("</table>");
         str.append("</html>");
