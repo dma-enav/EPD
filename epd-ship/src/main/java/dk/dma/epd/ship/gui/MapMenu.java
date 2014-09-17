@@ -157,7 +157,6 @@ public class MapMenu extends MapMenuCommon {
 
         hideIntendedRoutes.setIntendedRouteHandler(intendedRouteHandler);
         showIntendedRoutes.setIntendedRouteHandler(intendedRouteHandler);
-        checkIntendedRouteItems(hideIntendedRoutes, showIntendedRoutes);
 
         newRoute.setMouseDelegator(mouseDelegator);
         newRoute.setMainFrame(mainFrame);

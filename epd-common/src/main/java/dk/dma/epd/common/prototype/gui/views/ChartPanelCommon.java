@@ -371,19 +371,6 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         }
     }
 
-    /**
-     * Sets Intended Route layer visibility
-     * 
-     * @param visible the visibility
-     */
-    public void intendedRouteLayerVisible(boolean visible) {
-        if (intendedRouteLayer != null) {
-            intendedRouteLayer.setVisible(visible);
-            EPD.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(visible);
-        }
-    }
-
-    
     /*******************************/
     /** Getters and setters       **/
     /*******************************/

@@ -183,7 +183,6 @@ public class MapMenu extends MapMenuCommon {
 
         hideIntendedRoutes.setIntendedRouteHandler(intendedRouteHandler);
         showIntendedRoutes.setIntendedRouteHandler(intendedRouteHandler);
-        checkIntendedRouteItems(hideIntendedRoutes, showIntendedRoutes);
 
         newRoute.setToolBar(EPDShore.getInstance().getMainFrame().getToolbar());
 
