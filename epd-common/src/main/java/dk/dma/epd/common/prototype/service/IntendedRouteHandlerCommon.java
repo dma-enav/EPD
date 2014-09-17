@@ -673,7 +673,7 @@ public abstract class IntendedRouteHandlerCommon extends
                 Position route2CurrentPosition = route2StartPos;
 
                 int route1CurrentWaypoint = i - 1;
-                int route2CurrentWaypoint = route2StartWp;
+                int route2CurrentWaypoint = route2StartWp - 1;
 
                 DateTime traverseTime = route2Start;
 
