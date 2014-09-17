@@ -179,6 +179,7 @@ public abstract class IntendedRouteHandlerCommon extends
             }
             if (filteredIntendedRoutes.containsKey(mmsi)) {
                 filteredIntendedRoutes.remove(mmsi);
+                LOG.debug("Removing Route due to Route no longer being transmitted");
             }
             // return;
         } else {

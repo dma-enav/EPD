@@ -441,7 +441,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements
                 // Remove it, if it exists
                 if (this.filteredIntendedRoutes.containsKey(route.getMmsi())) {
                     filteredIntendedRoutes.remove(route.getMmsi());
-                    LOG.debug("Remove from filter");
+                    LOG.debug("Remove from filter as it is no longer valid");
                 }
 
             } else {
