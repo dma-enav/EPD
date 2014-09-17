@@ -272,9 +272,8 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         intendedRouteLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean selected = !topPanel.getIntendedRouteButton().isSelected();
-                topPanel.getIntendedRouteButton().setSelected(selected);
-                EPDShip.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(selected);
+                boolean selected = intendedRouteLayer.isSelected();
+                EPDShip.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(selected);                
             }
         });
 
