@@ -34,17 +34,17 @@ public class IntendedRouteFilterSettingsPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     
     private JSpinner spinnerTimeToLive;
+    private JSpinner spinnerMarkerDistance;
     private JSpinner spinnerFilterDistance;
-    private JSpinner spinnerNotificationDistance;
     private JSpinner spinnerAlertDistance;
     
     public IntendedRouteFilterSettingsPanel() {
         this.setBounds(6, 260, 438, 140);
-        this.setBorder(new TitledBorder(null, "CPA Route Filter"));
+        this.setBorder(new TitledBorder(null, "Intended route thresholds"));
         this.setLayout(null);
         
-        JLabel lblTimeToLive = new JLabel("Time to live (min)");
-        lblTimeToLive.setBounds(103, 22, 110, 16);
+        JLabel lblTimeToLive = new JLabel("Validity time after last reception (min)");
+        lblTimeToLive.setBounds(103, 22, 220, 16);
         this.add(lblTimeToLive);
         
         spinnerTimeToLive = new JSpinner();
@@ -53,32 +53,34 @@ public class IntendedRouteFilterSettingsPanel extends JPanel {
         spinnerTimeToLive.setBounds(16, 20, 75, 20);
         this.add(spinnerTimeToLive);
         
-        JLabel lblFilterDistanceEpsilon = new JLabel("Route CPA ENC Warning Distance (nm)");
-        lblFilterDistanceEpsilon.setBounds(103, 47, 200, 16);
+        JLabel lblFilterDistanceEpsilon = new JLabel("Route CPA Warning Markers Distannce (nm)");
+        lblFilterDistanceEpsilon.setBounds(103, 47, 220, 16);
         this.add(lblFilterDistanceEpsilon);
         
-        spinnerFilterDistance = new JSpinner();
-        spinnerFilterDistance.setModel(new SpinnerNumberModel(new Double(4), new Double(0), null, new Double(0.1)));
-        spinnerFilterDistance.setBounds(16, 45, 75, 20);
-        this.add(spinnerFilterDistance);
+        spinnerMarkerDistance = new JSpinner();
+        spinnerMarkerDistance.setModel(new SpinnerNumberModel(new Double(4), new Double(0), null, new Double(0.1)));
+        spinnerMarkerDistance.setBounds(16, 45, 75, 20);
+        this.add(spinnerMarkerDistance);
         
-        JLabel lblNotificationDistancenm = new JLabel("Route CPA Notification Distance (nm)");
+        JLabel lblNotificationDistancenm = new JLabel("Route Filter CPA Distance (nm)");
         lblNotificationDistancenm.setBounds(103, 72, 200, 16);
         this.add(lblNotificationDistancenm);
         
-        spinnerNotificationDistance = new JSpinner();
-        spinnerNotificationDistance.setModel(new SpinnerNumberModel(new Double(0), new Double(0), null, new Double(0.1)));
-        spinnerNotificationDistance.setBounds(16, 70, 75, 20);
-        this.add(spinnerNotificationDistance);
+        spinnerFilterDistance = new JSpinner();
+        spinnerFilterDistance.setModel(new SpinnerNumberModel(new Double(0), new Double(0), null, new Double(0.1)));
+        spinnerFilterDistance.setBounds(16, 70, 75, 20);
+        this.add(spinnerFilterDistance);
         
         JLabel lblAlertDistance = new JLabel("Route CPA Alert Distance (nm)");
         lblAlertDistance.setBounds(103, 97, 200, 16);
         this.add(lblAlertDistance);
+        lblAlertDistance.setVisible(false);
         
         spinnerAlertDistance = new JSpinner();
         spinnerAlertDistance.setModel(new SpinnerNumberModel(new Double(0), new Double(0), null, new Double(0.1)));
         spinnerAlertDistance.setBounds(16, 95, 75, 20);
         this.add(spinnerAlertDistance);
+        spinnerAlertDistance.setVisible(false);
     }
     
     /**
@@ -90,20 +92,24 @@ public class IntendedRouteFilterSettingsPanel extends JPanel {
         return (Long)this.spinnerTimeToLive.getValue();
     }
     
-    public double getNotificationDistance() {
-        return (Double)this.spinnerNotificationDistance.getValue();
-    }
-    
-    public double getAlertDistance() {
-        return (Double)this.spinnerAlertDistance.getValue();
-    }
-    
     public double getFilterDistance() {
-        return (Double)this.spinnerFilterDistance.getValue();
+        return (double)this.spinnerFilterDistance.getValue();
     }
     
     public void setFilterDistance(double filterDistance) {
         this.spinnerFilterDistance.setValue(filterDistance);
+    }
+
+    public double getAlertDistance() {
+        return (double)this.spinnerAlertDistance.getValue();
+    }
+    
+    public double getMarkerDistance() {
+        return (double)this.spinnerMarkerDistance.getValue();
+    }
+    
+    public void setMarkerDistance(double markerDistance) {
+        this.spinnerMarkerDistance.setValue(markerDistance);
     }
     
     /**
@@ -115,10 +121,8 @@ public class IntendedRouteFilterSettingsPanel extends JPanel {
     }
     
     public void setAlertDistance(double alertDistance) {
-        this.spinnerAlertDistance.setValue(alertDistance);
+        //this.spinnerAlertDistance.setValue(alertDistance);
+        this.spinnerAlertDistance.setValue(0.0);
     }
     
-    public void setNotificationDistance(double notificationDistance) {
-        this.spinnerNotificationDistance.setValue(notificationDistance);
-    }
 }

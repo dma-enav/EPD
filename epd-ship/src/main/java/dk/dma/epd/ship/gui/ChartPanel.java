@@ -315,9 +315,6 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         // Show WMS or not
         wmsVisible(EPDShip.getInstance().getSettings().getMapSettings().isWmsVisible());
 
-        // Show intended routes or not
-        intendedRouteLayerVisible(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
-
         getMap().addMouseWheelListener(this);
 
     }

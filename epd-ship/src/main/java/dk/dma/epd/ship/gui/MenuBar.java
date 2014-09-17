@@ -79,7 +79,6 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     private JCheckBoxMenuItem encLayer;
     private JCheckBoxMenuItem msPntLayer;
     private final JCheckBoxMenuItem nogoLayer = new JCheckBoxMenuItem("NoGo Layer");;
-    private JCheckBoxMenuItem intendedRouteLayer;
     private JCheckBoxMenuItem newRoute;
     private JMenu dockableMenu;
 
@@ -265,19 +264,6 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             }
         });
         
-        // Intended route layer
-        intendedRouteLayer = new JCheckBoxMenuItem("Intended route Layer");
-        layers.add(intendedRouteLayer);
-        intendedRouteLayer.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
-        intendedRouteLayer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean selected = !topPanel.getIntendedRouteButton().isSelected();
-                topPanel.getIntendedRouteButton().setSelected(selected);
-                EPDShip.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(selected);
-            }
-        });
-
         // Multi-source PNT (a.k.a "Resilient PNT") layer.
         // Please note, this later is actually a virtual layer;
         // the RPNT graphics is handler by the OwnShipLayer.
@@ -700,10 +686,6 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         return nogoLayer;
     }
     
-    public JCheckBoxMenuItem getIntendedRouteLayer() {
-        return intendedRouteLayer;
-    }
-
     public JCheckBoxMenuItem getNewRoute() {
         return newRoute;
     }

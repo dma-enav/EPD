@@ -966,8 +966,8 @@ public abstract class IntendedRouteHandlerCommon extends
     public void updateSettings(EnavSettings settings) {
 
         ROUTE_TTL = settings.getRouteTimeToLive();
-        ENC_DISTANCE_EPSILON = settings.getFilterDistance();
-        FILTER_DISTANCE_EPSILON = settings.getNotificationDistance();
+        ENC_DISTANCE_EPSILON = settings.getMarkerDistance();
+        FILTER_DISTANCE_EPSILON = settings.getFilterDistance();
         ALERT_DISTANCE_EPSILON = settings.getAlertDistance();
 
         /*

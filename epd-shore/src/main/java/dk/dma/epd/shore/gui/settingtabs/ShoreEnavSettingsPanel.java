@@ -50,29 +50,21 @@ public class ShoreEnavSettingsPanel extends CommonENavSettingsPanel {
         EnavSettings enavSettings = this.getSettings().getEnavSettings();
         return super.checkSettingsChanged()
                 || changed(enavSettings.getRouteTimeToLive(),
-                        TimeUnit.MINUTES
-                                .toMillis(this.intendedRouteFilterSettingsPanel
-                                        .getTimeToLive()))
-                || changed(enavSettings.getNotificationDistance(),
-                        this.intendedRouteFilterSettingsPanel
-                                .getNotificationDistance())
-                || changed(enavSettings.getAlertDistance(),
-                        this.intendedRouteFilterSettingsPanel
-                                .getAlertDistance())
-                || changed(enavSettings.getFilterDistance(),
-                        this.intendedRouteFilterSettingsPanel
-                                .getFilterDistance());
+                        TimeUnit.MINUTES.toMillis(this.intendedRouteFilterSettingsPanel.getTimeToLive()))
+                || changed(enavSettings.getMarkerDistance(), this.intendedRouteFilterSettingsPanel.getMarkerDistance())
+                || changed(enavSettings.getAlertDistance(), this.intendedRouteFilterSettingsPanel.getAlertDistance())
+                || changed(enavSettings.getFilterDistance(), this.intendedRouteFilterSettingsPanel.getFilterDistance());
     }
-    
+
     @Override
     protected void doLoadSettings() {
         super.doLoadSettings();
         // Load intended route filter settings.
         EnavSettings enavSettings = this.getSettings().getEnavSettings();
-        this.intendedRouteFilterSettingsPanel.setFilterDistance(enavSettings.getFilterDistance());
+        this.intendedRouteFilterSettingsPanel.setMarkerDistance(enavSettings.getMarkerDistance());
         this.intendedRouteFilterSettingsPanel.setTimeToLive(enavSettings.getRouteTimeToLive());
         this.intendedRouteFilterSettingsPanel.setAlertDistance(enavSettings.getAlertDistance());
-        this.intendedRouteFilterSettingsPanel.setNotificationDistance(enavSettings.getNotificationDistance());
+        this.intendedRouteFilterSettingsPanel.setFilterDistance(enavSettings.getFilterDistance());
     }
     
     @Override
@@ -82,7 +74,7 @@ public class ShoreEnavSettingsPanel extends CommonENavSettingsPanel {
         EnavSettings enavSettings = this.getSettings().getEnavSettings();
         enavSettings.setFilterDistance(this.intendedRouteFilterSettingsPanel.getFilterDistance());
         enavSettings.setAlertDistance(this.intendedRouteFilterSettingsPanel.getAlertDistance());
-        enavSettings.setNotificationDistance(this.intendedRouteFilterSettingsPanel.getNotificationDistance());
+        enavSettings.setMarkerDistance(this.intendedRouteFilterSettingsPanel.getMarkerDistance());
         enavSettings.setRouteTimeToLive(TimeUnit.MINUTES.toMillis(this.intendedRouteFilterSettingsPanel.getTimeToLive()));
     }
 }

@@ -291,8 +291,7 @@ public class ChartPanel extends ChartPanelCommon {
 
             // Create Intended Route Layer
             intendedRouteLayer = new IntendedRouteLayerCommon();
-            intendedRouteLayer.setVisible(EPD.getInstance().getSettings()
-                    .getCloudSettings().isShowIntendedRoute());
+            intendedRouteLayer.setVisible(true);
             mapHandler.add(intendedRouteLayer);
 
             // Create TCPA Graphics
@@ -339,8 +338,7 @@ public class ChartPanel extends ChartPanelCommon {
 
             // Create Intended Route Layer
             intendedRouteLayer = new IntendedRouteLayerCommon();
-            intendedRouteLayer.setVisible(EPD.getInstance().getSettings()
-                    .getCloudSettings().isShowIntendedRoute());
+            intendedRouteLayer.setVisible(true);
             mapHandler.add(intendedRouteLayer);
 
             // Create TCPA Graphics
@@ -393,8 +391,7 @@ public class ChartPanel extends ChartPanelCommon {
 
             // Create Intended Route Layer
             intendedRouteLayer = new IntendedRouteLayerCommon();
-            intendedRouteLayer.setVisible(EPD.getInstance().getSettings()
-                    .getCloudSettings().isShowIntendedRoute());
+            intendedRouteLayer.setVisible(true);
             mapHandler.add(intendedRouteLayer);
         }
 
