@@ -244,8 +244,8 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
                     Route route = routeManager.getRoute(routeManager.getActiveRouteIndex()).copy();
                     route.setName(route.getName() + " copy");
                     routeManager.addRoute(route);
-                    selectedWp = null;
                 }
+                selectedWp = null;
                 return true;
             }
         }
