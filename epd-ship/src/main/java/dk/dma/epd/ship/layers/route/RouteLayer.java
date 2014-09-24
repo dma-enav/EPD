@@ -42,7 +42,8 @@ import dk.dma.epd.ship.service.RouteSuggestionHandler;
 /**
  * Layer for showing routes
  */
-public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, RouteSuggestionListener {
+public class RouteLayer extends RouteLayerCommon implements IOwnShipListener,
+        RouteSuggestionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -90,8 +91,11 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
 
                 if (activeSafeHaven) {
                     graphics.remove(safeHavenArea);
-                    safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(),
-                            activeRoute.getSafeHavenWidth(), activeRoute.getSafeHavenLength());
+                    safeHavenArea.moveSymbol(
+                            activeRoute.getSafeHavenLocation(),
+                            activeRoute.getSafeHavenBearing(),
+                            activeRoute.getSafeHavenWidth(),
+                            activeRoute.getSafeHavenLength());
                     graphics.add(safeHavenArea);
                 }
             }
@@ -110,15 +114,16 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
             return;
         }
 
-//        if (e == null) {
-            updateSafeHaven();
-            doPrepare();
-//            return;
-//        }
+        // if (e == null) {
+        updateSafeHaven();
+        doPrepare();
+        // return;
+        // }
 
         graphics.clear();
 
-        float routeWidth = EPD.getInstance().getSettings().getNavSettings().getRouteWidth();
+        float routeWidth = EPD.getInstance().getSettings().getNavSettings()
+                .getRouteWidth();
         Stroke stroke = new BasicStroke(routeWidth, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
@@ -143,9 +148,11 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
                 if (route.isStccApproved()) {
                     Color greenApproved = new Color(0.39f, 0.69f, 0.49f, 0.6f);
 
-                    routeGraphic = new RouteGraphic(route, i, arrowsVisible, stroke, ECDISOrange, greenApproved, false, false);
+                    routeGraphic = new RouteGraphic(route, i, arrowsVisible,
+                            stroke, ECDISOrange, greenApproved, false, false);
                 } else {
-                    routeGraphic = new RouteGraphic(route, i, arrowsVisible, stroke, ECDISOrange);
+                    routeGraphic = new RouteGraphic(route, i, arrowsVisible,
+                            stroke, ECDISOrange);
                 }
 
                 graphics.add(routeGraphic);
@@ -162,10 +169,12 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
                 if (route.isStccApproved()) {
                     Color greenApproved = new Color(0.39f, 0.69f, 0.49f, 0.6f);
 
-                    activeRouteExtend = new ActiveRouteGraphic(activeRoute, activeRouteIndex, arrowsVisible, activeStroke,
+                    activeRouteExtend = new ActiveRouteGraphic(activeRoute,
+                            activeRouteIndex, arrowsVisible, activeStroke,
                             Color.RED, greenApproved);
                 } else {
-                    activeRouteExtend = new ActiveRouteGraphic(activeRoute, activeRouteIndex, arrowsVisible, activeStroke,
+                    activeRouteExtend = new ActiveRouteGraphic(activeRoute,
+                            activeRouteIndex, arrowsVisible, activeStroke,
                             Color.RED);
                 }
 
@@ -174,10 +183,19 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
                 if (activeSafeHaven) {
                     activeRoute.getSafeHavenLocation();
 
-                    safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(),
-                            activeRoute.getSafeHavenWidth(), activeRoute.getSafeHavenLength());
+                    safeHavenArea.moveSymbol(
+                            activeRoute.getSafeHavenLocation(),
+                            activeRoute.getSafeHavenBearing(),
+                            activeRoute.getSafeHavenWidth(),
+                            activeRoute.getSafeHavenLength());
                     graphics.add(safeHavenArea);
                 }
+
+                if (EPDShip.getInstance().getPosition() != null) {
+                    activeRouteExtend.updateActiveWpLine(EPDShip.getInstance()
+                            .getPosition());
+                }
+
             }
         }
 
@@ -193,7 +211,8 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
             }
 
             if (routeManager.showMetocForRoute(route)) {
-                routeMetoc = new MetocGraphic(route, activeRoute, EPDShip.getInstance().getSettings().getEnavSettings());
+                routeMetoc = new MetocGraphic(route, activeRoute, EPDShip
+                        .getInstance().getSettings().getEnavSettings());
                 metocGraphics.add(routeMetoc);
             }
         }
@@ -201,7 +220,8 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
             graphics.add(0, metocGraphics);
         }
 
-        for (RouteSuggestionData routeSuggestion : EPDShip.getInstance().getRouteSuggestionHandler().getSortedRouteSuggestions()) {
+        for (RouteSuggestionData routeSuggestion : EPDShip.getInstance()
+                .getRouteSuggestionHandler().getSortedRouteSuggestions()) {
             if (routeSuggestion.getRoute().isVisible()) {
                 graphics.add(new RouteSuggestionGraphic(routeSuggestion, stroke));
             }
@@ -223,7 +243,8 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
 
         if (clickedGraphics instanceof RouteSuggestionGraphic) {
             RouteSuggestionGraphic suggestedRoute = (RouteSuggestionGraphic) clickedGraphics;
-            getMapMenu().routeSuggestionMenu(suggestedRoute.getRouteSuggestion());
+            getMapMenu().routeSuggestionMenu(
+                    suggestedRoute.getRouteSuggestion());
         }
     }
 
@@ -256,7 +277,23 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
     @Override
     public void ownShipUpdated(OwnShipHandler ownShipHandler) {
         // Update
-        safeHavenArea.shipPositionChanged(ownShipHandler.getPntData().getPosition());
+        safeHavenArea.shipPositionChanged(ownShipHandler.getPntData()
+                .getPosition());
+
+        if (routeManager.isRouteActive()) {
+            for (int i = 0; i < graphics.size(); i++) {
+                if (graphics.get(i) instanceof ActiveRouteGraphic) {
+                    ActiveRouteGraphic activeRouteGraphics = (ActiveRouteGraphic) graphics
+                            .get(i);
+
+                    activeRouteGraphics.updateActiveWpLine(ownShipHandler
+                            .getPntData().getPosition());
+                    break;
+                }
+            }
+        }
+        doPrepare();
+
     }
 
     /**
@@ -275,16 +312,4 @@ public class RouteLayer extends RouteLayerCommon implements IOwnShipListener, Ro
         routesChanged(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
     }
 
-    // /**
-    // * {@inheritDoc}
-    // */
-    // @Override
-    // protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
-    // boolean initReturn = super.initInfoPanel(infoPanel, newClosest, evt, containerPoint);
-    // if (!initReturn) {
-    //
-    //
-    // }
-    // return initReturn;
-    // }
 }

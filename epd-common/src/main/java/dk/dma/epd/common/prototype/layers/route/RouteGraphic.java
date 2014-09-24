@@ -35,10 +35,10 @@ public class RouteGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
 
-    private static final float SCALE = 0.7f; // "Size" of graphics
+    protected static final float SCALE = 0.7f; // "Size" of graphics
     private Route route;
     private boolean arrowsVisible;
-    private LinkedList<RouteWaypoint> routeWaypoints;
+    protected LinkedList<RouteWaypoint> routeWaypoints;
     protected List<RouteLegGraphic> routeLegs = new ArrayList<>();
 
     protected Stroke routeStroke;

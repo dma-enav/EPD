@@ -221,7 +221,7 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
         // Find leg we're on
 
         // Find start WP
-        int startWP = activeRoute.getActiveWaypointIndex() - 1;
+        int startWP = activeRoute.getActiveWaypointIndex();
         if (startWP < 0) {
             startWP = 0;
         }
@@ -289,6 +289,62 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
                 }
             }
         }
+
+        // Test the leg going from own ships current position to wp 0;
+        // We are in the route
+        if (new DateTime(PntTime.getDate()).isBefore(intendedRouteETA)) {
+
+            if (new DateTime(activeRoute.getEtas()
+                    .get(activeRoute.getActiveWaypointIndex()).getTime())
+                    .isAfter(intendedRouteETA)) {
+
+                // Time Left in route
+                // long secondsSailTime = (activeRoute.getEtas()
+                // .get(i + 1).getTime() - intendedRouteETA
+                // .getMillis()) / 1000;
+
+                long secondsSailTime = intendedRouteETA.minus(
+                        PntTime.getDate().getTime()).getMillis() / 1000;
+                //
+
+                // System.out.println(intendedRouteETA.minus(
+                // activeRoute.getEtas().get(i).getTime())
+                // .getMillis() / 1000 / 60);
+
+                // secondsSailTime = totalTime - secondsSailTime;
+
+                // System.out.println("We have travelled for "
+                // + secondsSailTime / 60);
+
+                Date startEta = PntTime.getDate();
+                Date endEta = activeRoute.getEtas().get(
+                        activeRoute.getActiveWaypointIndex());
+
+                // Try and calculate the speed
+                long milisecondsTravelTime = endEta.getTime()
+                        - startEta.getTime();
+
+                Position startPos = EPDShip.getInstance().getPosition();
+                //
+                Position endPosition = activeRoute.getWaypoints()
+                        .get(activeRoute.getActiveWaypointIndex()).getPos();
+                //
+
+                double lengthToTravel = Calculator.range(startPos, endPosition,
+                        Heading.RL);
+
+                double speed = (lengthToTravel / milisecondsTravelTime) * 1000 * 60 * 60;
+
+                double distanceTravelled = Calculator.distanceAfterTimeMph(
+                        speed, secondsSailTime);
+
+                return Calculator.findPosition(startPos,
+                        Calculator.bearing(startPos, endPosition, Heading.RL),
+                        Converter.nmToMeters(distanceTravelled));
+
+            }
+        }
+
         return null;
 
     }

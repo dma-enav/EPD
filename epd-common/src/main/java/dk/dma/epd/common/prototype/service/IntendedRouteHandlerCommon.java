@@ -97,7 +97,7 @@ public abstract class IntendedRouteHandlerCommon extends
     protected List<IIntendedRouteListener> listeners = new CopyOnWriteArrayList<>();
 
     private AisHandlerCommon aisHandler;
-    private boolean intendedRouteIsVisible = true;
+//    private boolean intendedRouteIsVisible = true;
 
     /**
      * Constructor
@@ -201,7 +201,7 @@ public abstract class IntendedRouteHandlerCommon extends
 
         }
 
-        intendedRoute.setVisible(intendedRouteIsVisible);
+//        intendedRoute.setVisible(intendedRouteIsVisible);
 
         // Fire event
         fireIntendedEvent(intendedRoute);
@@ -247,7 +247,7 @@ public abstract class IntendedRouteHandlerCommon extends
             fireIntendedEvent(intendedRoute);
 
         }
-        intendedRouteIsVisible = false;
+//        intendedRouteIsVisible = false;
     }
 
     /**
@@ -258,7 +258,7 @@ public abstract class IntendedRouteHandlerCommon extends
             intendedRoute.setVisible(true);
             fireIntendedEvent(intendedRoute);
         }
-        intendedRouteIsVisible = true;
+//        intendedRouteIsVisible = true;
     }
 
     /****************************************/
@@ -675,6 +675,15 @@ public abstract class IntendedRouteHandlerCommon extends
                 int route1CurrentWaypoint = i - 1;
                 int route2CurrentWaypoint = route2StartWp - 1;
 
+                if (route2CurrentWaypoint< 0){
+                    route2CurrentWaypoint = 0;
+                }
+     
+                if (route1CurrentWaypoint< 0){
+                    route1CurrentWaypoint = 0;
+                }
+                
+                
                 DateTime traverseTime = route2Start;
 
                 DateTime route1SegmentEnd = getEta(route1,

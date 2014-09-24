@@ -38,17 +38,28 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
 
     private static final long serialVersionUID = 1L;
 
-    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor,
+    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex,
+            Color color, Stroke stroke, Color broadLineColor,
             float[] broadLineDash, float scale) {
-        super(routeLeg, routeIndex, color, stroke, broadLineColor, broadLineDash, scale);
+        super(routeLeg, routeIndex, color, stroke, broadLineColor,
+                broadLineDash, scale);
         addCrossTrack();
     }
 
-    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, float scale,
-            RouteGraphic routeGraphic, int legIndex) {
-        super(routeLeg, routeIndex, color, stroke, scale, routeGraphic, legIndex);
+    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex,
+            Color color, Stroke stroke, float scale, RouteGraphic routeGraphic,
+            int legIndex) {
+        super(routeLeg, routeIndex, color, stroke, scale, routeGraphic,
+                legIndex);
         addCrossTrack();
 
+    }
+
+    public ActiveRouteLegGraphic(ActiveRouteGraphic activeRouteGraphic,
+            Position vesselPos, Position pos, Heading rl, Color color,
+            float scale) {
+
+        super(activeRouteGraphic, vesselPos, pos, rl, color, scale);
     }
 
     private void addCrossTrack() {
@@ -58,20 +69,26 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
             RouteWaypoint legStart = routeLeg.getStartWp();
             RouteWaypoint legEnd = routeLeg.getEndWp();
 
-            double legDirection = legStart.getPos().geodesicInitialBearingTo(legEnd.getPos());
+            double legDirection = legStart.getPos().geodesicInitialBearingTo(
+                    legEnd.getPos());
 
             double portDirection = Calculator.turn90Minus(legDirection);
             double starboardDirection = Calculator.turn90Plus(legDirection);
 
-            Position startLeft = Calculator.findPosition(legStart.getPos(), portDirection, routeLeg.getXtdPortMeters());
+            Position startLeft = Calculator.findPosition(legStart.getPos(),
+                    portDirection, routeLeg.getXtdPortMeters());
 
-            Position startRight = Calculator.findPosition(legStart.getPos(), starboardDirection, routeLeg.getXtdStarboardMeters());
+            Position startRight = Calculator.findPosition(legStart.getPos(),
+                    starboardDirection, routeLeg.getXtdStarboardMeters());
 
-            Position endLeft = Calculator.findPosition(legEnd.getPos(), portDirection, routeLeg.getXtdPortMeters());
+            Position endLeft = Calculator.findPosition(legEnd.getPos(),
+                    portDirection, routeLeg.getXtdPortMeters());
 
-            Position endRight = Calculator.findPosition(legEnd.getPos(), starboardDirection, routeLeg.getXtdStarboardMeters());
+            Position endRight = Calculator.findPosition(legEnd.getPos(),
+                    starboardDirection, routeLeg.getXtdStarboardMeters());
 
-            // space for lat-lon points plus first lat-lon pair to close the polygon
+            // space for lat-lon points plus first lat-lon pair to close the
+            // polygon
             double[] polyPoints = new double[8 + 2];
             int j = 0;
             polyPoints[j] = startLeft.getLatitude();
@@ -90,7 +107,8 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
             polyPoints[j + 1] = endLeft.getLongitude();
             j += 2;
 
-            // double[] polyPoints = new double[polygon.getPolygon().size() * 2 +
+            // double[] polyPoints = new double[polygon.getPolygon().size() * 2
+            // +
             // 2];
             // int j = 0;
             // for (int i = 0; i < polygon.getPolygon().size(); i++) {
@@ -102,7 +120,8 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
             // Rectangle hatchFillRectangle;
             // BufferedImage hatchFill;
 
-            BufferedImage hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage hatchFill = new BufferedImage(1, 1,
+                    BufferedImage.TYPE_INT_ARGB);
             Graphics2D big = hatchFill.createGraphics();
 
             big.setComposite(makeComposite(0.3f));
@@ -120,7 +139,8 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
                 headingType = OMGraphicConstants.LINETYPE_GREATCIRCLE;
             }
 
-            OMPoly poly = new OMPoly(polyPoints, OMGraphicConstants.DECIMAL_DEGREES, headingType, 0);
+            OMPoly poly = new OMPoly(polyPoints,
+                    OMGraphicConstants.DECIMAL_DEGREES, headingType, 0);
             poly.setIsPolygon(true);
             poly.setLinePaint(clear);
             poly.setFillPaint(new Color(0, 0, 0, 1));

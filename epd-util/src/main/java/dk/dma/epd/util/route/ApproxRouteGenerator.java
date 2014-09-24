@@ -25,7 +25,7 @@ import com.bbn.openmap.proj.Length;
  */
 public class ApproxRouteGenerator extends SimpleRouteGenerator {
 
-    private double tolleranceMeters = 185.2; // 1/10 nm
+    private double tolleranceMeters = 185.2 / 2.0; // 1/20 nm
     private List<Geo> geoPoints = new ArrayList<Geo>();
 
     @Override
@@ -39,8 +39,6 @@ public class ApproxRouteGenerator extends SimpleRouteGenerator {
         for (TimePoint point : track) {
             geoPoints.add(new Geo(point.getLatitude(), point.getLongitude()));
         }
-
-        setTolleranceMeters(100);
 
         // Generate route by divide and conquer
         route.add(track.get(0));
@@ -81,14 +79,6 @@ public class ApproxRouteGenerator extends SimpleRouteGenerator {
             route.add(track.get(maxPoint));
             _generate(maxPoint, end);
         }
-    }
-
-    public double getTolleranceMeters() {
-        return tolleranceMeters;
-    }
-
-    public void setTolleranceMeters(double tolleranceMeters) {
-        this.tolleranceMeters = tolleranceMeters;
     }
 
 }
