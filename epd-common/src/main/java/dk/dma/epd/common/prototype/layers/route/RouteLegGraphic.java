@@ -27,7 +27,6 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -48,11 +47,16 @@ public class RouteLegGraphic extends OMGraphicList {
     private OMLine broadLine;
 
     float[] dash;
-    private int routeIndex;
+    float scale;
+    private int routeIndex;    
 
     float dashPhase = 5000;
     private RouteGraphic routeGraphic;
     int legIndex;
+    
+    public RouteLegGraphic() {
+        
+    }
 
     /**
      * Creates a route leg
@@ -71,6 +75,7 @@ public class RouteLegGraphic extends OMGraphicList {
             Stroke stroke, float scale, RouteGraphic routeGraphic, int legIndex) {
         super();
         this.routeIndex = routeIndex;
+        this.scale = scale;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
@@ -100,6 +105,7 @@ public class RouteLegGraphic extends OMGraphicList {
             float scale) {
         super();
         this.routeIndex = routeIndex;
+        this.scale = scale;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
@@ -116,6 +122,7 @@ public class RouteLegGraphic extends OMGraphicList {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
+        this.scale = scale;
         this.color = color;
         this.stroke = stroke;
         dash = new float[] { scale * 35.0f, scale * 35.0f };
@@ -125,14 +132,6 @@ public class RouteLegGraphic extends OMGraphicList {
         initGraphics();
         addBroadLine(broadLineColor,
                 new float[] { scale * 40.0f, scale * 15.0f });
-    }
-
-    public RouteLegGraphic(ActiveRouteGraphic activeRouteGraphic,
-            Position vesselPos, Position pos, Heading rl, Color color,
-            float scale) {
-        // TODO Auto-generated constructor stub
-        this.color = color;
-        initIndicateLegGraphics(vesselPos, pos);
     }
 
     private void addBroadLine(Color color, float[] broadLineDash) {
@@ -161,11 +160,11 @@ public class RouteLegGraphic extends OMGraphicList {
             Position endPosition) {
 
         Stroke activeStroke = new BasicStroke(EPD.getInstance().getSettings()
-                .getNavSettings().getRouteWidth(), // Width
+                .getNavSettings().getRouteWidth() * scale, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
-                10.0f, // Miter limit
-                new float[] { 10.0f, 8.0f }, // Dash pattern
+                10.0f * scale, // Miter limit
+                new float[] { 3.0f * scale, 10.0f * scale}, // Dash pattern
                 0.0f); // Dash phase
 
         double startLat = startPosition.getLatitude();
@@ -178,9 +177,7 @@ public class RouteLegGraphic extends OMGraphicList {
                 OMGraphicConstants.LINETYPE_RHUMB);
         line.setLinePaint(color);
         line.setStroke(activeStroke);
-
         add(line);
-
     }
 
     public void initGraphics() {
