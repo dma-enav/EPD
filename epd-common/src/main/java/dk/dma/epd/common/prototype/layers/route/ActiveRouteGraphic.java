@@ -43,6 +43,9 @@ public class ActiveRouteGraphic extends RouteGraphic {
     }
 
     public void updateActiveWpLine(Position vesselPos) {
+        if (activeWpLine != null) {
+            remove(activeWpLine);
+        }
         Position activeWpPos = routeWaypoints.get(EPD.getInstance().getRouteManager().getActiveRoute().getActiveWaypointIndex())
                 .getPos();
         activeWpLine = new ActiveRouteLegGraphic(this, vesselPos, activeWpPos, Heading.RL, Color.red, SCALE);
