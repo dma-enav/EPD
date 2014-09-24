@@ -26,16 +26,16 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.MapHandlerChild;
-
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
+import dk.dma.epd.common.prototype.nogo.NoGoDataEntry;
+import dk.dma.epd.common.prototype.nogo.NoGoWorker;
+import dk.dma.epd.common.prototype.nogo.NogoHandlerCommon;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
-import dk.dma.epd.ship.layers.nogo.NogoLayer;
-import dk.dma.epd.ship.settings.EPDEnavSettings;
 import dk.frv.enav.common.xml.nogo.response.NogoResponse;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 import dk.frv.enav.common.xml.nogoslices.response.NogoResponseSlices;
@@ -44,7 +44,7 @@ import dk.frv.enav.common.xml.nogoslices.response.NogoResponseSlices;
  * Component for handling NOGO areas
  */
 @ThreadSafe
-public class NogoHandler extends MapHandlerChild {
+public class NogoHandler extends NogoHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(NogoHandler.class);
 
@@ -96,9 +96,6 @@ public class NogoHandler extends MapHandlerChild {
     }
 
     private Boolean isVisible = true;
-
-    public NogoHandler(EPDEnavSettings enavSettings) {
-    }
 
     public synchronized void updateNogo(boolean useSlices, int minutesBetween) {
 

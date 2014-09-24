@@ -261,7 +261,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         mapHandler.add(msiHandler);
 
         // Create NoGo handler
-        nogoHandler = new NogoHandler(getSettings().getEnavSettings());
+        nogoHandler = new NogoHandler();
         mapHandler.add(nogoHandler);
 
         // Create Maritime Cloud service

@@ -37,6 +37,7 @@ import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteCPALayer;
+import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -186,10 +187,11 @@ public class ChartPanel extends ChartPanelCommon {
     /**
      * Initiate the default map values - must be called by a chart
      * 
-     * @param voyageLayer2
      */
     public void initChartDefault(MapFrameType type) {
 
+        System.out.println("Init chart default with type " + type);
+        
         Properties props = EPDShore.getInstance().getProperties();
         EPDMapSettings mapSettings = EPDShore.getInstance().getSettings()
                 .getMapSettings();
@@ -298,6 +300,11 @@ public class ChartPanel extends ChartPanelCommon {
             intendedRouteCPALayer = new IntendedRouteCPALayer();
             intendedRouteLayer.addVisibilityManagedLayer(intendedRouteCPALayer);
             mapHandler.add(intendedRouteCPALayer);
+            
+            // Create Nogo layer
+            nogoLayer = new NogoLayer();
+            nogoLayer.setVisible(true);
+            mapHandler.add(nogoLayer);
 
         }
 

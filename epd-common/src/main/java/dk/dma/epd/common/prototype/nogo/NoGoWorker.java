@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.nogo;
+package dk.dma.epd.common.prototype.nogo;
 
 import java.util.Date;
 
@@ -30,7 +30,7 @@ public class NoGoWorker extends Thread {
 
     private static final Logger LOG = LoggerFactory.getLogger(NoGoWorker.class);
 
-    private NogoHandler nogoHandler;
+    private NogoHandlerCommon nogoHandler;
     private ShoreServicesCommon shoreServices;
     int id;
     double draught;
@@ -40,7 +40,7 @@ public class NoGoWorker extends Thread {
     Date validTo;
     int slices;
 
-    public NoGoWorker(NogoHandler nogoHandler, ShoreServicesCommon shoreCommon, int id, int slices) {
+    public NoGoWorker(NogoHandlerCommon nogoHandler, ShoreServicesCommon shoreCommon, int id, int slices) {
         this.nogoHandler = nogoHandler;
         shoreServices = shoreCommon;
         this.id = id;

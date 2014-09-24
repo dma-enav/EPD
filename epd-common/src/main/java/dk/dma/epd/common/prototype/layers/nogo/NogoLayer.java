@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.layers.nogo;
+package dk.dma.epd.common.prototype.layers.nogo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +21,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
-import dk.dma.epd.ship.nogo.NoGoDataEntry;
-import dk.dma.epd.ship.nogo.NogoHandler;
+import dk.dma.epd.common.prototype.nogo.NoGoDataEntry;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
 /**
@@ -54,7 +53,7 @@ public class NogoLayer extends EPDLayerCommon {
     }
 
     /**
-     * Called by the {@linkplain NogoHandler} with status updates. Updates the graphics with the no-go elemetns
+     * Called by the {@linkplain NogoHandler} with status updates. Updates the graphics with the no-go elements
      * 
      * @param dataEntry
      * @param id
