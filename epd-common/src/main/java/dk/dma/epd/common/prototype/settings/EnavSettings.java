@@ -68,7 +68,7 @@ public class EnavSettings implements Serializable {
     private long routeTimeToLive = 10 * 60 * 1000; // 10 minutes.
     private double filterDistance = 1;
     private double markerDistance = 0.5; // Nautical miles.
-    private double alertDistance; // Nautical miles.
+    //private double alertDistance; // Nautical miles.
     
     public EnavSettings() {
         
@@ -320,11 +320,11 @@ public class EnavSettings implements Serializable {
     }
 
     public double getAlertDistance() {
-        return alertDistance;
+        return 0;
     }
 
     public void setAlertDistance(double alertDistance) {
-        this.alertDistance = alertDistance;
+        
     }
 
     public double getMarkerDistance() {
