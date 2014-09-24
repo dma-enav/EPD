@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.event;
+package dk.dma.epd.common.prototype.event.mouse;
 
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
@@ -26,8 +26,7 @@ import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
-import dk.dma.epd.ship.gui.ChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
 public class NoGoMouseMode extends CommonNavigationMouseMode {
 
@@ -38,13 +37,13 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
      */
     public static final transient String MODE_ID = "NoGo";
 
-    private ChartPanel chartPanel;
+    private ChartPanelCommon chartPanel;
     private String previousMouseModeID;
 
     /**
      * Constructs a NoGoMouseListener: sets the ID of the mode, the consume mode to true, and the cursor to the crosshair.
      */
-    public NoGoMouseMode(ChartPanel chartPanel) {
+    public NoGoMouseMode(ChartPanelCommon chartPanel) {
         super(chartPanel, 0, MODE_ID);
         this.chartPanel = chartPanel;
         this.setModeCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));

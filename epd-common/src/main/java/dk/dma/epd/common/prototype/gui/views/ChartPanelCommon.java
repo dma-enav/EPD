@@ -38,11 +38,14 @@ import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonDragMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonRouteEditMouseMode;
+import dk.dma.epd.common.prototype.event.mouse.NoGoMouseMode;
+import dk.dma.epd.common.prototype.gui.nogo.NogoDialogCommon;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteCPALayer;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
+import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
 import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.RouteEditLayerCommon;
@@ -57,11 +60,11 @@ import dk.dma.epd.common.prototype.settings.MapSettings;
  * @author Jens Tuxen (mail@jenstuxen.com)
  */
 public abstract class ChartPanelCommon extends OMComponentPanel {
-    
+
     private static final long serialVersionUID = 1L;
 
     protected int maxScale = 5000;
-    
+
     // Mouse modes
     protected String mouseMode;
     protected MouseDelegator mouseDelegator;
@@ -69,7 +72,8 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected CommonDragMouseMode dragMouseMode;
     protected CommonRouteEditMouseMode routeEditMouseMode;
     protected CommonDistanceCircleMouseMode rangeCirclesMouseMode;
-    
+    protected NoGoMouseMode nogoMouseMode;
+
     // Layers and handlers
     protected MapHandler mapHandler;
     protected LayerHandler layerHandler;
@@ -84,17 +88,21 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected MsiLayerCommon msiLayer;
     protected IntendedRouteLayerCommon intendedRouteLayer;
     protected IntendedRouteCPALayer intendedRouteCPALayer;
-    
+    protected NogoLayer nogoLayer;
+
     protected LayerVisibilityAdapter encVisibilityAdapter = new LayerVisibilityAdapter();
+
     protected HistoryListener historyListener;
-    
+
+    protected NogoDialogCommon nogoDialog;
+
     /**
      * Constructor
      */
     protected ChartPanelCommon() {
         maxScale = EPD.getInstance().getSettings().getMapSettings().getMaxScale();
     }
-    
+
     /**
      * Save chart settings for workspace
      */
@@ -112,54 +120,57 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
             aisLayer.forceLayerUpdate();
         }
     }
-    
+
     /**
      * Returns the current mouse mode
+     * 
      * @return the current mouse mode
      */
     public String getMouseMode() {
         return mouseMode;
     }
-    
+
     /**
      * Change the mouse mode.
      * 
-     * @param mode The mode ID of the mouse mode to swap to (e.g.
-     *            DistanceCircleMouseMode.MODE_ID).
+     * @param mode
+     *            The mode ID of the mouse mode to swap to (e.g. DistanceCircleMouseMode.MODE_ID).
      */
     public abstract void setMouseMode(String modeID);
 
+    /*******************************/
+    /** Zooming and panning **/
+    /*******************************/
 
-    /*******************************/
-    /** Zooming and panning       **/
-    /*******************************/
-    
     /**
      * Changes the current center of the map to a new position.
-     * @param position Position to change to center.
+     * 
+     * @param position
+     *            Position to change to center.
      */
     public void goToPosition(Position position) {
         getMap().setCenter(position.getLatitude(), position.getLongitude());
         forceAisLayerUpdate();
     }
-    
+
     /**
      * Zooms to the given list of way points
      * 
-     * @param waypoints the list of way points to zoom to
+     * @param waypoints
+     *            the list of way points to zoom to
      */
-    public void zoomToWaypoints(List<RouteWaypoint> waypoints) { 
+    public void zoomToWaypoints(List<RouteWaypoint> waypoints) {
         if (waypoints == null || waypoints.size() == 0) {
             return;
         }
-        
+
         List<Position> positions = new ArrayList<>();
         for (RouteWaypoint wp : waypoints) {
             positions.add(wp.getPos());
         }
         zoomTo(positions);
     }
-    
+
     /**
      * Given a set of points scale and center so that all points are contained in the view
      * 
@@ -199,21 +210,21 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         double centerLat = (maxLat + minLat) / 2.0;
         double centerLon = (maxLon + minLon) / 2.0;
         map.setCenter(centerLat, centerLon);
-        
+
         // Compute scale, taking the width/height ratio into account.
         // Also, make sure we do not divide by zero...
         Projection proj = map.getProjection();
         if (proj != null && proj.getWidth() > 0) {
-            double mapRatio = (double)proj.getHeight() / (double)proj.getWidth();
-            
+            double mapRatio = (double) proj.getHeight() / (double) proj.getWidth();
+
             // Go to screen x-y to adjust ratio of scale
             Point2D p0 = proj.forward(minLat, minLon);
             Point2D p1 = proj.forward(maxLat, maxLon);
             double routeHeight = p1.getY() - p0.getY();
             double routeWidth = p1.getX() - p0.getX();
-            if (Math.abs(routeWidth) > 0.001) { 
+            if (Math.abs(routeWidth) > 0.001) {
                 double routeRatio = Math.abs(routeHeight / routeWidth);
-                
+
                 if (routeRatio > mapRatio) {
                     float sign = (routeHeight < 0) ? 1 : -1;
                     p1.setLocation(p0.getX() + sign * Math.abs(routeHeight / mapRatio), p1.getY());
@@ -221,19 +232,19 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
                     float sign = (routeWidth < 0) ? 1 : -1;
                     p1.setLocation(p1.getX(), p0.getY() + sign * Math.abs(routeWidth * mapRatio));
                 }
-                
+
                 float scale = ProjMath.getScale(proj.inverse(p0), proj.inverse(p1), proj);
-                
-                // Restrict to maxScale and scale with 10% 
-                scale = Math.max((float)maxScale, scale * 1.1f);
-                
+
+                // Restrict to maxScale and scale with 10%
+                scale = Math.max((float) maxScale, scale * 1.1f);
+
                 map.setScale(scale);
             }
         }
-        
+
         forceAisLayerUpdate();
     }
-    
+
     /**
      * Change zoom level on map
      * 
@@ -248,7 +259,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         forceAisLayerUpdate();
 
     }
-    
+
     /**
      * Pans the map in the given direction
      * 
@@ -286,45 +297,49 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
 
         forceAisLayerUpdate();
     }
-    
+
     /*******************************/
-    /** Layer visibility          **/
+    /** Layer visibility **/
     /*******************************/
-    
+
     /**
      * Sets AIS layer visibility
      * 
-     * @param visible the visibility
+     * @param visible
+     *            the visibility
      */
     public void aisVisible(boolean visible) {
         if (aisLayer != null) {
             aisLayer.setVisible(visible);
-            EPD.getInstance().getSettings().getAisSettings().setVisible(visible);   
+            EPD.getInstance().getSettings().getAisSettings().setVisible(visible);
         }
     }
 
     /**
      * Sets ENC layer visibility
      * 
-     * @param visible the visibility
+     * @param visible
+     *            the visibility
      */
     public void encVisible(boolean visible) {
         encVisible(visible, true);
     }
-    
+
     /**
      * Sets ENC layer visibility
      * 
-     * @param visible the visibility
-     * @param persist persist the change to the settings
+     * @param visible
+     *            the visibility
+     * @param persist
+     *            persist the change to the settings
      */
     public void encVisible(boolean visible, boolean persist) {
         // Note: After upgrading to OpenMap 5.0.3, there seemed to be a minor problem
-        // with having multiple background layers installed (EPD-186), causing the 
+        // with having multiple background layers installed (EPD-186), causing the
         // background layer to turn blank after launch.
         // Hence instead of adding both background layers and toggling the visibility,
         // the strategy was changed to add and remove the background layers:
-        
+
         if (encLayer != null) {
             if (visible) {
                 encLayer.setVisible(true);
@@ -353,16 +368,18 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
 
     /**
      * Returns if the ENC layer is visible or not
+     * 
      * @return if the ENC layer is visible or not
      */
     public boolean isEncVisible() {
         return encLayer != null && encLayer.isVisible() && mapHandler.contains(encLayer);
     }
-    
+
     /**
      * Sets WMS layer visibility
      * 
-     * @param visible the visibility
+     * @param visible
+     *            the visibility
      */
     public void wmsVisible(boolean visible) {
         if (wmsLayer != null) {
@@ -372,25 +389,25 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     }
 
     /*******************************/
-    /** Getters and setters       **/
+    /** Getters and setters **/
     /*******************************/
-    
+
     public DraggableLayerMapBean getMap() {
         return map;
     }
-    
+
     public MapHandler getMapHandler() {
         return mapHandler;
     }
-    
+
     public MultiShapeLayer getBgLayer() {
         return bgLayer;
     }
-    
+
     public AisLayerCommon<?> getAisLayer() {
         return aisLayer;
     }
-    
+
     public RouteLayerCommon getRouteLayer() {
         return routeLayer;
     }
@@ -414,15 +431,15 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     public Layer getEncLayer() {
         return encLayer;
     }
-    
+
     public HistoryListener getHistoryListener() {
         return historyListener;
     }
-    
+
     public void setHistoryListener(HistoryListener historyListener2) {
         this.historyListener = historyListener2;
     }
-    
+
     public MouseDelegator getMouseDelegator() {
         return mouseDelegator;
     }
@@ -430,4 +447,34 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     public LayerVisibilityAdapter getEncVisibilityAdapter() {
         return encVisibilityAdapter;
     }
+
+    /**
+     * @return the nogoDialog
+     */
+    public NogoDialogCommon getNogoDialog() {
+        return nogoDialog;
+    }
+
+    /**
+     * @param nogoDialog
+     *            the nogoDialog to set
+     */
+    public void setNogoDialog(NogoDialogCommon nogoDialog) {
+        this.nogoDialog = nogoDialog;
+    }
+
+    /**
+     * @return the nogoMouseMode
+     */
+    public NoGoMouseMode getNogoMouseMode() {
+        return nogoMouseMode;
+    }
+
+    /**
+     * @return the nogoLayer
+     */
+    public NogoLayer getNogoLayer() {
+        return nogoLayer;
+    }
+
 }

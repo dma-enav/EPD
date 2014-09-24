@@ -28,9 +28,9 @@ import org.joda.time.DateTime;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.prototype.nogo.NoGoDataEntry;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.panels.NoGoPanel;
-import dk.dma.epd.ship.nogo.NoGoDataEntry;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
