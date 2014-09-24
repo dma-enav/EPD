@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.nogo;
+package dk.dma.epd.shore.nogo;
 
 import java.util.Date;
 import java.util.List;
@@ -28,10 +28,7 @@ import org.slf4j.LoggerFactory;
 import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
 import dk.dma.epd.common.prototype.nogo.NogoHandlerCommon;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
-import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
+import dk.dma.epd.shore.EPDShore;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
 /**
@@ -42,13 +39,11 @@ public class NogoHandler extends NogoHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(NogoHandler.class);
 
-    private NoGoComponentPanel nogoPanel;
-
     @Override
     public synchronized void updateNogo(boolean useSlices, int minutesBetween) {
 
         if (requestInProgress) {
-            JOptionPane.showMessageDialog(EPDShip.getInstance().getMainFrame(),
+            JOptionPane.showMessageDialog(EPDShore.getInstance().getMainFrame(),
                     "Please wait for the previous NoGo request to be completed before initiating a new",
                     "Unable to comply with NoGo request", JOptionPane.WARNING_MESSAGE);
         } else {
@@ -56,23 +51,7 @@ public class NogoHandler extends NogoHandlerCommon {
             LOG.info("New NoGo Requested Initiated");
             requestInProgress = true;
             // If the dock isn't visible should it show it?
-            if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("NoGo")) {
 
-                // Show it display the message?
-                if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
-                    new ShowDockableDialog(EPDShip.getInstance().getMainFrame(), dock_type.NOGO);
-                } else {
-
-                    if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                        EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("NoGo");
-                        EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
-                    }
-
-                    // It shouldn't display message but take a default action
-
-                }
-
-            }
             this.useSlices = useSlices;
             // this.minutesBetween = minutesBetween;
 
@@ -80,11 +59,11 @@ public class NogoHandler extends NogoHandlerCommon {
 
             // Setup the panel
             if (this.useSlices) {
-                nogoPanel.activateMultiple();
-                nogoPanel.newRequestMultiple();
+                // nogoPanel.activateMultiple();
+                // nogoPanel.newRequestMultiple();
             } else {
-                nogoPanel.activateSingle();
-                nogoPanel.newRequestSingle();
+                // nogoPanel.activateSingle();
+                // nogoPanel.newRequestSingle();
 
             }
 
@@ -92,7 +71,7 @@ public class NogoHandler extends NogoHandlerCommon {
 
             // Calculate slices
             if (this.useSlices) {
-                nogoPanel.initializeSlider(nogoData.size());
+                // nogoPanel.initializeSlider(nogoData.size());
 
             }
 
@@ -105,18 +84,18 @@ public class NogoHandler extends NogoHandlerCommon {
     @Override
     public void nogoTimedOut() {
         if (this.useSlices) {
-            nogoPanel.nogoFailedMultiple();
+            // nogoPanel.nogoFailedMultiple();
         } else {
-            nogoPanel.nogoFailedSingle();
+            // nogoPanel.nogoFailedSingle();
         }
     }
 
     @Override
     public void noNetworkConnection() {
         if (this.useSlices) {
-            nogoPanel.noConnectionMultiple();
+            // nogoPanel.noConnectionMultiple();
         } else {
-            nogoPanel.noConnectionSingle();
+            // nogoPanel.noConnectionSingle();
         }
     }
 
@@ -124,18 +103,18 @@ public class NogoHandler extends NogoHandlerCommon {
     protected void updatePanelCompleteMultiple(int errorcode, List<NogoPolygon> polygons, DateTime validFrom, DateTime validTo,
             Double draught, int i) {
 
-        nogoPanel.requestCompletedMultiple(errorcode, polygons, validFrom, validFrom, draught, i);
+        // nogoPanel.requestCompletedMultiple(errorcode, polygons, validFrom, validFrom, draught, i);
 
     }
 
     @Override
     protected void updatePanelCompleteSingle(int errorcode, List<NogoPolygon> polygons, Date validFrom, Date validTo, Double draught) {
-        nogoPanel.requestCompletedSingle(errorcode, polygons, validFrom, validTo, draught);
+        // nogoPanel.requestCompletedSingle(errorcode, polygons, validFrom, validTo, draught);
     }
 
     @Override
     protected void updatePanelCompletedSlices(int completedSlices, int i) {
-        nogoPanel.setCompletedSlices(completedSlices, i);
+        // nogoPanel.setCompletedSlices(completedSlices, i);
     }
 
     @Override
@@ -146,9 +125,9 @@ public class NogoHandler extends NogoHandlerCommon {
         if (obj instanceof NogoLayer) {
             nogoLayer = (NogoLayer) obj;
         }
-        if (obj instanceof NoGoComponentPanel) {
-            nogoPanel = (NoGoComponentPanel) obj;
-        }
+        // if (obj instanceof NoGoComponentPanel) {
+        // nogoPanel = (NoGoComponentPanel) obj;
+        // }
 
     }
 

@@ -91,11 +91,10 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected NogoLayer nogoLayer;
 
     protected LayerVisibilityAdapter encVisibilityAdapter = new LayerVisibilityAdapter();
-    
+
     protected HistoryListener historyListener;
 
     protected NogoDialogCommon nogoDialog;
-    
 
     /**
      * Constructor
@@ -471,6 +470,11 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         return nogoMouseMode;
     }
 
-    
-    
+    /**
+     * @return the nogoLayer
+     */
+    public NogoLayer getNogoLayer() {
+        return nogoLayer;
+    }
+
 }

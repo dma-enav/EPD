@@ -32,6 +32,7 @@ import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.LayerToggleWindow;
+import dk.dma.epd.shore.gui.views.menuitems.NogoRequest;
 import dk.dma.epd.shore.gui.views.menuitems.RequestFALFromShip;
 import dk.dma.epd.shore.gui.views.menuitems.RouteEditEndRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
@@ -49,6 +50,7 @@ import dk.dma.epd.shore.gui.views.menuitems.VoyageShowTransaction;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageZoomToShip;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
+import dk.dma.epd.shore.nogo.NogoHandler;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.voyage.Voyage;
@@ -87,6 +89,7 @@ public class MapMenu extends MapMenuCommon {
 
     private AisLayer aisLayer;
     private StrategicRouteHandler strategicRouteHandler;
+    private NogoHandler nogoHandler;
 
     private ToggleAisTargetNames aisNames;
 
@@ -96,7 +99,7 @@ public class MapMenu extends MapMenuCommon {
     private LayerToggleWindow layerTogglingWindow;
     private ToggleShowStatusArea toggleShowStatusArea;
 
-    // private NogoHandler nogoHandler;
+    private NogoRequest nogoRequest;
 
     public MapMenu() {
         super();
@@ -160,6 +163,7 @@ public class MapMenu extends MapMenuCommon {
 
         setAisNames(new ToggleAisTargetNames());
         getAisNames().addActionListener(this);
+
         hideAisTargetName = new ToggleAisTargetName();
         hideAisTargetName.addActionListener(this);
 
@@ -169,6 +173,9 @@ public class MapMenu extends MapMenuCommon {
 
         toggleShowStatusArea = new ToggleShowStatusArea("Show Status");
         toggleShowStatusArea.addActionListener(this);
+
+        nogoRequest = new NogoRequest("Request NoGo");
+        nogoRequest.addActionListener(this);
     }
 
     /**
@@ -205,6 +212,9 @@ public class MapMenu extends MapMenuCommon {
             add(hidePastTracks);
             addSeparator();
             add(getAisNames());
+            if (jMapFrame.getChartPanel().getNogoLayer() != null) {
+                add(nogoRequest);
+            }
             addSeparator();
             add(scaleMenu);
 
@@ -544,6 +554,11 @@ public class MapMenu extends MapMenuCommon {
         if (obj instanceof JMapFrame) {
             jMapFrame = (JMapFrame) obj;
             layerTogglingWindow.setLayerToggling(jMapFrame.getLayerTogglingPanel());
+            nogoRequest.setMapFrame(jMapFrame);
+        }
+        if (obj instanceof NogoHandler) {
+            nogoHandler = (NogoHandler) obj;
+            nogoRequest.setNogoHandler(nogoHandler);
         }
     }
 

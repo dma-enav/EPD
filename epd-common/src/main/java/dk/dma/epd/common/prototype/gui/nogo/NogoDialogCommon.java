@@ -37,7 +37,6 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -47,7 +46,6 @@ import org.joda.time.DateTime;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.mouse.NoGoMouseMode;
-import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.nogo.NogoHandlerCommon;
 import dk.dma.epd.common.text.Formatter;
@@ -74,7 +72,6 @@ public class NogoDialogCommon extends JDialog implements ActionListener, Runnabl
 
     protected ChartPanelCommon chartPanel;
     protected NogoHandlerCommon nogoHandler;
-    protected MainFrameCommon mainFrame;
 
     private Position northWestPoint;
     private Position southEastPoint;

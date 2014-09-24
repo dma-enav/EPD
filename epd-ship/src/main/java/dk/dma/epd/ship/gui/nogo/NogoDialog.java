@@ -17,7 +17,6 @@ package dk.dma.epd.ship.gui.nogo;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.nogo.NogoDialogCommon;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.nogo.NogoHandler;
@@ -29,11 +28,14 @@ import dk.dma.epd.ship.ownship.OwnShipHandler;
 public class NogoDialog extends NogoDialogCommon {
     private static final long serialVersionUID = 1L;
 
+    protected JFrame mainFrame;
+
     public NogoDialog(JFrame parent, NogoHandler nogoHandler, OwnShipHandler ownShipHandler) {
         super(parent);
-        this.mainFrame = (MainFrameCommon) parent;
 
-        this.chartPanel = ((MainFrame) mainFrame).getChartPanel();
+        mainFrame = parent;
+
+        this.chartPanel = ((MainFrame) parent).getChartPanel();
 
         this.nogoHandler = nogoHandler;
 

@@ -61,7 +61,6 @@ import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DockableComponentPanel;
-import dk.dma.epd.ship.gui.nogo.NogoDialog;
 import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
@@ -88,7 +87,6 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     // Mouse modes
     private MSIFilterMouseMode msiFilterMouseMode;
     private CommonDistanceCircleMouseMode rangeCirclesMouseMode;
-    // private NoGoMouseMode noGoMouseMode;
 
     // Layers
     private OwnShipLayer ownShipLayer;
@@ -102,7 +100,6 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     private TopPanel topPanel;
     private VOCTManager voctManager;
     private ActiveWaypointComponentPanel activeWaypointPanel;
-    private NogoDialog nogoDialog;
     protected PntData pntData;
 
     /**
@@ -667,14 +664,6 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
 
     public HistoryListener getProjectChangeListener() {
         return getHistoryListener();
-    }
-
-    public void setNogoDialog(NogoDialog dialog) {
-        this.nogoDialog = dialog;
-    }
-
-    public NogoDialog getNogoDialog() {
-        return nogoDialog;
     }
 
     public void setDynamicPredictorLayerVisibility(boolean visible) {
