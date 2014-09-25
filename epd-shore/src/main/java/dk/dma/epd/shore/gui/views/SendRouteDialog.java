@@ -671,6 +671,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
             if (route != null) {
                 routeLengthLbl.setText(Integer.toString(route.getWaypoints().size()));
                 
+                route.adjustStartTime();
                 Date starttime = route.getStarttime();
     
                 if (fieldLookup.contains(RouteFields.DEPARTURE)) {
