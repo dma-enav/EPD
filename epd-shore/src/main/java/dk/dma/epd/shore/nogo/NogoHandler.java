@@ -29,6 +29,8 @@ import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
 import dk.dma.epd.common.prototype.nogo.NogoHandlerCommon;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.gui.views.NoGoPanel;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
 /**
@@ -38,6 +40,8 @@ import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 public class NogoHandler extends NogoHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(NogoHandler.class);
+
+    private NoGoPanel nogoPanel;
 
     @Override
     public synchronized void updateNogo(boolean useSlices, int minutesBetween) {
@@ -53,17 +57,16 @@ public class NogoHandler extends NogoHandlerCommon {
             // If the dock isn't visible should it show it?
 
             this.useSlices = useSlices;
-            // this.minutesBetween = minutesBetween;
 
             resetLayer();
 
             // Setup the panel
             if (this.useSlices) {
-                // nogoPanel.activateMultiple();
-                // nogoPanel.newRequestMultiple();
+                nogoPanel.activateSliderPanel();
+                nogoPanel.newRequestMultiple();
             } else {
-                // nogoPanel.activateSingle();
-                // nogoPanel.newRequestSingle();
+                nogoPanel.activateSingle();
+                nogoPanel.newRequestSingle();
 
             }
 
@@ -71,7 +74,7 @@ public class NogoHandler extends NogoHandlerCommon {
 
             // Calculate slices
             if (this.useSlices) {
-                // nogoPanel.initializeSlider(nogoData.size());
+                nogoPanel.initializeSlider(nogoData.size());
 
             }
 
@@ -84,18 +87,18 @@ public class NogoHandler extends NogoHandlerCommon {
     @Override
     public void nogoTimedOut() {
         if (this.useSlices) {
-            // nogoPanel.nogoFailedMultiple();
+            nogoPanel.nogoFailedMultiple();
         } else {
-            // nogoPanel.nogoFailedSingle();
+            nogoPanel.nogoFailedSingle();
         }
     }
 
     @Override
     public void noNetworkConnection() {
         if (this.useSlices) {
-            // nogoPanel.noConnectionMultiple();
+            nogoPanel.noConnectionMultiple();
         } else {
-            // nogoPanel.noConnectionSingle();
+            nogoPanel.noConnectionSingle();
         }
     }
 
@@ -103,18 +106,18 @@ public class NogoHandler extends NogoHandlerCommon {
     protected void updatePanelCompleteMultiple(int errorcode, List<NogoPolygon> polygons, DateTime validFrom, DateTime validTo,
             Double draught, int i) {
 
-        // nogoPanel.requestCompletedMultiple(errorcode, polygons, validFrom, validFrom, draught, i);
+        nogoPanel.requestCompletedMultiple(errorcode, polygons, validFrom, validFrom, draught, i);
 
     }
 
     @Override
     protected void updatePanelCompleteSingle(int errorcode, List<NogoPolygon> polygons, Date validFrom, Date validTo, Double draught) {
-        // nogoPanel.requestCompletedSingle(errorcode, polygons, validFrom, validTo, draught);
+        nogoPanel.requestCompletedSingle(errorcode, polygons, validFrom, validTo, draught);
     }
 
     @Override
     protected void updatePanelCompletedSlices(int completedSlices, int i) {
-        // nogoPanel.setCompletedSlices(completedSlices, i);
+        nogoPanel.setCompletedSlices(completedSlices, i);
     }
 
     @Override
@@ -125,9 +128,11 @@ public class NogoHandler extends NogoHandlerCommon {
         if (obj instanceof NogoLayer) {
             nogoLayer = (NogoLayer) obj;
         }
-        // if (obj instanceof NoGoComponentPanel) {
-        // nogoPanel = (NoGoComponentPanel) obj;
-        // }
+
+        if (obj instanceof JMapFrame) {
+            nogoPanel = ((JMapFrame) obj).getNogoPanel();
+            nogoPanel.setNogoHandler(this);
+        }
 
     }
 

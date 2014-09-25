@@ -32,6 +32,7 @@ import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.LayerToggleWindow;
+import dk.dma.epd.shore.gui.views.menuitems.NoGoToggleWindow;
 import dk.dma.epd.shore.gui.views.menuitems.NogoRequest;
 import dk.dma.epd.shore.gui.views.menuitems.RequestFALFromShip;
 import dk.dma.epd.shore.gui.views.menuitems.RouteEditEndRoute;
@@ -97,6 +98,7 @@ public class MapMenu extends MapMenuCommon {
 
     private JMapFrame jMapFrame;
     private LayerToggleWindow layerTogglingWindow;
+    private NoGoToggleWindow nogoTogglingWindow;
     private ToggleShowStatusArea toggleShowStatusArea;
 
     private NogoRequest nogoRequest;
@@ -171,6 +173,9 @@ public class MapMenu extends MapMenuCommon {
         layerTogglingWindow = new LayerToggleWindow("Show Layer Menu");
         layerTogglingWindow.addActionListener(this);
 
+        nogoTogglingWindow = new NoGoToggleWindow("Show NoGo panel");
+        nogoTogglingWindow.addActionListener(this);
+
         toggleShowStatusArea = new ToggleShowStatusArea("Show Status");
         toggleShowStatusArea.addActionListener(this);
 
@@ -199,6 +204,11 @@ public class MapMenu extends MapMenuCommon {
         if (jMapFrame.getLayerTogglingPanel() != null) {
             layerTogglingWindow.setText(jMapFrame.getLayerTogglingPanel().isVisible() ? "Hide Layer Menu" : "Show Layer Menu");
         }
+
+        if (jMapFrame.getNogoPanel() != null) {
+            nogoTogglingWindow.setText(jMapFrame.getNogoPanel().isVisible() ? "Hide NoGo Panel" : "Show NoGo panel");
+        }
+
         toggleShowStatusArea.setText(EPDShore.getInstance().getMainFrame().getStatusArea().isVisible() ? "Hide Status Window"
                 : "Show Status Window");
 
@@ -222,6 +232,9 @@ public class MapMenu extends MapMenuCommon {
             if (jMapFrame.getLayerTogglingPanel() != null) {
                 add(layerTogglingWindow);
             }
+            if (jMapFrame.getChartPanel().getNogoLayer() != null && jMapFrame.getNogoPanel() != null) {
+                add(nogoTogglingWindow);
+            }
             add(toggleShowStatusArea);
 
             return;
@@ -235,6 +248,11 @@ public class MapMenu extends MapMenuCommon {
         if (jMapFrame.getLayerTogglingPanel() != null) {
             add(layerTogglingWindow);
         }
+
+        if (jMapFrame.getChartPanel().getNogoLayer() != null && jMapFrame.getNogoPanel() != null) {
+            add(nogoTogglingWindow);
+        }
+
         add(toggleShowStatusArea);
 
         revalidate();
@@ -554,6 +572,7 @@ public class MapMenu extends MapMenuCommon {
         if (obj instanceof JMapFrame) {
             jMapFrame = (JMapFrame) obj;
             layerTogglingWindow.setLayerToggling(jMapFrame.getLayerTogglingPanel());
+            nogoTogglingWindow.setLayerToggling(jMapFrame.getNogoPanel());
             nogoRequest.setMapFrame(jMapFrame);
         }
         if (obj instanceof NogoHandler) {

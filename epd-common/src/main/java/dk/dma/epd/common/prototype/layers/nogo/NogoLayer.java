@@ -155,6 +155,8 @@ public class NogoLayer extends EPDLayerCommon {
         NoGoGraphicsFrame graphicsFrame = new NoGoGraphicsFrame(northWest, southEast);
         graphics.add(graphicsFrame);
 
+        this.setVisible(true);
+        
         doPrepare();
     }
 

@@ -32,7 +32,7 @@ import com.bbn.openmap.layer.shape.MultiShapeLayer;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
-import dk.dma.epd.common.prototype.event.mouse.NoGoMouseMode;
+import dk.dma.epd.common.prototype.event.mouse.NoGoMouseModeCommon;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
@@ -46,6 +46,7 @@ import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
+import dk.dma.epd.shore.event.NoGoMouseMode;
 import dk.dma.epd.shore.event.RouteEditMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.layers.EncLayerFactory;
@@ -86,6 +87,7 @@ public class ChartPanel extends ChartPanelCommon {
     private Color background = new Color(168, 228, 255);
     protected transient ProjectionSupport projectionSupport = new ProjectionSupport(this, false);
     private LayerTogglingPanel layerTogglingPanel;
+    private NoGoPanel nogoPanel;
 
     /**
      * Constructor
@@ -114,6 +116,7 @@ public class ChartPanel extends ChartPanelCommon {
         mapHandler.add(jmapFrame);
 
         layerTogglingPanel = jmapFrame.getLayerTogglingPanel();
+        nogoPanel = jmapFrame.getNogoPanel();
 
         // Set layout
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -201,7 +204,8 @@ public class ChartPanel extends ChartPanelCommon {
         }
 
         map = new DraggableLayerMapBean();
-        map.addClipComponents(mainFrame.getToolbar(), mainFrame.getStatusArea(), layerTogglingPanel);
+        map.addClipComponents(mainFrame.getToolbar(), mainFrame.getStatusArea(), layerTogglingPanel, nogoPanel);
+        
 
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);
@@ -301,8 +305,7 @@ public class ChartPanel extends ChartPanelCommon {
             nogoLayer = new NogoLayer();
             nogoLayer.setVisible(true);
             mapHandler.add(nogoLayer);
-            
-            
+
             // Create NoGo handler
             NogoHandler nogoHandler = new NogoHandler();
             mapHandler.add(nogoHandler);
@@ -470,7 +473,7 @@ public class ChartPanel extends ChartPanelCommon {
             this.rangeCirclesMouseMode.setPreviousMouseModeModeID(previousMouseMode);
 
             mouseDelegator.setActive(rangeCirclesMouseMode);
-        }else if (modeID.equals(NoGoMouseMode.MODE_ID)){
+        } else if (modeID.equals(NoGoMouseModeCommon.MODE_ID)) {
             mouseDelegator.setActive(nogoMouseMode);
         }
 

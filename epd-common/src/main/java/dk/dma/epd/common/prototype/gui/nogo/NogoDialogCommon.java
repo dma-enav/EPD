@@ -45,7 +45,7 @@ import javax.swing.event.ChangeListener;
 import org.joda.time.DateTime;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.event.mouse.NoGoMouseMode;
+import dk.dma.epd.common.prototype.event.mouse.NoGoMouseModeCommon;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.nogo.NogoHandlerCommon;
 import dk.dma.epd.common.text.Formatter;
@@ -419,7 +419,7 @@ public class NogoDialogCommon extends JDialog implements ActionListener, Runnabl
             // Set the previous active mouse mode.
             this.chartPanel.getNogoMouseMode().setPreviousMouseModeID(this.chartPanel.getMouseDelegator().getActiveMouseModeID());
 
-            chartPanel.setMouseMode(NoGoMouseMode.MODE_ID);
+            chartPanel.setMouseMode(NoGoMouseModeCommon.MODE_ID);
         }
     }
 

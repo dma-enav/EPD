@@ -28,7 +28,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
-public class NoGoMouseMode extends CommonNavigationMouseMode {
+public class NoGoMouseModeCommon extends CommonNavigationMouseMode {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,7 +43,7 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
     /**
      * Constructs a NoGoMouseListener: sets the ID of the mode, the consume mode to true, and the cursor to the crosshair.
      */
-    public NoGoMouseMode(ChartPanelCommon chartPanel) {
+    public NoGoMouseModeCommon(ChartPanelCommon chartPanel) {
         super(chartPanel, 0, MODE_ID);
         this.chartPanel = chartPanel;
         this.setModeCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));

@@ -35,7 +35,7 @@ import com.bbn.openmap.MouseDelegator;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
-import dk.dma.epd.common.prototype.event.mouse.NoGoMouseMode;
+import dk.dma.epd.common.prototype.event.mouse.NoGoMouseModeCommon;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
@@ -151,7 +151,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         // MapHandler.
         // Adding NavMouseMode first makes it active.
         mapNavMouseMode = new NavigationMouseMode(this);
-        nogoMouseMode = new NoGoMouseMode(this);
+        nogoMouseMode = new NoGoMouseModeCommon(this);
         routeEditMouseMode = new RouteEditMouseMode(this);
 
         msiFilterMouseMode = new MSIFilterMouseMode();
@@ -462,7 +462,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         }
 
         // Request NoGo Area.
-        if (modeID.equals(NoGoMouseMode.MODE_ID)) {
+        if (modeID.equals(NoGoMouseModeCommon.MODE_ID)) {
             // Set the mouse mode.
             mouseDelegator.setActive(nogoMouseMode);
         }

@@ -38,7 +38,7 @@ import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonDragMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonRouteEditMouseMode;
-import dk.dma.epd.common.prototype.event.mouse.NoGoMouseMode;
+import dk.dma.epd.common.prototype.event.mouse.NoGoMouseModeCommon;
 import dk.dma.epd.common.prototype.gui.nogo.NogoDialogCommon;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
@@ -72,7 +72,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected CommonDragMouseMode dragMouseMode;
     protected CommonRouteEditMouseMode routeEditMouseMode;
     protected CommonDistanceCircleMouseMode rangeCirclesMouseMode;
-    protected NoGoMouseMode nogoMouseMode;
+    protected NoGoMouseModeCommon nogoMouseMode;
 
     // Layers and handlers
     protected MapHandler mapHandler;
@@ -466,7 +466,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     /**
      * @return the nogoMouseMode
      */
-    public NoGoMouseMode getNogoMouseMode() {
+    public NoGoMouseModeCommon getNogoMouseMode() {
         return nogoMouseMode;
     }
 
