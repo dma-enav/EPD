@@ -652,6 +652,7 @@ public final class EPDShore extends EPD {
 
         if (aisSensor != null) {
             aisSensor.addAisListener(aisHandler);
+            aisSensor.addPntListener(PntTime.getInstance());
             aisSensor.start();
             // Add ais sensor to bean context
             beanHandler.add(aisSensor);
