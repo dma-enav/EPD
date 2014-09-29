@@ -60,8 +60,11 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
             float scale) {
 
         this.scale = scale;
-        this.color = color;               
-        initIndicateLegGraphics(vesselPos, pos);
+        this.color = color;
+        if (vesselPos != null) {
+            initIndicateLegGraphics(vesselPos, pos);
+
+        }
     }
 
     private void addCrossTrack() {

@@ -48,6 +48,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.mouse.NoGoMouseModeCommon;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.nogo.NogoHandlerCommon;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 
 /**
@@ -159,7 +160,9 @@ public class NogoDialogCommon extends JDialog implements ActionListener, Runnabl
         lblNogoBetween.setBounds(10, 24, 137, 14);
         panel_1.add(lblNogoBetween);
 
-        DateTime dateTime = new DateTime();
+        
+        
+        DateTime dateTime = new DateTime(PntTime.getDate());
         dateTime = dateTime.withMillisOfSecond(0);
         dateTime = dateTime.withSecondOfMinute(0);
         dateTime = dateTime.withMinuteOfHour(0);
