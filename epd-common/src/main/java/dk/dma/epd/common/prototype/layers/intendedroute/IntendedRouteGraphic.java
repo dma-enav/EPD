@@ -413,6 +413,13 @@ public class IntendedRouteGraphic extends OMGraphicList {
         }
         if (activeWpLine != null) {
             activeWpLine.setLinePaint(highlightColor);
+
+            activeWpLine.setStroke(new BasicStroke(4.0f * SCALE, // Width
+                    BasicStroke.CAP_SQUARE, // End cap
+                    BasicStroke.JOIN_MITER, // Join style
+                    10.0f * SCALE, // Miter limit
+                    new float[] { 3.0f * SCALE, 10.0f * SCALE }, // Dash pattern
+                    0.0f)); // Dash phase)
         }
 
     }
@@ -457,6 +464,13 @@ public class IntendedRouteGraphic extends OMGraphicList {
         }
         if (activeWpLine != null) {
             activeWpLine.setLinePaint(routeColor);
+
+            activeWpLine.setStroke(new BasicStroke(2.0f * SCALE, // Width
+                    BasicStroke.CAP_SQUARE, // End cap
+                    BasicStroke.JOIN_MITER, // Join style
+                    10.0f * SCALE, // Miter limit
+                    new float[] { 3.0f * SCALE, 10.0f * SCALE }, // Dash pattern
+                    0.0f)); // Dash phase)
         }
 
     }

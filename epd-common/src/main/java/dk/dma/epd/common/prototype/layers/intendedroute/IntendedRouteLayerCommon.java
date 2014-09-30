@@ -32,6 +32,8 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
+import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
@@ -62,6 +64,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements
     private IntendedRouteGraphic highlightedGraphics;
 
     private boolean useFilter;
+    private AisLayerCommon aisLayer;
 
     /**
      * Constructor
@@ -269,6 +272,8 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements
             loadIntendedRoutes();
         } else if (obj instanceof ChartPanelCommon) {
             this.chartPanel = (ChartPanelCommon) obj;
+        } else if (obj instanceof AisLayerCommon) {
+            aisLayer = (AisLayerCommon) obj;
         }
     }
 
@@ -333,6 +338,15 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements
             if (highlightedGraphics != null) {
 
                 highlightedGraphics.unHightlightRoute();
+
+                if (aisLayer != null) {
+
+                    aisLayer.setSelectedGraphic(null, true);
+
+                }
+
+                highlightedGraphics = null;
+
                 doPrepare();
             }
         }
@@ -392,7 +406,14 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements
 
         highlightedGraphics = intendedRouteGraphics;
         highlightedGraphics.highlightRoute();
-        
+
+        if (aisLayer != null) {
+            aisLayer.setSelectedTarget(highlightedGraphics.getIntendedRoute()
+                    .getMmsi(), true);
+        } else {
+            System.out.println("AIS layer is nullllll");
+        }
+
         doPrepare();
 
     }
