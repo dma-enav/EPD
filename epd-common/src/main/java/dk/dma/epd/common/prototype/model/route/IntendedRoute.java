@@ -42,7 +42,7 @@ public class IntendedRoute extends Route {
     protected Date etaFirst;
     protected Date etaLast;
     protected Double activeWpRange;
-    protected boolean visible = true;
+    protected boolean visible;
     protected long mmsi;
     protected int activeWpIndex;
 
