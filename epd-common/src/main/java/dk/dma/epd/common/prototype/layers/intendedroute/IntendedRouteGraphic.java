@@ -14,6 +14,7 @@
  */
 package dk.dma.epd.common.prototype.layers.intendedroute;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -59,6 +60,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private String name;
     private boolean arrowsVisible;
     private Position vesselPos;
+    Color highlightColor = new Color(3, 137, 3);
 
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
     private List<WpCircle> routeWps = new ArrayList<>();
@@ -143,7 +145,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
      * @param color
      *            the color to use
      */
-    private void updateColor(Color color) {        
+    private void updateColor(Color color) {
         int i = 0;
         for (IntendedRouteLegGraphic routeLeg : routeLegs) {
             if (i < intendedRoute.getActiveWpIndex()) {
@@ -159,7 +161,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
                 routeWp.setLinePaint(adjustColor(color, 0.3f, 0.9f));
             } else {
                 routeWp.setLinePaint(color);
-            } 
+            }
             i++;
         }
         if (activeWpLine != null) {
@@ -370,4 +372,93 @@ public class IntendedRouteGraphic extends OMGraphicList {
     public Position getVesselPostion() {
         return vesselPos;
     }
+
+    public void highlightRoute() {
+
+        int i = 0;
+        for (IntendedRouteLegGraphic routeLeg : routeLegs) {
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeLeg.setLinePaint(adjustColor(highlightColor, 0.3f, 0.9f));
+
+                routeLeg.setStroke(new BasicStroke(4.0f * SCALE, // Width
+                        BasicStroke.CAP_SQUARE, // End cap
+                        BasicStroke.JOIN_MITER, // Join style
+                        10.0f * SCALE, // Miter limit
+                        new float[] { 3.0f * SCALE, 10.0f * SCALE }, // Dash
+                                                                     // pattern
+                        0.0f)); // Dash phase)
+
+            } else {
+                routeLeg.setLinePaint(highlightColor);
+
+                routeLeg.setStroke(new BasicStroke(4.0f * SCALE, // Width
+                        BasicStroke.CAP_SQUARE, // End cap
+                        BasicStroke.JOIN_MITER, // Join style
+                        10.0f * SCALE, // Miter limit
+                        new float[] { 10.0f * SCALE, 8.0f * SCALE }, // Dash
+                                                                     // pattern
+                        0.0f)); // Dash phase)
+            }
+
+            i++;
+        }
+        i = 0;
+        for (WpCircle routeWp : routeWps) {
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeWp.setLinePaint(adjustColor(highlightColor, 0.3f, 0.9f));
+            } else {
+                routeWp.setLinePaint(highlightColor);
+            }
+            i++;
+        }
+        if (activeWpLine != null) {
+            activeWpLine.setLinePaint(highlightColor);
+        }
+
+    }
+
+    public void unHightlightRoute() {
+
+        int i = 0;
+        for (IntendedRouteLegGraphic routeLeg : routeLegs) {
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeLeg.setLinePaint(adjustColor(routeColor, 0.3f, 0.9f));
+
+                routeLeg.setStroke(new BasicStroke(2.0f * SCALE, // Width
+                        BasicStroke.CAP_SQUARE, // End cap
+                        BasicStroke.JOIN_MITER, // Join style
+                        10.0f * SCALE, // Miter limit
+                        new float[] { 3.0f * SCALE, 10.0f * SCALE }, // Dash
+                                                                     // pattern
+                        0.0f)); // Dash phase)
+
+            } else {
+                routeLeg.setLinePaint(routeColor);
+
+                routeLeg.setStroke(new BasicStroke(2.0f * SCALE, // Width
+                        BasicStroke.CAP_SQUARE, // End cap
+                        BasicStroke.JOIN_MITER, // Join style
+                        10.0f * SCALE, // Miter limit
+                        new float[] { 10.0f * SCALE, 8.0f * SCALE }, // Dash
+                                                                     // pattern
+                        0.0f)); // Dash phase)
+            }
+
+            i++;
+        }
+        i = 0;
+        for (WpCircle routeWp : routeWps) {
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeWp.setLinePaint(adjustColor(routeColor, 0.3f, 0.9f));
+            } else {
+                routeWp.setLinePaint(routeColor);
+            }
+            i++;
+        }
+        if (activeWpLine != null) {
+            activeWpLine.setLinePaint(routeColor);
+        }
+
+    }
+
 }

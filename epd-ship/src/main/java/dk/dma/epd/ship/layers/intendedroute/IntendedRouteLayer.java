@@ -57,6 +57,9 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
 
             IntendedRouteWpCircle routeWP = (IntendedRouteWpCircle) newClosest;
 
+            highlightIntendedRoute(((IntendedRouteWpCircle) newClosest)
+                    .getIntendedRouteGraphic());
+            
             if (routeWP.getIndex() >= routeWP.getIntendedRouteGraphic()
                     .getIntendedRoute().getActiveWpIndex()) {
                 intendedRouteInfoPanel
@@ -70,6 +73,9 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
             if (newClosest instanceof IntendedRouteLegGraphic) {
                 // lets user see ETA continually along route leg
 
+                highlightIntendedRoute(((IntendedRouteLegGraphic) newClosest)
+                        .getIntendedRouteGraphic());
+                
                 Point2D worldLocation = chartPanel.getMap().getProjection()
                         .inverse(evt.getPoint());
 

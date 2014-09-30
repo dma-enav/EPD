@@ -59,6 +59,8 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements
     private IntendedRouteHandlerCommon intendedRouteHandler;
     protected OMCircle dummyCircle = new OMCircle();
 
+    private IntendedRouteGraphic highlightedGraphics;
+
     private boolean useFilter;
 
     /**
@@ -290,7 +292,14 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements
         if (newClosest instanceof IntendedRouteWpCircle) {
             intendedRouteInfoPanel
                     .showWpInfo((IntendedRouteWpCircle) newClosest);
+
+            highlightIntendedRoute(((IntendedRouteWpCircle) newClosest)
+                    .getIntendedRouteGraphic());
+
         } else {
+
+            highlightIntendedRoute(((IntendedRouteLegGraphic) newClosest)
+                    .getIntendedRouteGraphic());
 
             int legIndex = ((IntendedRouteLegGraphic) newClosest).getIndex();
             IntendedRoute routeData = ((IntendedRouteLegGraphic) (IntendedRouteLegGraphic) newClosest)
@@ -311,6 +320,24 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements
 
         }
         return true;
+    }
+
+    @Override
+    public boolean mouseMoved(MouseEvent evt) {
+
+        OMGraphic newClosest = getSelectedGraphic(infoPanelsGraphics, evt,
+                infoPanels.getGraphicsList());
+
+        if (newClosest == null) {
+            // Unhighligt
+            if (highlightedGraphics != null) {
+
+                highlightedGraphics.unHightlightRoute();
+                doPrepare();
+            }
+        }
+
+        return super.mouseMoved(evt);
     }
 
     /**
@@ -358,6 +385,16 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements
 
     public boolean isUseFilter() {
         return useFilter;
+    }
+
+    protected void highlightIntendedRoute(
+            IntendedRouteGraphic intendedRouteGraphics) {
+
+        highlightedGraphics = intendedRouteGraphics;
+        highlightedGraphics.highlightRoute();
+        
+        doPrepare();
+
     }
 
 }
