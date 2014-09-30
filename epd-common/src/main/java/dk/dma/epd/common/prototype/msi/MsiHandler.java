@@ -362,6 +362,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         }
         if (obj instanceof RouteManagerCommon) {
             routeManager = (RouteManagerCommon) obj;
+            routeManager.addListener(this);
         }
         if (obj instanceof MsiLayerCommon) {
             msiLayer = (MsiLayerCommon) obj;
@@ -380,6 +381,10 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         if (pntHandler == obj) {
             pntHandler.removeListener(this);
             pntHandler = null;
+        }
+        if (routeManager == obj) {
+            routeManager.removeListener(this);
+            routeManager  = null;
         }
     }
 
