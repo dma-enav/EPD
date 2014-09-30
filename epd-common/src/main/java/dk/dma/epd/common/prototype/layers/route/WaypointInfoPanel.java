@@ -118,7 +118,7 @@ public class WaypointInfoPanel extends InfoPanel {
 
         StringBuilder str = new StringBuilder();
         str.append("<html>");
-        str.append("<b>Active route leg</b><br/>");
+        str.append("<b>Route leg</b><br/>");
         str.append("<table border='0' cellpadding='2'>");
         str.append("<tr><td>Length:</td><td>" + Formatter.formatDistNM(range) + "</td></tr>");
         str.append("<tr><td>Heading:</td><td>" + Formatter.formatDegrees(hdg, 0) + "</td></tr>");
