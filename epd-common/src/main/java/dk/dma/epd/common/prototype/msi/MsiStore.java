@@ -74,20 +74,6 @@ public class MsiStore implements Serializable {
         this.eNavSettings = eNavSettings;
     }
     
-    public synchronized boolean hasValidUnacknowledged() {
-        Date now = PntTime.getDate();
-        for (Integer msgId : messages.keySet()) {
-            MsiMessage msg = messages.get(msgId);
-            if (msg.getValidFrom() != null && msg.getValidFrom().after(now)) {
-                continue;
-            }
-            if (!acknowledged.contains(msgId)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public synchronized boolean hasValidVisibleUnacknowledged() {
         Date now = PntTime.getDate();
         for (Integer msgId : messages.keySet()) {

@@ -91,12 +91,12 @@
 			<artifactId>commons-httpclient</artifactId>
 			<version>3.1</version>
 		</dependency>
-		<dependency>
-			<groupId>net.maritimecloud</groupId>
-			<artifactId>maritimecloud-client</artifactId>
-			<version>0.1.5</version>
-		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>net.maritimecloud.mms</groupId>
+            <artifactId>mc-mms-client</artifactId>
+            <version>0.2</version>
+        </dependency>
+        <dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>${dependencies.slf4j.version}</version>
@@ -161,7 +161,39 @@
 					</gitDescribe>
 				</configuration>
 			</plugin>
-		</plugins>
+
+            <!-- Configure Maritime Cloud msdl compiler -->
+            <plugin>
+                <groupId>net.maritimecloud.msdl</groupId>
+                <artifactId>mc-msdl-maven-plugin</artifactId>
+                <version>0.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Add the generated sources to the classpath -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated-sources/msdl/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
 	</build>
 
 	<repositories>

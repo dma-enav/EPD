@@ -30,7 +30,7 @@ public class CloudSettings  implements Serializable {
     /**
      * Cloud server configuration
      */
-    private String cloudServerHost = "mms.maritimecloud.net";
+    private String cloudServerHost = "mms02.maritimecloud.net";
     private int cloudServerPort = 43234;
     
     // Intended route settings

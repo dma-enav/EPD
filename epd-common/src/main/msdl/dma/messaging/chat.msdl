@@ -1,0 +1,21 @@
+namespace dma.messaging;
+
+enum MCNotificationSeverity {
+    MESSAGE = 1;
+    WARNING = 2;
+    ALERT  = 3;
+}
+
+
+message MCChatMessage {
+    1: MCNotificationSeverity severity;
+    2: text msg;
+    3: timestamp sendDate;
+    4: boolean ownMessage;
+}
+
+endpoint MCChatMessageService {
+	void sendMessage(
+        1: MCChatMessage msg
+    );
+}

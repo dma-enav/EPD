@@ -32,7 +32,7 @@ public class ExceptionHandler implements UncaughtExceptionHandler {
     public void uncaughtException(Thread t, Throwable e) {
         LOG.error("Uncaught exception from thread " + t.getName(), e);
         JOptionPane.showMessageDialog(null, "An error has occured! If the problem persists please restart the software and contact an administrator.", "Application error", JOptionPane.ERROR_MESSAGE);
-        System.exit(1);
+//        System.exit(1);
     }
 
 }

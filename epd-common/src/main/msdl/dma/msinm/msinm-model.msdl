@@ -1,0 +1,227 @@
+namespace dma.msinm;
+
+/**
+ * Defines the message status
+ */
+enum MCStatus {
+
+    DRAFT = 1;
+    PUBLISHED = 2;
+    EXPIRED = 3;
+    CANCELLED = 4;
+    DELETED = 5;
+}
+
+/**
+ * Message type for message series identifier
+ */
+enum MCType {
+
+    // NtM types
+    PERMANENT_NOTICE        = 1;
+    TEMPORARY_NOTICE        = 2;
+    PRELIMINARY_NOTICE      = 3;
+    MISCELLANEOUS_NOTICE    = 4;
+
+    // MSI types
+    COSTAL_WARNING          = 5;
+    SUBAREA_WARNING         = 6;
+    NAVAREA_WARNING         = 7;
+}
+
+/**
+ * The type of the message series identifier
+ */
+enum MCSeriesIdType {
+
+    MSI = 1;
+    NM = 2;
+}
+
+/**
+ * A unique identifier for an MSI or NtM message
+ */
+message MCSeriesIdentifier {
+
+    1: MCSeriesIdType mainType;
+    2: text authority;
+    3: int number;
+    4: int year;
+}
+
+//**************************
+//** Location
+//**************************
+
+/**
+ * Defines the localizable attributes of MCPoint
+ */
+message MCPointDesc {
+
+    1: text lang;
+    2: text description;
+}
+
+/**
+ * Defines a point.
+ */
+message MCPoint {
+
+    1: double lat;
+    2: double lon;
+    3: int index;
+    4: list<MCPointDesc> descs;
+}
+
+/**
+ * Defines a location type
+ */
+enum MCLocationType {
+
+    POINT       = 1;
+    CIRCLE      = 2;
+    POLYGON     = 3;
+    POLYLINE    = 4;
+}
+
+/**
+ * Defines the localizable attributes of MCLocation
+ */
+message MCLocationDesc {
+
+    1: text lang;
+    2: text description;
+}
+
+/**
+ * Defines a location as either a point, a circle, a polygon or a polyline.
+ */
+message MCLocation {
+
+    1: MCLocationType type;
+    2: int radius;
+    3: list<MCPoint> points;
+    4: list<MCLocationDesc> descs;
+}
+
+//**************************
+//** Area
+//**************************
+
+/**
+ * Defines the localizable attributes of MCArea
+ */
+message MCAreaDesc {
+
+    1: text lang;
+    2: text name;
+}
+
+/**
+ * Defines an area
+ */
+message MCArea {
+
+    1: MCArea parent;
+    3: list<MCAreaDesc> descs;
+}
+
+//**************************
+//** Category
+//**************************
+
+/**
+ * Defines the localizable attributes of MCCategory
+ */
+message MCCategoryDesc {
+
+    1: text lang;
+    2: text name;
+}
+
+/**
+ * Defines a category
+ */
+message MCCategory {
+
+    1: MCCategory parent;
+    2: list<MCCategoryDesc> descs;
+}
+
+//**************************
+//** Chart
+//**************************
+
+/**
+ * Defines a chart
+ */
+message MCChart {
+
+    1: text chartNumber;
+    2: int internationalNumber;
+}
+
+//**************************
+//** Reference
+//**************************
+
+/**
+ * The type of a message reference
+ */
+enum MCReferenceType {
+    REFERENCE       = 1;
+    REPETITION      = 2;
+    CANCELLATION    = 3;
+    UPDATE          = 4;
+}
+
+/**
+ * Encapsulates a message reference
+ */
+message MCReference {
+
+    1: MCSeriesIdentifier seriesIdentifier;
+    2: MCReferenceType type;
+}
+
+//**************************
+//** Message
+//**************************
+
+message MCMessageDesc {
+
+    1: text title;
+    2: text description;
+    3: text otherCategories;
+    4: text time;
+    5: text vicinity;
+    6: text note;
+    7: text publication;
+    8: text source;
+}
+
+/**
+ * Encapsulates the message MSI-NM entity
+ */
+message MCMessage {
+
+    1:  int id;
+    2:  int version;
+    3:  timestamp created;
+    4:  timestamp updated;
+    5:  MCSeriesIdentifier seriesIdentifier;
+    6:  MCType type;
+    7:  MCStatus status;
+    8:  MCArea area;
+    9:  list<MCCategory> categories;
+    10: list<MCLocation> locations;
+    11: list<MCChart> charts;
+    12: text horizontalDatum;
+    13: timestamp validFrom;
+    14: timestamp validTo;
+    15: list<MCReference> references;
+    16: list<text> lightsListNumbers;
+    17: boolean originalInformation;
+    18: list<MCMessageDesc> descs;
+
+}

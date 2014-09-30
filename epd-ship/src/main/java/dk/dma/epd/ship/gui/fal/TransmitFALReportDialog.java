@@ -14,12 +14,33 @@
  */
 package dk.dma.epd.ship.gui.fal;
 
-import static java.awt.GridBagConstraints.CENTER;
-import static java.awt.GridBagConstraints.EAST;
-import static java.awt.GridBagConstraints.HORIZONTAL;
-import static java.awt.GridBagConstraints.NONE;
-import static java.awt.GridBagConstraints.WEST;
+import dk.dma.enav.model.fal.FALReport;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportMessage;
+import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportReply;
+import dk.dma.epd.common.prototype.enavcloud.TODO;
+import dk.dma.epd.common.prototype.gui.ComponentDialog;
+import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
+import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.util.NameUtils;
+import dk.dma.epd.common.util.NameUtils.NameFormat;
+import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.fal.FALManager;
+import dk.dma.epd.ship.gui.identity.IdentityViewer;
+import net.maritimecloud.core.id.MmsiId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.WindowConstants;
+import javax.swing.border.TitledBorder;
 import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -31,35 +52,11 @@ import java.util.ArrayList;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.WindowConstants;
-import javax.swing.border.TitledBorder;
-
-import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.service.ServiceEndpoint;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dk.dma.enav.model.fal.FALReport;
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportMessage;
-import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportReply;
-import dk.dma.epd.common.prototype.gui.ComponentDialog;
-import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
-import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.util.NameUtils;
-import dk.dma.epd.common.util.NameUtils.NameFormat;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.fal.FALManager;
-import dk.dma.epd.ship.gui.identity.IdentityViewer;
+import static java.awt.GridBagConstraints.CENTER;
+import static java.awt.GridBagConstraints.EAST;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.WEST;
 
 /**
  * Sends a FAL report to a store station
@@ -335,7 +332,7 @@ public class TransmitFALReportDialog extends ComponentDialog implements ActionLi
     /**
      * Sets the selected fal report
      * 
-     * @param selectedFalReport
+     * @param falReport
      *            the selected fal report
      */
     public void setSelectedFALReport(FALReport falReport) {
@@ -352,7 +349,7 @@ public class TransmitFALReportDialog extends ComponentDialog implements ActionLi
         // Initialize MMSI list
         mmsiList.clear();
         portListComboBox.removeAllItems();
-        for (ServiceEndpoint<FALReportMessage, FALReportReply> service : EPDShip.getInstance().getFalHandler().getFalRecievers()) {
+        for (TODO.ServiceEndpoint<FALReportMessage, FALReportReply> service : EPDShip.getInstance().getFalHandler().getFalRecievers()) {
             mmsiList.add(MaritimeCloudUtils.toMmsi(service.getId()));
             portListComboBox.addItem(NameUtils.getName(service.getId(), NameFormat.MEDIUM));
         }

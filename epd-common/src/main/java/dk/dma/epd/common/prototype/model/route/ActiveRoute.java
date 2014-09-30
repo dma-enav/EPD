@@ -14,17 +14,9 @@
  */
 package dk.dma.epd.common.prototype.model.route;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.joda.time.DateTime;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
-import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteMessage;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter.FilterType;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
@@ -32,6 +24,13 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
+import dma.route.MCIntendedRouteBroadcast;
+import net.maritimecloud.util.Timestamp;
+import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Class representing an active route
@@ -609,12 +608,10 @@ public class ActiveRoute extends Route {
      * 
      * @param filter
      *            the filter to apply to extract the partial route
-     * @param broadcast
-     *            the result to update. If null, a new instance is created.
      * @return the partial route
      */
-    public synchronized IntendedRouteBroadcast getPartialRouteData(
-            PartialRouteFilter filter, IntendedRouteBroadcast broadcast) {
+    public synchronized MCIntendedRouteBroadcast getPartialRouteData(
+            PartialRouteFilter filter) {
 
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
         List<Date> originalEtas = new ArrayList<>();
@@ -625,7 +622,7 @@ public class ActiveRoute extends Route {
         if (filter.getType() == FilterType.MINUTES) {
             Date activeWpEta = getActiveWaypointEta();
             if (activeWpEta == null) {
-                return broadcast;
+                return new MCIntendedRouteBroadcast();
             }
             startDate = new Date(activeWpEta.getTime() - filter.getBackward() * 1000L * 60L);
             endDate = new Date(activeWpEta.getTime() + filter.getForward() * 1000L * 60L);
@@ -728,13 +725,11 @@ public class ActiveRoute extends Route {
         }
 
         // Make the broadcast message
-        if (broadcast == null) {
-            broadcast = new IntendedRouteBroadcast();
+        MCIntendedRouteBroadcast broadcast = IntendedRoute.fromRoute(voyageRoute);
+        for (Date date : originalEtas) {
+            broadcast.addCalculatedEtas(Timestamp.create(date.getTime()));
         }
-        IntendedRouteMessage irm = IntendedRoute.fromRoute(voyageRoute);
-        irm.setPlannedEtas(originalEtas);
-        irm.setActiveWpIndex(activeWpIndex);
-        broadcast.setRoute(irm);
+        broadcast.setActiveWaypointIndex(activeWpIndex);
 
         return broadcast;
     }

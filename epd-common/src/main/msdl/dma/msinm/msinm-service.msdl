@@ -1,0 +1,11 @@
+namespace dma.msinm;
+
+//import "dma/msinm/msinm-model.msdl";
+
+/**
+ * Service that broadcasts message updates
+ */
+broadcast MsiNmUpdatesBroadcast {
+
+   1: MCMessage msg;
+}

@@ -14,21 +14,19 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-import static java.util.Objects.requireNonNull;
+import dk.dma.enav.model.fal.FALReport;
 
 import java.io.Serializable;
 import java.util.Date;
 
-import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
-import net.maritimecloud.net.service.spi.ServiceMessage;
-import dk.dma.enav.model.fal.FALReport;
+import static java.util.Objects.requireNonNull;
 
 public class FALReportingService {
 
     /** An initiation point */
-    public static final ServiceInitiationPoint<FALReportMessage> INIT = new ServiceInitiationPoint<>(FALReportMessage.class);
+    public static final TODO.ServiceInitiationPoint<FALReportMessage> INIT = new TODO.ServiceInitiationPoint<>(FALReportMessage.class);
 
-    public static class FALReportMessage extends ServiceMessage<FALReportReply> implements Serializable {
+    public static class FALReportMessage extends TODO.ServiceMessage<FALReportReply> implements Serializable {
 
         private static final long serialVersionUID = -6477410194395261604L;
 
@@ -134,7 +132,7 @@ public class FALReportingService {
 
     }
 
-    public static class FALReportReply extends ServiceMessage<Void> {
+    public static class FALReportReply extends TODO.ServiceMessage<Void> {
 
         private long id;
         private long mmsi;
@@ -143,10 +141,7 @@ public class FALReportingService {
         public FALReportReply() {
         }
 
-        /**
-         * @param message
-         */
-        public FALReportReply(long id, long mmsi, long sendDate) {
+       public FALReportReply(long id, long mmsi, long sendDate) {
             this.id = requireNonNull(id);
             this.mmsi = requireNonNull(mmsi);
             this.sendDate = requireNonNull(sendDate);

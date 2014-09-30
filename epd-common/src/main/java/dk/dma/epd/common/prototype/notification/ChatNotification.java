@@ -16,13 +16,15 @@ package dk.dma.epd.common.prototype.notification;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
-import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.service.ChatServiceData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.util.NameUtils;
 import dk.dma.epd.common.util.NameUtils.NameFormat;
+import dma.messaging.MCChatMessage;
 import net.maritimecloud.core.id.MaritimeId;
+
+import java.util.Date;
 
 /**
  * Class that can be used for chat message notifications
@@ -33,8 +35,8 @@ public class ChatNotification extends Notification<ChatServiceData, MaritimeId> 
     
     /**
      * Constructor 
-     * 
-     * @param id the maritime id 
+     *
+     * @param chatData the chat data
      */
     public ChatNotification(ChatServiceData chatData) {
         super(chatData, chatData.getId(), NotificationType.MESSAGES);        
@@ -42,14 +44,22 @@ public class ChatNotification extends Notification<ChatServiceData, MaritimeId> 
         targetId = chatData.getId();
         
         if (chatData.getMessageCount() > 0) {
-            ChatServiceMessage msg = chatData.getLatestMessage();
+            MCChatMessage msg = chatData.getLatestMessage();
             title = String.format(
-                    msg.isOwnMessage() ? "Message to %s" : "Message from %s", 
+                    msg.getOwnMessage() ? "Message to %s" : "Message from %s",
                     NameUtils.getName(chatData.getId()));
-            description = msg.getMessage();
-            date = msg.getSendDate();
-            severity = msg.isOwnMessage() ? NotificationSeverity.MESSAGE : msg.getSeverity();
-            if (!msg.isOwnMessage() && !chatData.isRead()) {
+            description = msg.getMsg();
+            date = msg.getSendDate() == null ? new Date() : new Date(msg.getSendDate().getTime());
+            if (msg.getOwnMessage()) {
+                severity =  NotificationSeverity.MESSAGE;
+            } else {
+                switch (msg.getSeverity()) {
+                    case MESSAGE: severity = NotificationSeverity.MESSAGE; break;
+                    case WARNING: severity = NotificationSeverity.WARNING; break;
+                    case ALERT: severity = NotificationSeverity.ALERT; break;
+                }
+            }
+            if (!msg.getOwnMessage() && !chatData.isRead()) {
                 addAlerts(new NotificationAlert(AlertType.POPUP, AlertType.BEEP));
                 read = acknowledged = false;
             } else {

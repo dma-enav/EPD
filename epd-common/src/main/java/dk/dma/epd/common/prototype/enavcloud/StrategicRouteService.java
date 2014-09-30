@@ -14,15 +14,13 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-import static java.util.Objects.requireNonNull;
+import dk.dma.enav.model.voyage.Route;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 
 import java.awt.Color;
 import java.util.Date;
 
-import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
-import net.maritimecloud.net.service.spi.ServiceMessage;
-import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Maritime cloud service for exchanging strategic routes (formerly "Mona Lisa").
@@ -37,7 +35,7 @@ import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessage
 public class StrategicRouteService {
     
     /** An initiation point */
-    public static final ServiceInitiationPoint<StrategicRouteMessage> INIT = new ServiceInitiationPoint<>(
+    public static final TODO.ServiceInitiationPoint<StrategicRouteMessage> INIT = new TODO.ServiceInitiationPoint<>(
             StrategicRouteMessage.class);
     
     /**
@@ -66,7 +64,7 @@ public class StrategicRouteService {
      * Used for sending a request from a ship to an STCC.
      */
     public static class StrategicRouteMessage extends
-        ServiceMessage<StrategicRouteReply> {
+            TODO.ServiceMessage<StrategicRouteReply> {
 
         private boolean fromStcc;
         private long id;
@@ -90,7 +88,6 @@ public class StrategicRouteService {
          * @param fromStcc whether this message is from an STCC or a ship
          * @param id id of the transaction
          * @param route the route
-         * @param mmsi the MMSI of the vessel
          * @param message an additional message
          * @param status the status
          */
@@ -178,7 +175,7 @@ public class StrategicRouteService {
     /**
      * Acknowledges receiving a strategic route request
      */
-    public static class StrategicRouteReply extends ServiceMessage<Void> {
+    public static class StrategicRouteReply extends TODO.ServiceMessage<Void> {
 
         private long id;
         private Date receivedDate;

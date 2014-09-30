@@ -14,31 +14,12 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.broadcast.BroadcastListener;
-import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
-
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoutes;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
@@ -65,6 +46,22 @@ import dk.dma.epd.common.util.TypedValue.Speed;
 import dk.dma.epd.common.util.TypedValue.SpeedType;
 import dk.dma.epd.common.util.TypedValue.Time;
 import dk.dma.epd.common.util.TypedValue.TimeType;
+import dma.route.MCIntendedRouteBroadcast;
+import net.maritimecloud.mms.MmsClient;
+import net.maritimecloud.net.BroadcastListener;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Intended route service implementation.
@@ -139,18 +136,15 @@ public abstract class IntendedRouteHandlerCommon extends
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(MaritimeCloudClient connection) {
+    public void cloudConnected(final MmsClient connection) {
 
         // Hook up as a broadcast listener
-        connection.broadcastListen(IntendedRouteBroadcast.class,
-                new BroadcastListener<IntendedRouteBroadcast>() {
-                    public void onMessage(BroadcastMessageHeader l,
-                            IntendedRouteBroadcast r) {
-
-                        int id = MaritimeCloudUtils.toMmsi(l.getId());
-                        updateIntendedRoute(id, r);
-                    }
-                });
+        connection.broadcastListen(MCIntendedRouteBroadcast.class, new BroadcastListener<MCIntendedRouteBroadcast>() {
+            @Override public void onMessage(Context context, MCIntendedRouteBroadcast broadcast) {
+                int id = MaritimeCloudUtils.toMmsi(context.getBroadcaster());
+                updateIntendedRoute(id, broadcast);
+            }
+        });
     }
 
     /**
@@ -159,10 +153,9 @@ public abstract class IntendedRouteHandlerCommon extends
      * @param mmsi
      * @param r
      */
-    private synchronized void updateIntendedRoute(long mmsi,
-            IntendedRouteBroadcast r) {
+    private synchronized void updateIntendedRoute(long mmsi, MCIntendedRouteBroadcast r) {
 
-        IntendedRoute intendedRoute = new IntendedRoute(r.getRoute());
+        IntendedRoute intendedRoute = new IntendedRoute(r);
         intendedRoute.setMmsi(mmsi);
 
         IntendedRoute oldIntendedRoute = intendedRoutes.get(mmsi);
@@ -909,8 +902,6 @@ public abstract class IntendedRouteHandlerCommon extends
      * Great Circle Traversing
      * 
      * @param startPosition
-     * @param bearing
-     * @param distanceTravelled
      * @return
      */
     private Position traverseLineGC(Position startPosition,

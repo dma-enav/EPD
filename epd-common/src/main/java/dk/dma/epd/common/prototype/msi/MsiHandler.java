@@ -85,42 +85,6 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     }
 
     /**
-     * Get the amount of unacknowledged msi messages
-     * 
-     * @return
-     */
-    public int getUnAcknowledgedMSI() {
-        List<MsiMessageExtended> messageList = getMessageList();
-        int counter = 0;
-
-        for (int i = 0; i < messageList.size(); i++) {
-            if (!messageList.get(i).acknowledged) {
-                counter++;
-            }
-        }
-
-        return counter;
-    }
-
-    /**
-     * Get the amount of unacknowledged filtered msi messages
-     * 
-     * @return
-     */
-    public int getUnAcknowledgedFilteredMSI() {
-        List<MsiMessageExtended> messageList = getFilteredMessageList();
-        int counter = 0;
-
-        for (int i = 0; i < messageList.size(); i++) {
-            if (!messageList.get(i).acknowledged) {
-                counter++;
-            }
-        }
-
-        return counter;
-    }
-
-    /**
      * Get the list of filtered messages
      *
      * @return
@@ -161,37 +125,8 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         return list;
     }
 
-    public synchronized int getFirstNonAcknowledged() {
-        int index = 0;
-        List<MsiMessageExtended> list = getMessageList();
-        while (index < list.size()) {
-            if (!list.get(index).acknowledged) {
-                return index;
-            }
-            index++;
-        }
-        return list.size() - 1;
-    }
-
     /**
-     * Get the first none acknowledged from the filtered list
-     *
-     * @return
-     */
-    public synchronized int getFirstNonAcknowledgedFiltered() {
-        int index = 0;
-        List<MsiMessageExtended> list = getFilteredMessageList();
-        while (index < list.size()) {
-            if (!list.get(index).acknowledged) {
-                return index;
-            }
-            index++;
-        }
-        return list.size() - 1;
-    }
-
-    /**
-     * Set a msi message as acknowleged
+     * Set a msi message as acknowledged
      * @param msiMessage
      */
     public void setAcknowledged(MsiMessage msiMessage) {
@@ -204,7 +139,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     }
 
     /**
-     * Check if a msi with a given ID is acknowleged
+     * Check if a msi with a given ID is acknowledged
      *
      * @param msgId
      * @return
@@ -357,15 +292,6 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
      */
     private synchronized void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
-    }
-
-    /**
-     * Get the pending important messages
-     *
-     * @return
-     */
-    public synchronized boolean isPendingImportantMessages() {
-        return pendingImportantMessages;
     }
 
     /**

@@ -14,19 +14,16 @@
  */
 package dk.dma.epd.common.prototype.predictor;
 
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
+import net.jcip.annotations.ThreadSafe;
+import net.maritimecloud.mms.MmsClient;
+
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import net.jcip.annotations.ThreadSafe;
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.broadcast.BroadcastListener;
-import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
-import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 
 /**
  * Class for handling and distributing dynamic prediction information. Clients
@@ -107,24 +104,26 @@ public class DynamicPredictorHandlerCommon extends EnavServiceHandlerCommon {
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(MaritimeCloudClient connection) {
+    public void cloudConnected(MmsClient connection) {
         super.cloudConnected(connection);
         // Listen for dynamic prediction broadcasts from cloud
-        connection.broadcastListen(DynamicPrediction.class,
-                new BroadcastListener<DynamicPrediction>() {
-                    @Override
-                    public void onMessage(BroadcastMessageHeader header,
-                            DynamicPrediction prediction) {
-                        assert MaritimeCloudUtils.toMmsi(header.getId()) == prediction
-                                .getMmsi();
-                        /*
-                         * Notify listeners of dynamic prediction received from
-                         * cloud.
-                         */
-                        DynamicPredictorHandlerCommon.this
-                                .publishDynamicPrediction(prediction);
-                    }
-                });
+
+// TODO: Maritime Cloud 0.2 re-factoring
+//        connection.broadcastListen(DynamicPrediction.class,
+//                new BroadcastListener<DynamicPrediction>() {
+//                    @Override
+//                    public void onMessage(BroadcastMessageHeader header,
+//                            DynamicPrediction prediction) {
+//                        assert MaritimeCloudUtils.toMmsi(header.getId()) == prediction
+//                                .getMmsi();
+//                        /*
+//                         * Notify listeners of dynamic prediction received from
+//                         * cloud.
+//                         */
+//                        DynamicPredictorHandlerCommon.this
+//                                .publishDynamicPrediction(prediction);
+//                    }
+//                });
     }
 
     /**

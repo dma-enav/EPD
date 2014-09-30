@@ -14,29 +14,25 @@
  */
 package dk.dma.epd.shore.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.service.ServiceEndpoint;
-import net.maritimecloud.net.service.invocation.InvocationCallback;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
+import dk.dma.epd.common.prototype.enavcloud.TODO;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.mms.MmsClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Handler class for the strategic route e-Navigation service
@@ -47,7 +43,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
     
     private VoyageManager voyageManager;
 
-    private List<ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> strategicRouteShipList = new ArrayList<>();
+    private List<TODO.ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> strategicRouteShipList = new ArrayList<>();
 
     /**
      * Constructor
@@ -67,7 +63,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(MaritimeCloudClient connection) {
+    public void cloudConnected(MmsClient connection) {
         try {
             registerStrategicRouteService();
         } catch (Exception e) {
@@ -83,23 +79,24 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      */
     private void registerStrategicRouteService() throws InterruptedException {
 
-        getMaritimeCloudConnection()
-                .serviceRegister(
-                        StrategicRouteService.INIT,
-                        new InvocationCallback<StrategicRouteMessage, StrategicRouteReply>() {
-                            public void process(StrategicRouteMessage message,
-                                    Context<StrategicRouteReply> context) {
-                                
-                                // The cloud status is transient, so this ought to be unnecessary
-                                message.setCloudMessageStatus(null);
-                                
-                                LOG.info("Shore received a strategic route request");
-                                handleStrategicRouteRequest(message, context.getCaller());
-
-                                // Acknowledge that the message has been handled 
-                                context.complete(new StrategicRouteReply(message.getId()));
-                            }
-                        }).awaitRegistered(4, TimeUnit.SECONDS);
+// TODO: Maritime Cloud 0.2 re-factoring
+//        getMmsClient()
+//                .serviceRegister(
+//                        StrategicRouteService.INIT,
+//                        new InvocationCallback<StrategicRouteMessage, StrategicRouteReply>() {
+//                            public void process(StrategicRouteMessage message,
+//                                    Context<StrategicRouteReply> context) {
+//
+//                                // The cloud status is transient, so this ought to be unnecessary
+//                                message.setCloudMessageStatus(null);
+//
+//                                LOG.info("Shore received a strategic route request");
+//                                handleStrategicRouteRequest(message, context.getCaller());
+//
+//                                // Acknowledge that the message has been handled
+//                                context.complete(new StrategicRouteReply(message.getId()));
+//                            }
+//                        }).awaitRegistered(4, TimeUnit.SECONDS);
     }
 
     /**
@@ -120,13 +117,14 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * Fetches the list of ships with a strategic route service
      */
     private void fetchStrategicRouteShipList() {
-        try {
-            strategicRouteShipList = getMaritimeCloudConnection().serviceLocate(StrategicRouteService.INIT).nearest(Integer.MAX_VALUE).get();
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-
-        }
+// TODO: Maritime Cloud 0.2 re-factoring
+//        try {
+//            strategicRouteShipList = getMmsClient().serviceLocate(StrategicRouteService.INIT).nearest(Integer.MAX_VALUE).get();
+//
+//        } catch (Exception e) {
+//            LOG.error(e.getMessage());
+//
+//        }
     }
 
     /**
@@ -135,11 +133,13 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * @return if the given ship has a strategic route service
      */
     public boolean shipAvailableForStrategicRouteTransaction(long mmsi) {
-        if (MaritimeCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsi) == null) {
-            fetchStrategicRouteShipList();
-        }
-        
-        return MaritimeCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsi) != null;
+        return false;
+// TODO: Maritime Cloud 0.2 re-factoring
+//        if (MaritimeCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsi) == null) {
+//            fetchStrategicRouteShipList();
+//        }
+//
+//        return MaritimeCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsi) != null;
     }
 
     

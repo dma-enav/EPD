@@ -14,50 +14,30 @@
  */
 package dk.dma.epd.shore.service;
 
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportMessage;
+import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportReply;
+import dk.dma.epd.common.prototype.enavcloud.TODO;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.service.FALHandlerCommon;
+import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
+import dk.dma.epd.common.util.Util;
+import dk.dma.epd.shore.fal.FALManager;
+import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.mms.MmsClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.service.ServiceEndpoint;
-import net.maritimecloud.net.service.invocation.InvocationCallback;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dk.dma.enav.model.voct.DatumPointDTO;
-import dk.dma.enav.model.voct.DatumPointSARISDTO;
-import dk.dma.enav.model.voct.EffortAllocationDTO;
-import dk.dma.enav.model.voct.RapidResponseDTO;
-import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.FALReportingService;
-import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportMessage;
-import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportReply;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
-import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
-import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
-import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
-import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
-import dk.dma.epd.common.prototype.notification.GeneralNotification;
-import dk.dma.epd.common.prototype.notification.NotificationAlert;
-import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
-import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
-import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.dma.epd.common.prototype.service.FALHandlerCommon;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
-import dk.dma.epd.common.util.Util;
-import dk.dma.epd.shore.fal.FALManager;
-import dk.dma.epd.shore.voct.SRUManager;
-import dk.dma.epd.shore.voct.VOCTManager;
 
 /**
  * Ship specific intended route service implementation.
@@ -77,7 +57,7 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
      * Network list for various SAR data objects
      */
 
-    private List<ServiceEndpoint<FALReportMessage, FALReportReply>> voctMessageList = new ArrayList<>();
+    private List<TODO.ServiceEndpoint<FALReportMessage, FALReportReply>> voctMessageList = new ArrayList<>();
     private boolean running;
     private static final Logger LOG = LoggerFactory.getLogger(VoctHandlerCommon.class);
 
@@ -106,40 +86,41 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(MaritimeCloudClient connection) {
+    public void cloudConnected(MmsClient connection) {
         super.cloudConnected(connection);
 
-        try {
-            getMaritimeCloudConnection().serviceRegister(FALReportingService.INIT,
-                    new InvocationCallback<FALReportingService.FALReportMessage, FALReportingService.FALReportReply>() {
-                        public void process(FALReportMessage message,
-                                InvocationCallback.Context<FALReportingService.FALReportReply> context) {
-
-                            // LOG.info("Shore received a VOCT reply");
-                            System.out.println("Received a FAL report from Ship! " + message.getFalReport());
-
-                            MaritimeId caller = context.getCaller();
-                            long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
-
-                            falManager.addFALReport(message.getFalReport());
-
-                            String type = "departure";
-
-                            if (message.getFalReport().getFalform1().isArrival()) {
-                                type = "arrival";
-                            }
-
-                            String desc = "New FAL Report from vessel " + message.getFalReport().getReportOwner() + " recieved at "
-                                    + message.getSentDate() + " regarding an " + type;
-                            sendNotification(NotificationSeverity.MESSAGE, "New FAL Report Recieved from "
-                                    + message.getFalReport().getReportOwner(), desc);
-
-                        }
-                    }).awaitRegistered(4, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            System.out.println("Failed to register services?");
-        }
+// TODO: Maritime Cloud 0.2 re-factoring
+//        try {
+//            getMmsClient().serviceRegister(FALReportingService.INIT,
+//                    new InvocationCallback<FALReportingService.FALReportMessage, FALReportingService.FALReportReply>() {
+//                        public void process(FALReportMessage message,
+//                                InvocationCallback.Context<FALReportingService.FALReportReply> context) {
+//
+//                            // LOG.info("Shore received a VOCT reply");
+//                            System.out.println("Received a FAL report from Ship! " + message.getFalReport());
+//
+//                            MaritimeId caller = context.getCaller();
+//                            long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
+//
+//                            falManager.addFALReport(message.getFalReport());
+//
+//                            String type = "departure";
+//
+//                            if (message.getFalReport().getFalform1().isArrival()) {
+//                                type = "arrival";
+//                            }
+//
+//                            String desc = "New FAL Report from vessel " + message.getFalReport().getReportOwner() + " recieved at "
+//                                    + message.getSentDate() + " regarding an " + type;
+//                            sendNotification(NotificationSeverity.MESSAGE, "New FAL Report Recieved from "
+//                                    + message.getFalReport().getReportOwner(), desc);
+//
+//                        }
+//                    }).awaitRegistered(4, TimeUnit.SECONDS);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to register services?");
+//        }
 
         // Start broadcasting our own active route
         running = true;
@@ -168,15 +149,16 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
     }
 
     private void fetchVOCTMessageList() {
-        // System.out.println("Checking for VOCT message list");
-        try {
-
-            voctMessageList = getMaritimeCloudConnection().serviceLocate(FALReportingService.INIT).nearest(Integer.MAX_VALUE).get();
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-
-        }
+// TODO: Maritime Cloud 0.2 re-factoring
+//        // System.out.println("Checking for VOCT message list");
+//        try {
+//
+//            voctMessageList = getMmsClient().serviceLocate(FALReportingService.INIT).nearest(Integer.MAX_VALUE).get();
+//
+//        } catch (Exception e) {
+//            LOG.error(e.getMessage());
+//
+//        }
     }
 
     public void sendVOCTMessage(long mmsi, SARData sarData, String sender, String message, boolean isAO, boolean isSearchPattern)
