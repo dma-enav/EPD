@@ -40,6 +40,7 @@ public class NavSettings implements Serializable {
     private boolean relaxedWpChange = true;
     private float routeWidth = 2.0f;
     private boolean dynamicPrediction;
+    private boolean showXtd;
     
     public NavSettings() {
     }
@@ -58,6 +59,7 @@ public class NavSettings implements Serializable {
         relaxedWpChange = PropUtils.booleanFromProperties(props, PREFIX + "relaxedWpChange", relaxedWpChange);
         routeWidth = (float)PropUtils.doubleFromProperties(props, PREFIX + "routeWidth", routeWidth);
         dynamicPrediction = PropUtils.booleanFromProperties(props, PREFIX + "dynamicPrediction", dynamicPrediction);
+        showXtd = PropUtils.booleanFromProperties(props, PREFIX + "showXtd", showXtd);
     }
     
     public void setProperties(Properties props) {
@@ -74,6 +76,7 @@ public class NavSettings implements Serializable {
         props.put(PREFIX + "relaxedWpChange", Boolean.toString(relaxedWpChange));
         props.put(PREFIX + "routeWidth", Float.toString(routeWidth));
         props.put(PREFIX + "dynamicPrediction", Boolean.toString(dynamicPrediction));
+        props.put(PREFIX + "showXtd", Boolean.toString(showXtd));        
     }
     
     public boolean isAutoFollow() {
@@ -174,6 +177,14 @@ public class NavSettings implements Serializable {
 
     public void setDynamicPrediction(boolean dynamicPrediction) {
         this.dynamicPrediction = dynamicPrediction;
+    }
+    
+    public boolean isShowXtd() {
+        return showXtd;
+    }
+    
+    public void setShowXtd(boolean showXtd) {
+        this.showXtd = showXtd;
     }
     
 }

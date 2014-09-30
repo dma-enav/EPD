@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
@@ -172,7 +173,7 @@ public class RouteGraphic extends OMGraphicList {
 
                 RouteLegGraphic routeLegGraphic;
                 if (route instanceof ActiveRoute) {
-                    routeLegGraphic = new ActiveRouteLegGraphic(routeLeg, routeIndex, legColor, this.routeStroke, SCALE, this, i);
+                    routeLegGraphic = new ActiveRouteLegGraphic(routeLeg, routeIndex, legColor, this.routeStroke, SCALE, this, i, EPD.getInstance().getSettings().getNavSettings().isShowXtd());
                 } else {
                     routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, legColor, this.routeStroke, SCALE, this, i);
                 }

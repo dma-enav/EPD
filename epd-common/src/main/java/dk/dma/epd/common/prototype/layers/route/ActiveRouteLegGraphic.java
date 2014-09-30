@@ -40,19 +40,22 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
 
     public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex,
             Color color, Stroke stroke, Color broadLineColor,
-            float[] broadLineDash, float scale) {
+            float[] broadLineDash, float scale, boolean crosstrack) {
         super(routeLeg, routeIndex, color, stroke, broadLineColor,
                 broadLineDash, scale);
-        addCrossTrack();
+        if (crosstrack) {
+            addCrossTrack();
+        }
     }
 
     public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex,
             Color color, Stroke stroke, float scale, RouteGraphic routeGraphic,
-            int legIndex) {
+            int legIndex, boolean crosstrack) {
         super(routeLeg, routeIndex, color, stroke, scale, routeGraphic,
                 legIndex);
-        addCrossTrack();
-
+        if (crosstrack) {
+            addCrossTrack();
+        }
     }
 
     public ActiveRouteLegGraphic(ActiveRouteGraphic activeRouteGraphic,

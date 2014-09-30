@@ -104,7 +104,7 @@ public class Route implements Serializable {
 
     protected long strategicRouteId;
 
-    protected EtaCalculationType etaCalculationType = EtaCalculationType.PLANNED_SPEED;
+    protected EtaCalculationType etaCalculationType = EtaCalculationType.DYNAMIC_SPEED;
 
     public Route() {
 
