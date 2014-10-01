@@ -275,8 +275,11 @@ public class NogoDialogCommon extends JDialog implements ActionListener, Runnabl
         depthTxt.setBounds(257, 78, 65, 14);
         panel_2.add(depthTxt);
 
+        
+        SpinnerNumberModel ukcSpinnerModel = new SpinnerNumberModel(1.0, 0.0, 1000.0, 0.50);
+        
         spinnerUKC = new JSpinner();
-        spinnerUKC.setModel(new SpinnerNumberModel(new Integer(2), null, null, new Integer(1)));
+        spinnerUKC.setModel(ukcSpinnerModel);
         spinnerUKC.setBounds(252, 55, 38, 20);
 
         spinnerUKC.addChangeListener(new ChangeListener() {
@@ -320,7 +323,7 @@ public class NogoDialogCommon extends JDialog implements ActionListener, Runnabl
     }
 
     protected void updateTotalDepthLabel() {
-        totalDepth = ((Double) spinnerDraught.getValue()).doubleValue() + (Integer) spinnerUKC.getValue();
+        totalDepth = ((Double) spinnerDraught.getValue()).doubleValue() + ((Double) spinnerUKC.getValue()).doubleValue();
 
         depthTxt.setText(totalDepth.toString());
 

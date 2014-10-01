@@ -67,7 +67,7 @@ public class NoGoMouseModeCommon extends CommonNavigationMouseMode {
                 // Get the second point and the length of the width and height.
                 super.point2 = e.getPoint();
 
-                if (point2 != null) {
+                if (point2 != null && point1 != null) {
 
                     int rectangleWidth = Math.abs(super.point2.x - super.point1.x);
                     int rectangleHeight = Math.abs(super.point2.y - super.point1.y);
