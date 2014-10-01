@@ -28,6 +28,7 @@ import java.util.Properties;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
 import net.maritimecloud.core.id.MaritimeId;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
@@ -69,6 +70,7 @@ public abstract class EPD implements ISettingsListener {
     protected ChatServiceHandlerCommon chatServiceHandler;
     protected AisHandlerCommon aisHandler;
     protected MsiHandler msiHandler;
+    protected MsiNmServiceHandlerCommon msiNmHandler;
     protected NotificationCenterCommon notificationCenter;
     protected StrategicRouteHandlerCommon strategicRouteHandler;
     protected RouteSuggestionHandlerCommon routeSuggestionHandler;
@@ -102,9 +104,9 @@ public abstract class EPD implements ISettingsListener {
     }
 
     /**
-     * Returns a {@linkplain Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPD} class.
+     * Returns a {@code Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPD} class.
      * 
-     * @return a new {@linkplain Resource} instance
+     * @return a new {@code Resource} instance
      */
     public static Resources res() {
         return Resources.get(EPD.class);
@@ -244,6 +246,10 @@ public abstract class EPD implements ISettingsListener {
 
     public RouteSuggestionHandlerCommon getRouteSuggestionHandler() {
         return routeSuggestionHandler;
+    }
+
+    public MsiNmServiceHandlerCommon getMsiNmHandler() {
+        return msiNmHandler;
     }
 
     public MaritimeCloudService getMaritimeCloudService() {

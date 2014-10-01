@@ -5,7 +5,22 @@ namespace dma.msinm;
 /**
  * Service that broadcasts message updates
  */
-broadcast MsiNmUpdatesBroadcast {
+broadcast MCMsiNmUpdatesBroadcast {
 
    1: MCMessage msg;
+}
+
+/**
+ * Interface for querying MSI-NM messages
+ */
+endpoint MCMsiNmService {
+
+    /**
+     * Returns the list of active messages
+     * @param lang the language
+     */
+    list<MCMessage> activeMessages(
+        1: text lang
+    );
+
 }

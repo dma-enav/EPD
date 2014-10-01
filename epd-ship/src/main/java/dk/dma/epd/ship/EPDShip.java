@@ -32,6 +32,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
 
@@ -281,6 +282,10 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // routeSuggestionHandler = new RouteSuggestionHandler();
         routeSuggestionHandler = RouteSuggestionHandler.loadRouteSuggestionHandler();
         mapHandler.add(routeSuggestionHandler);
+
+        // Create a new MSI-NM handler
+        msiNmHandler = new MsiNmServiceHandlerCommon();
+        mapHandler.add(msiNmHandler);
 
         // Create a chat service handler
         chatServiceHandler = new ChatServiceHandlerCommon();
@@ -767,6 +772,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         routeSuggestionHandler.shutdown();
         intendedRouteHandler.shutdown();
         chatServiceHandler.shutdown();
+        msiNmHandler.shutdown();
         maritimeCloudService.stop();
 
         // Stop the system tray
@@ -956,10 +962,10 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     }
 
     /**
-     * Returns a {@linkplain Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShip}
+     * Returns a {@code Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShip}
      * class.
      * 
-     * @return a new {@linkplain Resource} instance
+     * @return a new {@code Resource} instance
      */
     public static Resources res() {
         return Resources.get(EPDShip.class);
