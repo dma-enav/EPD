@@ -86,10 +86,10 @@ public abstract class IntendedRouteHandlerCommon extends
     /**
      * In nautical miles - distance between two lines for it to be put in filter
      */
-    public static double ENC_DISTANCE_EPSILON = 0.5;
+    public static double ENC_DISTANCE_EPSILON = 0;
 
-    public static double FILTER_DISTANCE_EPSILON = 0.5; // Nautical miles
-    public static double ALERT_DISTANCE_EPSILON = 0.3; // Nautical miles
+    public static double FILTER_DISTANCE_EPSILON = 0; // Nautical miles
+    public static double ALERT_DISTANCE_EPSILON = 0; // Nautical miles
 
     protected ConcurrentHashMap<Long, IntendedRoute> intendedRoutes = new ConcurrentHashMap<>();
     protected FilteredIntendedRoutes filteredIntendedRoutes = new FilteredIntendedRoutes();

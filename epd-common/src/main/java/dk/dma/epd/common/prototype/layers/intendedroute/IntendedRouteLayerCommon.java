@@ -404,6 +404,11 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements
     protected void highlightIntendedRoute(
             IntendedRouteGraphic intendedRouteGraphics) {
 
+        
+        if (highlightedGraphics != null){
+            highlightedGraphics.unHightlightRoute();
+        }
+        
         highlightedGraphics = intendedRouteGraphics;
         highlightedGraphics.highlightRoute();
 

@@ -23,6 +23,7 @@ import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.GeneralClearMap;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
@@ -43,6 +44,7 @@ import dk.dma.epd.ship.gui.menuitems.MonaLisaRouteRequest;
 import dk.dma.epd.ship.gui.menuitems.NogoRequest;
 import dk.dma.epd.ship.gui.menuitems.RouteActivateToggle;
 import dk.dma.epd.ship.gui.menuitems.RouteEditEndRoute;
+import dk.dma.epd.ship.gui.menuitems.RouteSuggestionRemove;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
 import dk.dma.epd.ship.gui.menuitems.RouteSuggestionDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
@@ -69,10 +71,11 @@ public class MapMenu extends MapMenuCommon {
     private SarTargetDetails sarTargetDetails;
     private ToggleAisTargetName aisTargetLabelToggle;
     private NogoRequest nogoRequest;
-    
+
     private RouteActivateToggle routeActivateToggle;
     private MonaLisaRouteRequest monaLisaRouteRequest;
     private RouteSuggestionDetails routeSuggestionDetails;
+    private RouteSuggestionRemove routeSuggestionRemove;
     private RouteEditEndRoute routeEditEndRoute;
     private SendToSTCC sendToSTCC;
     private VoyageAppendWaypoint voyageAppendWaypoint;
@@ -88,7 +91,6 @@ public class MapMenu extends MapMenuCommon {
     private MouseDelegator mouseDelegator;
     private StrategicRouteHandler strategicRouteHandler;
 
-    
     // private RouteLayer routeLayer;
     // private VoyageLayer voyageLayer;
 
@@ -103,12 +105,12 @@ public class MapMenu extends MapMenuCommon {
 
         nogoRequest = new NogoRequest("Request NoGo area...");
         nogoRequest.addActionListener(this);
-        
+
         // ais menu items
         aisTargetDetails = new AisTargetDetails("Show AIS target details...");
         aisTargetDetails.addActionListener(this);
-//        aisTargetLabelToggle = new AisTargetLabelToggle();
-//        aisTargetLabelToggle.addActionListener(this);
+        // aisTargetLabelToggle = new AisTargetLabelToggle();
+        // aisTargetLabelToggle.addActionListener(this);
         this.aisTargetLabelToggle = new ToggleAisTargetName();
         this.aisTargetLabelToggle.addActionListener(this);
 
@@ -128,19 +130,28 @@ public class MapMenu extends MapMenuCommon {
         monaLisaRouteRequest.addActionListener(this);
 
         // suggested route menu
-        routeSuggestionDetails = new RouteSuggestionDetails("Route suggestion details...");
+        routeSuggestionDetails = new RouteSuggestionDetails(
+                "Route suggestion details...");
         routeSuggestionDetails.addActionListener(this);
+
+        // remove suggestion
+        routeSuggestionRemove = new RouteSuggestionRemove(
+                "Remove route suggestion");
+        routeSuggestionRemove.addActionListener(this);
 
         // route edit menu
         routeEditEndRoute = new RouteEditEndRoute("End route");
         routeEditEndRoute.addActionListener(this);
-    
+
         // Init STCC Route negotiation items
         voyageAppendWaypoint = new VoyageAppendWaypoint("Append waypoint");
         voyageAppendWaypoint.addActionListener(this);
-        voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
+        voyageDeleteWaypoint = new VoyageHandlingWaypointDelete(
+                "Delete waypoint");
         voyageDeleteWaypoint.addActionListener(this);
-        voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getInstance().getVoyageEventDispatcher());
+        voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint(
+                "Insert waypoint here", EPDShip.getInstance()
+                        .getVoyageEventDispatcher());
         voyageLegInsertWaypoint.addActionListener(this);
     }
 
@@ -167,11 +178,12 @@ public class MapMenu extends MapMenuCommon {
 
         showPastTracks.setAisHandler(aisHandler);
         hidePastTracks.setAisHandler(aisHandler);
-        
+
         // Prep the clearMap action
         routeHide.setRouteIndex(RouteHide.ALL_INACTIVE_ROUTES);
-        clearMap.setMapMenuActions(hideIntendedRoutes, routeHide, hidePastTracks, mainFrame.getTopPanel().getHideAisNamesAction());
-        
+        clearMap.setMapMenuActions(hideIntendedRoutes, routeHide,
+                hidePastTracks, mainFrame.getTopPanel().getHideAisNamesAction());
+
         if (alone) {
             removeAll();
             add(clearMap);
@@ -179,7 +191,8 @@ public class MapMenu extends MapMenuCommon {
             add(showIntendedRoutes);
             add(newRoute);
             addSeparator();
-            if (!EPDShip.getInstance().getSettings().getGuiSettings().isRiskNogoDisabled()) {
+            if (!EPDShip.getInstance().getSettings().getGuiSettings()
+                    .isRiskNogoDisabled()) {
                 add(nogoRequest);
                 addSeparator();
             }
@@ -202,7 +215,8 @@ public class MapMenu extends MapMenuCommon {
     /**
      * Builds ais target menu
      */
-    public void aisMenu(VesselGraphicComponentSelector targetGraphic, TopPanel toppanel) {
+    public void aisMenu(VesselGraphicComponentSelector targetGraphic,
+            TopPanel toppanel) {
         removeAll();
         aisTargetDetails.setTopPanel(toppanel);
 
@@ -211,20 +225,22 @@ public class MapMenu extends MapMenuCommon {
         add(aisTargetDetails);
 
         // Toggle show intended route
-        addIntendedRouteToggle(intendedRouteHandler.getIntendedRoute(vesselTarget.getMmsi()));
+        addIntendedRouteToggle(intendedRouteHandler
+                .getIntendedRoute(vesselTarget.getMmsi()));
 
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(vesselTarget);
         aisTogglePastTrack.setAisLayerToRefresh(aisLayer);
-        aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        aisTogglePastTrack.setText((vesselTarget.getSettings()
+                .isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
-        
+
         // Clear past-track
         aisClearPastTrack.setMobileTarget(vesselTarget);
         aisClearPastTrack.setText("Clear past-track");
         aisClearPastTrack.setAisLayer(aisLayer);
         add(aisClearPastTrack);
-        
+
         // Toggle show label
         aisTargetLabelToggle.setVesselTargetGraphic(targetGraphic);
         aisTargetLabelToggle.setIAisTargetListener(aisLayer);
@@ -234,7 +250,7 @@ public class MapMenu extends MapMenuCommon {
         } else {
             aisTargetLabelToggle.setText("Show AIS target label");
         }
-        
+
         // Send chat message
         addSeparator();
         sendChatMessage.setVesselTarget(vesselTarget);
@@ -255,15 +271,17 @@ public class MapMenu extends MapMenuCommon {
         VesselTarget ownShip = ownShipHandler.getAisTarget();
         aisTogglePastTrack.setMobileTarget(ownShip);
         aisTogglePastTrack.setAisLayerToRefresh(null);
-        aisTogglePastTrack.setText((ownShip.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        aisTogglePastTrack
+                .setText((ownShip.getSettings().isShowPastTrack()) ? "Hide past-track"
+                        : "Show past-track");
         add(aisTogglePastTrack);
-        
+
         // Clear past-track
         aisClearPastTrack.setMobileTarget(ownShip);
         aisClearPastTrack.setAisLayer(null);
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
-        
+
         revalidate();
         generalMenu(false);
     }
@@ -284,20 +302,22 @@ public class MapMenu extends MapMenuCommon {
         add(sarTargetDetails);
 
         addSeparator();
-        
+
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(sarTarget);
         aisTogglePastTrack.setAisLayerToRefresh(aisLayer);
-        aisTogglePastTrack.setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        aisTogglePastTrack
+                .setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track"
+                        : "Show past-track");
         add(aisTogglePastTrack);
-        
+
         // Clear past-track
         aisClearPastTrack.setMobileTarget(sarTarget);
         aisClearPastTrack.setAisLayer(aisLayer);
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
         revalidate();
-        
+
         generalMenu(false);
     }
 
@@ -307,8 +327,9 @@ public class MapMenu extends MapMenuCommon {
         // Check if we are in a route exchange transaction
         if (strategicRouteHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info...");
-            sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
-       
+            sendToSTCC.setTransactionId(strategicRouteHandler
+                    .getCurrentTransactionId());
+
         } else {
             try {
                 // Look up the route
@@ -316,16 +337,21 @@ public class MapMenu extends MapMenuCommon {
                 if (routeManager.isActiveRoute(routeIndex)) {
                     route = routeManager.getActiveRoute();
                 }
-        
+
                 sendToSTCC.setText("Send to STCC...");
                 sendToSTCC.setRoute(route);
-                sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
+                sendToSTCC
+                        .setEnabled(strategicRouteHandler
+                                .strategicRouteSTCCExists()
                                 && routeManager.getActiveRouteIndex() != routeIndex
-                                && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
-        
+                                && strategicRouteHandler.getStatus()
+                                        .getStatus() == ComponentStatus.Status.OK);
+
             } catch (Exception ex) {
                 sendToSTCC.setEnabled(false);
-                LOG.error("Error opening Send to STCC map menu for route index " + routeIndex, ex);
+                LOG.error(
+                        "Error opening Send to STCC map menu for route index "
+                                + routeIndex, ex);
             }
         }
 
@@ -333,21 +359,24 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
-    public void addVoyageHandlingWaypointAppendMenuItem(Route route, int routeIndex) {
+    public void addVoyageHandlingWaypointAppendMenuItem(Route route,
+            int routeIndex) {
         // Update associated route + route index
         this.voyageAppendWaypoint.setRouteIndex(routeIndex);
         this.voyageAppendWaypoint.setRoute(route);
         this.add(this.voyageAppendWaypoint);
     }
-    
-    public void addVoyageHandlingWaypointDeleteMenuItem(Route route, int routeIndex, int waypointIndex) {
+
+    public void addVoyageHandlingWaypointDeleteMenuItem(Route route,
+            int routeIndex, int waypointIndex) {
         this.voyageDeleteWaypoint.setRouteIndex(routeIndex);
         this.voyageDeleteWaypoint.setRoute(route);
         this.voyageDeleteWaypoint.setVoyageWaypointIndex(waypointIndex);
         this.add(this.voyageDeleteWaypoint);
     }
-    
-    public void addVoyageHandlingLegInsertWaypointMenuItem(Route route, RouteLeg routeLeg, Point point, int routeIndex) {
+
+    public void addVoyageHandlingLegInsertWaypointMenuItem(Route route,
+            RouteLeg routeLeg, Point point, int routeIndex) {
         this.voyageLegInsertWaypoint.setMapBean(this.mapBean);
         this.voyageLegInsertWaypoint.setRoute(route);
         this.voyageLegInsertWaypoint.setRouteLeg(routeLeg);
@@ -364,7 +393,6 @@ public class MapMenu extends MapMenuCommon {
             route = routeManager.getActiveRoute();
         }
 
-        
         if (routeManager.getActiveRouteIndex() == routeIndex) {
             routeActivateToggle.setText("Deactivate route");
             routeHide.setEnabled(false);
@@ -387,8 +415,10 @@ public class MapMenu extends MapMenuCommon {
         this.add(seperator);
 
         sendToSTCC.setRoute(route);
-        sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
-        sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
+        sendToSTCC.setTransactionId(strategicRouteHandler
+                .getCurrentTransactionId());
+        sendToSTCC
+                .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
                         && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
@@ -446,18 +476,23 @@ public class MapMenu extends MapMenuCommon {
         add(routeMetocProperties);
 
         routeProperties.setRouteIndex(routeIndex);
-        routeProperties.setChartPanel(EPDShip.getInstance().getMainFrame().getChartPanel());
+        routeProperties.setChartPanel(EPDShip.getInstance().getMainFrame()
+                .getChartPanel());
         add(routeProperties);
 
-//        generalMenu(false); //TODO: is this supposed to be commented out?
+        // generalMenu(false); //TODO: is this supposed to be commented out?
         revalidate();
     }
 
     /**
      * Creates the route leg menu
-     * @param routeIndex the route index
-     * @param routeLeg the route leg
-     * @param point the mouse location
+     * 
+     * @param routeIndex
+     *            the route index
+     * @param routeLeg
+     *            the route leg
+     * @param point
+     *            the mouse location
      */
     @Override
     public void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point) {
@@ -478,14 +513,17 @@ public class MapMenu extends MapMenuCommon {
 
         generalRouteMenu(routeIndex);
         // TODO: add leg specific items
-        
+
         revalidate();
     }
 
     /**
      * Creates the route way point menu
-     * @param routeIndex the route index
-     * @param routeWaypointIndex the route way point index
+     * 
+     * @param routeIndex
+     *            the route index
+     * @param routeWaypointIndex
+     *            the route way point index
      */
     @Override
     public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
@@ -525,6 +563,13 @@ public class MapMenu extends MapMenuCommon {
         routeSuggestionDetails.setRouteSuggestion(routeSuggestion);
         add(routeSuggestionDetails);
 
+        if (routeSuggestion.isReplied()
+                && routeSuggestion.getReply().getStatus() == RouteSuggestionStatus.ACCEPTED) {
+            routeSuggestionRemove.setRouteSuggestion(routeSuggestion);
+            add(routeSuggestionRemove);
+
+        }
+
         generalMenu(false);
         revalidate();
     }
@@ -547,7 +592,7 @@ public class MapMenu extends MapMenuCommon {
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
+
         if (obj instanceof RouteManager) {
             routeManager = (RouteManager) obj;
         }

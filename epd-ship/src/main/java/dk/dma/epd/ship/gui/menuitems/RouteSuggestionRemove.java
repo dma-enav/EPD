@@ -18,28 +18,35 @@ import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
-import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.layers.route.RouteLayer;
 
 /**
  * Opens the route suggestion notification
  */
-public class RouteSuggestionDetails extends JMenuItem implements IMapMenuAction {
+public class RouteSuggestionRemove extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
-    RouteSuggestionData routeSuggestion;
+    private RouteSuggestionData routeSuggestion;
 
-    public RouteSuggestionDetails(String text) {
+    public RouteSuggestionRemove(String text) {
         super();
         setText(text);
     }
 
     @Override
     public void doAction() {
-        EPDShip.getInstance()
-                .getNotificationCenter()
-                .openNotification(NotificationType.TACTICAL_ROUTE,
-                        routeSuggestion.getId(), false);
+
+        // routeLayer.getro
+        routeSuggestion.getRoute().setVisible(false);
+        EPDShip.getInstance().getRouteManager()
+                .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+        // routeSuggestion.
+        // EPDShip.getInstance()
+        // .getNotificationCenter()
+        // .openNotification(NotificationType.TACTICAL_ROUTE,
+        // routeSuggestion.getId(), false);
     }
 
     public void setRouteSuggestion(RouteSuggestionData routeSuggestion) {
