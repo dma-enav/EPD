@@ -14,37 +14,45 @@
  */
 package dk.dma.epd.common.prototype.gui.notification;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-
-import org.apache.commons.lang.StringUtils;
-
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.prototype.notification.MsiNotification;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.NameUtils;
 import dk.frv.enav.common.xml.msi.MsiLocation;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 import dk.frv.enav.common.xml.msi.MsiPoint;
+import dma.msinm.MCMsiNmService;
+import net.maritimecloud.core.id.MaritimeId;
+import org.apache.commons.lang.StringUtils;
+
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * An MSI-specific implementation of the {@linkplain NotificationPanel} class
  */
-public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
+public class MsiNotificationPanel extends NotificationPanel<MsiNotification> implements ActionListener {
 
     private static final long serialVersionUID = 1L;
 
     private static final String[] NAMES = {
         "", "ID", "Priority", "Updated", "Main area"
     };
-    
+
+    private JComboBox<MsiNmServiceItem> msiNmServiceComboBox = new JComboBox<>();
+
     /**
      * Constructor
      */
@@ -58,8 +66,58 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
         table.getColumnModel().getColumn(4).setPreferredWidth(130);
         splitPane.setDividerLocation(400);
         setCellAlignment(1, JLabel.RIGHT);
+
+        // Create the MSI-NM service selector
+        JPanel msinmServicePanel = new JPanel();
+        listPanel.add(msinmServicePanel, BorderLayout.NORTH);
+        msinmServicePanel.add(new JLabel("MSI-NM Provider"));
+        msinmServicePanel.add(msiNmServiceComboBox);
+
+        refreshMsiNmServices();
+        msiNmServiceComboBox.addActionListener(this);
     }
-    
+
+    /**
+     * Called when the MSI-NM service selection changes
+     * @param ae the action event
+     */
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        if (ae.getSource() == msiNmServiceComboBox) {
+            MsiNmServiceItem selItem = (MsiNmServiceItem)msiNmServiceComboBox.getSelectedItem();
+            if (selItem != null) {
+                EPD.getInstance().getMsiNmHandler().setSelectedMsiNmServiceId(selItem.getId());
+            }
+        }
+    }
+
+    /**
+     * Refreshes the MSI-NM service list
+     */
+    public void refreshMsiNmServices() {
+
+        MaritimeId msiNmServiceId = EPD.getInstance().getMsiNmHandler().getSelectedMsiNmServiceId();
+
+        msiNmServiceComboBox.removeAllItems();
+        MsiNmServiceItem selItem = null;
+        for (MCMsiNmService service : EPD.getInstance().getMsiNmHandler().getMsiNmServiceList()) {
+            MsiNmServiceItem item = new MsiNmServiceItem(service);
+            msiNmServiceComboBox.addItem(item);
+            if (item.getId().equals(msiNmServiceId)) {
+                selItem = item;
+            }
+        }
+
+        if (selItem == null && msiNmServiceId != null) {
+            selItem = new MsiNmServiceItem(msiNmServiceId);
+            msiNmServiceComboBox.addItem(selItem);
+        }
+
+        if (selItem != null) {
+            msiNmServiceComboBox.setSelectedItem(selItem);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -157,9 +215,9 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
 
         // The back-end does not support the "read" flag, so, we store it
         Set<Integer> readNotificationIds = new HashSet<>();
-        for (MsiNotification notificaiton : tableModel.getNotifications()) {
-            if (notificaiton.isRead()) {
-                readNotificationIds.add(notificaiton.getId());
+        for (MsiNotification notification : tableModel.getNotifications()) {
+            if (notification.isRead()) {
+                readNotificationIds.add(notification.getId());
             }
         }
         
@@ -171,7 +229,7 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
                 ? msiHandler.getFilteredMessageList()
                 : msiHandler.getMessageList();
          
-        // Convert the MSI messages into MSI notificaitons
+        // Convert the MSI messages into MSI notifications
         for (MsiMessageExtended message : messages) {
             MsiNotification notification = new MsiNotification(message);
             // Restore the "read" flag
@@ -183,6 +241,47 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
         tableModel.setNotifications(notifications);
         refreshTableData();
         notifyListeners();
+    }
+
+    /**
+     * Helper class used for MSI-NM service selection
+     */
+    public static class MsiNmServiceItem {
+        MCMsiNmService service;
+        String name;
+        MaritimeId id;
+
+        /**
+         * Constructor
+         * @param service the MSI-NM service
+         */
+        public MsiNmServiceItem(MCMsiNmService service) {
+            this.service = service;
+            this.id = service.getCaller();
+            this.name = NameUtils.getName(this.id, NameUtils.NameFormat.MEDIUM);
+        }
+
+        /**
+         * Constructor
+         * @param id the MSI-NM id
+         */
+        public MsiNmServiceItem(MaritimeId id) {
+            this.id = id;
+            this.name = NameUtils.getName(this.id, NameUtils.NameFormat.MEDIUM) + " (Un-connected)";
+        }
+
+        public MCMsiNmService getService() {
+            return service;
+        }
+
+        public MaritimeId getId() {
+            return id;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }
 

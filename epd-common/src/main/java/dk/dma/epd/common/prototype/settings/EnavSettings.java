@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.Properties;
 
 import com.bbn.openmap.util.PropUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Specific e-Navigation settings
@@ -62,6 +63,7 @@ public class EnavSettings implements Serializable {
     private double msiRelevanceFromOwnShipRange = 40.0d;
     private double msiVisibilityFromNewWaypoint = 30.0d;
     private boolean msiFilter = true;
+    private String msiNmServiceId = "";
     private String monaLisaServer = "www.optiroute.se/RouteRequest";
     private int monaLisaPort = 80;
     
@@ -99,7 +101,8 @@ public class EnavSettings implements Serializable {
         msiRelevanceFromOwnShipRange = PropUtils.doubleFromProperties(props, PREFIX + "msiRelevanceFromOwnShipRange", msiRelevanceFromOwnShipRange);
         msiVisibilityFromNewWaypoint = PropUtils.doubleFromProperties(props, PREFIX + "msiVisibilityFromNewWaypoint", msiVisibilityFromNewWaypoint);
         msiFilter = PropUtils.booleanFromProperties(props, PREFIX + "msiFilter", msiFilter);
-        
+        msiNmServiceId = props.getProperty(PREFIX + "msiNmServiceId", msiNmServiceId);
+
         this.setRouteTimeToLive(PropUtils.longFromProperties(props, PREFIX + "routeTimeToLive", this.getRouteTimeToLive()));
         this.setFilterDistance(PropUtils.doubleFromProperties(props, PREFIX + "filterDistance", this.getFilterDistance()));
         this.setMarkerDistance(PropUtils.doubleFromProperties(props, PREFIX + "markerDistance", this.getMarkerDistance()));
@@ -135,6 +138,7 @@ public class EnavSettings implements Serializable {
         props.put(PREFIX + "msiRelevanceFromOwnShipRange", Double.toString(msiRelevanceFromOwnShipRange));
         props.put(PREFIX + "msiVisibilityFromNewWaypoint", Double.toString(msiVisibilityFromNewWaypoint));
         props.put(PREFIX + "msiFilter", Boolean.toString(msiFilter));
+        props.put(PREFIX + "msiNmServiceId", StringUtils.defaultString(msiNmServiceId));
         props.put(PREFIX + "monaLisaServer", monaLisaServer);
         props.put(PREFIX + "monaLisaPort", Integer.toString(monaLisaPort));
         props.put(PREFIX + "routeTimeToLive", Long.toString(this.getRouteTimeToLive()));
@@ -285,6 +289,14 @@ public class EnavSettings implements Serializable {
 
     public void setMsiVisibilityFromNewWaypoint(double msiVisibilityFromNewWaypoint) {
         this.msiVisibilityFromNewWaypoint = msiVisibilityFromNewWaypoint;
+    }
+
+    public String getMsiNmServiceId() {
+        return msiNmServiceId;
+    }
+
+    public void setMsiNmServiceId(String msiNmServiceId) {
+        this.msiNmServiceId = msiNmServiceId;
     }
 
     public void setDefaultCurrentLow(double defaultCurrentLow) {
