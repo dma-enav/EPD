@@ -33,6 +33,7 @@ import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.settings.handlers.IIntendedRouteHandlerSettingsObserver;
 import dma.route.MCIntendedRouteBroadcast;
+import dma.route.MCRoute;
 import net.maritimecloud.mms.MmsClient;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -233,6 +234,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements
             lastTransmitActiveWp = new DateTime(
                     activeRoute.getActiveWaypointEta());
 
+        } else {
+            message.setRoute(new MCRoute());
         }
 
         // send message

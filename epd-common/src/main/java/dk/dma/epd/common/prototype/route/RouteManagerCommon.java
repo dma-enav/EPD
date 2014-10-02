@@ -16,6 +16,7 @@ package dk.dma.epd.common.prototype.route;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -182,6 +183,21 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
         synchronized (routes) {
             return routes;
         }
+    }
+
+    /**
+     * Returns the current list of visible routes
+     *
+     * @return the current list of visible routes
+     */
+    public synchronized List<Route> getVisibleRoutes() {
+        List<Route> visibleRoutes = new ArrayList<>();
+        for (Route route : routes) {
+            if (route.isVisible()) {
+                visibleRoutes.add(route);
+            }
+        }
+        return visibleRoutes;
     }
 
     /**

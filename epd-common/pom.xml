@@ -94,7 +94,7 @@
         <dependency>
             <groupId>net.maritimecloud.mms</groupId>
             <artifactId>mc-mms-client</artifactId>
-            <version>0.2</version>
+            <version>0.2.2-SNAPSHOT</version>
         </dependency>
         <dependency>
 			<groupId>org.slf4j</groupId>
@@ -202,6 +202,12 @@
 			<id>elibom</id>
 			<url>http://repository.elibom.net/nexus/content/repositories/releases</url>
 		</repository>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
 	</repositories>
 
 </project>

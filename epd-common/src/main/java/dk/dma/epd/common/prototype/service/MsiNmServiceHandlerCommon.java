@@ -14,7 +14,18 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.util.Calculator;
 import dma.msinm.MCMessage;
 import dma.msinm.MCMsiNmService;
 import dma.msinm.MCSearchResult;
@@ -26,9 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -36,14 +48,20 @@ import java.util.concurrent.TimeUnit;
 /**
  * An implementation of a Maritime Cloud MSI-NM service
  */
-public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon {
+public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implements IRoutesUpdateListener, IPntDataListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(MsiNmServiceHandlerCommon.class);
 
-    private List<MCMsiNmService> msiNmServiceList = new ArrayList<>();
-    private List<MCMessage> msiNmMessages = new ArrayList<>();
-    private MaritimeId msiNmServiceId;
     protected List<IMsiNmServiceListener> listeners = new CopyOnWriteArrayList<>();
+    private RouteManagerCommon routeManager;
+    private PntHandler pntHandler;
+    private MsiNmStore msiNmStore;
+    private EnavSettings enavSettings;
+
+    private List<MCMsiNmService> msiNmServiceList = new ArrayList<>();
+    private List<MsiNmNotification> msiNmMessages = new ArrayList<>();
+    private MaritimeId msiNmServiceId;
+    private Position currentPosition;
 
     /**
      * Constructor
@@ -51,17 +69,22 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon {
     public MsiNmServiceHandlerCommon() {
         super();
 
+        enavSettings = EPD.getInstance().getSettings().getEnavSettings();
+
         // Compute the currently selected MSI-NM service
-        String selectedMsiNmServiceId = EPD.getInstance().getSettings().getEnavSettings().getMsiNmServiceId();
-        msiNmServiceId = StringUtils.isBlank(selectedMsiNmServiceId)
+        msiNmServiceId = StringUtils.isBlank(enavSettings.getMsiNmServiceId())
                 ? null
-                : MaritimeCloudUtils.toMaritimeId(selectedMsiNmServiceId);
+                : MaritimeCloudUtils.toMaritimeId(enavSettings.getMsiNmServiceId());
+
+        // Instantiate the MSI-NM store, and fetch the saved message list
+        msiNmStore = MsiNmStore.loadFromFile(EPD.getInstance().getHomePath());
+        addListener(msiNmStore);
+        msiNmMessages = msiNmStore.getMsiNmMessages();
 
 
         // Schedule a refresh of the chat services approximately every minute
         scheduleWithFixedDelayWhenConnected(new Runnable() {
-            @Override
-            public void run() {
+            @Override public void run() {
                 fetchMsiNmServices();
             }
         }, 5, 64, TimeUnit.SECONDS);
@@ -69,11 +92,17 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon {
 
         // Schedule a refresh of the active MSI-NM messages approximately every minute
         scheduleWithFixedDelayWhenConnected(new Runnable() {
-            @Override
-            public void run() {
+            @Override public void run() {
                 fetchPublishedMsiNmMessages();
             }
-        }, 20, 95, TimeUnit.SECONDS);
+        }, 20, enavSettings.getMsiPollInterval(), TimeUnit.SECONDS);
+
+        // Schedule re-computation of message filter
+        getScheduler().scheduleWithFixedDelay(new Runnable() {
+                    @Override public void run() {
+                        recomputeMsiNmMessageFilter();
+                    }
+                }, 17, 30, TimeUnit.SECONDS);
     }
 
     /**
@@ -170,9 +199,9 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon {
 
                 // Compute the last update time
                 Timestamp lastUpdate = null;
-                for (MCMessage msg : msiNmMessages) {
-                    if (lastUpdate == null || msg.getUpdated().getTime() > lastUpdate.getTime()) {
-                        lastUpdate = msg.getUpdated();
+                for (MsiNmNotification msg : msiNmMessages) {
+                    if (lastUpdate == null || msg.get().getUpdated().getTime() > lastUpdate.getTime()) {
+                        lastUpdate = msg.get().getUpdated();
                     }
                 }
 
@@ -184,28 +213,182 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon {
                 }
 
                 if (!result.getUnchanged()) {
-                    msiNmMessages = result.getMessages();
-                    System.out.println("XXXXXXXXXXXXX " + msiNmMessages.size());
-                    fireMsiNmMessagesChanged();
+                    updateMsiNmMessages(result.getMessages());
                 }
 
             } else if (msiNmMessages.size() > 0) {
-                msiNmMessages = new ArrayList<>();
-                fireMsiNmMessagesChanged();
+                updateMsiNmMessages(new ArrayList<MCMessage>());
             }
 
         } catch (Exception e) {
-            LOG.error("Failed looking up published MSI-NM messages", e.getMessage());
+            LOG.error("Failed looking up published MSI-NM messages", e);
         }
     }
 
+    /**
+     * Updates the locally held list of MSI-NM messages
+     * @param messages the messages
+     */
+    private synchronized void updateMsiNmMessages(List<MCMessage> messages) {
+
+        Map<Integer, MsiNmNotification> idLookup = new HashMap<>();
+        for (MsiNmNotification msg : msiNmMessages) {
+            idLookup.put(msg.getId(), msg);
+        }
+
+        // Re-use existing messages to preserve acknowledged, read, filtered flags
+        List<MsiNmNotification> result = new ArrayList<>();
+        for (MCMessage msg : messages) {
+            MsiNmNotification existingMsg = idLookup.get(msg.getId());
+            if (existingMsg != null && existingMsg.get().getUpdated().equals(msg.getUpdated())) {
+                result.add(existingMsg);
+                continue;
+            }
+            result.add(new MsiNmNotification(msg));
+        }
+
+        msiNmMessages = result;
+        LOG.info("Loaded " + msiNmMessages.size() + " active MSI-NM messages");
+        fireMsiNmMessagesChanged();
+    }
+
+    /**
+     * Save the MSI-NM to a file
+     */
+    public synchronized void saveToFile() {
+        msiNmStore.saveToFile();
+    }
+
+    /**
+     * Returns the list of MSI-NM services
+     * @return the list of MSI-NM services
+     */
     public List<MCMsiNmService> getMsiNmServiceList() {
         return msiNmServiceList;
     }
 
-    public List<MCMessage> getMsiNmMessages() {
+    /**
+     * Returns the list of MSI-NM messages
+     * @return the list of MSI-NM messages
+     */
+    public List<MsiNmNotification> getMsiNmMessages() {
         return msiNmMessages;
     }
+
+    /**
+     * Re-computes the filtered state of the MSI-NM messages
+     */
+    private synchronized void recomputeMsiNmMessageFilter() {
+        long t0 = System.currentTimeMillis();
+        boolean updated = false;
+
+        // Check if the MSI filter is on or not
+        if (!enavSettings.isMsiFilter()) {
+            // All MSI-NM are included in the filter
+            for (MsiNmNotification msg : msiNmMessages) {
+                updated |= !msg.isFiltered();
+                msg.setFiltered(true);
+            }
+
+        } else {
+            // MSI-NM filtering is on
+
+            for (MsiNmNotification msg : msiNmMessages) {
+
+                boolean wasFiltered = msg.isFiltered();
+                msg.setFiltered(false);
+
+                // Messages without location always included
+                if (msg.getLocation() == null) {
+                    msg.setFiltered(true);
+                }
+
+                // 1) Check proximity to ship
+                if (!msg.isFiltered() && currentPosition != null) {
+                    Double dist = msg.getDistanceToPosition(currentPosition);
+                    if (dist != null && dist < enavSettings.getMsiRelevanceFromOwnShipRange()) {
+                        msg.setFiltered(true);
+                    }
+                }
+
+                // 2) Check proximity to routes
+                if (!msg.isFiltered() && msg.nearRoute(routeManager.getVisibleRoutes())) {
+                    msg.setFiltered(true);
+                }
+
+                updated |= wasFiltered != msg.isFiltered();
+            }
+        }
+
+        LOG.info("RECOMPUTE MSI-NM IN " + (System.currentTimeMillis() - t0) + " MS");
+
+        // Has the MSI-NM been updated
+        if (updated) {
+            fireMsiNmMessagesChanged();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void pntDataUpdate(PntData pntData) {
+        Position position = pntData.getPosition();
+
+        if (currentPosition == null ||
+                Calculator.range(position, currentPosition, Heading.GC) > enavSettings.getMsiRelevanceGpsUpdateRange()) {
+            currentPosition = position;
+            recomputeMsiNmMessageFilter();
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void routesChanged(RoutesUpdateEvent e) {
+        if (e != null) {
+            switch (e) {
+                case ROUTE_ACTIVATED:
+                case ROUTE_DEACTIVATED:
+                case ACTIVE_ROUTE_UPDATE:
+                case ROUTE_MSI_UPDATE:
+                case ROUTE_ADDED:
+                case ROUTE_REMOVED:
+                case ROUTE_CHANGED:
+                    recomputeMsiNmMessageFilter();
+            }
+        }
+    }
+
+    @Override
+    public void findAndInit(Object obj) {
+        if (routeManager == null && obj instanceof RouteManagerCommon) {
+            routeManager = (RouteManagerCommon) obj;
+            routeManager.addListener(this);
+        }
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler) obj;
+            pntHandler.addListener(this);
+        }
+    }
+
+    @Override
+    public void findAndUndo(Object obj) {
+        if (pntHandler == obj) {
+            pntHandler.removeListener(this);
+            pntHandler = null;
+        }
+        if (routeManager == obj) {
+            routeManager.removeListener(this);
+            routeManager  = null;
+        }
+    }
+
+    //*******************************
+    //* Listener functionality
+    //*******************************
 
     /**
      * Called when the service list has been updated
@@ -257,7 +440,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon {
          * Called when the list of MSI-NM messages has changed
          * @param msiNmMessages the new list of MSI-NM messages
          */
-        void msiNmMessagesChanged(List<MCMessage> msiNmMessages);
+        void msiNmMessagesChanged(List<MsiNmNotification> msiNmMessages);
 
     }
 

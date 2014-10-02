@@ -22,6 +22,7 @@ import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.notification.ChatNotification;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
 import dk.dma.epd.common.prototype.notification.MsiNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
@@ -34,7 +35,6 @@ import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
 import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon.RouteSuggestionListener;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
-import dma.msinm.MCMessage;
 import dma.msinm.MCMsiNmService;
 import net.maritimecloud.core.id.MaritimeId;
 import org.slf4j.Logger;
@@ -574,7 +574,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      * {@inheritDoc}
      */
     @Override
-    public void msiNmMessagesChanged(List<MCMessage> msiNmMessages) {
+    public void msiNmMessagesChanged(List<MsiNmNotification> msiNmMessages) {
         msiPanel.refreshNotifications();
     }
 }

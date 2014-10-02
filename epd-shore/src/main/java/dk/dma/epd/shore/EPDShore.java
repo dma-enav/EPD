@@ -383,6 +383,7 @@ public final class EPDShore extends EPD {
         voyageManager.saveToFile();
         routeManager.saveToFile();
         msiHandler.saveToFile();
+        msiNmHandler.saveToFile();
         aisHandler.saveView();
         transponderFrame.shutdown();
         falManager.saveToFile();

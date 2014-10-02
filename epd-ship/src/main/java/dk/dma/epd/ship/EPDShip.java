@@ -762,6 +762,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         settings.saveToFile();
         routeManager.saveToFile();
         msiHandler.saveToFile();
+        msiNmHandler.saveToFile();
         aisHandler.saveView();
         ownShipHandler.saveView();
         transponderFrame.shutdown();

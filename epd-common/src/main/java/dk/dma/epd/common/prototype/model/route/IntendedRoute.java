@@ -64,7 +64,9 @@ public class IntendedRoute extends Route {
         super();
         received = PntTime.getDate();
         parseRoute(intendedRouteMessage);
-        setActiveWpIndex(intendedRouteMessage.getActiveWaypointIndex());
+        if (intendedRouteMessage.getActiveWaypointIndex() != null) {
+            setActiveWpIndex(intendedRouteMessage.getActiveWaypointIndex());
+        }
         final List<Date> plannedEtas = new ArrayList<>();
         for (Timestamp timestamp : intendedRouteMessage.getCalculatedEtas()) {
             plannedEtas.add(new Date(timestamp.getTime()));
