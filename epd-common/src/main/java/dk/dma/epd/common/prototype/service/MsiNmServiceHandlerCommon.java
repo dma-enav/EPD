@@ -60,6 +60,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
 
     private List<MCMsiNmService> msiNmServiceList = new ArrayList<>();
     private List<MsiNmNotification> msiNmMessages = new ArrayList<>();
+    private Set<Integer> deletedMsiNmIds = new HashSet<>();
     private MaritimeId msiNmServiceId;
     private Position currentPosition;
 
@@ -78,21 +79,14 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
 
         // Instantiate the MSI-NM store, and fetch the saved message list
         msiNmStore = MsiNmStore.loadFromFile(EPD.getInstance().getHomePath());
-        addListener(msiNmStore);
         msiNmMessages = msiNmStore.getMsiNmMessages();
+        deletedMsiNmIds = msiNmStore.getDeletedMsiNmIds();
 
-
-        // Schedule a refresh of the chat services approximately every minute
+        // Schedule a refresh of the chat services and active MSI-NM messages
+        // NB: The calls are combined to avoid too many internet connections on sea
         scheduleWithFixedDelayWhenConnected(new Runnable() {
             @Override public void run() {
                 fetchMsiNmServices();
-            }
-        }, 5, 64, TimeUnit.SECONDS);
-
-
-        // Schedule a refresh of the active MSI-NM messages approximately every minute
-        scheduleWithFixedDelayWhenConnected(new Runnable() {
-            @Override public void run() {
                 fetchPublishedMsiNmMessages();
             }
         }, 20, enavSettings.getMsiPollInterval(), TimeUnit.SECONDS);
@@ -100,7 +94,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
         // Schedule re-computation of message filter
         getScheduler().scheduleWithFixedDelay(new Runnable() {
                     @Override public void run() {
-                        recomputeMsiNmMessageFilter();
+                        recomputeMsiNmMessageFilter(true);
                     }
                 }, 17, 30, TimeUnit.SECONDS);
     }
@@ -237,19 +231,44 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
         }
 
         // Re-use existing messages to preserve acknowledged, read, filtered flags
-        List<MsiNmNotification> result = new ArrayList<>();
+        List<MsiNmNotification> newMsiNmMessages = new ArrayList<>();
+        Set<Integer> newMessageIds = new HashSet<>();
         for (MCMessage msg : messages) {
+            newMessageIds.add(msg.getId());
             MsiNmNotification existingMsg = idLookup.get(msg.getId());
+
             if (existingMsg != null && existingMsg.get().getUpdated().equals(msg.getUpdated())) {
-                result.add(existingMsg);
+                // Re-use the existing message
+                newMsiNmMessages.add(existingMsg);
+                continue;
+
+            } else if (deletedMsiNmIds.contains(msg.getId())) {
+                // Do not add deleted messages
                 continue;
             }
-            result.add(new MsiNmNotification(msg));
+            newMsiNmMessages.add(new MsiNmNotification(msg));
         }
 
-        msiNmMessages = result;
-        LOG.info("Loaded " + msiNmMessages.size() + " active MSI-NM messages");
+        // Remove deleted ID's that are no longer part of the active MSI-NM messages
+        for (Integer id : new ArrayList<>(deletedMsiNmIds)) {
+            if (!newMessageIds.contains(id)) {
+                deletedMsiNmIds.remove(id);
+            }
+        }
+
+        msiNmMessages = newMsiNmMessages;
+
+        // Update the store
+        msiNmStore.setMsiNmMessages(msiNmMessages);
+        msiNmStore.setDeletedMsiNmIds(deletedMsiNmIds);
+
+        // Re-compute the filtered set of messages
+        recomputeMsiNmMessageFilter(false);
+
+        // Update listeners
         fireMsiNmMessagesChanged();
+
+        LOG.info("Loaded " + msiNmMessages.size() + " active MSI-NM messages");
     }
 
     /**
@@ -269,16 +288,43 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
 
     /**
      * Returns the list of MSI-NM messages
+     * @param filtered whether to return all or only the filtered messages
      * @return the list of MSI-NM messages
      */
-    public List<MsiNmNotification> getMsiNmMessages() {
-        return msiNmMessages;
+    public synchronized List<MsiNmNotification> getMsiNmMessages(boolean filtered) {
+        List<MsiNmNotification> messages = new ArrayList<>();
+        for (MsiNmNotification message : msiNmMessages) {
+            if (!filtered || message.isFiltered()) {
+                messages.add(message);
+            }
+        }
+        return messages;
+    }
+
+    /**
+     * Will re-compute the filtered set of messages and notify listeners
+     */
+    public void doUpdate() {
+        recomputeMsiNmMessageFilter(false);
+        fireMsiNmMessagesChanged();
+    }
+
+    /**
+     * Deletes the given MSI-NM message
+     * @param message the message to delete
+     */
+    public synchronized void deleteMsiNmMessage(MsiNmNotification message) {
+        if (message != null && msiNmMessages.remove(message)) {
+            deletedMsiNmIds.add(message.getId());
+            doUpdate();
+        }
     }
 
     /**
      * Re-computes the filtered state of the MSI-NM messages
+     * @param notifyListeners whether to notify listeners or not
      */
-    private synchronized void recomputeMsiNmMessageFilter() {
+    public synchronized void recomputeMsiNmMessageFilter(boolean notifyListeners) {
         long t0 = System.currentTimeMillis();
         boolean updated = false;
 
@@ -323,7 +369,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
         LOG.info("RECOMPUTE MSI-NM IN " + (System.currentTimeMillis() - t0) + " MS");
 
         // Has the MSI-NM been updated
-        if (updated) {
+        if (notifyListeners && updated) {
             fireMsiNmMessagesChanged();
         }
     }
@@ -338,7 +384,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
         if (currentPosition == null ||
                 Calculator.range(position, currentPosition, Heading.GC) > enavSettings.getMsiRelevanceGpsUpdateRange()) {
             currentPosition = position;
-            recomputeMsiNmMessageFilter();
+            recomputeMsiNmMessageFilter(true);
         }
 
     }
@@ -357,13 +403,15 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
                 case ROUTE_ADDED:
                 case ROUTE_REMOVED:
                 case ROUTE_CHANGED:
-                    recomputeMsiNmMessageFilter();
+                    recomputeMsiNmMessageFilter(true);
             }
         }
     }
 
     @Override
     public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+
         if (routeManager == null && obj instanceof RouteManagerCommon) {
             routeManager = (RouteManagerCommon) obj;
             routeManager.addListener(this);
@@ -384,6 +432,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
             routeManager.removeListener(this);
             routeManager  = null;
         }
+        super.findAndUndo(obj);
     }
 
     //*******************************
@@ -393,7 +442,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
     /**
      * Called when the service list has been updated
      */
-    synchronized void fireMsiNmServicesChanged() {
+    protected synchronized void fireMsiNmServicesChanged() {
         for (IMsiNmServiceListener listener : listeners) {
             listener.msiNmServicesChanged(msiNmServiceList);
         }
@@ -402,7 +451,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
     /**
      * Called when the service list has been updated
      */
-    synchronized void fireMsiNmMessagesChanged() {
+    protected synchronized void fireMsiNmMessagesChanged() {
         for (IMsiNmServiceListener listener : listeners) {
             listener.msiNmMessagesChanged(msiNmMessages);
         }

@@ -14,58 +14,53 @@
  */
 package dk.dma.epd.common.prototype.layers.msi;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-
-import javax.swing.ImageIcon;
-
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.graphics.CenterRaster;
-import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
 import dk.dma.epd.common.util.Calculator;
 
+import javax.swing.ImageIcon;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+
 /**
- * Graphic for MSI icon showing relevant off chart MSI
+ * Graphic for MSI-NM icon showing relevant off chart MSI
  */
-public class MsiDirectionalIcon extends OMGraphicList implements ProjectionListener {
+public class MsiNmDirectionalIcon extends OMGraphicList implements ProjectionListener {
     private static final long serialVersionUID = -6808339529053676255L;
     private static final int IMAGE_SIZE = 42;
-    private static final ImageIcon DIRECTION_IMAGE = new ImageIcon(MsiDirectionalIcon.class.getResource("/images/msi/msi_direction_arrow_transparent_42.png"));
-    private static final ImageIcon MARKER_IMAGE = new ImageIcon(MsiDirectionalIcon.class.getResource("/images/msi/msi_direction_transparent_42.png"));
+    private static final ImageIcon DIRECTION_IMAGE = new ImageIcon(MsiNmDirectionalIcon.class.getResource("/images/msi/msi_direction_arrow_transparent_42.png"));
+    private static final ImageIcon MARKER_IMAGE = new ImageIcon(MsiNmDirectionalIcon.class.getResource("/images/msi/msi_direction_transparent_42.png"));
     private Point2D intersection;
     private MapBean mapBean;
-    private CenterRaster directionRaster;
-    private CenterRaster markerRaster;
-    private Position msiLocation;
-    private MsiMessageExtended message;
+    private MsiNmNotification message;
     
-    public MsiDirectionalIcon(MapBean mapBean) {
+    public MsiNmDirectionalIcon(MapBean mapBean) {
         super();
         setVague(true);
         this.mapBean = mapBean;
         mapBean.addProjectionListener(this);
     }
     
-    public void setMarker(MsiMessageExtended message) {
+    public void setMarker(MsiNmNotification message) {
         this.message = message;
-        this.msiLocation = message.msiMessage.getLocation().getCenter();
+        Position msiNmLocation = message.getLocation();
         LatLonPoint center = (LatLonPoint) mapBean.getCenter();
         Position geoCenter = Position.create(center.getLatitude(), center.getLongitude());
-        double bearing = Calculator.bearing(geoCenter, msiLocation, Heading.RL);
+        double bearing = Calculator.bearing(geoCenter, msiNmLocation, Heading.RL);
         
         Projection projection = mapBean.getProjection();
-        Point2D projectedMSI = projection.forward(msiLocation.getLatitude(), msiLocation.getLongitude());
+        Point2D projectedMSI = projection.forward(msiNmLocation.getLatitude(), msiNmLocation.getLongitude());
         
         Point2D origin = new Point2D.Double(mapBean.getWidth()*0.5f, mapBean.getHeight()*0.5f);
         Line2D direction = new Line2D.Double(origin, projectedMSI);
@@ -98,11 +93,11 @@ public class MsiDirectionalIcon extends OMGraphicList implements ProjectionListe
 
         int x = Math.round((float) intersection.getX());
         int y = Math.round((float) intersection.getY());
-        
-        directionRaster = new CenterRaster(x,y, DIRECTION_IMAGE);
+
+        CenterRaster directionRaster = new CenterRaster(x, y, DIRECTION_IMAGE);
         directionRaster.setRotationAngle(Math.toRadians(bearing));
-        
-        markerRaster = new CenterRaster(x,y, MARKER_IMAGE);
+
+        CenterRaster markerRaster = new CenterRaster(x, y, MARKER_IMAGE);
         
         add(markerRaster);
         add(directionRaster);
@@ -148,7 +143,7 @@ public class MsiDirectionalIcon extends OMGraphicList implements ProjectionListe
         super.render(image);
     }
     
-    public MsiMessageExtended getMessage() {
+    public MsiNmNotification getMessage() {
         return message;
     }
 }

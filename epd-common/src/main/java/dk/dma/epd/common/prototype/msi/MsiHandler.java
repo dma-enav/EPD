@@ -32,7 +32,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
-import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
+import dk.dma.epd.common.prototype.layers.msi.MsiNmLayerCommon;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
@@ -58,7 +58,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     private ShoreServicesCommon shoreServices;
     private RouteManagerCommon routeManager;
     
-    private MsiLayerCommon msiLayer;
+    private MsiNmLayerCommon msiLayer;
 
     private MsiStore msiStore;
     private Date lastUpdate;
@@ -217,7 +217,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     public void notifyUpdate() {
         // Update layer
         if (msiLayer != null) {
-            //doUpdate() will ask msiHandler 
+            //doUpdate() will ask msiNmHandler
             //getMessageList() which is currently guarded by a lock
             msiLayer.doUpdate(); 
         }
@@ -364,8 +364,8 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
             routeManager = (RouteManagerCommon) obj;
             routeManager.addListener(this);
         }
-        if (obj instanceof MsiLayerCommon) {
-            msiLayer = (MsiLayerCommon) obj;
+        if (obj instanceof MsiNmLayerCommon) {
+            msiLayer = (MsiNmLayerCommon) obj;
         }
         if (obj instanceof IMsiUpdateListener) {
             addListener((IMsiUpdateListener) obj);

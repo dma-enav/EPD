@@ -14,6 +14,49 @@
  */
 package dk.dma.epd.common.prototype.gui;
 
+import com.bbn.openmap.LightMapHandlerChild;
+import com.bbn.openmap.MapBean;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
+import dk.dma.epd.common.prototype.gui.menuitems.CenterVesselTarget;
+import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
+import dk.dma.epd.common.prototype.gui.menuitems.HideAllIntendedRoutes;
+import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteColor;
+import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteToggle;
+import dk.dma.epd.common.prototype.gui.menuitems.MsiNmAcknowledge;
+import dk.dma.epd.common.prototype.gui.menuitems.MsiNmDetails;
+import dk.dma.epd.common.prototype.gui.menuitems.MsiNmZoomTo;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteAppendWaypoint;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteCopy;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteDelete;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteLegInsertWaypoint;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMetocProperties;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteProperties;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteRequestMetoc;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteReverse;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteShowMetocToggle;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointActivateToggle;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointDelete;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointEditEta;
+import dk.dma.epd.common.prototype.gui.menuitems.SendChatMessage;
+import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
+import dk.dma.epd.common.prototype.gui.menuitems.ShowAllIntendedRoutes;
+import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
+import dk.dma.epd.common.prototype.layers.msi.MsiNmDirectionalIcon;
+import dk.dma.epd.common.prototype.layers.msi.MsiNmLayerCommon;
+import dk.dma.epd.common.prototype.layers.msi.MsiNmNmSymbolGraphic;
+import dk.dma.epd.common.prototype.model.route.IntendedRoute;
+import dk.dma.epd.common.prototype.model.route.RouteLeg;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
+import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -32,50 +75,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-
-import com.bbn.openmap.LightMapHandlerChild;
-import com.bbn.openmap.MapBean;
-
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
-import dk.dma.epd.common.prototype.gui.menuitems.CenterVesselTarget;
-import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
-import dk.dma.epd.common.prototype.gui.menuitems.HideAllIntendedRoutes;
-import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteColor;
-import dk.dma.epd.common.prototype.gui.menuitems.MsiDetails;
-import dk.dma.epd.common.prototype.gui.menuitems.MsiZoomTo;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteAppendWaypoint;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteCopy;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteDelete;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteLegInsertWaypoint;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMetocProperties;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteProperties;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteRequestMetoc;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteReverse;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteShowMetocToggle;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointActivateToggle;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointDelete;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointEditEta;
-import dk.dma.epd.common.prototype.gui.menuitems.SendChatMessage;
-import dk.dma.epd.common.prototype.gui.menuitems.ShowAllIntendedRoutes;
-import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteToggle;
-import dk.dma.epd.common.prototype.gui.menuitems.MsiAcknowledge;
-import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
-import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
-import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
-import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
-import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
-import dk.dma.epd.common.prototype.model.route.IntendedRoute;
-import dk.dma.epd.common.prototype.model.route.RouteLeg;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 
 /**
  * Abstract base class for the right click map menu
@@ -114,9 +113,9 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected ShowAllIntendedRoutes showIntendedRoutes;
     protected IntendedRouteColor intendedRouteColor;
     
-    protected MsiAcknowledge msiAcknowledge;
-    protected MsiDetails msiDetails;
-    protected MsiZoomTo msiZoomTo;
+    protected MsiNmAcknowledge msiNmAcknowledge;
+    protected MsiNmDetails msiNmDetails;
+    protected MsiNmZoomTo msiNmZoomTo;
 
     protected CenterVesselTarget centerVesselTarget;
     
@@ -128,7 +127,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     
     protected AisHandlerCommon aisHandler;
     protected IntendedRouteHandlerCommon intendedRouteHandler;
-    protected MsiHandler msiHandler;
+    protected MsiNmServiceHandlerCommon msiNmHandler;
     
     // bean context
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(this);
@@ -193,12 +192,12 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         routeWaypointEditEta.addActionListener(this);
         
         // MSI menu items
-        msiAcknowledge = new MsiAcknowledge("Acknowledge MSI");
-        msiAcknowledge.addActionListener(this);
-        msiDetails = new MsiDetails("Show MSI details...");
-        msiDetails.addActionListener(this);
-        msiZoomTo = new MsiZoomTo("Zoom to MSI");
-        msiZoomTo.addActionListener(this);
+        msiNmAcknowledge = new MsiNmAcknowledge("Acknowledge MSI-NM");
+        msiNmAcknowledge.addActionListener(this);
+        msiNmDetails = new MsiNmDetails("Show MSI-NM details...");
+        msiNmDetails.addActionListener(this);
+        msiNmZoomTo = new MsiNmZoomTo("Zoom to MSI-NM");
+        msiNmZoomTo.addActionListener(this);
         
         centerVesselTarget = new CenterVesselTarget("Jump to ship");
         centerVesselTarget.addActionListener(this);
@@ -207,7 +206,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         sendChatMessage.addActionListener(this);
         
         // using treemap so scale levels are always sorted
-        map = new TreeMap<Integer, String>();
+        map = new TreeMap<>();
         scaleMenu = new JMenu("Scale");
 
         
@@ -217,7 +216,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
      * Adds the general menu to the right-click menu. Remember to always add
      * this first, when creating specific menus.
      * 
-     * @param alone
+     * @param alone alone or not
      */
     public abstract void generalMenu(boolean alone);
     
@@ -345,19 +344,19 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
      * 
      * @param selectedGraphic The selected graphic (containing the MIS message)
      */
-    public void msiMenu(MsiSymbolGraphic selectedGraphic) {
+    public void msiMenu(MsiNmNmSymbolGraphic selectedGraphic) {
         removeAll();
 
-        msiDetails.setMsiMessage(selectedGraphic.getMsiMessage());
+        MsiNmNotification message = selectedGraphic.getMsiNmMessage();
+        msiNmDetails.setMsiNmMessage(message);
 
-        add(msiDetails);
+        add(msiNmDetails);
 
-        Boolean isAcknowledged = msiHandler.isAcknowledged(selectedGraphic
-                .getMsiMessage().getMessageId());
-        msiAcknowledge.setMsiHandler(msiHandler);
-        msiAcknowledge.setEnabled(!isAcknowledged);
-        msiAcknowledge.setMsiMessage(selectedGraphic.getMsiMessage());
-        add(msiAcknowledge);
+        Boolean isAcknowledged = message.isAcknowledged();
+        msiNmAcknowledge.setMsiNmHandler(msiNmHandler);
+        msiNmAcknowledge.setEnabled(!isAcknowledged);
+        msiNmAcknowledge.setMsiNmMessage(selectedGraphic.getMsiNmMessage());
+        add(msiNmAcknowledge);
 
         revalidate();
         generalMenu(false);
@@ -369,15 +368,16 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
      * @param selectedGraphic The selected graphic (containing the MIS message)
      * @param msiLayer the MSI layer
      */    
-    public void msiDirectionalMenu(MsiDirectionalIcon selectedGraphic, MsiLayerCommon msiLayer) {
+    public void msiDirectionalMenu(MsiNmDirectionalIcon selectedGraphic, MsiNmLayerCommon msiLayer) {
         removeAll();
 
-        msiDetails.setMsiMessage(selectedGraphic.getMessage().msiMessage);
-        add(msiDetails);
+        MsiNmNotification message = selectedGraphic.getMessage();
+        msiNmDetails.setMsiNmMessage(message);
+        add(msiNmDetails);
 
-        msiZoomTo.setMsiLayer(msiLayer);
-        msiZoomTo.setMsiMessageExtended(selectedGraphic.getMessage());
-        add(msiZoomTo);
+        msiNmZoomTo.setMsiLayer(msiLayer);
+        msiNmZoomTo.setMessage(selectedGraphic.getMessage());
+        add(msiNmZoomTo);
 
         revalidate();
         generalMenu(false);
@@ -407,8 +407,8 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         else if (obj instanceof IntendedRouteHandlerCommon) {
             intendedRouteHandler = (IntendedRouteHandlerCommon)obj;
         }
-        if (obj instanceof MsiHandler) {
-            msiHandler = (MsiHandler) obj;
+        if (obj instanceof MsiNmServiceHandlerCommon) {
+            msiNmHandler = (MsiNmServiceHandlerCommon) obj;
         }
     }
 

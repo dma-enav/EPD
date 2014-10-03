@@ -56,7 +56,7 @@ public class EnavSettings implements Serializable {
     private String serverName = "service.e-navigation.net";
     private int httpPort = 80;
     private int connectTimeout = 30000;
-    private int msiPollInterval = 600; // sek
+    private int msiPollInterval = 180; // sek
     private int readTimeout = 60000;
     private int msiTextboxesVisibleAtScale = 80000;
     private double msiRelevanceGpsUpdateRange = 0.5d;

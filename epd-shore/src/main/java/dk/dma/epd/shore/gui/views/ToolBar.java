@@ -232,20 +232,20 @@ public class ToolBar extends JInternalFrame {
 
         // Tool: MSI layer
         final JLabel msi = new JLabel(toolbarIcon("images/toolbar/msi_symbol_16.png"));
-        msi.setName("msi");
+        msi.setName("msi-nm");
         msi.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
 
                 if (mainFrame.isMsiLayerEnabled()) {
                     mainFrame.setMSILayerEnabled(false);
                     for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                        mapFrame.getChartPanel().getMsiLayer().setVisible(false);
+                        mapFrame.getChartPanel().getMsiNmLayer().setVisible(false);
                     }
                     setInactiveToolItem(msi);
                 } else {
                     mainFrame.setMSILayerEnabled(true);
                     for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                        mapFrame.getChartPanel().getMsiLayer().setVisible(true);
+                        mapFrame.getChartPanel().getMsiNmLayer().setVisible(true);
                     }
                     setActiveToolItem(msi, layerToolItems);
                 }

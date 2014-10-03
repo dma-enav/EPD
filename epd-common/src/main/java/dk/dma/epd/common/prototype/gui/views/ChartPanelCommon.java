@@ -42,7 +42,7 @@ import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteCPALayer;
-import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
+import dk.dma.epd.common.prototype.layers.msi.MsiNmLayerCommon;
 import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.RouteEditLayerCommon;
@@ -81,7 +81,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected RouteLayerCommon routeLayer;
     protected RouteEditLayerCommon routeEditLayer;
     protected NewRouteContainerLayer newRouteContainerLayer;
-    protected MsiLayerCommon msiLayer;
+    protected MsiNmLayerCommon msiNmLayer;
     protected IntendedRouteLayerCommon intendedRouteLayer;
     protected IntendedRouteCPALayer intendedRouteCPALayer;
     
@@ -124,7 +124,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     /**
      * Change the mouse mode.
      * 
-     * @param mode The mode ID of the mouse mode to swap to (e.g.
+     * @param modeID The mode ID of the mouse mode to swap to (e.g.
      *            DistanceCircleMouseMode.MODE_ID).
      */
     public abstract void setMouseMode(String modeID);
@@ -416,8 +416,8 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         return newRouteContainerLayer;
     }
 
-    public MsiLayerCommon getMsiLayer() {
-        return msiLayer;
+    public MsiNmLayerCommon getMsiNmLayer() {
+        return msiNmLayer;
     }
 
     public WMSLayer getWmsLayer() {

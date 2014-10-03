@@ -14,36 +14,39 @@
  */
 package dk.dma.epd.common.prototype.gui.menuitems;
 
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
+import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
+
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.frv.enav.common.xml.msi.MsiMessage;
-
-public class MsiAcknowledge extends JMenuItem implements IMapMenuAction {
+public class MsiNmAcknowledge extends JMenuItem implements IMapMenuAction {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private MsiHandler msiHandler;
-    private MsiMessage msiMessage;
+    private MsiNmServiceHandlerCommon msiNmHandler;
+    private MsiNmNotification msiMessage;
 
-    public MsiAcknowledge(String text) {
+    public MsiNmAcknowledge(String text) {
         super();
         setText(text);
     }
     
     @Override
     public void doAction() {
-        msiHandler.setAcknowledged(msiMessage);
+        msiMessage.setAcknowledged(true);
+        EPD.getInstance().getMsiNmHandler().doUpdate();
     }
 
-    public void setMsiHandler(MsiHandler msiHandler) {
-        this.msiHandler = msiHandler;
+    public void setMsiNmHandler(MsiNmServiceHandlerCommon msiNmHandler) {
+        this.msiNmHandler = msiNmHandler;
     }
 
-    public void setMsiMessage(MsiMessage msiMessage) {
+    public void setMsiNmMessage(MsiNmNotification msiMessage) {
         this.msiMessage = msiMessage;
         
     }

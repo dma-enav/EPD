@@ -15,42 +15,32 @@
 package dk.dma.epd.common.prototype.layers.msi;
 
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
-import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
-import dk.frv.enav.common.xml.msi.MsiMessage;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
+import org.apache.commons.lang.StringUtils;
 
 /**
- * MSI mouse over info
+ * MSI-NM mouse over info
  */
-public class MsiInfoPanel extends InfoPanel {
+public class MsiNmInfoPanel extends InfoPanel {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Constructor
      */
-    public MsiInfoPanel() {
+    public MsiNmInfoPanel() {
         super();
     }
 
     /**
-     * Display a msi message
+     * Display a msi-nm message
      * @param message
      */
-    public void showMsiInfo(MsiMessage message) {
-        String encText = message.getEncText();
-        if (encText == null){
-            encText = "No MSI Message attached";
+    public void showMsiInfo(MsiNmNotification message) {
+        String text = "";
+        if (message != null && message.get().getDescs().size() > 0) {
+            text = StringUtils.defaultString(message.get().getDescs().get(0).getTitle());
         }
-        showText(encText);
-    }
-
-    /**
-     * Display a msi message
-     * @param message
-     */
-    public void showMsiInfo(MsiMessageExtended message) {
-        if (message != null && message.getMsiMessage() != null) {
-            showMsiInfo(message.getMsiMessage());
-        }
+        showText(text);
     }
 }

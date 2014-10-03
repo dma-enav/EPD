@@ -18,21 +18,20 @@ import javax.swing.ImageIcon;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.CenterRaster;
-import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
 
 /**
- * Graphic for MSI symbol 
+ * Graphic for MSI-NM symbol
  */
-public class MsiSymbolGraphic extends MsiSymbolPosition {
+public class MsiNmNmSymbolGraphic extends MsiNmSymbolPosition {
     private static final long serialVersionUID = 1L;
     
-    public MsiSymbolGraphic(MsiMessageExtended message) {
+    public MsiNmNmSymbolGraphic(MsiNmNotification message) {
         super(message);
         setVague(true);
     }
     
-    
-    
+
     @Override
     public void createSymbol(Position pos) {
         CenterRaster msiSymbol;

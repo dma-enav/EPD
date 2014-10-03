@@ -18,27 +18,27 @@ import java.awt.event.MouseEvent;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
 
-import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
-import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
-import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
+import dk.dma.epd.common.prototype.layers.msi.MsiNmDirectionalIcon;
+import dk.dma.epd.common.prototype.layers.msi.MsiNmLayerCommon;
+import dk.dma.epd.common.prototype.layers.msi.MsiNmNmSymbolGraphic;
 import dk.dma.epd.shore.gui.views.MapMenu;
 
 
 /**
- * Shore specific layer class for handling all MSI messages
+ * Shore specific layer class for handling all MSI-NM messages
  */
-public class MsiLayer extends MsiLayerCommon {
+public class MsiNmLayer extends MsiNmLayerCommon {
     
     private static final long serialVersionUID = 1L;
 
     /**
      * Constructor for the layer
      */
-    public MsiLayer() {
+    public MsiNmLayer() {
         super();
 
         // Register the classes the will trigger the map menu
-        registerMapMenuClasses(MsiSymbolGraphic.class, MsiDirectionalIcon.class);
+        registerMapMenuClasses(MsiNmNmSymbolGraphic.class, MsiNmDirectionalIcon.class);
     }
 
     /**
@@ -55,12 +55,12 @@ public class MsiLayer extends MsiLayerCommon {
      */
     @Override
     protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
-        if(clickedGraphics instanceof MsiSymbolGraphic){
-            MsiSymbolGraphic msi = (MsiSymbolGraphic) clickedGraphics;
+        if(clickedGraphics instanceof MsiNmNmSymbolGraphic){
+            MsiNmNmSymbolGraphic msi = (MsiNmNmSymbolGraphic) clickedGraphics;
             getMapMenu().msiMenu(msi);
         
-        } else if(clickedGraphics instanceof MsiDirectionalIcon) {
-            MsiDirectionalIcon direction = (MsiDirectionalIcon) clickedGraphics;
+        } else if(clickedGraphics instanceof MsiNmDirectionalIcon) {
+            MsiNmDirectionalIcon direction = (MsiNmDirectionalIcon) clickedGraphics;
             getMapMenu().msiDirectionalMenu(direction, this);
         }
     }

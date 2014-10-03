@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import javax.swing.BorderFactory;
 
+import dk.dma.epd.ship.layers.msi.MsiNmLayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +67,6 @@ import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
 import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
-import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
@@ -229,9 +229,9 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         mapHandler.add(routeEditLayer);
 
         // Create MSI layer
-        msiLayer = new MsiLayer();
-        msiLayer.setVisible(true);
-        mapHandler.add(msiLayer);
+        msiNmLayer = new MsiNmLayer();
+        msiNmLayer.setVisible(true);
+        mapHandler.add(msiNmLayer);
 
         // Create Nogo layer
         nogoLayer = new NogoLayer();
@@ -302,7 +302,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         activeWaypointPanel.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
 
         // Force a MSI layer update
-        msiLayer.doUpdate();
+        msiNmLayer.doUpdate();
 
         // Add this class as PNT data listener
         EPDShip.getInstance().getPntHandler().addListener(this);

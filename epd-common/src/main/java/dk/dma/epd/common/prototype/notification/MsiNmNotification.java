@@ -20,11 +20,15 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.Calculator;
+import dma.msinm.MCArea;
 import dma.msinm.MCLocation;
 import dma.msinm.MCLocationType;
 import dma.msinm.MCMessage;
 import dma.msinm.MCPoint;
+import dma.msinm.MCSeriesIdentifier;
+import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -43,17 +47,27 @@ public class MsiNmNotification extends Notification<MCMessage, Integer> {
      * @param message the MSI-NM message
      */
     public MsiNmNotification(MCMessage message) {
-        super(message, message.getId(), NotificationType.MSI);
+        super(message, message.getId(), NotificationType.MSI_NM);
 
         // Update the notification data from the MSI message
         title = message.getDescs().get(0).getTitle();
         severity = NotificationSeverity.MESSAGE;
         date = new Date(message.getUpdated().getTime());
 
-        BoundingBox bbox = getBoundingBox();
-        if (bbox != null) {
-            location = bbox.getCenterPoint();
+        if (get().getLocations() != null && get().getLocations().size() > 0) {
+            double minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+
+            for (MCLocation loc : get().getLocations()) {
+                for (MCPoint pt : loc.getPoints()) {
+                    minLat = Math.min(minLat, pt.getLat());
+                    maxLat = Math.max(maxLat, pt.getLat());
+                    minLon = Math.min(minLon, pt.getLon());
+                    maxLon = Math.max(maxLon, pt.getLon());
+                }
+            }
+            location = Position.create((minLat + maxLat) / 2.0, (minLon + maxLon) / 2.0);
         }
+
     }
 
     /**
@@ -66,24 +80,46 @@ public class MsiNmNotification extends Notification<MCMessage, Integer> {
     }
 
     /**
-     * Computes a bounding box for the MSI-NM or null if location is undefined
-     * @return the bounding box for the MSI-NM
+     * Returns a full id for the series identifier with the format MSI-DK-184-14
+     * @return a full id for the series identifier
      */
-    public BoundingBox getBoundingBox() {
-        if (get().getLocations() != null && get().getLocations().size() > 0) {
-            double minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+    public String getSeriesId() {
+        return formatSeriesId(get().getSeriesIdentifier());
+    }
 
-            for (MCLocation loc : get().getLocations()) {
-                for (MCPoint pt : loc.getPoints()) {
-                    minLat = Math.min(minLat, pt.getLat());
-                    maxLat = Math.max(maxLat, pt.getLat());
-                    minLon = Math.min(minLon, pt.getLon());
-                    maxLon = Math.max(maxLon, pt.getLon());
-                }
+    /**
+     * Formats an ID into a full id for the series identifier with the format MSI-DK-184-14
+     * @return a full id for the series identifier
+     */
+    public String formatSeriesId(MCSeriesIdentifier id) {
+        String shortId = (id.getNumber() != null)
+                ? String.format("%s-%03d-%02d", id.getAuthority(), id.getNumber(), id.getYear() - 2000)
+                : String.format("%s-?-%02d", id.getAuthority(), id.getYear() - 2000);
+        return String.format("%s-%s", id.getMainType(), shortId);
+    }
+
+
+    /**
+     * Returns the message area lineage from parent-most area and down.
+     * @param startIndex start with the startIndex'th parent-most area
+     * @param maxParts the max lineage number
+     * @return the area lineage
+     */
+    public String getAreaLineage(int startIndex, int maxParts) {
+        List<String> parts = new ArrayList<>();
+        for (MCArea area = get().getArea(); area != null; area = area.getParent()) {
+            if (area.getDescs().size() > 0 && StringUtils.isNotBlank(area.getDescs().get(0).getName())) {
+                parts.add(0, area.getDescs().get(0).getName());
             }
-            return BoundingBox.create(Position.create(minLat, minLon), Position.create(minLon, maxLon), CoordinateSystem.CARTESIAN);
         }
-        return null;
+        if (get().getDescs().size() > 0 && StringUtils.isNotBlank(get().getDescs().get(0).getVicinity())) {
+            parts.add(get().getDescs().get(0).getVicinity());
+        }
+        if (parts.size() <= startIndex) {
+            return "";
+        }
+        parts = parts.subList(startIndex, Math.min(parts.size(), startIndex + maxParts));
+        return StringUtils.join(parts, " - ");
     }
 
     /**

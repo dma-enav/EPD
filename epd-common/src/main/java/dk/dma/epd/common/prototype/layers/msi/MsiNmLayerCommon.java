@@ -15,42 +15,40 @@
 package dk.dma.epd.common.prototype.layers.msi;
 
 
+import com.bbn.openmap.omGraphics.OMGraphic;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
+import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
+import dma.msinm.MCMsiNmService;
+
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.Date;
 import java.util.List;
 
-import com.bbn.openmap.omGraphics.OMGraphic;
-
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.gui.util.InfoPanel;
-import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
-import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
-import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.frv.enav.common.xml.msi.MsiLocation;
-import dk.frv.enav.common.xml.msi.MsiMessage;
+import static dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon.IMsiNmServiceListener;
 
 /**
- * Base layer class for handling all MSI messages
+ * Base layer class for handling all MSI-NM messages
  */
-public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpdateListener {
+public abstract class MsiNmLayerCommon extends EPDLayerCommon  implements IMsiNmServiceListener {
 
     private static final long serialVersionUID = 1L;
 
-    protected MsiHandler msiHandler;
-    private MsiInfoPanel msiInfoPanel = new MsiInfoPanel();
+    protected MsiNmServiceHandlerCommon msiNmHandler;
+    private MsiNmInfoPanel msiNmInfoPanel = new MsiNmInfoPanel();
     
     /**
      * Constructor
      */
-    public MsiLayerCommon() {
+    public MsiNmLayerCommon() {
         super();
         
         // Register the info panels
-        registerInfoPanel(msiInfoPanel, MsiSymbolGraphic.class, MsiDirectionalIcon.class);        
+        registerInfoPanel(msiNmInfoPanel, MsiNmNmSymbolGraphic.class, MsiNmDirectionalIcon.class);
     }
     
     /**
@@ -59,12 +57,13 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpda
     public void doUpdate() {
         graphics.clear();
         Date now = PntTime.getDate();
+        boolean showFiltered = EPD.getInstance().getSettings().getEnavSettings().isMsiFilter();
+
         // Get messages
-        List<MsiMessageExtended> messages = msiHandler.getMessageList();
-        for (MsiMessageExtended message : messages) {
+        for (MsiNmNotification message : msiNmHandler.getMsiNmMessages(showFiltered)) {
             
             // Not able to show messages without location
-            if (!message.msiMessage.hasLocation()) {
+            if (message.getLocation() == null) {
                 continue;
             }
             
@@ -79,11 +78,11 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpda
             }
             
             // Create MSI graphic
-            MsiGraphic msiGraphic = new MsiGraphic(message);
-            graphics.add(msiGraphic);
+            MsiNmGraphic msiNmGraphic = new MsiNmGraphic(message);
+            graphics.add(msiNmGraphic);
             
-            if(mapBean != null && message.relevant){
-                MsiDirectionalIcon direction = new MsiDirectionalIcon(mapBean);
+            if(mapBean != null && message.isFiltered()){
+                MsiNmDirectionalIcon direction = new MsiNmDirectionalIcon(mapBean);
                 direction.setMarker(message);
                 graphics.add(direction);
             }
@@ -96,31 +95,34 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpda
      * @param message the message to check
      * @return whether to include the message or not
      */
-    protected boolean filterMessage(MsiMessageExtended message) {
+    protected boolean filterMessage(MsiNmNotification message) {
         return true;
     }
-        
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void msiUpdate() {
+    public void msiNmServicesChanged(List<MCMsiNmService> msiNmServiceList) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void msiNmMessagesChanged(List<MsiNmNotification> msiNmMessages) {
         doUpdate();
     }
 
     /**
      * Move and center the map around a specific msi message
-     * @param msiMessage
+     * @param message the message
      */
-    public void zoomTo(MsiMessage msiMessage) {
-        if (!msiMessage.hasLocation()) {
-            return;
+    public void zoomTo(MsiNmNotification message) {
+        if (message.getLocation() != null) {
+            mapBean.setCenter(message.getLocation().getLatitude(), message.getLocation().getLongitude());
+            mapBean.setScale(EPD.getInstance().getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
         }
-
-        MsiLocation msiLocation = msiMessage.getLocation();
-        Position center = msiLocation.getCenter();
-        mapBean.setCenter(center.getLatitude(), center.getLongitude());
-        mapBean.setScale(EPD.getInstance().getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
     }
     
     /**
@@ -128,13 +130,13 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpda
      */
     @Override
     protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
-        if (newClosest instanceof MsiSymbolGraphic) {
-            MsiSymbolGraphic msiSymbolGraphic = (MsiSymbolGraphic)newClosest;
-            msiInfoPanel.showMsiInfo(msiSymbolGraphic.getMsiMessage());
+        if (newClosest instanceof MsiNmNmSymbolGraphic) {
+            MsiNmNmSymbolGraphic msiNmSymbolGraphic = (MsiNmNmSymbolGraphic)newClosest;
+            msiNmInfoPanel.showMsiInfo(msiNmSymbolGraphic.getMsiNmMessage());
             
-        } else if (newClosest instanceof MsiDirectionalIcon) {
-            MsiDirectionalIcon msiDirectionalIcon = (MsiDirectionalIcon)newClosest;
-            msiInfoPanel.showMsiInfo(msiDirectionalIcon.getMessage());
+        } else if (newClosest instanceof MsiNmDirectionalIcon) {
+            MsiNmDirectionalIcon msiNmDirectionalIcon = (MsiNmDirectionalIcon)newClosest;
+            msiNmInfoPanel.showMsiInfo(msiNmDirectionalIcon.getMessage());
             
         }
         return true;
@@ -148,9 +150,9 @@ public abstract class MsiLayerCommon extends EPDLayerCommon  implements IMsiUpda
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         
-        if (obj instanceof MsiHandler) {
-            msiHandler = (MsiHandler) obj;
-            msiHandler.addListener(this);
+        if (obj instanceof MsiNmServiceHandlerCommon) {
+            msiNmHandler = (MsiNmServiceHandlerCommon) obj;
+            msiNmHandler.addListener(this);
         }
     }
 }

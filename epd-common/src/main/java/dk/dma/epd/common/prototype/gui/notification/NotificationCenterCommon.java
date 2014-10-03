@@ -18,12 +18,9 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
-import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.notification.ChatNotification;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.MsiNmNotification;
-import dk.dma.epd.common.prototype.notification.MsiNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
@@ -75,14 +72,13 @@ import static java.awt.GridBagConstraints.WEST;
  * <li>MSI: A maritime safety information panel.</li>
  * </ul>
  */
-public abstract class NotificationCenterCommon extends ComponentDialog implements ActionListener, IMsiUpdateListener, IMsiNmServiceListener,
+public abstract class NotificationCenterCommon extends ComponentDialog implements ActionListener, IMsiNmServiceListener,
         IChatServiceListener, StrategicRouteListener, RouteSuggestionListener {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(NotificationCenterCommon.class);
 
     protected Timer alertTimer = new Timer(3 * 1000, this); // Every 3 seconds
 
-    protected MsiHandler msiHandler;
     protected MsiNmServiceHandlerCommon msiNmHandler;
     protected ChatServiceHandlerCommon chatServiceHandler;
     protected StrategicRouteHandlerCommon strategicRouteHandler;
@@ -95,7 +91,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     protected JPanel typePanel = new JPanel(new GridBagLayout());
 
     protected GeneralNotificationPanel generalPanel = new GeneralNotificationPanel(this);
-    protected MsiNotificationPanel msiPanel = new MsiNotificationPanel(this);
+    protected MsiNmNotificationPanel msiNmPanel = new MsiNmNotificationPanel(this);
     protected ChatNotificationPanel chatPanel = new ChatNotificationPanel(this);
 
     protected List<NotificationPanel<?>> panels = new CopyOnWriteArrayList<>();
@@ -145,7 +141,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     protected void registerPanels() {
         panels.add(generalPanel);
         panels.add(chatPanel);
-        panels.add(msiPanel);
+        panels.add(msiNmPanel);
     }
 
     /**
@@ -247,16 +243,11 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      */
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof MsiHandler && msiHandler == null) {
-            msiHandler = (MsiHandler) obj;
-            msiHandler.addListener(this);
-            msiPanel.refreshNotifications();
-
-        } else if (obj instanceof MsiNmServiceHandlerCommon && msiNmHandler == null) {
+        if (obj instanceof MsiNmServiceHandlerCommon && msiNmHandler == null) {
             msiNmHandler = (MsiNmServiceHandlerCommon)obj;
             msiNmHandler.addListener(this);
-            msiPanel.refreshMsiNmServices();
-            msiPanel.refreshNotifications();
+            msiNmPanel.refreshMsiNmServices();
+            msiNmPanel.refreshNotifications();
 
         } else if (obj instanceof ChatServiceHandlerCommon && chatServiceHandler == null) {
             chatServiceHandler = (ChatServiceHandlerCommon) obj;
@@ -474,8 +465,8 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     public void addNotification(Notification<?, ?> notification) {
         if (notification instanceof GeneralNotification) {
             generalPanel.addNotification((GeneralNotification) notification);
-        } else if (notification instanceof MsiNotification) {
-            msiPanel.addNotification((MsiNotification) notification);
+        } else if (notification instanceof MsiNmNotification) {
+            msiNmPanel.addNotification((MsiNmNotification) notification);
         } else if (notification instanceof ChatNotification) {
             chatPanel.addNotification((ChatNotification) notification);
         } else {
@@ -548,14 +539,6 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      * {@inheritDoc}
      */
     @Override
-    public void msiUpdate() {
-        msiPanel.refreshNotifications();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void chatMessagesUpdated(MaritimeId targetId) {
 
         // Update the chat panel
@@ -567,7 +550,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      */
     @Override
     public void msiNmServicesChanged(List<MCMsiNmService> msiNmServiceList) {
-        msiPanel.refreshMsiNmServices();
+        msiNmPanel.refreshMsiNmServices();
     }
 
     /**
@@ -575,6 +558,6 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      */
     @Override
     public void msiNmMessagesChanged(List<MsiNmNotification> msiNmMessages) {
-        msiPanel.refreshNotifications();
+        msiNmPanel.refreshNotifications();
     }
 }

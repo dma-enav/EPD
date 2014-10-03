@@ -14,25 +14,26 @@
  */
 package dk.dma.epd.common.prototype.gui.menuitems;
 
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.layers.msi.MsiNmLayerCommon;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
+
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.frv.enav.common.xml.msi.MsiMessage;
-
-
-public class MsiDetails extends JMenuItem implements IMapMenuAction {
+/**
+ * Zooms to an MSI-NM thingy
+ */
+public class MsiNmZoomTo extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
-    
-    private MsiMessage message;
+    private MsiNmLayerCommon msiLayer;
+    private MsiNmNotification message;
 
     /**
      * Constructor
-     * @param text
+     * @param text the title
      */
-    public MsiDetails(String text) {
+    public MsiNmZoomTo(String text) {
         super();
         setText(text);
     }
@@ -42,14 +43,23 @@ public class MsiDetails extends JMenuItem implements IMapMenuAction {
      */
     @Override
     public void doAction() {
-        EPD.getInstance().getNotificationCenter().openNotification(NotificationType.MSI, message.getMessageId(), false);
+        msiLayer.zoomTo(message);
+    }
+
+    /**
+     * Sets the MSI layer
+     * @param msiLayer the MSI layer
+     */
+    public void setMsiLayer(MsiNmLayerCommon msiLayer) {
+        this.msiLayer = msiLayer;
     }
 
     /**
      * Sets the MSI message
      * @param message the MSI message
      */
-    public void setMsiMessage(MsiMessage message) {
+    public void setMessage(MsiNmNotification message) {
         this.message = message;
     }
+
 }

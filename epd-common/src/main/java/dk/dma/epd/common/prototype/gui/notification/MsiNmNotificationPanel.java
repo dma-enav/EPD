@@ -15,16 +15,17 @@
 package dk.dma.epd.common.prototype.gui.notification;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
-import dk.dma.epd.common.prototype.notification.MsiNotification;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
 import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.NameUtils;
-import dk.frv.enav.common.xml.msi.MsiLocation;
-import dk.frv.enav.common.xml.msi.MsiMessage;
-import dk.frv.enav.common.xml.msi.MsiPoint;
+import dma.msinm.MCLocation;
+import dma.msinm.MCMessage;
+import dma.msinm.MCMessageDesc;
 import dma.msinm.MCMsiNmService;
+import dma.msinm.MCPoint;
+import dma.msinm.MCReference;
 import net.maritimecloud.core.id.MaritimeId;
 import org.apache.commons.lang.StringUtils;
 
@@ -36,19 +37,18 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
- * An MSI-specific implementation of the {@linkplain NotificationPanel} class
+ * An MSI-NM-specific implementation of the {@linkplain NotificationPanel} class
  */
-public class MsiNotificationPanel extends NotificationPanel<MsiNotification> implements ActionListener {
+public class MsiNmNotificationPanel extends NotificationPanel<MsiNmNotification> implements ActionListener {
 
     private static final long serialVersionUID = 1L;
 
     private static final String[] NAMES = {
-        "", "ID", "Priority", "Updated", "Main area"
+        "", "TYPE", "ID", "Updated", "Main area"
     };
 
     private JComboBox<MsiNmServiceItem> msiNmServiceComboBox = new JComboBox<>();
@@ -56,16 +56,15 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> imp
     /**
      * Constructor
      */
-    public MsiNotificationPanel(NotificationCenterCommon notificationCenter) {
+    public MsiNmNotificationPanel(NotificationCenterCommon notificationCenter) {
         super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
-        table.getColumnModel().getColumn(1).setPreferredWidth(40);
-        table.getColumnModel().getColumn(2).setPreferredWidth(60);
-        table.getColumnModel().getColumn(3).setPreferredWidth(80);
+        table.getColumnModel().getColumn(1).setPreferredWidth(30);
+        table.getColumnModel().getColumn(2).setPreferredWidth(80);
+        table.getColumnModel().getColumn(3).setPreferredWidth(70);
         table.getColumnModel().getColumn(4).setPreferredWidth(130);
         splitPane.setDividerLocation(400);
-        setCellAlignment(1, JLabel.RIGHT);
 
         // Create the MSI-NM service selector
         JPanel msinmServicePanel = new JPanel();
@@ -123,15 +122,15 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> imp
      */
     @Override
     public NotificationType getNotitficationType() {
-        return NotificationType.MSI;
+        return NotificationType.MSI_NM;
     }
             
     /**
      * {@inheritDoc}
      */
     @Override
-    protected NotificationTableModel<MsiNotification> initTableModel() {
-        return new NotificationTableModel<MsiNotification>() {
+    protected NotificationTableModel<MsiNmNotification> initTableModel() {
+        return new NotificationTableModel<MsiNmNotification>() {
             private static final long serialVersionUID = 1L;
             
             @Override 
@@ -150,18 +149,16 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> imp
             
             @Override 
             public Object getValueAt(int rowIndex, int columnIndex) {
-                MsiNotification notification = getNotification(rowIndex);
+                MsiNmNotification notification = getNotification(rowIndex);
                 
                 switch (columnIndex) {
-                case 0: return !notification.isRead() 
-                                ? ICON_UNREAD 
+                case 0: return !notification.isRead()
+                                ? ICON_UNREAD
                                 : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
-                case 1: return notification.getId();
-                case 2: return notification.get().getMsiMessage().getPriority();
+                case 1: return notification.get().getSeriesIdentifier().getMainType();
+                case 2: return notification.getSeriesId();
                 case 3: return Formatter.formatShortDateTimeNoTz(notification.getDate());
-                case 4: return notification.get().getMsiMessage().getLocation() != null
-                                ? notification.get().getMsiMessage().getLocation().getArea()
-                                : "";
+                case 4: return notification.getAreaLineage(1, 2);
                 default:
                 }
                 return null; 
@@ -173,34 +170,35 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> imp
      * {@inheritDoc}
      */
     @Override
-    protected NotificationDetailPanel<MsiNotification> initNotificationDetailPanel() {
-        return new MsiDetailPanel();
+    protected NotificationDetailPanel<MsiNmNotification> initNotificationDetailPanel() {
+        return new MsiNmDetailPanel();
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void acknowledgeNotification(MsiNotification notification) {
+    public void acknowledgeNotification(MsiNmNotification notification) {
         if (notification != null && !notification.isAcknowledged()) {
-            MsiHandler msiHandler = EPD.getInstance().getMsiHandler();
-            // NB: msiHandler.setAcknowledged() will automatically trigger a table refresh
-            msiHandler.setAcknowledged(notification.get().getMsiMessage());
+            notification.setAcknowledged(true);
+            notification.setRead(true); // Implied by acknowledged
+
+            // NB: doUpdate() will automatically trigger a table refresh
+            EPD.getInstance().getMsiNmHandler().doUpdate();
             selectFirstUnacknowledgedRow();
             notifyListeners();
-        }    
+        }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void deleteNotification(MsiNotification notification) {
+    public void deleteNotification(MsiNmNotification notification) {
         int row = table.getSelectedRow();
         if (notification != null) {
-            MsiHandler msiHandler = EPD.getInstance().getMsiHandler();
-            // NB: msiHandler.deleteMessage() will automatically trigger a table refresh
-            msiHandler.deleteMessage(notification.get().getMsiMessage());
+            // NB: deleteMsiNmMessage() will automatically trigger a table refresh
+            EPD.getInstance().getMsiNmHandler().deleteMsiNmMessage(notification);
             setSelectedRow(row - 1);
             notifyListeners();
         }
@@ -211,33 +209,11 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> imp
      */
     @Override
     protected void doRefreshNotifications() {
-        MsiHandler msiHandler = EPD.getInstance().getMsiHandler();
+        MsiNmServiceHandlerCommon msiNmHandler = EPD.getInstance().getMsiNmHandler();
 
-        // The back-end does not support the "read" flag, so, we store it
-        Set<Integer> readNotificationIds = new HashSet<>();
-        for (MsiNotification notification : tableModel.getNotifications()) {
-            if (notification.isRead()) {
-                readNotificationIds.add(notification.getId());
-            }
-        }
-        
         // Is filtered or not?
         boolean filtered = EPD.getInstance().getSettings().getEnavSettings().isMsiFilter();
-        List<MsiNotification> notifications = new ArrayList<>();
-        List<MsiMessageExtended> messages = 
-                filtered 
-                ? msiHandler.getFilteredMessageList()
-                : msiHandler.getMessageList();
-         
-        // Convert the MSI messages into MSI notifications
-        for (MsiMessageExtended message : messages) {
-            MsiNotification notification = new MsiNotification(message);
-            // Restore the "read" flag
-            if (readNotificationIds.contains(notification.getId())) {
-                notification.setRead(true);
-            }
-            notifications.add(notification);
-        }
+        List<MsiNmNotification> notifications = msiNmHandler.getMsiNmMessages(filtered);
         tableModel.setNotifications(notifications);
         refreshTableData();
         notifyListeners();
@@ -287,16 +263,16 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> imp
 
 
 /**
- * Displays relevant MSI detail information
+ * Displays relevant MSI-NM detail information
  */
-class MsiDetailPanel extends NotificationDetailPanel<MsiNotification> {
+class MsiNmDetailPanel extends NotificationDetailPanel<MsiNmNotification> {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Constructor
      */
-    public MsiDetailPanel() {
+    public MsiNmDetailPanel() {
         super();
         
         buildGUI();
@@ -306,7 +282,7 @@ class MsiDetailPanel extends NotificationDetailPanel<MsiNotification> {
      * {@inheritDoc}
      */
     @Override
-    public void setNotification(MsiNotification notification) {
+    public void setNotification(MsiNmNotification notification) {
         this.notification = notification;
         
         // Special case
@@ -315,48 +291,40 @@ class MsiDetailPanel extends NotificationDetailPanel<MsiNotification> {
             return;
         }
 
-        MsiMessage msiMessage = notification.get().getMsiMessage();
-        MsiLocation msiLocation = msiMessage.getLocation();
+        MCMessage message = notification.get();
 
         StringBuilder html = new StringBuilder("<html>");
         html.append("<table>");
-        append(html, "Unique ID", msiMessage.getId());
-        append(html, "Msg ID", msiMessage.getMessageId());
-        append(html, "Version", msiMessage.getVersion());
-        append(html, "Message", msiMessage.getMessage());
-        append(html, "ENC text", Formatter.formatString(msiMessage.getEncText(), ""));
-        if (msiLocation != null) {
-            append(html, "Area", Formatter.formatString(msiLocation.getArea(), ""));
-            if (msiLocation.getSubArea() != null && msiLocation.getSubArea().length() > 0) {
-                append(html, "Sub area", Formatter.formatString(msiLocation.getSubArea(), ""));
-            }
+        append(html, "Unique ID", message.getId());
+        append(html, "Message ID", notification.getSeriesId());
+
+        append(html, "Area", notification.getAreaLineage(0, 100));
+        MCMessageDesc desc = message.getDescs().size() > 0 ? message.getDescs().get(0) : null;
+        if (desc != null) {
+            append(html, "Title", Formatter.formatString(desc.getTitle(), ""));
+            append(html, "Details", desc.getDescription());
+            append(html, "Time", desc.getTime());
+            append(html, "Note", desc.getNote());
+            append(html, "Publication", desc.getPublication());
+            append(html, "Source", desc.getSource());
         }
-        append(html, "Updated", Formatter.formatShortDateTime(msiMessage.getUpdated()));
-        append(html, "Created", Formatter.formatShortDateTime(msiMessage.getCreated()));
-        append(html, "Reference", Formatter.formatString(msiMessage.getReference(), ""));
-        if (msiMessage.getNavtexNo() != null && msiMessage.getNavtexNo().length() > 0) {
-            append(html, "Navtex no", Formatter.formatString(msiMessage.getNavtexNo(), ""));
+
+        append(html, "Updated", Formatter.formatShortDateTime(new Date(message.getUpdated().getTime())));
+        append(html, "Created", Formatter.formatShortDateTime(new Date(message.getCreated().getTime())));
+        append(html, "Valid from", Formatter.formatShortDateTime(new Date(message.getValidFrom().getTime())));
+        if (message.getValidTo() != null) {
+            append(html, "Valid to", Formatter.formatShortDateTime(new Date(message.getValidTo().getTime())));
         }
-        append(html, "Priority", Formatter.formatString(msiMessage.getPriority(), ""));
-        append(html, "Valid from", Formatter.formatShortDateTime(msiMessage.getValidFrom()));
-        append(html, "Valid to", Formatter.formatShortDateTime(msiMessage.getValidTo()));
-        if (msiMessage.getLocationPrecision() != null) {
-            append(html, "Location precision", Formatter.formatDouble(msiMessage.getLocationPrecision(), 2));
+        for (MCReference ref : message.getReferences()) {
+            append(html, "Reference", notification.formatSeriesId(ref.getSeriesIdentifier()));
         }
-        if (msiMessage.getValidForDraugth() != null) {
-            append(html, "Valid for draught", Formatter.formatDouble(msiMessage.getValidForDraugth(), 2));
-        }
-        if (msiMessage.getValidForShipType() != null) {
-            append(html, "Valid for ship type", Formatter.formatString(msiMessage.getValidForShipType(), ""));
-        }
-        append(html, "Organisation", Formatter.formatString(msiMessage.getOrganisation(), ""));
-        append(html, "Username", Formatter.formatString(msiMessage.getUsername(), ""));
-        if (msiLocation != null && msiLocation.getPoints() != null) {
+
+        for (MCLocation loc : message.getLocations()) {
             List<String> points = new ArrayList<>();
-            for (MsiPoint msiPoint : msiLocation.getPoints()) {
-                points.add(String.format("(%.4f,%.4f)", msiPoint.getLatitude(), msiPoint.getLongitude()));
+            for (MCPoint pt : loc.getPoints()) {
+                points.add(String.format("(%.4f,%.4f)", pt.getLat(), pt.getLon()));
             }
-            append(html, "Location", msiLocation.getLocationType().name() + ": " + StringUtils.join(points.iterator(), ", "));
+            append(html, "Location", loc.getType().name() + ": " + StringUtils.join(points.iterator(), ", "));
         }
         
         

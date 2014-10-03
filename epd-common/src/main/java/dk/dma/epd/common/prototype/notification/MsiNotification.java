@@ -29,7 +29,7 @@ public class MsiNotification extends Notification<MsiMessageExtended, Integer>{
      * @param message the MSI message
      */
     public MsiNotification(MsiMessageExtended message) {
-        super(message, message.getMsiMessage().getMessageId(), NotificationType.MSI);
+        super(message, message.getMsiMessage().getMessageId(), NotificationType.MSI_NM);
         
         // Update the notification data from the MSI message
         title = message.getMsiMessage().getMessage();
