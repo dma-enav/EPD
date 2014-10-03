@@ -65,7 +65,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         // Refresh the service list
         fetchChatServices();
 
-        // Register a cloud route suggestion service
+        // Register a cloud chat service
         try {
             getMmsClient().endpointRegister(new AbstractMCChatMessageService() {
                 @Override
@@ -102,7 +102,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
                 fireChatMessagesUpdated(id);
             }
         } catch (Exception e) {
-            LOG.error("Failed looking up route suggestion services", e.getMessage());
+            LOG.error("Failed looking up chat services", e.getMessage());
         }
     }
 

@@ -72,11 +72,6 @@ public abstract class MsiNmLayerCommon extends EPDLayerCommon  implements IMsiNm
                 continue;
             }
             
-            // Is the message included in the filter
-            if (!filterMessage(message)) {
-                continue;
-            }
-            
             // Create MSI graphic
             MsiNmGraphic msiNmGraphic = new MsiNmGraphic(message);
             graphics.add(msiNmGraphic);
@@ -90,15 +85,6 @@ public abstract class MsiNmLayerCommon extends EPDLayerCommon  implements IMsiNm
         doPrepare();
     }
     
-    /**
-     * If filtering is turned on, return whether to include the message or not
-     * @param message the message to check
-     * @return whether to include the message or not
-     */
-    protected boolean filterMessage(MsiNmNotification message) {
-        return true;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -153,6 +139,7 @@ public abstract class MsiNmLayerCommon extends EPDLayerCommon  implements IMsiNm
         if (obj instanceof MsiNmServiceHandlerCommon) {
             msiNmHandler = (MsiNmServiceHandlerCommon) obj;
             msiNmHandler.addListener(this);
+            doUpdate();
         }
     }
 }

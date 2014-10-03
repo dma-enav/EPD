@@ -130,6 +130,11 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         routeSuggestionHandler = EPD.getInstance().getRouteSuggestionHandler();
         routeSuggestionHandler.addRouteSuggestionListener(this);
 
+        msiNmHandler = EPD.getInstance().getMsiNmHandler();
+        msiNmHandler.addListener(this);
+        msiNmPanel.refreshMsiNmServices();
+        msiNmPanel.refreshNotifications();
+
         alertTimer.setCoalesce(true);
         alertTimer.setRepeats(true);
         alertTimer.start();
@@ -243,13 +248,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      */
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof MsiNmServiceHandlerCommon && msiNmHandler == null) {
-            msiNmHandler = (MsiNmServiceHandlerCommon)obj;
-            msiNmHandler.addListener(this);
-            msiNmPanel.refreshMsiNmServices();
-            msiNmPanel.refreshNotifications();
-
-        } else if (obj instanceof ChatServiceHandlerCommon && chatServiceHandler == null) {
+        if (obj instanceof ChatServiceHandlerCommon && chatServiceHandler == null) {
             chatServiceHandler = (ChatServiceHandlerCommon) obj;
             chatServiceHandler.addListener(this);
             chatPanel.refreshNotifications();

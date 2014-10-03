@@ -14,10 +14,12 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import com.bbn.openmap.proj.Projection;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
+import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.notification.MsiNmNotification;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
@@ -64,7 +66,11 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
     private List<MsiNmNotification> msiNmMessages = new ArrayList<>();
     private Set<Integer> deletedMsiNmIds = new HashSet<>();
     private MaritimeId msiNmServiceId;
-    private Position currentPosition;
+    private Position currentShipPosition;
+
+    private Position newRouteMousePosition;
+    private Route newRoute;
+    private Projection newRouteProjection;
 
     /**
      * Constructor
@@ -359,8 +365,8 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
                 }
 
                 // 1) Check proximity to ship
-                if (!msg.isFiltered() && currentPosition != null) {
-                    Double dist = msg.getDistanceToPosition(currentPosition);
+                if (!msg.isFiltered() && currentShipPosition != null) {
+                    Double dist = msg.getDistanceToPosition(currentShipPosition);
                     if (dist != null && dist < enavSettings.getMsiRelevanceFromOwnShipRange()) {
                         msg.setFiltered(true);
                     }
@@ -368,6 +374,20 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
 
                 // 2) Check proximity to routes
                 if (!msg.isFiltered() && msg.nearRoute(routeManager.getVisibleRoutes())) {
+                    msg.setFiltered(true);
+                }
+
+                // 3) Check proximity from a new route mouse position
+                if (!msg.isFiltered() && newRouteMousePosition != null) {
+                    Double dist = msg.getDistanceToPosition(newRouteMousePosition);
+                    if (dist != null && dist < enavSettings.getMsiVisibilityFromNewWaypoint()) {
+                        msg.setFiltered(true);
+                    }
+                }
+
+                // 4) Check proximity to the new route
+                if (!msg.isFiltered() && newRoute != null && newRouteMousePosition != null && newRouteProjection != null &&
+                        msg.nearNewRoute(newRoute, newRouteMousePosition, newRouteProjection)) {
                     msg.setFiltered(true);
                 }
 
@@ -384,15 +404,28 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
     }
 
     /**
+     * Called by the MsiLayer to update the filter when a new route is being drawn
+     * @param newRouteMousePosition the current mouse position
+     * @param newRoute the new route
+     * @param newRouteProjection the new route projection
+     */
+    public synchronized void updateNewRouteMousePosition(Position newRouteMousePosition, Route newRoute, Projection newRouteProjection) {
+        this.newRouteMousePosition = newRouteMousePosition;
+        this.newRoute = newRoute;
+        this.newRouteProjection = newRouteProjection;
+        recomputeMsiNmMessageFilter(true);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public void pntDataUpdate(PntData pntData) {
         Position position = pntData.getPosition();
 
-        if (currentPosition == null ||
-                Calculator.range(position, currentPosition, Heading.GC) > enavSettings.getMsiRelevanceGpsUpdateRange()) {
-            currentPosition = position;
+        if (currentShipPosition == null ||
+                Calculator.range(position, currentShipPosition, Heading.GC) > enavSettings.getMsiRelevanceGpsUpdateRange()) {
+            currentShipPosition = position;
             recomputeMsiNmMessageFilter(true);
         }
 
@@ -481,7 +514,6 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
     public void removeListener(IMsiNmServiceListener listener) {
         listeners.remove(listener);
     }
-
 
     /**
      * Interface implemented by MSI-NM service listeners
