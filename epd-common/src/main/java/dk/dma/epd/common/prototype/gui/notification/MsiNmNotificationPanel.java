@@ -29,13 +29,28 @@ import dma.msinm.MCReference;
 import net.maritimecloud.core.id.MaritimeId;
 import org.apache.commons.lang.StringUtils;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 import java.awt.BorderLayout;
+import java.awt.Desktop;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,7 +63,7 @@ public class MsiNmNotificationPanel extends NotificationPanel<MsiNmNotification>
     private static final long serialVersionUID = 1L;
 
     private static final String[] NAMES = {
-        "", "TYPE", "ID", "Updated", "Main area"
+        "", "TYPE", "ID", "Valid From", "Main area"
     };
 
     private JComboBox<MsiNmServiceItem> msiNmServiceComboBox = new JComboBox<>();
@@ -157,7 +172,7 @@ public class MsiNmNotificationPanel extends NotificationPanel<MsiNmNotification>
                                 : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
                 case 1: return notification.get().getSeriesIdentifier().getMainType();
                 case 2: return notification.getSeriesId();
-                case 3: return Formatter.formatShortDateTimeNoTz(notification.getDate());
+                case 3: return Formatter.formatShortDateTimeNoTz(new Date(notification.get().getValidFrom().getTime()));
                 case 4: return notification.getAreaLineage(1, 2);
                 default:
                 }
@@ -171,7 +186,7 @@ public class MsiNmNotificationPanel extends NotificationPanel<MsiNmNotification>
      */
     @Override
     protected NotificationDetailPanel<MsiNmNotification> initNotificationDetailPanel() {
-        return new MsiNmDetailPanel();
+        return new MsiNmDetailPanel(this);
     }
 
     /**
@@ -265,19 +280,77 @@ public class MsiNmNotificationPanel extends NotificationPanel<MsiNmNotification>
 /**
  * Displays relevant MSI-NM detail information
  */
-class MsiNmDetailPanel extends NotificationDetailPanel<MsiNmNotification> {
+class MsiNmDetailPanel extends NotificationDetailPanel<MsiNmNotification> implements HyperlinkListener {
 
     private static final long serialVersionUID = 1L;
 
+    MsiNmNotificationPanel notificationPanel;
+    JEditorPane contentPane = new JEditorPane("text/html", "");
+    JScrollPane scrollPane = new JScrollPane(
+            contentPane, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
     /**
      * Constructor
+     * @param notificationPanel the parent notification panel
      */
-    public MsiNmDetailPanel() {
+    public MsiNmDetailPanel(MsiNmNotificationPanel notificationPanel) {
         super();
-        
+
+        this.notificationPanel = notificationPanel;
         buildGUI();
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void buildGUI() {
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        contentPane.setEditable(false);
+        contentPane.setOpaque(false);
+        contentPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        contentPane.addHyperlinkListener(this);
+
+        StyleSheet styleSheet = ((HTMLEditorKit)contentPane.getEditorKit()).getStyleSheet();
+        styleSheet.addRule("a {color: #8888FF;}");
+        styleSheet.addRule(".title {font-size: 14px;}");
+
+        add(scrollPane, BorderLayout.CENTER);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void hyperlinkUpdate(HyperlinkEvent hle) {
+        if (HyperlinkEvent.EventType.ACTIVATED.equals(hle.getEventType())) {
+            try {
+                URL url = hle.getURL();
+                if (url.getHost().equals("msinm") && url.getPath().length() > 1) {
+                    String msinmId = url.getPath().substring(1);
+
+                    for (MsiNmNotification notification : notificationPanel.getNotifications()) {
+                        if (notification.getSeriesId().equals(msinmId)) {
+                            EPD.getInstance().getNotificationCenter().openNotification(NotificationType.MSI_NM, notification.getId(), false);
+                            return;
+                        }
+                        Toolkit.getDefaultToolkit().beep();
+                    }
+                } else {
+                    Desktop desktop = Desktop.getDesktop();
+                    desktop.browse(new URI(hle.getURL().toString()));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -287,52 +360,89 @@ class MsiNmDetailPanel extends NotificationDetailPanel<MsiNmNotification> {
         
         // Special case
         if (notification == null) {
-            contentLbl.setText("");
+            contentPane.setText("");
+            scrollPane.getViewport().setViewPosition(new Point(0, 0));
             return;
         }
 
         MCMessage message = notification.get();
+        MCMessageDesc desc = message.getDescs().size() > 0 ? message.getDescs().get(0) : null;
 
         StringBuilder html = new StringBuilder("<html>");
         html.append("<table>");
-        append(html, "Unique ID", message.getId());
-        append(html, "Message ID", notification.getSeriesId());
 
-        append(html, "Area", notification.getAreaLineage(0, 100));
-        MCMessageDesc desc = message.getDescs().size() > 0 ? message.getDescs().get(0) : null;
+        // Title line
+        html.append("<tr><td colspan='2'>");
+        if (message.getOriginalInformation() != null && message.getOriginalInformation()) {
+            html.append("<strong>&#10029;</strong><br/>");
+        }
+        html.append("<b>").append(notification.getSeriesId()).append(". ").append(notification.getAreaLineage(0, 100));
+        if (desc != null && StringUtils.isNotBlank(desc.getTitle())) {
+            html.append(" - ").append(desc.getTitle());
+        }
+        html.append("</b></td></tr>");
+
+        // References
+        for (MCReference ref : message.getReferences()) {
+            String id = notification.formatSeriesId(ref.getSeriesIdentifier());
+            append(html, "Reference", String.format("<a href='http://msinm/%s'>%s</a> (%s)", id, id, ref.getType().name().toLowerCase()));
+        }
+
+        // Time
+        if (desc != null && StringUtils.isNotBlank(desc.getTime())) {
+            append(html, "Time", desc.getTime().trim().replace("\n", "<br/>"));
+        } else {
+            String time = Formatter.formatShortDateTime(new Date(message.getValidFrom().getTime()));
+            if (message.getValidTo() != null) {
+                time += " - " + Formatter.formatShortDateTime(new Date(message.getValidTo().getTime()));
+            }
+            append(html, "Time", time);
+        }
+
+        // Locations
+        if (message.getLocations().size() > 0) {
+            StringBuilder location = new StringBuilder();
+            for (MCLocation loc : message.getLocations()) {
+                location.append("<p>");
+                formatLoc(location, loc);
+                location.append("</p>");
+            }
+            append(html, "Location", location.toString());
+        }
+
         if (desc != null) {
-            append(html, "Title", Formatter.formatString(desc.getTitle(), ""));
             append(html, "Details", desc.getDescription());
-            append(html, "Time", desc.getTime());
             append(html, "Note", desc.getNote());
             append(html, "Publication", desc.getPublication());
             append(html, "Source", desc.getSource());
         }
 
-        append(html, "Updated", Formatter.formatShortDateTime(new Date(message.getUpdated().getTime())));
-        append(html, "Created", Formatter.formatShortDateTime(new Date(message.getCreated().getTime())));
-        append(html, "Valid from", Formatter.formatShortDateTime(new Date(message.getValidFrom().getTime())));
-        if (message.getValidTo() != null) {
-            append(html, "Valid to", Formatter.formatShortDateTime(new Date(message.getValidTo().getTime())));
-        }
-        for (MCReference ref : message.getReferences()) {
-            append(html, "Reference", notification.formatSeriesId(ref.getSeriesIdentifier()));
-        }
-
-        for (MCLocation loc : message.getLocations()) {
-            List<String> points = new ArrayList<>();
-            for (MCPoint pt : loc.getPoints()) {
-                points.add(String.format("(%.4f,%.4f)", pt.getLat(), pt.getLon()));
-            }
-            append(html, "Location", loc.getType().name() + ": " + StringUtils.join(points.iterator(), ", "));
-        }
-        
-        
         html.append("</table>");
         html.append("</html>");
-        contentLbl.setText(html.toString());
+        contentPane.setText(html.toString());
+        scrollPane.getViewport().setViewPosition(new Point(0,0));
     }
-    
+
+    /**
+     * Formats the location as html
+     * @param html the html
+     * @param loc the location
+     */
+    void formatLoc(StringBuilder html, MCLocation loc) {
+        if (loc.getDescs().size() > 0 && StringUtils.isNotBlank(loc.getDescs().get(0).getDescription())) {
+            html.append(loc.getDescs().get(0).getDescription()).append("<br/>");
+        }
+        for (MCPoint pos : loc.getPoints()) {
+            html.append(Formatter.latToPrintable(pos.getLat()))
+                    .append(" ")
+                    .append(Formatter.lonToPrintable(pos.getLon()));
+            if (pos.getDescs().size() > 0 && StringUtils.isNotBlank(pos.getDescs().get(0).getDescription())) {
+                html.append(", ").append(pos.getDescs().get(0).getDescription());
+            }
+            html.append("<br/>");
+        }
+    }
+
     /**
      * If non-empty, appends a table row with the given title and value
      * @param html the html to append to
@@ -341,9 +451,9 @@ class MsiNmDetailPanel extends NotificationDetailPanel<MsiNmNotification> {
      */
     private void append(StringBuilder html, String title, Object value) {
         if (value != null && value.toString().length() > 0) {
-            html.append("<tr><td valign='top'><b>")
+            html.append("<tr><td valign='top'><i>")
                 .append(title)
-                .append("</b></td><td>")
+                .append("</i></td><td>")
                 .append(value)
                 .append("</td></tr>");
         }

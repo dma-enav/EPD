@@ -50,6 +50,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implements IRoutesUpdateListener, IPntDataListener {
 
+    public static final int CLOUD_TIMEOUT = 10; // Seconds
+
     private static final Logger LOG = LoggerFactory.getLogger(MsiNmServiceHandlerCommon.class);
 
     protected List<IMsiNmServiceListener> listeners = new CopyOnWriteArrayList<>();
@@ -68,7 +70,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
      * Constructor
      */
     public MsiNmServiceHandlerCommon() {
-        super();
+        super(2);
 
         enavSettings = EPD.getInstance().getSettings().getEnavSettings();
 
@@ -119,8 +121,12 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
                 ids.add(service.getCaller());
             }
 
-            // Fetch the serivice list
-            List<MCMsiNmService> services = getMmsClient().endpointFind(MCMsiNmService.class).findAll().get();
+            // Fetch the serivice list - throws an exception after CLOUD_TIMEOUT seconds
+            List<MCMsiNmService> services = getMmsClient()
+                    .endpointFind(MCMsiNmService.class)
+                    .findAll()
+                    .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS)
+                    .get();
 
             // Look for changes
             boolean identical = msiNmServiceList.size() == services.size();
@@ -141,7 +147,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
 
 
         } catch (Exception e) {
-            LOG.error("Failed looking up MSI-NM services", e.getMessage());
+            LOG.error("Failed looking up MSI-NM services: " + e.getMessage());
         }
     }
 
@@ -199,8 +205,11 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
                     }
                 }
 
-                // Fetch the list of active messages
-                MCSearchResult result = msiNmService.activeMessagesIfUpdates("en", lastUpdate).join();
+                // Fetch the list of active messages - throws an exception after CLOUD_TIMEOUT seconds
+                MCSearchResult result = msiNmService
+                        .activeMessagesIfUpdates("en", lastUpdate)
+                        .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS)
+                        .join();
 
                 if (StringUtils.isNotBlank(result.getError())) {
                     LOG.error("Error fetching active MSI-NM messages: " + result.getError());
@@ -215,7 +224,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
             }
 
         } catch (Exception e) {
-            LOG.error("Failed looking up published MSI-NM messages", e);
+            LOG.error("Failed looking up published MSI-NM messages: " + e);
         }
     }
 
@@ -366,7 +375,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
             }
         }
 
-        LOG.info("RECOMPUTE MSI-NM IN " + (System.currentTimeMillis() - t0) + " MS");
+        LOG.debug("RECOMPUTE MSI-NM IN " + (System.currentTimeMillis() - t0) + " MS");
 
         // Has the MSI-NM been updated
         if (notifyListeners && updated) {
