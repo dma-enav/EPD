@@ -21,6 +21,7 @@ import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.NameUtils;
 import dma.msinm.MCAttachment;
+import dma.msinm.MCChart;
 import dma.msinm.MCLocation;
 import dma.msinm.MCMessage;
 import dma.msinm.MCMessageDesc;
@@ -420,6 +421,19 @@ class MsiNmDetailPanel extends NotificationDetailPanel<MsiNmNotification> implem
             append(html, "Note", desc.getNote());
             append(html, "Publication", desc.getPublication());
             append(html, "Source", desc.getSource());
+        }
+
+        // Charts
+        if (message.getCharts().size() > 0) {
+            StringBuilder charts = new StringBuilder();
+            for (MCChart chart : message.getCharts()) {
+                charts.append(chart.getChartNumber());
+                if (chart.getInternationalNumber() != null) {
+                    charts.append(String.format(" (INT %d)", chart.getInternationalNumber()));
+                }
+                charts.append("<br/>");
+            }
+            append(html, "Charts", charts.toString());
         }
 
         if (message.getAttachments().size() > 0) {
