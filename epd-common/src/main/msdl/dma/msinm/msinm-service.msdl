@@ -16,8 +16,9 @@ broadcast MCMsiNmUpdatesBroadcast {
 message MCSearchResult {
     1: list<MCMessage> messages;
     2: timestamp searchTime;
-    3: boolean unchanged;
-    4: text error;
+    3: timestamp lastUpdate;
+    4: boolean unchanged;
+    5: text error;
 }
 
 /**

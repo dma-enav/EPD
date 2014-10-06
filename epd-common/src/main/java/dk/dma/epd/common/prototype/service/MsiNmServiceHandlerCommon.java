@@ -66,8 +66,9 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
     private List<MsiNmNotification> msiNmMessages = new ArrayList<>();
     private Set<Integer> deletedMsiNmIds = new HashSet<>();
     private MaritimeId msiNmServiceId;
-    private Position currentShipPosition;
+    private Timestamp msiNmLastUpdate;
 
+    private Position currentShipPosition;
     private Position newRouteMousePosition;
     private Route newRoute;
     private Projection newRouteProjection;
@@ -203,19 +204,14 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
             MCMsiNmService msiNmService = getSelectedMsiNmService();
             if (msiNmService != null) {
 
-                // Compute the last update time
-                Timestamp lastUpdate = null;
-                for (MsiNmNotification msg : msiNmMessages) {
-                    if (lastUpdate == null || msg.get().getUpdated().getTime() > lastUpdate.getTime()) {
-                        lastUpdate = msg.get().getUpdated();
-                    }
-                }
-
                 // Fetch the list of active messages - throws an exception after CLOUD_TIMEOUT seconds
                 MCSearchResult result = msiNmService
-                        .activeMessagesIfUpdates("en", lastUpdate)
+                        .activeMessagesIfUpdates("en", msiNmLastUpdate)
                         .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS)
                         .join();
+
+                // Record the last updated time, i.e. the last updated time of published, cancelled and expired messages
+                msiNmLastUpdate = result.getLastUpdate();
 
                 if (StringUtils.isNotBlank(result.getError())) {
                     LOG.error("Error fetching active MSI-NM messages: " + result.getError());
@@ -320,6 +316,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
      * Reloads the list of MSI-NM messages and resets the MSI-NM Store
      */
     public synchronized void reloadMsiNmMessages() {
+        msiNmLastUpdate = null;
         msiNmMessages = new ArrayList<>();
         deletedMsiNmIds = new HashSet<>();
         msiNmStore.setMsiNmMessages(msiNmMessages);
