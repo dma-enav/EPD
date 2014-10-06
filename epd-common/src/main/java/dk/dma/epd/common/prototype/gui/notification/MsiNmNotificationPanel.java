@@ -20,6 +20,7 @@ import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.NameUtils;
+import dma.msinm.MCAttachment;
 import dma.msinm.MCLocation;
 import dma.msinm.MCMessage;
 import dma.msinm.MCMessageDesc;
@@ -47,11 +48,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -415,6 +413,18 @@ class MsiNmDetailPanel extends NotificationDetailPanel<MsiNmNotification> implem
             append(html, "Note", desc.getNote());
             append(html, "Publication", desc.getPublication());
             append(html, "Source", desc.getSource());
+        }
+
+        if (message.getAttachments().size() > 0) {
+            StringBuilder attachments = new StringBuilder();
+            for (MCAttachment att : message.getAttachments()) {
+                attachments.append("<div style='text-align: center; margin-bottom: 10px;'>");
+                attachments.append(String.format("<div style='display: inline-block; vertical-align: middle;'><a href='%s'><img src='%s?size=32' border='0'></a></div>",
+                        att.getPath(), att.getThumbnail()));
+                attachments.append(String.format("<div><a href='%s'>%s</a></div>", att.getPath(), att.getName()));
+                attachments.append("</div>");
+            }
+            append(html, "Attachments", attachments.toString());
         }
 
         html.append("</table>");

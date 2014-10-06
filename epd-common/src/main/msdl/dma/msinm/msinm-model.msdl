@@ -185,6 +185,21 @@ message MCReference {
 }
 
 //**************************
+//** Attachment
+//**************************
+
+/**
+ * Defines an attachment
+ */
+message MCAttachment {
+
+    1: text name;
+    2: text path;
+    3: text thumbnail;
+}
+
+
+//**************************
 //** Message
 //**************************
 
@@ -223,5 +238,5 @@ message MCMessage {
     16: list<text> lightsListNumbers;
     17: boolean originalInformation;
     18: list<MCMessageDesc> descs;
-
+    19: list<MCAttachment> attachments;
 }
