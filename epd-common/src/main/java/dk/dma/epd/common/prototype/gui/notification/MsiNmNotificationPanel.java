@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -82,8 +83,14 @@ public class MsiNmNotificationPanel extends NotificationPanel<MsiNmNotification>
         // Create the MSI-NM service selector
         JPanel msinmServicePanel = new JPanel();
         listPanel.add(msinmServicePanel, BorderLayout.NORTH);
-        msinmServicePanel.add(new JLabel("MSI-NM Provider"));
+        msinmServicePanel.add(new JLabel("Provider"));
         msinmServicePanel.add(msiNmServiceComboBox);
+        JButton reloadBtn = new JButton("Reload");
+        reloadBtn.addActionListener(new ActionListener() {
+            @Override public void actionPerformed(ActionEvent e) {
+                EPD.getInstance().getMsiNmHandler().reloadMsiNmMessages();
+            }});
+        msinmServicePanel.add(reloadBtn);
 
         refreshMsiNmServices();
         msiNmServiceComboBox.addActionListener(this);

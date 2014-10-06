@@ -317,6 +317,17 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
     }
 
     /**
+     * Reloads the list of MSI-NM messages and resets the MSI-NM Store
+     */
+    public synchronized void reloadMsiNmMessages() {
+        msiNmMessages = new ArrayList<>();
+        deletedMsiNmIds = new HashSet<>();
+        msiNmStore.setMsiNmMessages(msiNmMessages);
+        msiNmStore.setDeletedMsiNmIds(deletedMsiNmIds);
+        fetchPublishedMsiNmMessages();
+    }
+
+    /**
      * Will re-compute the filtered set of messages and notify listeners
      */
     public void doUpdate() {
