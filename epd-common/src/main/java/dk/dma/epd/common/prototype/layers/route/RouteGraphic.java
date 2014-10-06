@@ -65,8 +65,8 @@ public class RouteGraphic extends OMGraphicList {
     public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color, Color broadLineColor,
             boolean circleDash, boolean lineDash) {
         super();
-        this.lineDash = lineDash;
         this.route = route;
+        this.lineDash = lineDash;
         this.routeIndex = routeIndex;
         this.arrowsVisible = arrowsVisible;
         this.routeStroke = stroke;
