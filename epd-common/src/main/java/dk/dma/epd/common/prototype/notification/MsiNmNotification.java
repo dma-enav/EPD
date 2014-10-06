@@ -22,16 +22,19 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.util.Calculator;
+import dk.dma.epd.common.util.TimeUtils;
 import dma.msinm.MCArea;
 import dma.msinm.MCLocation;
 import dma.msinm.MCLocationType;
 import dma.msinm.MCMessage;
 import dma.msinm.MCPoint;
+import dma.msinm.MCSeriesIdType;
 import dma.msinm.MCSeriesIdentifier;
 import org.apache.commons.lang.StringUtils;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -74,12 +77,22 @@ public class MsiNmNotification extends Notification<MCMessage, Integer> {
     }
 
     /**
+     * Returns if the message is valid at the given date and time
+     * @param date the date
+     * @return if the message is valid at the given date and time
+     */
+    public boolean isValidAt(Date date) {
+        return date != null && get().getValidFrom() != null && get().getValidFrom().getTime() <= date.getTime();
+    }
+
+    /**
      * Returns if the message is valid at the given date
      * @param date the date
      * @return if the message is valid at the given date
      */
-    public boolean isValidAt(Date date) {
-        return date != null && get().getValidFrom() != null && get().getValidFrom().getTime() < date.getTime();
+    public boolean isValidAtDate(Date date) {
+        return date != null && get().getValidFrom() != null &&
+                TimeUtils.resetTime(new Date(get().getValidFrom().getTime())).getTime() <= TimeUtils.resetTime(date).getTime();
     }
 
     /**
@@ -101,6 +114,21 @@ public class MsiNmNotification extends Notification<MCMessage, Integer> {
         return String.format("%s-%s", id.getMainType(), shortId);
     }
 
+    /**
+     * Returns if this message is an MSI
+     * @return if this message is an MSI
+     */
+    public boolean isMsi() {
+        return get().getSeriesIdentifier().getMainType() == MCSeriesIdType.MSI;
+    }
+
+    /**
+     * Returns if this message is an NM
+     * @return if this message is an NM
+     */
+    public boolean isNm() {
+        return !isMsi();
+    }
 
     /**
      * Returns the message area lineage from parent-most area and down.

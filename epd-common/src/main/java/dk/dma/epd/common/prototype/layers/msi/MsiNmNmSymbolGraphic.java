@@ -14,41 +14,58 @@
  */
 package dk.dma.epd.common.prototype.layers.msi;
 
-import javax.swing.ImageIcon;
-
+import com.bbn.openmap.omGraphics.OMGraphicList;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.CenterRaster;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.notification.MsiNmNotification;
+
+import javax.swing.ImageIcon;
 
 /**
  * Graphic for MSI-NM symbol
  */
-public class MsiNmNmSymbolGraphic extends MsiNmSymbolPosition {
+public class MsiNmNmSymbolGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
-    
+
+    protected MsiNmNotification message;
+
+    /**
+     * Constructor
+     * @param message the MSI-NM message
+     */
     public MsiNmNmSymbolGraphic(MsiNmNotification message) {
-        super(message);
+        this.message = message;
+        createSymbol();
         setVague(true);
     }
-    
 
-    @Override
-    public void createSymbol(Position pos) {
-        CenterRaster msiSymbol;
-        ImageIcon msiSymbolImage;
-        int imageWidth;
-        int imageHeight;
+    /**
+     * Returns the message
+     * @return the message
+     */
+    public MsiNmNotification getMsiNmMessage() {
+        return message;
+    }
 
-        if(acknowledged) {
-            msiSymbolImage = new ImageIcon(getClass().getResource("/images/msi/msi_symbol_32.png"));
-            imageWidth = msiSymbolImage.getIconWidth();
-            imageHeight = msiSymbolImage.getIconHeight();
+    /**
+     * Creates the symbol to use for the MSI message
+     */
+    public void createSymbol() {
+        ImageIcon icon;
+
+        if (message.isAcknowledged()) {
+            icon = (message.isMsi())
+                    ?  EPD.res().getCachedImageIcon("/images/msi/msi_symbol_32.png")
+                    :  EPD.res().getCachedImageIcon("/images/msi/nm_symbol_32.png");
         } else {
-            msiSymbolImage = new ImageIcon(getClass().getResource("/images/msi/msi_unack_symbol_32.png"));
-            imageWidth = msiSymbolImage.getIconWidth();
-            imageHeight = msiSymbolImage.getIconHeight();
+            icon = (message.isMsi())
+                    ?  EPD.res().getCachedImageIcon("/images/msi/msi_unack_symbol_32.png")
+                    :  EPD.res().getCachedImageIcon("/images/msi/nm_unack_symbol_32.png");
         }
-        msiSymbol = new CenterRaster(pos.getLatitude(), pos.getLongitude(), imageWidth, imageHeight, msiSymbolImage);
+
+        Position pos = message.getLocation();
+        CenterRaster msiSymbol = new CenterRaster(pos.getLatitude(), pos.getLongitude(), icon.getIconWidth(), icon.getIconHeight(), icon);
         add(msiSymbol);
     }
     

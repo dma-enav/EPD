@@ -66,9 +66,9 @@ public abstract class MsiNmLayerCommon extends EPDLayerCommon  implements IMsiNm
             if (message.getLocation() == null) {
                 continue;
             }
-            
+
             // Is it valid now
-            if (!message.isValidAt(now)) {
+            if (!message.isValidAtDate(now)) {
                 continue;
             }
             

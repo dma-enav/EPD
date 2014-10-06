@@ -23,6 +23,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.graphics.CenterRaster;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.notification.MsiNmNotification;
 import dk.dma.epd.common.util.Calculator;
 
@@ -39,8 +40,11 @@ import java.awt.geom.Point2D;
 public class MsiNmDirectionalIcon extends OMGraphicList implements ProjectionListener {
     private static final long serialVersionUID = -6808339529053676255L;
     private static final int IMAGE_SIZE = 42;
-    private static final ImageIcon DIRECTION_IMAGE = new ImageIcon(MsiNmDirectionalIcon.class.getResource("/images/msi/msi_direction_arrow_transparent_42.png"));
-    private static final ImageIcon MARKER_IMAGE = new ImageIcon(MsiNmDirectionalIcon.class.getResource("/images/msi/msi_direction_transparent_42.png"));
+
+    private static final ImageIcon DIRECTION_IMAGE = EPD.res().getCachedImageIcon("/images/msi/msi_direction_arrow_transparent_42.png");
+    private static final ImageIcon MSI_MARKER_IMAGE = EPD.res().getCachedImageIcon("/images/msi/msi_direction_transparent_42.png");
+    private static final ImageIcon NM_MARKER_IMAGE = EPD.res().getCachedImageIcon("/images/msi/nm_direction_transparent_42.png");
+
     private Point2D intersection;
     private MapBean mapBean;
     private MsiNmNotification message;
@@ -97,7 +101,8 @@ public class MsiNmDirectionalIcon extends OMGraphicList implements ProjectionLis
         CenterRaster directionRaster = new CenterRaster(x, y, DIRECTION_IMAGE);
         directionRaster.setRotationAngle(Math.toRadians(bearing));
 
-        CenterRaster markerRaster = new CenterRaster(x, y, MARKER_IMAGE);
+        ImageIcon icon = message.isMsi() ? MSI_MARKER_IMAGE : NM_MARKER_IMAGE;
+        CenterRaster markerRaster = new CenterRaster(x, y, icon);
         
         add(markerRaster);
         add(directionRaster);
