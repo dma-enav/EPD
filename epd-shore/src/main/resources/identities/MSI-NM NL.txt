@@ -1,4 +1,4 @@
-name=Dutch MSI-NM Service
+name=MSI-NM Service Netherlands
 role=VTS
 affiliation=Dutch Maritime Authority
 maritimeID=999000304

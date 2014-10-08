@@ -1,4 +1,4 @@
-name=Swedish MSI-NM Service
+name=MSI-NM Service Sweden
 role=VTS
 affiliation=Swedish Maritime Authority
 maritimeID=999000306

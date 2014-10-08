@@ -1,4 +1,4 @@
-name=Korean MSI-NM Service
+name=MSI-NM Service Korea
 role=VTS
 affiliation=Korean Maritime Authority
 maritimeID=999000303

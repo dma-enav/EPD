@@ -1,4 +1,4 @@
-name=Norwegian MSI-NM Service
+name=MSI-NM Service Norway
 role=VTS
 affiliation=Norwegian Maritime Authority
 maritimeID=999000305

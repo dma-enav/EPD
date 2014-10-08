@@ -1,4 +1,4 @@
-name=UK MSI-NM Service
+name=MSI-NM Service UK
 role=VTS
 affiliation=UK Maritime Authority
 maritimeID=999000307

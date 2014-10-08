@@ -1,4 +1,4 @@
-name=German MSI-NM Service
+name=MSI-NM Service Germany
 role=VTS
 affiliation=German Maritime Authority
 maritimeID=999000302

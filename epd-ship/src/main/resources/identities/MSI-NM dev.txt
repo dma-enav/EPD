@@ -1,4 +1,4 @@
-name=Dev. MSI-NM Service
+name=MSI-NM Service Dev.
 role=VTS
 affiliation=Danish Maritime Authority
 maritimeID=999000300
