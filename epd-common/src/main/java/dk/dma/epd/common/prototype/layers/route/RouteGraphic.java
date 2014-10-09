@@ -109,12 +109,12 @@ public class RouteGraphic extends OMGraphicList {
                 RouteLegGraphic routeLegGraphic = null;
 
                 if (lineDash) {
-                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, broadLineColor, SCALE);
+                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, broadLineColor, SCALE, this);
                 } else {
                     float[] dash = { 1000000.0f };
 
                     routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, broadLineColor, dash,
-                            SCALE);
+                            SCALE, this);
                 }
 
                 add(routeLegGraphic);

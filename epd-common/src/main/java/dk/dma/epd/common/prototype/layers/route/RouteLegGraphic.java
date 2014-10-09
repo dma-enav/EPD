@@ -102,7 +102,7 @@ public class RouteLegGraphic extends OMGraphicList {
      */
     public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
             Stroke stroke, Color broadLineColor, float[] broadLineDash,
-            float scale) {
+            float scale, RouteGraphic routeGraphic) {
         super();
         this.routeIndex = routeIndex;
         this.scale = scale;
@@ -113,18 +113,22 @@ public class RouteLegGraphic extends OMGraphicList {
         dash = new float[] { scale * 35.0f, scale * 35.0f };
         arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55,
                 (int) (scale * 5.0), (int) (scale * 15.0));
+        
+        this.routeGraphic = routeGraphic;
+        
         initGraphics();
         addBroadLine(broadLineColor, broadLineDash);
     }
 
     public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
-            Stroke stroke, Color broadLineColor, float scale) {
+            Stroke stroke, Color broadLineColor, float scale, RouteGraphic routeGraphic) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
         this.scale = scale;
         this.color = color;
         this.stroke = stroke;
+        this.routeGraphic = routeGraphic;
         dash = new float[] { scale * 35.0f, scale * 35.0f };
         arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55,
                 (int) (scale * 5.0), (int) (scale * 15.0));
