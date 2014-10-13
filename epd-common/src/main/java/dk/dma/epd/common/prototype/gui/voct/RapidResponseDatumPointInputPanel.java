@@ -360,7 +360,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
 
         }
 
-//        initSetValues();
+        initSetValues();
 
     }
 

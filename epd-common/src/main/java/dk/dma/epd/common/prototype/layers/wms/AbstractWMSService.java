@@ -163,6 +163,7 @@ public abstract class AbstractWMSService extends Observable {
         // } else {
         queryString = wmsQuery + "&BBOX=" + getBbox() + "&WIDTH=" + width + "&HEIGHT=" + height;
         // }
+//        LOG.info(queryString);
 
         return queryString;
     }

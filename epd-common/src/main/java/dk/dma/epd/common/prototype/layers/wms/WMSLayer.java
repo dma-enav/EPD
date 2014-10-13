@@ -42,7 +42,8 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(WMSLayer.class);
     
-    private static final int PROJ_SCALE_THRESHOLD = 3428460;
+//    private static final int PROJ_SCALE_THRESHOLD = 3428460;
+    private static final int PROJ_SCALE_THRESHOLD = 5125355;
     
     volatile boolean shouldRun = true;
     private StreamingTiledWmsService wmsService;
@@ -57,7 +58,7 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
      * @param query the WMS query
      */
     public WMSLayer(String query) {
-        LOG.debug("WMS Layer inititated");
+        LOG.info("WMS Layer inititated");
         wmsService = new StreamingTiledWmsService(query, 4);
         wmsService.addWMSEventListener(this);
         new Thread(this).start();
@@ -114,8 +115,10 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
             width = proj.getWidth();
             height = proj.getHeight();
             if (width > 0 && height > 0 && proj.getScale() <= PROJ_SCALE_THRESHOLD) {
+                this.setVisible(true);
                 wmsService.queue(proj);
             } else {
+
                 this.setVisible(false);
             }
         }
