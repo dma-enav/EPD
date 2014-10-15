@@ -50,14 +50,13 @@ import dk.frv.enav.common.xml.msi.response.MsiResponse;
  * Component for handling MSI messages
  */
 @ThreadSafe
-public class MsiHandler extends MapHandlerChild implements Runnable,
-        IRoutesUpdateListener, IPntDataListener {
+public class MsiHandler extends MapHandlerChild implements Runnable, IRoutesUpdateListener, IPntDataListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(MsiHandler.class);
 
     private ShoreServicesCommon shoreServices;
     private RouteManagerCommon routeManager;
-    
+
     private MsiLayerCommon msiLayer;
 
     private MsiStore msiStore;
@@ -132,16 +131,15 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
             boolean acknowledged = msiStore.getAcknowledged().contains(msgId);
             boolean visible = msiStore.getVisible().contains(msgId);
             boolean relevant = msiStore.getRelevant().contains(msgId);
-            MsiMessageExtended msiMessageExtended = new MsiMessageExtended(
-                    msiMessage, acknowledged, visible, relevant);
+            MsiMessageExtended msiMessageExtended = new MsiMessageExtended(msiMessage, acknowledged, visible, relevant);
             if (visible) {
                 list.add(msiMessageExtended);
             }
         }
-        
+
         return list;
     }
-    
+
     /**
      * Get the list of MSI messages
      *
@@ -154,8 +152,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
             boolean acknowledged = msiStore.getAcknowledged().contains(msgId);
             boolean visible = msiStore.getVisible().contains(msgId);
             boolean relevant = msiStore.getRelevant().contains(msgId);
-            MsiMessageExtended msiMessageExtended = new MsiMessageExtended(
-                    msiMessage, acknowledged, visible, relevant);
+            MsiMessageExtended msiMessageExtended = new MsiMessageExtended(msiMessage, acknowledged, visible, relevant);
             list.add(msiMessageExtended);
         }
         return list;
@@ -192,13 +189,14 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
 
     /**
      * Set a msi message as acknowleged
+     * 
      * @param msiMessage
      */
     public void setAcknowledged(MsiMessage msiMessage) {
-        synchronized(this) {
+        synchronized (this) {
             msiStore.getAcknowledged().add(msiMessage.getMessageId());
             saveToFile();
-            reCalcMsiStatus();            
+            reCalcMsiStatus();
         }
         notifyUpdate();
     }
@@ -211,17 +209,18 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
      */
     public synchronized boolean isAcknowledged(int msgId) {
         return msiStore.getAcknowledged().contains(msgId);
-    }    
+    }
+
     /**
      * Delete a message from the msi
      *
      * @param msiMessage
      */
     public void deleteMessage(MsiMessage msiMessage) {
-        synchronized(this) {
+        synchronized (this) {
             msiStore.deleteMessage(msiMessage);
             saveToFile();
-            reCalcMsiStatus();            
+            reCalcMsiStatus();
         }
         notifyUpdate();
     }
@@ -241,8 +240,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         boolean msiUpdated = false;
 
         Date now = new Date();
-        if (getLastUpdate() == null
-                || now.getTime() - getLastUpdate().getTime() > pollInterval * 1000) {
+        if (getLastUpdate() == null || now.getTime() - getLastUpdate().getTime() > pollInterval * 1000) {
             // Poll for new messages from shore
             try {
                 if (poll()) {
@@ -276,15 +274,15 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         }
     }
 
-    /** 
+    /**
      * Pushes msi updates to all listeners.
      */
     public void notifyUpdate() {
         // Update layer
         if (msiLayer != null) {
-            //doUpdate() will ask msiHandler 
-            //getMessageList() which is currently guarded by a lock
-            msiLayer.doUpdate(); 
+            // doUpdate() will ask msiHandler
+            // getMessageList() which is currently guarded by a lock
+            msiLayer.doUpdate();
         }
         // Notify of MSI change, MUST NOT lock.
         for (IMsiUpdateListener listener : listeners) {
@@ -312,10 +310,10 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
 
     /**
      * Recalculate if a msi is visible
+     * 
      * @return
      */
     private synchronized boolean reCalcMsiVisibility() {
-        
         boolean updated = false;
 
         if (pntUpdate) {
@@ -334,16 +332,12 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         if (shoreServices == null) {
             return false;
         }
-        MsiResponse msiResponse = shoreServices.msiPoll(msiStore
-                .getLastMessage());
-        if (msiResponse == null || msiResponse.getMessages() == null
-                || msiResponse.getMessages().size() == 0) {
+        MsiResponse msiResponse = shoreServices.msiPoll(msiStore.getLastMessage());
+        if (msiResponse == null || msiResponse.getMessages() == null || msiResponse.getMessages().size() == 0) {
             return false;
         }
-        LOG.info("Received " + msiResponse.getMessages().size()
-                + " new MSI messages");
-        msiStore.update(msiResponse.getMessages(), calculationPosition,
-                routeManager.getRoutes());
+        LOG.info("Received " + msiResponse.getMessages().size() + " new MSI messages");
+        msiStore.update(msiResponse.getMessages(), calculationPosition, routeManager.getRoutes());
         return true;
     }
 
@@ -353,6 +347,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
 
     /**
      * Set last msi update
+     * 
      * @param lastUpdate
      */
     private synchronized void setLastUpdate(Date lastUpdate) {
@@ -388,7 +383,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         if (e == RoutesUpdateEvent.ROUTE_ACTIVATED) {
-            //these two are commented out in the original non-common implementation
+            // these two are commented out in the original non-common implementation
             msiStore.setRelevance(routeManager.getActiveRoute());
             notifyUpdate();
         }
@@ -396,9 +391,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
             msiStore.clearRelevance();
             notifyUpdate();
         }
-        if (e == RoutesUpdateEvent.ROUTE_MSI_UPDATE
-                || e == RoutesUpdateEvent.ROUTE_ADDED
-                || e == RoutesUpdateEvent.ROUTE_REMOVED
+        if (e == RoutesUpdateEvent.ROUTE_MSI_UPDATE || e == RoutesUpdateEvent.ROUTE_ADDED || e == RoutesUpdateEvent.ROUTE_REMOVED
                 || e == RoutesUpdateEvent.ROUTE_CHANGED) {
             updateMsi();
         }
@@ -406,11 +399,9 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
             notifyUpdate();
         }
     }
-    
 
     /**
-     * Only set a new calculation position if it is a certain range away from
-     * previous point
+     * Only set a new calculation position if it is a certain range away from previous point
      */
     @Override
     public void pntDataUpdate(PntData pntData) {
@@ -421,8 +412,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
             pntUpdate = true;
             return;
         }
-        Double range = Calculator.range(currentPosition, calculationPosition,
-                Heading.GC);
+        Double range = Calculator.range(currentPosition, calculationPosition, Heading.GC);
         if (range > enavSettings.getMsiRelevanceGpsUpdateRange()) {
             pntUpdate = true;
             calculationPosition = currentPosition;
@@ -456,6 +446,5 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
             pntHandler = null;
         }
     }
-
 
 }

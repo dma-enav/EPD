@@ -43,6 +43,7 @@ import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteCPALayer;
 import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
 import dk.dma.epd.common.prototype.layers.predictor.DynamicPredictorLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.layers.tiles.TileLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
@@ -127,12 +128,26 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
      */
     public void initChart() {
 
-        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
-        Properties props = EPDShip.getInstance().getProperties();
+
+//        TileLayer mapTileLayer = new TileLayer();
+//        mapTileLayer.setVisible(true);
+//        mapHandler.add(mapTileLayer);
+
 
         // Try to create ENC layer
         EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip.getInstance().getSettings().getMapSettings());
         encLayer = encLayerFactory.getEncLayer();
+
+        
+        // Add ENC layer
+        if (encLayer != null) {
+            mapHandler.add(encLayer);
+        }
+
+
+
+        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
+        Properties props = EPDShip.getInstance().getProperties();
 
         // Add WMS Layer
         if (mapSettings.isUseWms()) {
@@ -273,11 +288,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
 
         mapHandler.add(bgLayer);
 
-        // Add ENC layer
-        if (encLayer != null) {
-            mapHandler.add(encLayer);
-        }
-
+        
         // Add map to map handler
         mapHandler.add(map);
 

@@ -38,6 +38,7 @@ import dk.dma.epd.shore.gui.views.menuitems.RequestFALFromShip;
 import dk.dma.epd.shore.gui.views.menuitems.RouteEditEndRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
+import dk.dma.epd.shore.gui.views.menuitems.TakeScreenshot;
 import dk.dma.epd.shore.gui.views.menuitems.ToggleAisTargetNames;
 import dk.dma.epd.shore.gui.views.menuitems.ToggleShowStatusArea;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageDeleteMenuItem;
@@ -102,6 +103,8 @@ public class MapMenu extends MapMenuCommon {
     private ToggleShowStatusArea toggleShowStatusArea;
 
     private NogoRequest nogoRequest;
+
+    private TakeScreenshot takeScreenshot;
 
     public MapMenu() {
         super();
@@ -181,6 +184,9 @@ public class MapMenu extends MapMenuCommon {
 
         nogoRequest = new NogoRequest("Request NoGo");
         nogoRequest.addActionListener(this);
+
+        takeScreenshot = new TakeScreenshot("Take screenshot");
+        takeScreenshot.addActionListener(this);
     }
 
     /**
@@ -236,6 +242,9 @@ public class MapMenu extends MapMenuCommon {
                 add(nogoTogglingWindow);
             }
             add(toggleShowStatusArea);
+
+            takeScreenshot.setJmapframe(jMapFrame);
+            add(takeScreenshot);
 
             return;
         }

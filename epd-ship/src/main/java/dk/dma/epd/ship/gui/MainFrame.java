@@ -141,6 +141,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
             setLocation(guiSettings.getAppLocation());
             setSize(guiSettings.getAppDimensions());
         }
+        setSize(1000000, 1000000);
 
         // Create panels
         Container pane = getContentPane();
