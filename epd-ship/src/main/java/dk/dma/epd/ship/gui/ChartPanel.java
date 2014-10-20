@@ -129,10 +129,6 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     public void initChart() {
 
 
-//        TileLayer mapTileLayer = new TileLayer();
-//        mapTileLayer.setVisible(true);
-//        mapHandler.add(mapTileLayer);
-
 
         // Try to create ENC layer
         EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip.getInstance().getSettings().getMapSettings());
@@ -141,6 +137,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         
         // Add ENC layer
         if (encLayer != null) {
+            encLayer.setVisible(true);
             mapHandler.add(encLayer);
         }
 
@@ -282,11 +279,17 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         // Create background layer
         String layerName = "background";
         bgLayer = new CoastalOutlineLayer();
-        bgLayer.setProperties(layerName, props);
-        bgLayer.setAddAsBackground(true);
-        bgLayer.setVisible(true);
+//        bgLayer.setProperties(layerName, props);
+//        bgLayer.setAddAsBackground(true);
+//        bgLayer.setVisible(true);
 
-        mapHandler.add(bgLayer);
+//        mapHandler.add(bgLayer);
+        
+        TileLayer mapTileLayer = new TileLayer();
+        mapTileLayer.setVisible(true);
+        mapTileLayer.setAddAsBackground(true);
+        mapHandler.add(mapTileLayer);
+
 
         
         // Add map to map handler

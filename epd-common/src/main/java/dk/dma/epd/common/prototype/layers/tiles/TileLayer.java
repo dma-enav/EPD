@@ -33,7 +33,7 @@ public class TileLayer extends MapTileLayer {
         tileProperties.setProperty("attribution", "Map provided MapQuest");
         this.setProperties(tileProperties);
 
-        // this.setZoomLevel(15);
+//         this.setZoomLevel(10);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class TileLayer extends MapTileLayer {
         if (tileFactory != null) {
             OMGraphicList newList = new OMGraphicList();
             setList(newList);
-            
+
             System.out.println("Zoom level stuff is " + zoomLevel);
             return tileFactory.getTiles(projection, zoomLevel, newList);
         }
