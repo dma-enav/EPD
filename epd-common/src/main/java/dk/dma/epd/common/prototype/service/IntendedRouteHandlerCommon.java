@@ -95,7 +95,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
     private AisHandlerCommon aisHandler;
 
-    // private boolean intendedRouteIsVisible = true;
+    private boolean intendedRoutesIsVisibleGlobal;
 
     /**
      * Constructor
@@ -161,10 +161,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         IntendedRoute intendedRoute = new IntendedRoute(r.getRoute());
         intendedRoute.setMmsi(mmsi);
 
-        IntendedRoute oldIntendedRoute = intendedRoutes.get(mmsi);
-        if (oldIntendedRoute != null) {
-            intendedRoute.setVisible(oldIntendedRoute.isVisible());
-        }
+        // IntendedRoute oldIntendedRoute = intendedRoutes.get(mmsi);
+        // if (oldIntendedRoute != null) {
+        // intendedRoute.setVisible(oldIntendedRoute.isVisible());
+        // }
 
         // Check if this is a real intended route or one that signals a removal
         if (!intendedRoute.hasRoute()) {
@@ -190,13 +190,20 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 // Try to find exiting target
                 VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
                 if (vesselTarget != null) {
+                    intendedRoute.setVisible(vesselTarget.isShowIntendedRoute());
                     intendedRoute.update(vesselTarget.getPositionData());
+                    // System.out.println("Intended route vessel visisble" + vesselTarget.isShowIntendedRoute());
+                }else{
+                    intendedRoute.setVisible(intendedRoutesIsVisibleGlobal);
                 }
+            } else {
+                // Apply the global visiblity
+                intendedRoute.setVisible(intendedRoutesIsVisibleGlobal);
             }
 
-        }
+            // System.out.println("New route recieved, visible : " + intendedRoute.isVisible());
 
-        // intendedRoute.setVisible(intendedRouteIsVisible);
+        }
 
         // Fire event
         fireIntendedEvent(intendedRoute);
@@ -235,23 +242,38 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * Hide all intended routes
      */
     public void hideAllIntendedRoutes() {
+
+        intendedRoutesIsVisibleGlobal = false;
+
+        for (Object o : aisHandler.getVesselTargets().values()) {
+
+            ((VesselTarget) o).setShowIntendedRoute(false);
+        }
+
         for (IntendedRoute intendedRoute : intendedRoutes.values()) {
             intendedRoute.setVisible(false);
             fireIntendedEvent(intendedRoute);
-
         }
-        // intendedRouteIsVisible = false;
+
     }
 
     /**
      * Show all intended routes
      */
     public void showAllIntendedRoutes() {
+
+//        System.out.println("Show all intended routes toggled");
+
+        intendedRoutesIsVisibleGlobal = true;
+
+        for (Object o : aisHandler.getVesselTargets().values()) {
+            ((VesselTarget) o).setShowIntendedRoute(true);
+        }
+
         for (IntendedRoute intendedRoute : intendedRoutes.values()) {
             intendedRoute.setVisible(true);
             fireIntendedEvent(intendedRoute);
         }
-        // intendedRouteIsVisible = true;
     }
 
     /****************************************/
@@ -887,4 +909,12 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
          */
 
     }
+
+    /**
+     * @return the intendedRoutesIsVisibleGlobal
+     */
+    public boolean isIntendedRoutesIsVisibleGlobal() {
+        return intendedRoutesIsVisibleGlobal;
+    }
+
 }

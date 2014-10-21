@@ -315,6 +315,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected void addIntendedRouteToggle(IntendedRoute intendedRoute) {
         if (intendedRoute != null) {
             intendedRouteToggle.setIntendedRouteHandler(intendedRouteHandler);
+            intendedRouteToggle.setAisHandler(aisHandler);
             intendedRouteToggle.setIntendedRoute(intendedRoute);
     
             intendedRouteToggle.setEnabled(intendedRoute.hasRoute());
