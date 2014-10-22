@@ -376,7 +376,7 @@ public class VOCTManager extends VOCTManagerCommon {
     @Override
     public void showSARFuture(int i) {
 
-        if (this.sarOperation.getOperationType() != SAR_TYPE.SARIS_DATUM_POINT) {
+        if (this.sarOperation.getOperationType() != SAR_TYPE.SARIS_DATUM_POINT && this.sarOperation.getOperationType() != SAR_TYPE.DATUM_LINE) {
 
             if (i == 0) {
                 voctLayer.showFutureData(sarData);
