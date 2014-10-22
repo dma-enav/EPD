@@ -21,6 +21,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
@@ -141,8 +142,12 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
         }
 
-        if (sarData instanceof DatumPointData) {
-            DatumPointData datumData = (DatumPointData) data;
+        if (sarData instanceof DatumPointData || sarData instanceof DatumLineData) {
+            
+            DatumLineData datumLineDat = (DatumLineData) sarData;
+            
+            
+            DatumPointData datumData = datumLineDat.getDatumPointDataSets().get(0);
             verticalBearing = Calculator.bearing(datumData.getA(), datumData.getD(), Heading.RL);
             horizontalBearing = Calculator.bearing(datumData.getA(), datumData.getB(), Heading.RL);
             centerPosition = datumData.getDatumDownWind();
