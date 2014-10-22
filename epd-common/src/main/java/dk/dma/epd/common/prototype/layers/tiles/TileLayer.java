@@ -29,7 +29,7 @@ public class TileLayer extends MapTileLayer {
 
         Properties tileProperties = new Properties();
         tileProperties.setProperty("noCoverageZoom", "15");
-        tileProperties.setProperty("rootDir", "E:/OSMTile Test/Denmark/Mapquest/");
+        tileProperties.setProperty("rootDir", "E:/Sjaelland/");
         tileProperties.setProperty("attribution", "Map provided MapQuest");
         this.setProperties(tileProperties);
 
