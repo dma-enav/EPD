@@ -63,6 +63,7 @@ import dk.dma.epd.ship.gui.component_panels.DockableComponentPanel;
 import dk.dma.epd.ship.gui.nogo.NogoDialog;
 import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
+import dk.dma.epd.ship.layers.TestLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
 import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
@@ -98,15 +99,13 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     private CommonRulerLayer rulerLayer;
     private DynamicPredictorLayer dynamicPredictorLayer;
     private IntendedRouteLayer intendedRouteLayer;
-    
+
     private TopPanel topPanel;
     private VOCTManager voctManager;
     private ActiveWaypointComponentPanel activeWaypointPanel;
     private NogoDialog nogoDialog;
     protected PntData pntData;
 
-    
-    
     /**
      * Constructor
      * 
@@ -252,7 +251,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
-        
+
         // Create Intended Route Layer
         intendedRouteLayer = new IntendedRouteLayer();
         intendedRouteLayer.setVisible(true);
@@ -319,6 +318,10 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         intendedRouteLayerVisible(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
 
         getMap().addMouseWheelListener(this);
+
+        TestLayer testLayer = new TestLayer();
+        mapHandler.add(testLayer);
+        
 
     }
 
