@@ -162,8 +162,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
                     // not be shown
                     if (useFilter && intendedRouteHandler.getFilteredIntendedRoutes().containsKey(intendedRoute.getMmsi())
                             || !useFilter) {
-                        
-                        System.out.println("Updating graphics");
+
                         // Update the graphics
                         intendedRouteGraphic.updateIntendedRoute(intendedRoute);
 

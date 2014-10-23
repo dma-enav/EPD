@@ -239,14 +239,6 @@ public class IntendedRouteGraphic extends OMGraphicList {
 
     private void updateGraphics() {
 
-        // // Clear the graphics
-        // clear();
-        // routeLegs = new ArrayList<>();
-        // routeWps = new ArrayList<>();
-
-        // Re-add planned position
-        // add(plannedPositionArea);
-
         int x = 0;
         int legsCreated = 0;
         for (RouteWaypoint wp : intendedRoute.getWaypoints()) {
@@ -267,8 +259,6 @@ public class IntendedRouteGraphic extends OMGraphicList {
                 wpCircle = routeWps.get(x);
                 wpCircle.setLatLon(wp.getPos().getLatitude(), wp.getPos().getLongitude());
             } else {
-
-                System.out.println("Making new normal wp");
 
                 wpCircle = makeWpCircle(x, wp.getPos());
                 routeWps.add(wpCircle);
