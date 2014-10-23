@@ -64,6 +64,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
 
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
     private List<WpCircle> routeWps = new ArrayList<>();
+    private ActiveIntendedRouteWpCircle activeWpCircle;
 
     // private PlannedPositionGraphic plannedPositionArea = new
     // PlannedPositionGraphic();
@@ -107,14 +108,13 @@ public class IntendedRouteGraphic extends OMGraphicList {
      * @param wp
      *            the way point position
      */
-    private ActiveIntendedRouteWpCircle makeWpCircleActiveWP(int index, Position wp) {
+    private void makeWpCircleActiveWP(int index, Position wp) {
 
-        ActiveIntendedRouteWpCircle activeWpCircle = new ActiveIntendedRouteWpCircle(this, index, wp.getLatitude(),
-                wp.getLongitude(), routeColor, SCALE);
+        activeWpCircle = new ActiveIntendedRouteWpCircle(this, index, wp.getLatitude(), wp.getLongitude(), routeColor, SCALE);
         // add(activeWpCircle);
         // routeWps.add(activeWpCircle);
 
-        return activeWpCircle;
+        graphics.add(activeWpCircle);
 
     }
 
@@ -248,78 +248,78 @@ public class IntendedRouteGraphic extends OMGraphicList {
         // add(plannedPositionArea);
 
         int x = 0;
+        int legsCreated = 0;
         for (RouteWaypoint wp : intendedRoute.getWaypoints()) {
 
             WpCircle wpCircle;
+            IntendedRouteLegGraphic wpLeg;
 
-            
-            System.out.println("Active wp is " + intendedRoute.getActiveWpIndex());
             if (x == intendedRoute.getActiveWpIndex()) {
 
-                if (routeWps.size() > x && routeWps.get(0) != null) {
-                    
-                    wpCircle = routeWps.get(x);
-                    wpCircle.setPosition(wp.getPos());
-                    
-                    wpCircle.setLatLon(wp.getPos().getLatitude(), wp.getPos().getLongitude());
-                    graphics.add(wpCircle);
-//                    graphics.remove(routeWps.get(0));
-//                    routeWps.remove(0);
-//                    wpCircle = makeWpCircleActiveWP(x, wp.getPos());
-//                    routeWps.set(0, wpCircle);
-//                    routeWps.add(wpCircle);
-//                    graphics.add(wpCircle);  
-//                    graphics.set(0, wpCircle);
-                    
-//                    graphics.remove(0);
-                    
-                    System.out.println("Updating Active wp");
-//                    routeWps.get(0).setPosition(wp.getPos());
-
-//                    graphics.add(routeWps.get(0));
+                if (routeWps.size() > x && activeWpCircle != null) {
+                    activeWpCircle.setLatLon(wp.getPos().getLatitude(), wp.getPos().getLongitude());
                 } else {
-                    
-                    System.out.println("Making new Active WP");
-                    
-                    wpCircle = makeWpCircleActiveWP(x, wp.getPos());
-                    routeWps.add(wpCircle);
-                    graphics.add(wpCircle);
-                }
-
-            } else {
-                
-                if (routeWps.size() > x && routeWps.get(x) != null) {
-                    System.out.println("Updating normal wp");
-//                    routeWps.get(x).setPosition(wp.getPos());
-                    wpCircle = routeWps.get(x);
-                    //wpCircle.setPosition(wp.getPos());
-                    wpCircle.setLatLon(wp.getPos().getLatitude(), wp.getPos().getLongitude());
-                } else {
-                    
-                    System.out.println("Making new normal wp");
-                    
-                    wpCircle = makeWpCircle(x, wp.getPos());
-                    routeWps.add(wpCircle);
-                    graphics.add(wpCircle);
+                    makeWpCircleActiveWP(x, wp.getPos());
                 }
             }
 
-            // // Make way point circle
-            //
-            //
-            // // Make the leg
-            // RouteLeg leg = wp.getOutLeg();
-            // if (leg != null) {
-            // makeLegLine(x + 1, leg.getStartWp().getPos(), leg.getEndWp().getPos(), leg.getHeading());
-            // }
+            if (routeWps.size() > x && routeWps.get(x) != null) {
+                wpCircle = routeWps.get(x);
+                wpCircle.setLatLon(wp.getPos().getLatitude(), wp.getPos().getLongitude());
+            } else {
+
+                System.out.println("Making new normal wp");
+
+                wpCircle = makeWpCircle(x, wp.getPos());
+                routeWps.add(wpCircle);
+                graphics.add(wpCircle);
+            }
+
+            RouteLeg leg = wp.getOutLeg();
+            if (leg != null) {
+
+                legsCreated++;
+
+                if (routeLegs.size() > x && routeWps.get(x) != null) {
+
+                    wpLeg = routeLegs.get(x);
+
+                    Position startPos = leg.getStartWp().getPos();
+                    Position endPos = leg.getEndWp().getPos();
+
+                    double[] lls = { startPos.getLatitude(), startPos.getLongitude(), endPos.getLatitude(), endPos.getLongitude() };
+                    double[] currentlls = wpLeg.getLL();
+
+                    if (!(lls[0] == currentlls[0] && lls[1] == currentlls[1] && lls[2] == currentlls[2] && lls[3] == currentlls[3])) {
+                        wpLeg.setLL(lls);
+                    }
+                } else {
+                    // // Make the leg
+                    wpLeg = makeLegLine(x + 1, leg.getStartWp().getPos(), leg.getEndWp().getPos(), leg.getHeading());
+
+                    routeLegs.add(wpLeg);
+                    graphics.add(wpLeg);
+                }
+            }
 
             x++;
         }
 
-        
-//        this.setNeedToRegenerate(true);
-        this.setShape(null);
-        
+        // Remove excess legs and waypoints incase we are at the start/end of route
+        while (intendedRoute.getWaypoints().size() != routeWps.size()) {
+
+            WpCircle toBeRemoved = routeWps.get(routeWps.size() - 1);
+            graphics.remove(toBeRemoved);
+            routeWps.remove(routeWps.size() - 1);
+
+        }
+
+        while (legsCreated != routeLegs.size()) {
+            IntendedRouteLegGraphic toBeRemoved = routeLegs.get(routeLegs.size() - 1);
+            graphics.remove(toBeRemoved);
+            routeLegs.remove(routeLegs.size() - 1);
+        }
+
         // Adjust the transparency of the color depending on the last-received
         // time for the route
         long secondsSinceReceived = (PntTime.getDate().getTime() - intendedRoute.getReceived().getTime()) / 1000L;
@@ -344,37 +344,58 @@ public class IntendedRouteGraphic extends OMGraphicList {
         // Handle empty route
         if (intendedRoute == null || !intendedRoute.hasRoute()) {
 
+            System.out.println("No route, it has been deactivated?");
+
             // Clear the graphics
             clear();
             routeLegs = new ArrayList<>();
             routeWps = new ArrayList<>();
+            activeWpCircle = null;
+            activeWpLine = null;
             setVisible(false);
 
             return;
         }
 
-        // Remove wpLine
-        if (activeWpLine != null) {
-            remove(activeWpLine);
-        }
-
         // Update leg to first way point
         if (vesselPos != null) {
 
-            // Attempt to set the heading of this leg to that
-            // of the in-leg of the active way point
-            Heading heading = Heading.RL;
-            if (intendedRoute.getActiveWaypoint().getInLeg() != null) {
-                heading = intendedRoute.getActiveWaypoint().getInLeg().getHeading();
-            }
-            Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
-            activeWpLine = new IntendedRouteLegGraphic(0, this, true, vesselPos, activeWpPos, heading, routeColor, SCALE, true);
+            // its null, make it
+            if (activeWpLine == null) {
+                // Attempt to set the heading of this leg to that
+                // of the in-leg of the active way point
+                Heading heading = Heading.RL;
+                if (intendedRoute.getActiveWaypoint().getInLeg() != null) {
+                    heading = intendedRoute.getActiveWaypoint().getInLeg().getHeading();
+                }
+                Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
+                activeWpLine = new IntendedRouteLegGraphic(0, this, true, vesselPos, activeWpPos, heading, routeColor, SCALE, true);
 
-            add(activeWpLine);
+                add(activeWpLine);
+
+                // It already exists, but do we need to update it
+            } else {
+
+                // Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
+
+                double[] lls = { vesselPos.getLatitude(), vesselPos.getLongitude(),
+                        intendedRoute.getActiveWaypoint().getPos().getLatitude(),
+                        intendedRoute.getActiveWaypoint().getPos().getLongitude() };
+                double[] currentlls = activeWpLine.getLL();
+
+                if (!(lls[0] == currentlls[0] && lls[1] == currentlls[1] && lls[2] == currentlls[2] && lls[3] == currentlls[3])) {
+                    activeWpLine.setLL(lls);
+                }
+            }
+
+        } else {
+            // Remove wpLine
+            if (activeWpLine != null) {
+                remove(activeWpLine);
+                activeWpLine = null;
+            }
         }
 
-        
-        
         // Instead of clearing all graphics, update each waypoint and leg
 
         // Update legs (Remove old ones if less than new)

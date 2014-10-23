@@ -54,8 +54,4 @@ public class WpCircle extends OMCircle {
         return dist;
     }
 
-    public void setPosition(Position position) {
-        super.setCenter(new LatLonPoint.Double(position.getLatitude(), position.getLongitude()));
-    }
-
 }
