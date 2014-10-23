@@ -252,12 +252,16 @@ public class IntendedRouteGraphic extends OMGraphicList {
 
             WpCircle wpCircle;
 
-            if (x == 0) {
+            
+            System.out.println("Active wp is " + intendedRoute.getActiveWpIndex());
+            if (x == intendedRoute.getActiveWpIndex()) {
 
                 if (routeWps.size() > x && routeWps.get(0) != null) {
                     
                     wpCircle = routeWps.get(x);
                     wpCircle.setPosition(wp.getPos());
+                    
+                    wpCircle.setLatLon(wp.getPos().getLatitude(), wp.getPos().getLongitude());
                     graphics.add(wpCircle);
 //                    graphics.remove(routeWps.get(0));
 //                    routeWps.remove(0);
@@ -288,7 +292,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
                     System.out.println("Updating normal wp");
 //                    routeWps.get(x).setPosition(wp.getPos());
                     wpCircle = routeWps.get(x);
-                    wpCircle.setPosition(wp.getPos());
+                    //wpCircle.setPosition(wp.getPos());
+                    wpCircle.setLatLon(wp.getPos().getLatitude(), wp.getPos().getLongitude());
                 } else {
                     
                     System.out.println("Making new normal wp");
