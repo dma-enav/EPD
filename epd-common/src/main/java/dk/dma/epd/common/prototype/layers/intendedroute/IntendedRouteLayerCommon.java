@@ -71,7 +71,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
     public IntendedRouteLayerCommon() {
         super();
 
-        this.useFilter = EPD.getInstance().getSettings().getCloudSettings().isIntendedRouteFilterOn();
+//        this.useFilter = EPD.getInstance().getSettings().getCloudSettings().isIntendedRouteFilterOn();
 
         // Automatically add info panels
         registerInfoPanel(intendedRouteInfoPanel, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
