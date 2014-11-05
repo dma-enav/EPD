@@ -24,9 +24,10 @@ enum MCType {
     MISCELLANEOUS_NOTICE    = 4;
 
     // MSI types
-    COSTAL_WARNING          = 5;
+    COASTAL_WARNING         = 5;
     SUBAREA_WARNING         = 6;
     NAVAREA_WARNING         = 7;
+    LOCAL_WARNING           = 8;
 }
 
 /**
