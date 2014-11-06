@@ -28,25 +28,25 @@ public class TileLayer extends MapTileLayer {
         super();
 
         Properties tileProperties = new Properties();
-        tileProperties.setProperty("noCoverageZoom", "15");
-        tileProperties.setProperty("rootDir", "E:/Sjaelland/");
-        tileProperties.setProperty("attribution", "Map provided MapQuest");
+//        tileProperties.setProperty("noCoverageZoom", "15");
+        tileProperties.setProperty("rootDir", "C:/Tiles/");
+        tileProperties.setProperty("attribution", "NASA Modis");
         this.setProperties(tileProperties);
 
-//         this.setZoomLevel(10);
+        this.setZoomLevel(8);
     }
 
     @Override
     public void setZoomLevel(int zoomlevel) {
-        System.out.println("Zoom level set to " + zoomLevel);
         super.setZoomLevel(zoomlevel);
     }
 
     /**
-     * OMGraphicHandlerLayer method, called with projection changes or whenever else doPrepare() is called. Calls getTiles on the
-     * map tile factory.
+     * OMGraphicHandlerLayer method, called with projection changes or whenever
+     * else doPrepare() is called. Calls getTiles on the map tile factory.
      * 
-     * @return OMGraphicList that contains tiles to be displayed for the current projection.
+     * @return OMGraphicList that contains tiles to be displayed for the current
+     *         projection.
      */
     @Override
     public synchronized OMGraphicList prepare() {
@@ -61,7 +61,6 @@ public class TileLayer extends MapTileLayer {
             OMGraphicList newList = new OMGraphicList();
             setList(newList);
 
-            System.out.println("Zoom level stuff is " + zoomLevel);
             return tileFactory.getTiles(projection, zoomLevel, newList);
         }
         return null;

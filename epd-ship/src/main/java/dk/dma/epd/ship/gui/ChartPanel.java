@@ -79,7 +79,8 @@ import dk.dma.epd.ship.settings.EPDMapSettings;
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  */
-public class ChartPanel extends ChartPanelCommon implements DockableComponentPanel, IPntDataListener, MouseWheelListener,
+public class ChartPanel extends ChartPanelCommon implements
+        DockableComponentPanel, IPntDataListener, MouseWheelListener,
         VOCTUpdateListener {
 
     private static final long serialVersionUID = 1L;
@@ -128,22 +129,25 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
      */
     public void initChart() {
 
-
-
         // Try to create ENC layer
-        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip.getInstance().getSettings().getMapSettings());
+        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip
+                .getInstance().getSettings().getMapSettings());
         encLayer = encLayerFactory.getEncLayer();
 
-        
         // Add ENC layer
         if (encLayer != null) {
             encLayer.setVisible(true);
             mapHandler.add(encLayer);
         }
 
-
-
-        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
+        
+        TileLayer mapTileLayer = new TileLayer();
+        mapTileLayer.setVisible(true);
+//         mapTileLayer.setAddAsBackground(true);
+        mapHandler.add(mapTileLayer);
+        
+        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings()
+                .getMapSettings();
         Properties props = EPDShip.getInstance().getProperties();
 
         // Add WMS Layer
@@ -182,7 +186,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         mouseDelegator.setActive(mapNavMouseMode);
         // Inform the distance circle mouse mode what mouse mode was initially
         // the active one
-        rangeCirclesMouseMode.setPreviousMouseModeModeID(NavigationMouseMode.MODE_ID);
+        rangeCirclesMouseMode
+                .setPreviousMouseModeModeID(NavigationMouseMode.MODE_ID);
 
         mapHandler.add(mapNavMouseMode);
         mapHandler.add(nogoMouseMode);
@@ -246,7 +251,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         mapHandler.add(nogoLayer);
 
         // Create AIS layer
-        aisLayer = new AisLayer(EPDShip.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
+        aisLayer = new AisLayer(EPDShip.getInstance().getSettings()
+                .getAisSettings().getMinRedrawInterval() * 1000);
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
 
@@ -270,7 +276,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         mapHandler.add(intendedRouteCPALayer);
 
         // Create dynamic prediction layer
-        if (EPDShip.getInstance().getSettings().getNavSettings().isDynamicPrediction()) {
+        if (EPDShip.getInstance().getSettings().getNavSettings()
+                .isDynamicPrediction()) {
             dynamicPredictorLayer = new DynamicPredictorLayer();
             dynamicPredictorLayer.setVisible(true);
             mapHandler.add(dynamicPredictorLayer);
@@ -279,19 +286,12 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         // Create background layer
         String layerName = "background";
         bgLayer = new CoastalOutlineLayer();
-//        bgLayer.setProperties(layerName, props);
-//        bgLayer.setAddAsBackground(true);
-//        bgLayer.setVisible(true);
+        bgLayer.setProperties(layerName, props);
+        bgLayer.setAddAsBackground(true);
+        bgLayer.setVisible(true);
 
-//        mapHandler.add(bgLayer);
-        
-        TileLayer mapTileLayer = new TileLayer();
-        mapTileLayer.setVisible(true);
-        mapTileLayer.setAddAsBackground(true);
-        mapHandler.add(mapTileLayer);
+        mapHandler.add(bgLayer);
 
-
-        
         // Add map to map handler
         mapHandler.add(map);
 
@@ -317,12 +317,15 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         EPDShip.getInstance().getPntHandler().addListener(this);
 
         // Show AIS or not
-        aisVisible(EPDShip.getInstance().getSettings().getAisSettings().isVisible());
+        aisVisible(EPDShip.getInstance().getSettings().getAisSettings()
+                .isVisible());
         // Show ENC or not
-        encVisible(EPDShip.getInstance().getSettings().getMapSettings().isEncVisible());
+        encVisible(EPDShip.getInstance().getSettings().getMapSettings()
+                .isEncVisible());
 
         // Show WMS or not
-        wmsVisible(EPDShip.getInstance().getSettings().getMapSettings().isWmsVisible());
+        wmsVisible(EPDShip.getInstance().getSettings().getMapSettings()
+                .isWmsVisible());
 
         getMap().addMouseWheelListener(this);
 
@@ -363,7 +366,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
             } catch (java.lang.ClassNotFoundException e) {
                 LOG.error("Layer class not found: \"" + className + "\"");
             } catch (java.io.IOException e) {
-                LOG.error("IO Exception instantiating class \"" + className + "\"");
+                LOG.error("IO Exception instantiating class \"" + className
+                        + "\"");
             }
         }
     }
@@ -373,14 +377,16 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
      */
     public void centreOnShip() {
         // Get current position
-        PntData gpsData = EPDShip.getInstance().getPntHandler().getCurrentData();
+        PntData gpsData = EPDShip.getInstance().getPntHandler()
+                .getCurrentData();
         if (gpsData == null) {
             return;
         }
         if (gpsData.getPosition() == null) {
             return;
         }
-        map.setCenter((float) gpsData.getPosition().getLatitude(), (float) gpsData.getPosition().getLongitude());
+        map.setCenter((float) gpsData.getPosition().getLatitude(),
+                (float) gpsData.getPosition().getLongitude());
 
     }
 
@@ -400,7 +406,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     public void zoomTo(List<Position> waypoints) {
         if (waypoints.size() > 0) {
             // Disable auto follow
-            EPDShip.getInstance().getSettings().getNavSettings().setAutoFollow(false);
+            EPDShip.getInstance().getSettings().getNavSettings()
+                    .setAutoFollow(false);
 
             if (topPanel != null) {
                 topPanel.updateButtons();
@@ -436,7 +443,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
             newRouteContainerLayer.getRouteGraphics().clear();
             newRouteContainerLayer.doPrepare();
             topPanel.getNewRouteBtn().setSelected(false);
-            EPDShip.getInstance().getMainFrame().getJMenuBar().getNewRoute().setSelected(false);
+            EPDShip.getInstance().getMainFrame().getJMenuBar().getNewRoute()
+                    .setSelected(false);
         }
 
         // Navigation mouse mode
@@ -461,7 +469,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
             topPanel.getNavigationMouseMode().setSelected(false);
             topPanel.getDragMouseMode().setSelected(false);
             topPanel.getNewRouteBtn().setSelected(false);
-            String prevMouseModeId = mouseDelegator.getActiveMouseMode().getID();
+            String prevMouseModeId = mouseDelegator.getActiveMouseMode()
+                    .getID();
             // Store previous mouse mode ID such that we can go back to that
             // mouse mode
             rangeCirclesMouseMode.setPreviousMouseModeModeID(prevMouseModeId);
@@ -471,7 +480,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
             // When mouse mode is changed to something different than distance
             // circle mode
             // we untoggle the distance circle mode button
-            topPanel.getToggleButtonDistanceCircleMouseMode().setSelected(false);
+            topPanel.getToggleButtonDistanceCircleMouseMode()
+                    .setSelected(false);
             rulerLayer.clearRuler();
         }
 
@@ -487,7 +497,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
      */
     public void autoFollow() {
         // Do auto follow
-        if (!EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow()) {
+        if (!EPDShip.getInstance().getSettings().getNavSettings()
+                .isAutoFollow()) {
             return;
         }
 
@@ -496,7 +507,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
             return;
         }
 
-        boolean lookahead = EPDShip.getInstance().getSettings().getNavSettings().isLookAhead();
+        boolean lookahead = EPDShip.getInstance().getSettings()
+                .getNavSettings().isLookAhead();
 
         // Find desired location (depends on look-ahead or not)
 
@@ -520,8 +532,10 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
                 factor = 1.0;
             }
 
-            double phiX = Math.cos(Math.toRadians(pntData.getCog()) - 3 * Math.PI / 2);
-            double phiY = Math.sin(Math.toRadians(pntData.getCog()) - 3 * Math.PI / 2);
+            double phiX = Math.cos(Math.toRadians(pntData.getCog()) - 3
+                    * Math.PI / 2);
+            double phiY = Math.sin(Math.toRadians(pntData.getCog()) - 3
+                    * Math.PI / 2);
 
             double fx = factor * phiX;
             double fy = factor * phiY;
@@ -532,25 +546,33 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         }
 
         // Get projected x,y of current position
-        Point2D shipXY = map.getProjection().forward(pntData.getPosition().getLatitude(), pntData.getPosition().getLongitude());
+        Point2D shipXY = map.getProjection().forward(
+                pntData.getPosition().getLatitude(),
+                pntData.getPosition().getLongitude());
 
         // Calculate how many percent the position is off for x and y
-        double pctOffX = Math.abs(desiredX - shipXY.getX()) / map.getWidth() * 100.0;
-        double pctOffY = Math.abs(desiredY - shipXY.getY()) / map.getHeight() * 100.0;
+        double pctOffX = Math.abs(desiredX - shipXY.getX()) / map.getWidth()
+                * 100.0;
+        double pctOffY = Math.abs(desiredY - shipXY.getY()) / map.getHeight()
+                * 100.0;
 
         // LOG.info("pctOffX: " + pctOffX + " pctOffY: " + pctOffY);
 
-        int tollerated = EPDShip.getInstance().getSettings().getNavSettings().getAutoFollowPctOffTollerance();
+        int tollerated = EPDShip.getInstance().getSettings().getNavSettings()
+                .getAutoFollowPctOffTollerance();
         if (pctOffX < tollerated && pctOffY < tollerated) {
             return;
         }
 
         if (lookahead) {
-            Point2D forwardCenter = map.getProjection().inverse(centerX - desiredX + shipXY.getX(),
+            Point2D forwardCenter = map.getProjection().inverse(
+                    centerX - desiredX + shipXY.getX(),
                     centerY - desiredY + shipXY.getY());
-            map.setCenter((float) forwardCenter.getY(), (float) forwardCenter.getX());
+            map.setCenter((float) forwardCenter.getY(),
+                    (float) forwardCenter.getX());
         } else {
-            map.setCenter((float) pntData.getPosition().getLatitude(), (float) pntData.getPosition().getLongitude());
+            map.setCenter((float) pntData.getPosition().getLatitude(),
+                    (float) pntData.getPosition().getLongitude());
         }
 
     }
@@ -608,7 +630,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {
             if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
 
-                RapidResponseData data = (RapidResponseData) voctManager.getSarData();
+                RapidResponseData data = (RapidResponseData) voctManager
+                        .getSarData();
 
                 if (data.getEffortAllocationData().size() > 0) {
                     List<Position> waypoints = new ArrayList<Position>();
@@ -635,7 +658,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
 
             if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
-                RapidResponseData data = (RapidResponseData) voctManager.getSarData();
+                RapidResponseData data = (RapidResponseData) voctManager
+                        .getSarData();
 
                 List<Position> waypoints = new ArrayList<Position>();
                 waypoints.add(data.getA());
@@ -661,7 +685,8 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
             }
 
             if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
-                DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
+                DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager
+                        .getSarData();
 
                 List<Position> waypoints = new ArrayList<Position>();
                 waypoints.add(data.getSarAreaData().get(0).getA());
