@@ -18,7 +18,7 @@ import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommun
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARInfoMessage;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
-import net.maritimecloud.mms.MmsClient;
+import net.maritimecloud.net.mms.MmsClient;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -47,8 +47,9 @@ import dk.dma.epd.common.util.TypedValue.SpeedType;
 import dk.dma.epd.common.util.TypedValue.Time;
 import dk.dma.epd.common.util.TypedValue.TimeType;
 import dma.route.MCIntendedRouteBroadcast;
-import net.maritimecloud.mms.MmsClient;
-import net.maritimecloud.net.BroadcastListener;
+import net.maritimecloud.net.BroadcastConsumer;
+import net.maritimecloud.net.MessageHeader;
+import net.maritimecloud.net.mms.MmsClient;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,9 +140,10 @@ public abstract class IntendedRouteHandlerCommon extends
     public void cloudConnected(final MmsClient connection) {
 
         // Hook up as a broadcast listener
-        connection.broadcastListen(MCIntendedRouteBroadcast.class, new BroadcastListener<MCIntendedRouteBroadcast>() {
-            @Override public void onMessage(Context context, MCIntendedRouteBroadcast broadcast) {
-                int id = MaritimeCloudUtils.toMmsi(context.getBroadcaster());
+        connection.broadcastSubscribe(MCIntendedRouteBroadcast.class, new BroadcastConsumer<MCIntendedRouteBroadcast>() {
+            @Override
+            public void onMessage(MessageHeader header, MCIntendedRouteBroadcast broadcast) {
+                int id = MaritimeCloudUtils.toMmsi(header.getSender());
                 updateIntendedRoute(id, broadcast);
             }
         });

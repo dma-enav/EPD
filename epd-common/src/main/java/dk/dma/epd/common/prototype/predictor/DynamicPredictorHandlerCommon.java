@@ -17,7 +17,7 @@ package dk.dma.epd.common.prototype.predictor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
 import net.jcip.annotations.ThreadSafe;
-import net.maritimecloud.mms.MmsClient;
+import net.maritimecloud.net.mms.MmsClient;
 
 import java.util.Objects;
 import java.util.Timer;

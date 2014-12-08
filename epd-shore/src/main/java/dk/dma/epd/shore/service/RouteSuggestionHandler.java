@@ -22,7 +22,7 @@ import dk.dma.epd.common.prototype.enavcloud.TODO;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
 import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.mms.MmsClient;
+import net.maritimecloud.net.mms.MmsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

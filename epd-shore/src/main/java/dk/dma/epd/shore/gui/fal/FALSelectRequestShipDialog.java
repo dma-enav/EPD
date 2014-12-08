@@ -207,7 +207,7 @@ public class FALSelectRequestShipDialog extends JDialog implements ActionListene
         int selectedIndex = vesselNameTable.getSelectedRow();
         if (selectedIndex >= 0) {
 
-            MaritimeId id = EPD.getInstance().getChatServiceHandler().getChatServiceList().get(selectedIndex).getCaller();
+            MaritimeId id = EPD.getInstance().getChatServiceHandler().getChatServiceList().get(selectedIndex).getRemoteId();
 
             int mmsi = Integer.parseInt(id.toString().split("mmsi://")[1]);
 

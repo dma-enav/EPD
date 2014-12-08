@@ -32,7 +32,7 @@ import dma.msinm.MCMessage;
 import dma.msinm.MCMsiNmService;
 import dma.msinm.MCSearchResult;
 import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.mms.MmsClient;
+import net.maritimecloud.net.mms.MmsClient;
 import net.maritimecloud.util.Timestamp;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -125,12 +125,12 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
             // First record the current services
             Set<MaritimeId> ids = new HashSet<>();
             for (MCMsiNmService service : msiNmServiceList) {
-                ids.add(service.getCaller());
+                ids.add(service.getRemoteId());
             }
 
-            // Fetch the serivice list - throws an exception after CLOUD_TIMEOUT seconds
+            // Fetch the service list - throws an exception after CLOUD_TIMEOUT seconds
             List<MCMsiNmService> services = getMmsClient()
-                    .endpointFind(MCMsiNmService.class)
+                    .endpointLocate(MCMsiNmService.class)
                     .findAll()
                     .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS)
                     .get();
@@ -138,7 +138,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
             // Look for changes
             boolean identical = msiNmServiceList.size() == services.size();
             for (MCMsiNmService service : services) {
-                identical &= ids.remove(service.getCaller());
+                identical &= ids.remove(service.getRemoteId());
             }
             identical &= ids.size() == 0;
 
@@ -148,7 +148,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
 
                 // If no selected MSI-NM service is defined, select the first in the list
                 if (msiNmServiceId == null && msiNmServiceList.size() > 0) {
-                    setSelectedMsiNmServiceId(msiNmServiceList.get(0).getCaller());
+                    setSelectedMsiNmServiceId(msiNmServiceList.get(0).getRemoteId());
                 }
             }
 
@@ -188,7 +188,7 @@ public class MsiNmServiceHandlerCommon extends EnavServiceHandlerCommon implemen
      */
     public MCMsiNmService getSelectedMsiNmService() {
         for (MCMsiNmService service : msiNmServiceList) {
-            if (service.getCaller().equals(msiNmServiceId)) {
+            if (service.getRemoteId().equals(msiNmServiceId)) {
                 return service;
             }
         }

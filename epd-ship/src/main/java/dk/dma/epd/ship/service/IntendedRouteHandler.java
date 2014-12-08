@@ -34,7 +34,7 @@ import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.settings.handlers.IIntendedRouteHandlerSettingsObserver;
 import dma.route.MCIntendedRouteBroadcast;
 import dma.route.MCRoute;
-import net.maritimecloud.mms.MmsClient;
+import net.maritimecloud.net.mms.MmsClient;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -244,7 +244,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements
         Runnable broadcastMessage = new Runnable() {
             @Override
             public void run() {
-                getMmsClient().withBroadcast(broadcast).send();
+                getMmsClient().broadcast(broadcast);
             }
         };
 

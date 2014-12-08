@@ -21,10 +21,10 @@ import dk.dma.epd.common.prototype.status.CloudStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.mms.MmsClient;
-import net.maritimecloud.mms.MmsClientConfiguration;
-import net.maritimecloud.mms.MmsConnection;
-import net.maritimecloud.mms.MmsConnectionClosingCode;
+import net.maritimecloud.net.mms.MmsClient;
+import net.maritimecloud.net.mms.MmsClientConfiguration;
+import net.maritimecloud.net.mms.MmsConnection;
+import net.maritimecloud.net.mms.MmsConnectionClosingCode;
 import net.maritimecloud.util.geometry.PositionReader;
 import net.maritimecloud.util.geometry.PositionTime;
 import org.slf4j.Logger;
@@ -209,10 +209,10 @@ public class MaritimeCloudService extends MapHandlerChild implements Runnable, I
             }
 
             @Override
-            public void connected() {
+            public void connected(URI host) {
                 cloudStatus.markCloudReception();
                 if (LOG_MARITIME_CLOUD_ACTIVITY) {
-                    LOG.info("Connected");
+                    LOG.info("Connected to " + host);
                 }
             }
 

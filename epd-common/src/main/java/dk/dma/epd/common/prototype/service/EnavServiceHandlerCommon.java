@@ -19,7 +19,7 @@ import dk.dma.epd.common.prototype.enavcloud.TODO;
 import dk.dma.epd.common.prototype.service.MaritimeCloudService.IMaritimeCloudListener;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.mms.MmsClient;
+import net.maritimecloud.net.mms.MmsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -254,7 +254,7 @@ public class MsiNmNotificationPanel extends NotificationPanel<MsiNmNotification>
          */
         public MsiNmServiceItem(MCMsiNmService service) {
             this.service = service;
-            this.id = service.getCaller();
+            this.id = service.getRemoteId();
             this.name = NameUtils.getName(this.id, NameUtils.NameFormat.MEDIUM);
         }
 

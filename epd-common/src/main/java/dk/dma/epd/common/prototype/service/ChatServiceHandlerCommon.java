@@ -20,7 +20,8 @@ import dma.messaging.MCChatMessage;
 import dma.messaging.MCChatMessageService;
 import dma.messaging.MCNotificationSeverity;
 import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.mms.MmsClient;
+import net.maritimecloud.net.MessageHeader;
+import net.maritimecloud.net.mms.MmsClient;
 import net.maritimecloud.util.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,8 +70,8 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         try {
             getMmsClient().endpointRegister(new AbstractMCChatMessageService() {
                 @Override
-                protected void sendMessage(Context context, MCChatMessage msg) {
-                    receiveChatMessage(context.getCaller(), msg);
+                protected void sendMessage(MessageHeader header, MCChatMessage msg) {
+                    receiveChatMessage(header.getSender(), msg);
                 }
             }).awaitRegistered(4, TimeUnit.SECONDS);
 
@@ -84,16 +85,16 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
      */
     private void fetchChatServices() {
         try {
-            chatServiceList = getMmsClient().endpointFind(MCChatMessageService.class).findAll().get();
+            chatServiceList = getMmsClient().endpointLocate(MCChatMessageService.class).findAll().get();
 
             List<MaritimeId> newChatTargets = new ArrayList<>();
             
             // Create an empty chat service data for new chat services
             for (MCChatMessageService chatService : chatServiceList) {
-                if (!chatMessages.containsKey(chatService.getCaller())) {
-                    getOrCreateChatServiceData(chatService.getCaller());
-                    newChatTargets.add(chatService.getCaller());
-                    LOG.info("Found new chat serves: " + chatService.getCaller());
+                if (!chatMessages.containsKey(chatService.getRemoteId())) {
+                    getOrCreateChatServiceData(chatService.getRemoteId());
+                    newChatTargets.add(chatService.getRemoteId());
+                    LOG.info("Found new chat serves: " + chatService.getRemoteId());
                 }
             }
 
