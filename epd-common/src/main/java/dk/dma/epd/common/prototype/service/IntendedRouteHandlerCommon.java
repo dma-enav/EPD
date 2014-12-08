@@ -69,14 +69,11 @@ import dk.dma.epd.common.util.TypedValue.TimeType;
 /**
  * Intended route service implementation.
  * <p>
- * Listens for intended route broadcasts, and updates the vessel target when one
- * is received.
+ * Listens for intended route broadcasts, and updates the vessel target when one is received.
  */
-public abstract class IntendedRouteHandlerCommon extends
-        EnavServiceHandlerCommon implements INotificationListener {
+public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon implements INotificationListener {
 
-    static final Logger LOG = LoggerFactory
-            .getLogger(IntendedRouteHandlerCommon.class);
+    static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandlerCommon.class);
 
     /**
      * Time an intended route is considered valid without update
@@ -86,10 +83,10 @@ public abstract class IntendedRouteHandlerCommon extends
     /**
      * In nautical miles - distance between two lines for it to be put in filter
      */
-    public static double ENC_DISTANCE_EPSILON = 0.5;
+    public static double ENC_DISTANCE_EPSILON;
 
-    public static double FILTER_DISTANCE_EPSILON = 0.5; // Nautical miles
-    public static double ALERT_DISTANCE_EPSILON = 0.3; // Nautical miles
+    public static double FILTER_DISTANCE_EPSILON; // Nautical miles
+    public static double ALERT_DISTANCE_EPSILON; // Nautical miles
 
     protected ConcurrentHashMap<Long, IntendedRoute> intendedRoutes = new ConcurrentHashMap<>();
     protected FilteredIntendedRoutes filteredIntendedRoutes = new FilteredIntendedRoutes();
@@ -97,6 +94,8 @@ public abstract class IntendedRouteHandlerCommon extends
     protected List<IIntendedRouteListener> listeners = new CopyOnWriteArrayList<>();
 
     private AisHandlerCommon aisHandler;
+
+    private boolean intendedRoutesIsVisibleGlobal;
 
     /**
      * Constructor
@@ -142,15 +141,13 @@ public abstract class IntendedRouteHandlerCommon extends
     public void cloudConnected(MaritimeCloudClient connection) {
 
         // Hook up as a broadcast listener
-        connection.broadcastListen(IntendedRouteBroadcast.class,
-                new BroadcastListener<IntendedRouteBroadcast>() {
-                    public void onMessage(BroadcastMessageHeader l,
-                            IntendedRouteBroadcast r) {
+        connection.broadcastListen(IntendedRouteBroadcast.class, new BroadcastListener<IntendedRouteBroadcast>() {
+            public void onMessage(BroadcastMessageHeader l, IntendedRouteBroadcast r) {
 
-                        int id = MaritimeCloudUtils.toMmsi(l.getId());
-                        updateIntendedRoute(id, r);
-                    }
-                });
+                int id = MaritimeCloudUtils.toMmsi(l.getId());
+                updateIntendedRoute(id, r);
+            }
+        });
     }
 
     /**
@@ -159,16 +156,15 @@ public abstract class IntendedRouteHandlerCommon extends
      * @param mmsi
      * @param r
      */
-    private synchronized void updateIntendedRoute(long mmsi,
-            IntendedRouteBroadcast r) {
+    private synchronized void updateIntendedRoute(long mmsi, IntendedRouteBroadcast r) {
 
         IntendedRoute intendedRoute = new IntendedRoute(r.getRoute());
         intendedRoute.setMmsi(mmsi);
 
-        IntendedRoute oldIntendedRoute = intendedRoutes.get(mmsi);
-        if (oldIntendedRoute != null) {
-            intendedRoute.setVisible(oldIntendedRoute.isVisible());
-        }
+        // IntendedRoute oldIntendedRoute = intendedRoutes.get(mmsi);
+        // if (oldIntendedRoute != null) {
+        // intendedRoute.setVisible(oldIntendedRoute.isVisible());
+        // }
 
         // Check if this is a real intended route or one that signals a removal
         if (!intendedRoute.hasRoute()) {
@@ -178,6 +174,7 @@ public abstract class IntendedRouteHandlerCommon extends
             }
             if (filteredIntendedRoutes.containsKey(mmsi)) {
                 filteredIntendedRoutes.remove(mmsi);
+                LOG.debug("Removing Route due to Route no longer being transmitted");
             }
             // return;
         } else {
@@ -193,17 +190,25 @@ public abstract class IntendedRouteHandlerCommon extends
                 // Try to find exiting target
                 VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
                 if (vesselTarget != null) {
+                    intendedRoute.setVisible(vesselTarget.isShowIntendedRoute());
                     intendedRoute.update(vesselTarget.getPositionData());
+                    // System.out.println("Intended route vessel visisble" + vesselTarget.isShowIntendedRoute());
+                }else{
+                    intendedRoute.setVisible(intendedRoutesIsVisibleGlobal);
                 }
+            } else {
+                // Apply the global visiblity
+                intendedRoute.setVisible(intendedRoutesIsVisibleGlobal);
             }
+
+            // System.out.println("New route recieved, visible : " + intendedRoute.isVisible());
 
         }
 
         // Fire event
         fireIntendedEvent(intendedRoute);
 
-        LOG.debug("Did the route get put into the filter? "
-                + filteredIntendedRoutes.size());
+        LOG.debug("Did the route get put into the filter? " + filteredIntendedRoutes.size());
     }
 
     /**
@@ -211,8 +216,7 @@ public abstract class IntendedRouteHandlerCommon extends
      */
     private synchronized void checkForInactiveRoutes() {
         Date now = PntTime.getDate();
-        for (Iterator<Map.Entry<Long, IntendedRoute>> it = intendedRoutes
-                .entrySet().iterator(); it.hasNext();) {
+        for (Iterator<Map.Entry<Long, IntendedRoute>> it = intendedRoutes.entrySet().iterator(); it.hasNext();) {
             Map.Entry<Long, IntendedRoute> entry = it.next();
             if (now.getTime() - entry.getValue().getReceived().getTime() > ROUTE_TTL) {
                 // Remove the intended route
@@ -238,16 +242,34 @@ public abstract class IntendedRouteHandlerCommon extends
      * Hide all intended routes
      */
     public void hideAllIntendedRoutes() {
+
+        intendedRoutesIsVisibleGlobal = false;
+
+        for (Object o : aisHandler.getVesselTargets().values()) {
+
+            ((VesselTarget) o).setShowIntendedRoute(false);
+        }
+
         for (IntendedRoute intendedRoute : intendedRoutes.values()) {
             intendedRoute.setVisible(false);
             fireIntendedEvent(intendedRoute);
         }
+
     }
 
     /**
      * Show all intended routes
      */
     public void showAllIntendedRoutes() {
+
+//        System.out.println("Show all intended routes toggled");
+
+        intendedRoutesIsVisibleGlobal = true;
+
+        for (Object o : aisHandler.getVesselTargets().values()) {
+            ((VesselTarget) o).setShowIntendedRoute(true);
+        }
+
         for (IntendedRoute intendedRoute : intendedRoutes.values()) {
             intendedRoute.setVisible(true);
             fireIntendedEvent(intendedRoute);
@@ -307,38 +329,30 @@ public abstract class IntendedRouteHandlerCommon extends
     protected abstract void applyFilter(IntendedRoute route);
 
     /**
-     * Check if notifications should be generated based on a re-computed set of
-     * filtered intended routes
+     * Check if notifications should be generated based on a re-computed set of filtered intended routes
      * 
      * @param oldFilteredRoutes
      *            the old set of filtered routes
      * @param newFilteredRoutes
      *            the new set of filtered routes
      */
-    protected void checkGenerateNotifications(
-            FilteredIntendedRoutes oldFilteredRoutes,
-            FilteredIntendedRoutes newFilteredRoutes) {
-        for (FilteredIntendedRoute filteredIntendedRoute : newFilteredRoutes
-                .values()) {
+    protected void checkGenerateNotifications(FilteredIntendedRoutes oldFilteredRoutes, FilteredIntendedRoutes newFilteredRoutes) {
+        for (FilteredIntendedRoute filteredIntendedRoute : newFilteredRoutes.values()) {
             checkGenerateNotifications(oldFilteredRoutes, filteredIntendedRoute);
         }
     }
 
     /**
-     * Check if a notification should be generated based on a new filtered
-     * intended route
+     * Check if a notification should be generated based on a new filtered intended route
      * 
      * @param oldFilteredRoutes
      *            the old set of filtered routes
      * @param newFilteredRoute
      *            the new filtered route
      */
-    protected void checkGenerateNotifications(
-            FilteredIntendedRoutes oldFilteredRoutes,
-            FilteredIntendedRoute newFilteredRoute) {
+    protected void checkGenerateNotifications(FilteredIntendedRoutes oldFilteredRoutes, FilteredIntendedRoute newFilteredRoute) {
 
-        FilteredIntendedRoute oldFilteredRoute = oldFilteredRoutes.get(
-                newFilteredRoute.getMmsi1(), newFilteredRoute.getMmsi2());
+        FilteredIntendedRoute oldFilteredRoute = oldFilteredRoutes.get(newFilteredRoute.getMmsi1(), newFilteredRoute.getMmsi2());
 
         // NB: For now, we add a notification when a new filtered intended route
         // surfaces
@@ -348,10 +362,8 @@ public abstract class IntendedRouteHandlerCommon extends
         if (oldFilteredRoute == null) {
             // sendNotification = true;
         } else {
-            newFilteredRoute.setGeneratedNotification(oldFilteredRoute
-                    .hasGeneratedNotification());
-            newFilteredRoute.setNotificationAcknowledged(oldFilteredRoute
-                    .isNotificationAcknowledged());
+            newFilteredRoute.setGeneratedNotification(oldFilteredRoute.hasGeneratedNotification());
+            newFilteredRoute.setNotificationAcknowledged(oldFilteredRoute.isNotificationAcknowledged());
             // sendNotification = !newFilteredRoute.hasGeneratedNotification()
             // && (newFilteredRoute
             // .isWithinDistance(ALERT_DISTANCE_EPSILON) );
@@ -359,41 +371,32 @@ public abstract class IntendedRouteHandlerCommon extends
             // .isWithinDistance(ENC_DISTANCE_EPSILON));
         }
 
-        if (!newFilteredRoute.hasGeneratedNotification()
-                && (newFilteredRoute.isWithinDistance(ALERT_DISTANCE_EPSILON))) {
+        if (!newFilteredRoute.hasGeneratedNotification() && (newFilteredRoute.isWithinDistance(ALERT_DISTANCE_EPSILON))) {
             // System.out.println("Send notification is true");
             newFilteredRoute.setGeneratedNotification(true);
-            final GeneralNotification notification = new GeneralNotification(
-                    newFilteredRoute, String.format(
-                            "IntendedRouteNotificaiton_%s_%d",
-                            newFilteredRoute.getKey(), newFilteredRoute
-                                    .getFilterMessages().get(0).getTime1()
-                                    .getMillis()), new DateTime(
-                            newFilteredRoute.getFilterMessages().get(0)
-                                    .getTime1().getMillis()));
+            final GeneralNotification notification = new GeneralNotification(newFilteredRoute, String.format(
+                    "IntendedRouteNotificaiton_%s_%d", newFilteredRoute.getKey(), newFilteredRoute.getFilterMessages().get(0)
+                            .getTime1().getMillis()), new DateTime(newFilteredRoute.getFilterMessages().get(0).getTime1()
+                    .getMillis()));
             notification.setTitle("CPA Warning");
-            notification
-                    .setDescription(formatNotificationDescription(newFilteredRoute));
+            notification.setDescription(formatNotificationDescription(newFilteredRoute));
             if (newFilteredRoute.isWithinDistance(ALERT_DISTANCE_EPSILON)) {
                 notification.setSeverity(NotificationSeverity.ALERT);
-                notification.addAlerts(new NotificationAlert(AlertType.POPUP,
-                        AlertType.BEEP));
+                notification.addAlerts(new NotificationAlert(AlertType.POPUP, AlertType.BEEP));
             } else {
                 System.out.println("Something horrible has happend");
                 // notification.setSeverity(NotificationSeverity.WARNING);
                 // notification.addAlerts(new
                 // NotificationAlert(AlertType.POPUP));
             }
-            notification.setLocation(newFilteredRoute.getFilterMessages()
-                    .get(0).getPosition1());
+            notification.setLocation(newFilteredRoute.getFilterMessages().get(0).getPosition1());
 
             // Before submitting the notification, mark any old CPA notification
             // as acknowledged
             acknowledgeAllCPANotifications();
 
             // Submit the notification
-            EPD.getInstance().getNotificationCenter()
-                    .addNotification(notification);
+            EPD.getInstance().getNotificationCenter().addNotification(notification);
 
             // Hook up a notification listener
             notification.addListener(this);
@@ -409,13 +412,10 @@ public abstract class IntendedRouteHandlerCommon extends
     @Override
     public void notificationUpdated(Notification<?, ?> notification) {
         if (notification.isAcknowledged()) {
-            FilteredIntendedRoute value = (FilteredIntendedRoute) notification
-                    .get();
+            FilteredIntendedRoute value = (FilteredIntendedRoute) notification.get();
             // Get latest filtered intended route for the mmsi's
-            FilteredIntendedRoute filteredRoute = filteredIntendedRoutes.get(
-                    value.getMmsi1(), value.getMmsi2());
-            if (filteredRoute != null
-                    && !filteredRoute.isNotificationAcknowledged()) {
+            FilteredIntendedRoute filteredRoute = filteredIntendedRoutes.get(value.getMmsi1(), value.getMmsi2());
+            if (filteredRoute != null && !filteredRoute.isNotificationAcknowledged()) {
                 filteredRoute.setNotificationAcknowledged(true);
                 fireIntendedEvent(null);
             }
@@ -427,10 +427,9 @@ public abstract class IntendedRouteHandlerCommon extends
      */
     protected void acknowledgeAllCPANotifications() {
         // Mark all other CPA notifications as acknowledged
-        for (Notification<?, ?> not : EPD.getInstance().getNotificationCenter()
-                .getPanel(NotificationType.NOTIFICATION).getNotifications()) {
-            if (!not.isAcknowledged() && not.get() != null
-                    && not.get() instanceof FilteredIntendedRoute) {
+        for (Notification<?, ?> not : EPD.getInstance().getNotificationCenter().getPanel(NotificationType.NOTIFICATION)
+                .getNotifications()) {
+            if (!not.isAcknowledged() && not.get() != null && not.get() instanceof FilteredIntendedRoute) {
                 not.removeListener(this);
                 not.setRead(true);
                 not.setAcknowledged(true);
@@ -445,14 +444,13 @@ public abstract class IntendedRouteHandlerCommon extends
      *            the filtered route to format the description for
      * @return the notification description
      */
-    protected abstract String formatNotificationDescription(
-            FilteredIntendedRoute filteredIntendedRoute);
+    protected abstract String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute);
 
     /**
      * Returns the MMSI associated with the given route.
      * <p>
-     * The default implementation assumes that only intended routes passed
-     * along, but the ship-implementation will override to handle active routes.
+     * The default implementation assumes that only intended routes passed along, but the ship-implementation will override to
+     * handle active routes.
      * 
      * @param route
      *            the route to return the MMSI for
@@ -471,8 +469,7 @@ public abstract class IntendedRouteHandlerCommon extends
      */
     private DateTime getEta(Route route, int index) {
 
-        int activeWpIndex = (route instanceof IntendedRoute) ? ((IntendedRoute) route)
-                .getActiveWpIndex() : ((ActiveRoute) route)
+        int activeWpIndex = (route instanceof IntendedRoute) ? ((IntendedRoute) route).getActiveWpIndex() : ((ActiveRoute) route)
                 .getActiveWaypointIndex();
 
         // If the way point is after the active way point, rely on stored ETA's
@@ -485,18 +482,15 @@ public abstract class IntendedRouteHandlerCommon extends
         for (int j = activeWpIndex - 1; j >= index; j--) {
             RouteLeg leg = route.getWaypoints().get(j).getOutLeg();
             date = date.minus(new Dist(DistType.NAUTICAL_MILES, leg.calcRng())
-                    .withSpeed(new Speed(SpeedType.KNOTS, leg.getSpeed()))
-                    .in(TimeType.MILLISECONDS).longValue());
+                    .withSpeed(new Speed(SpeedType.KNOTS, leg.getSpeed())).in(TimeType.MILLISECONDS).longValue());
         }
         return date;
     }
 
     /**
-     * Finds the TCPA for two routes and returns the corresponding
-     * {@linkplain FilteredIntendedRoute}.
+     * Finds the TCPA for two routes and returns the corresponding {@linkplain FilteredIntendedRoute}.
      * <p>
-     * This method is only valid if the current start way point of route 1 is
-     * before route 2.
+     * This method is only valid if the current start way point of route 1 is before route 2.
      * 
      * @param route1
      * @param route2
@@ -505,8 +499,7 @@ public abstract class IntendedRouteHandlerCommon extends
     protected FilteredIntendedRoute findTCPA(Route route1, Route route2) {
 
         // Focus on time
-        FilteredIntendedRoute filteredIntendedRoute = new FilteredIntendedRoute(
-                getMmsi(route1), getMmsi(route2));
+        FilteredIntendedRoute filteredIntendedRoute = new FilteredIntendedRoute(getMmsi(route1), getMmsi(route2));
 
         // We need to check if there's a previous waypoint, ie. we are either
         // starting navigating or are between two waypoints
@@ -538,13 +531,13 @@ public abstract class IntendedRouteHandlerCommon extends
 
         }
 
-        if (route1StartWp > 0) {
-            route1StartWp = route1StartWp - 1;
-        }
-
-        if (route2StartWp > 0) {
-            route2StartWp = route2StartWp - 1;
-        }
+        // if (route1StartWp > 0) {
+        // route1StartWp = route1StartWp - 1;
+        // }
+        //
+        // if (route2StartWp > 0) {
+        // route2StartWp = route2StartWp - 1;
+        // }
 
         // Should the comparison even be made
 
@@ -558,10 +551,8 @@ public abstract class IntendedRouteHandlerCommon extends
         if (route2Start.isAfter(route1End) || route1Start.isAfter(route2End)) {
             LOG.debug("The route dates does not overlap, return immediately");
 
-            LOG.debug("Route 1 Start: " + route1Start + " and end: "
-                    + route1End);
-            LOG.debug("Route 2 Start: " + route2Start + " and end: "
-                    + route2End);
+            LOG.debug("Route 1 Start: " + route1Start + " and end: " + route1End);
+            LOG.debug("Route 2 Start: " + route2Start + " and end: " + route2End);
 
             return filteredIntendedRoute;
         }
@@ -575,8 +566,7 @@ public abstract class IntendedRouteHandlerCommon extends
             // route2Start
 
             // Location for route2 is given from
-            Position route2StartPos = route2.getWaypoints().get(route2StartWp)
-                    .getPos();
+            Position route2StartPos = route2.getWaypoints().get(route2StartWp).getPos();
 
             DateTime route1WpStart = null;
             DateTime route1WpEnd;
@@ -589,8 +579,7 @@ public abstract class IntendedRouteHandlerCommon extends
                     route1WpStart = getEta(route1, i - 1);
                     route1WpEnd = getEta(route1, i);
 
-                    if (route1WpStart.isBefore(route2Start)
-                            && route1WpEnd.isAfter(route2Start)) {
+                    if (route1WpStart.isBefore(route2Start) && route1WpEnd.isAfter(route2Start)) {
                         // We have the found the segment we need to start from
 
                         LOG.debug("Found segment");
@@ -604,40 +593,28 @@ public abstract class IntendedRouteHandlerCommon extends
 
                 // Now find position at time of route2Start
 
-                LOG.debug("Route 1 WP Start is at "
-                        + route1.getEtas().get(i - 1));
-                LOG.debug("Route 2 Start is at "
-                        + route2.getEtas().get(route2StartWp));
+                LOG.debug("Route 1 WP Start is at " + route1.getEtas().get(i - 1));
+                LOG.debug("Route 2 Start is at " + route2.getEtas().get(route2StartWp));
 
                 // How long will we have travelled along our route (route 1)
-                long timeTravelledSeconds = (route2Start.getMillis() - route1WpStart
-                        .getMillis()) / 1000;
+                long timeTravelledSeconds = (route2Start.getMillis() - route1WpStart.getMillis()) / 1000;
 
-                double speedInLeg = route1.getWaypoints().get(i - 1)
-                        .getOutLeg().getSpeed();
+                double speedInLeg = route1.getWaypoints().get(i - 1).getOutLeg().getSpeed();
 
-                LOG.debug("We have travelled for how many minutes "
-                        + timeTravelledSeconds / 60 + " at speed " + speedInLeg);
+                LOG.debug("We have travelled for how many minutes " + timeTravelledSeconds / 60 + " at speed " + speedInLeg);
 
-                double distanceTravelled = Calculator.distanceAfterTimeMph(
-                        speedInLeg, timeTravelledSeconds);
+                double distanceTravelled = Calculator.distanceAfterTimeMph(speedInLeg, timeTravelledSeconds);
 
-                LOG.debug("We have travelled " + distanceTravelled
-                        + " nautical miles in direction: "
+                LOG.debug("We have travelled " + distanceTravelled + " nautical miles in direction: "
                         + route1.getWaypoints().get(i - 1).calcBrg());
 
-                Position position = Calculator.findPosition(route1
-                        .getWaypoints().get(i - 1).getPos(), route1
-                        .getWaypoints().get(i - 1).calcBrg(),
-                        Converter.nmToMeters(distanceTravelled));
+                Position position = Calculator.findPosition(route1.getWaypoints().get(i - 1).getPos(),
+                        route1.getWaypoints().get(i - 1).calcBrg(), Converter.nmToMeters(distanceTravelled));
 
-                LOG.debug("Difference start pos"
-                        + route1.getWaypoints().get(i - 1).getPos() + " vs "
-                        + position);
+                LOG.debug("Difference start pos" + route1.getWaypoints().get(i - 1).getPos() + " vs " + position);
 
                 LOG.debug("The distance between points is "
-                        + Converter.metersToNm(position.distanceTo(
-                                route2StartPos, CoordinateSystem.CARTESIAN)));
+                        + Converter.metersToNm(position.distanceTo(route2StartPos, CoordinateSystem.CARTESIAN)));
 
                 // intersectPositions.add(position);
                 //
@@ -666,90 +643,85 @@ public abstract class IntendedRouteHandlerCommon extends
                 Position route2CurrentPosition = route2StartPos;
 
                 int route1CurrentWaypoint = i - 1;
-                int route2CurrentWaypoint = route2StartWp;
+                int route2CurrentWaypoint = route2StartWp - 1;
+
+                if (route2CurrentWaypoint < 0) {
+                    route2CurrentWaypoint = 0;
+                }
+
+                if (route1CurrentWaypoint < 0) {
+                    route1CurrentWaypoint = 0;
+                }
 
                 DateTime traverseTime = route2Start;
 
-                DateTime route1SegmentEnd = getEta(route1,
-                        route1CurrentWaypoint + 1);
-                DateTime route2SegmentEnd = getEta(route2,
-                        route2CurrentWaypoint + 1);
+                DateTime route1SegmentEnd = getEta(route1, route1CurrentWaypoint + 1);
+                DateTime route2SegmentEnd = getEta(route2, route2CurrentWaypoint + 1);
 
                 while (true) {
 
-                    double currentDistance = Converter
-                            .metersToNm(route1CurrentPosition.distanceTo(
-                                    route2CurrentPosition,
-                                    CoordinateSystem.CARTESIAN));
+                    double currentDistance = Converter.metersToNm(route1CurrentPosition.distanceTo(route2CurrentPosition,
+                            CoordinateSystem.CARTESIAN));
 
-                    if (currentDistance <= ENC_DISTANCE_EPSILON
-                            || currentDistance <= ALERT_DISTANCE_EPSILON
+                    if (currentDistance <= ENC_DISTANCE_EPSILON || currentDistance <= ALERT_DISTANCE_EPSILON
                             || currentDistance <= FILTER_DISTANCE_EPSILON) {
 
-                        IntendedRouteFilterType filterType = IntendedRouteFilterType.FILTERONLY;
+                        if (traverseTime.isAfter(PntTime.getDate().getTime())) {
 
-                        // Top level filter only, no msg or graphics
-                        // if (currentDistance <= FILTER_DISTANCE_EPSILON) {
-                        // filterType = IntendedRouteFilterType.FILTERONLY;
-                        // }
+                            IntendedRouteFilterType filterType = IntendedRouteFilterType.FILTERONLY;
 
-                        // We want an ENC graphics but no warning
-                        if (currentDistance <= ENC_DISTANCE_EPSILON) {
-                            filterType = IntendedRouteFilterType.ENC;
+                            // Top level filter only, no msg or graphics
+                            // if (currentDistance <= FILTER_DISTANCE_EPSILON) {
+                            // filterType = IntendedRouteFilterType.FILTERONLY;
+                            // }
+
+                            // We want an ENC graphics but no warning
+                            if (currentDistance <= ENC_DISTANCE_EPSILON) {
+                                filterType = IntendedRouteFilterType.ENC;
+                            }
+
+                            // We want an alert
+                            if (currentDistance <= ALERT_DISTANCE_EPSILON) {
+                                filterType = IntendedRouteFilterType.ALERT;
+                            }
+
+                            // We want both
+                            if (currentDistance <= ALERT_DISTANCE_EPSILON && currentDistance <= ENC_DISTANCE_EPSILON) {
+                                filterType = IntendedRouteFilterType.ALERT;
+                            }
+
+                            DecimalFormat df = new DecimalFormat("#.##");
+
+                            IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(route1, route2,
+                                    route1CurrentPosition, route2CurrentPosition, "TCPA Warning, proxmity of "
+                                            + df.format(currentDistance) + " nautical miles ", 0, 0, filterType);
+
+                            filterMessage.setTime1(traverseTime);
+                            filterMessage.setTime2(traverseTime);
+
+                            filteredIntendedRoute.getFilterMessages().add(filterMessage);
+                            LOG.debug("Adding warning");
                         }
-
-                        // We want an alert
-                        if (currentDistance <= ALERT_DISTANCE_EPSILON) {
-                            filterType = IntendedRouteFilterType.ALERT;
-                        }
-
-                        // We want both
-                        if (currentDistance <= ALERT_DISTANCE_EPSILON
-                                && currentDistance <= ENC_DISTANCE_EPSILON) {
-                            filterType = IntendedRouteFilterType.ALERT;
-                        }
-
-                        DecimalFormat df = new DecimalFormat("#.##");
-
-                        IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(
-                                route1, route2, route1CurrentPosition,
-                                route2CurrentPosition,
-                                "TCPA Warning, proxmity of "
-                                        + df.format(currentDistance)
-                                        + " nautical miles ", 0, 0, filterType);
-
-                        filterMessage.setTime1(traverseTime);
-                        filterMessage.setTime2(traverseTime);
-
-                        filteredIntendedRoute.getFilterMessages().add(
-                                filterMessage);
-                        LOG.debug("Adding warning");
                     } else {
-                        LOG.debug("Found distance of " + currentDistance
-                                + " at " + traverseTime);
+                        LOG.debug("Found distance of " + currentDistance + " at " + traverseTime);
                     }
 
                     // Traverse with a minute
                     traverseTime = traverseTime.plusMinutes(1);
-                    route1CurrentPosition = traverseLine(route1,
-                            route1CurrentWaypoint, route1CurrentPosition, 60);
-                    route2CurrentPosition = traverseLine(route2,
-                            route2CurrentWaypoint, route2CurrentPosition, 60);
+                    route1CurrentPosition = traverseLine(route1, route1CurrentWaypoint, route1CurrentPosition, 60);
+                    route2CurrentPosition = traverseLine(route2, route2CurrentWaypoint, route2CurrentPosition, 60);
 
                     if (traverseTime.isAfter(route1SegmentEnd)) {
 
                         // LOG.debug("We have traversed " +
                         // route1SegmentTraversed + " nautical miles");
-                        LOG.debug("We are at waypoint id  "
-                                + route1CurrentWaypoint
-                                + " and the route has a total of "
+                        LOG.debug("We are at waypoint id  " + route1CurrentWaypoint + " and the route has a total of "
                                 + route1.getWaypoints().size() + " waypoints");
                         // We are done with current leg, is there a next one?
 
                         // No more waypoints - terminate zero indexing and last
                         // waypoint does not have an out leg thus -2
-                        if (route1CurrentWaypoint >= route1.getWaypoints()
-                                .size() - 2) {
+                        if (route1CurrentWaypoint >= route1.getWaypoints().size() - 2) {
                             LOG.debug("We are breaking - route 1 is done");
                             break;
                         } else {
@@ -757,22 +729,14 @@ public abstract class IntendedRouteHandlerCommon extends
                             // Switch to next leg
                             route1CurrentWaypoint++;
 
-                            LOG.debug("We are now at waypoint "
-                                    + route1CurrentWaypoint);
+                            LOG.debug("We are now at waypoint " + route1CurrentWaypoint);
 
                             // Traverse a bit
-                            int missingSecs = (int) (traverseTime.toDate()
-                                    .getTime() - route1SegmentEnd.toDate()
-                                    .getTime()) / 1000;
-                            route1CurrentPosition = traverseLine(
-                                    route1,
-                                    route1CurrentWaypoint,
-                                    route1.getWaypoints()
-                                            .get(route1CurrentWaypoint)
-                                            .getPos(), missingSecs);
+                            int missingSecs = (int) (traverseTime.toDate().getTime() - route1SegmentEnd.toDate().getTime()) / 1000;
+                            route1CurrentPosition = traverseLine(route1, route1CurrentWaypoint,
+                                    route1.getWaypoints().get(route1CurrentWaypoint).getPos(), missingSecs);
 
-                            route1SegmentEnd = getEta(route1,
-                                    route1CurrentWaypoint + 1);
+                            route1SegmentEnd = getEta(route1, route1CurrentWaypoint + 1);
 
                             // Skip to next WP start traverse
                             // traverseTime = new
@@ -789,14 +753,11 @@ public abstract class IntendedRouteHandlerCommon extends
                         // route2SegmentTraversed + " nautical miles out of "
                         // +
                         // Converter.milesToNM(route2.getWaypoints().get(route2CurrentWaypoint).calcRng()));
-                        LOG.debug("We are at waypoint id  "
-                                + route2CurrentWaypoint
-                                + " and the route has a total of "
+                        LOG.debug("We are at waypoint id  " + route2CurrentWaypoint + " and the route has a total of "
                                 + route2.getWaypoints().size() + " waypoints");
 
                         // No more waypoints - terminate
-                        if (route2CurrentWaypoint >= route2.getWaypoints()
-                                .size() - 2) {
+                        if (route2CurrentWaypoint >= route2.getWaypoints().size() - 2) {
                             LOG.debug("We are breaking - route 2 is done");
                             break;
                         } else {
@@ -805,18 +766,11 @@ public abstract class IntendedRouteHandlerCommon extends
                             // Switch to next leg
                             route2CurrentWaypoint++;
 
-                            int missingSecs = (int) (traverseTime.toDate()
-                                    .getTime() - route2SegmentEnd.toDate()
-                                    .getTime()) / 1000;
-                            route2CurrentPosition = traverseLine(
-                                    route2,
-                                    route2CurrentWaypoint,
-                                    route2.getWaypoints()
-                                            .get(route2CurrentWaypoint)
-                                            .getPos(), missingSecs);
+                            int missingSecs = (int) (traverseTime.toDate().getTime() - route2SegmentEnd.toDate().getTime()) / 1000;
+                            route2CurrentPosition = traverseLine(route2, route2CurrentWaypoint,
+                                    route2.getWaypoints().get(route2CurrentWaypoint).getPos(), missingSecs);
 
-                            route2SegmentEnd = getEta(route2,
-                                    route2CurrentWaypoint + 1);
+                            route2SegmentEnd = getEta(route2, route2CurrentWaypoint + 1);
 
                             // Skip to next WP start traverse
                             // traverseTime = new
@@ -825,11 +779,8 @@ public abstract class IntendedRouteHandlerCommon extends
 
                     }
 
-                    // Are we more than 5 hours in the future then stop
-
-                    PntTime.getInstance();
-                    DateTime currentTime = new DateTime(PntTime.getDate()
-                            .getTime());
+                    // Are we more than x hours in the future then stop
+                    DateTime currentTime = new DateTime(PntTime.getDate().getTime());
 
                     if (traverseTime.isAfter(currentTime.plusHours(3))) {
                         LOG.debug("More than 3 hours head of current time, ending checks");
@@ -866,19 +817,16 @@ public abstract class IntendedRouteHandlerCommon extends
      *            the number of seconds
      * @return the updated position
      */
-    private Position traverseLine(Route route, int index, Position currentPos,
-            int seconds) {
+    private Position traverseLine(Route route, int index, Position currentPos, int seconds) {
         RouteWaypoint wp = route.getWaypoints().get(index);
 
-        double dist = new Speed(SpeedType.KNOTS, wp.getOutLeg().getSpeed())
-                .forTime(new Time(TimeType.SECONDS, seconds))
+        double dist = new Speed(SpeedType.KNOTS, wp.getOutLeg().getSpeed()).forTime(new Time(TimeType.SECONDS, seconds))
                 .in(DistType.NAUTICAL_MILES).doubleValue();
 
         if (wp.getHeading() == Heading.RL) {
             return traverseLineRL(currentPos, wp.calcBrg(), dist);
         } else {
-            return traverseLineGC(currentPos, wp.getOutLeg().getEndWp()
-                    .getPos(), dist);
+            return traverseLineGC(currentPos, wp.getOutLeg().getEndWp().getPos(), dist);
         }
     }
 
@@ -890,8 +838,7 @@ public abstract class IntendedRouteHandlerCommon extends
      * @param distanceTravelled
      * @return
      */
-    private Position traverseLineRL(Position startPosition, double bearing,
-            double distanceTravelled) {
+    private Position traverseLineRL(Position startPosition, double bearing, double distanceTravelled) {
 
         // How long will we have travelled along our route (route 1)
         // long timeTravelledSeconds = minutes * 60;
@@ -899,8 +846,7 @@ public abstract class IntendedRouteHandlerCommon extends
         // double distanceTravelled = Calculator.distanceAfterTimeMph(speed,
         // timeTravelledSeconds);
 
-        Position position = Calculator.findPosition(startPosition, bearing,
-                Converter.nmToMeters(distanceTravelled));
+        Position position = Calculator.findPosition(startPosition, bearing, Converter.nmToMeters(distanceTravelled));
 
         return position;
     }
@@ -913,8 +859,7 @@ public abstract class IntendedRouteHandlerCommon extends
      * @param distanceTravelled
      * @return
      */
-    private Position traverseLineGC(Position startPosition,
-            Position endPosition, double distanceTravelled) {
+    private Position traverseLineGC(Position startPosition, Position endPosition, double distanceTravelled) {
 
         // How long will we have travelled along our route (route 1)
         // long timeTravelledSeconds = minutes * 60;
@@ -922,8 +867,7 @@ public abstract class IntendedRouteHandlerCommon extends
         // double distanceTravelled = Calculator.distanceAfterTimeMph(speed,
         // timeTravelledSeconds);
 
-        Position position = Calculator.findPosition(startPosition, endPosition,
-                Converter.nmToMeters(distanceTravelled));
+        Position position = Calculator.findPosition(startPosition, endPosition, Converter.nmToMeters(distanceTravelled));
 
         return position;
     }
@@ -947,10 +891,8 @@ public abstract class IntendedRouteHandlerCommon extends
     }
 
     /**
-     * Updates the intended route filter settings. This base version simply
-     * updates fields. It is up to the sub class to add extra calls (e.g.
-     * {@link #updateFilter()}) in order to refresh state based on the updated
-     * settings.
+     * Updates the intended route filter settings. This base version simply updates fields. It is up to the sub class to add extra
+     * calls (e.g. {@link #updateFilter()}) in order to refresh state based on the updated settings.
      * 
      * @param settings
      *            The Enav Settings.
@@ -963,9 +905,16 @@ public abstract class IntendedRouteHandlerCommon extends
         ALERT_DISTANCE_EPSILON = settings.getAlertDistance();
 
         /*
-         * A sub class should call updateFilter() or similar if it wants to
-         * react on the changes to the settings.
+         * A sub class should call updateFilter() or similar if it wants to react on the changes to the settings.
          */
 
     }
+
+    /**
+     * @return the intendedRoutesIsVisibleGlobal
+     */
+    public boolean isIntendedRoutesIsVisibleGlobal() {
+        return intendedRoutesIsVisibleGlobal;
+    }
+
 }

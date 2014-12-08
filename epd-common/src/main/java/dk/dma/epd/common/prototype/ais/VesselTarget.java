@@ -34,6 +34,8 @@ public class VesselTarget extends MobileTarget {
     
     // NB: We do not want to persist intended route data
     private transient AisClass aisClass; 
+    
+    private boolean showIntendedRoute;
 
     /**
      * Copy constructor
@@ -113,22 +115,31 @@ public class VesselTarget extends MobileTarget {
         
         return elapsed > tol;
     }
+    
+    /**
+     * @return the showIntendedRoute
+     */
+    public boolean isShowIntendedRoute() {
+        return showIntendedRoute;
+    }
 
     /**
-     * Returns a string representation of this target
-     * @return a string representation of this target
+     * @param showIntendedRoute the showIntendedRoute to set
+     */
+    public void setShowIntendedRoute(boolean showIntendedRoute) {
+        this.showIntendedRoute = showIntendedRoute;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
      */
     @Override
-    public synchronized String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("VesselTarget [aisClass=");
-        builder.append(aisClass);
-        builder.append(", positionData=");
-        builder.append(positionData);
-        builder.append(", staticData=");
-        builder.append(staticData);
-        builder.append("]");
-        return builder.toString();
+    public String toString() {
+        return "VesselTarget [aisClass=" + aisClass + ", showIntendedRoute=" + showIntendedRoute + ", positionData=" + positionData
+                + ", staticData=" + staticData + "]";
     }
+
     
+
+
 }

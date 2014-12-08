@@ -42,7 +42,7 @@ public class IntendedRoute extends Route {
     protected Date etaFirst;
     protected Date etaLast;
     protected Double activeWpRange;
-    protected boolean visible = true;
+    protected boolean visible;
     protected long mmsi;
     protected int activeWpIndex;
 
@@ -72,10 +72,9 @@ public class IntendedRoute extends Route {
      *            route data received over the cloud
      */
     private void parseRoute(IntendedRouteMessage intendedRouteMessage) {
-        
+
         List<Waypoint> cloudRouteWaypoints = wpsFromIntendedRouteMessage(intendedRouteMessage);
-        
-        
+
         LinkedList<RouteWaypoint> routeWaypoints = this.getWaypoints();
 
         for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
@@ -84,7 +83,8 @@ public class IntendedRoute extends Route {
             Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
 
             waypoint.setName(cloudWaypoint.getName());
-            Position position = Position.create(cloudWaypoint.getLatitude(), cloudWaypoint.getLongitude());
+            Position position = Position.create(cloudWaypoint.getLatitude(),
+                    cloudWaypoint.getLongitude());
             waypoint.setPos(position);
 
             // Handle leg
@@ -121,22 +121,26 @@ public class IntendedRoute extends Route {
 
                     // SOG
                     if (cloudWaypoint.getRouteLeg().getSpeed() != null) {
-                        waypoint.setSpeed(cloudWaypoint.getRouteLeg().getSpeed());
+                        waypoint.setSpeed(cloudWaypoint.getRouteLeg()
+                                .getSpeed());
                     }
 
                     // XTDS
                     if (cloudWaypoint.getRouteLeg().getXtdStarboard() != null) {
-                        waypoint.getOutLeg().setXtdStarboard(cloudWaypoint.getRouteLeg().getXtdStarboard());
+                        waypoint.getOutLeg().setXtdStarboard(
+                                cloudWaypoint.getRouteLeg().getXtdStarboard());
                     }
 
                     // XTDP
                     if (cloudWaypoint.getRouteLeg().getXtdPort() != null) {
-                        waypoint.getOutLeg().setXtdPort(cloudWaypoint.getRouteLeg().getXtdPort());
+                        waypoint.getOutLeg().setXtdPort(
+                                cloudWaypoint.getRouteLeg().getXtdPort());
                     }
 
                     // SF Len
                     if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
-                        waypoint.getOutLeg().setSFLen(cloudWaypoint.getRouteLeg().getSFLen());
+                        waypoint.getOutLeg().setSFLen(
+                                cloudWaypoint.getRouteLeg().getSFLen());
                     }
 
                     // Heading
@@ -161,7 +165,8 @@ public class IntendedRoute extends Route {
         routeRange = 0.0;
         ranges.add(routeRange);
         for (int i = 0; i < waypoints.size() - 1; i++) {
-            double dist = waypoints.get(i).getPos().rhumbLineDistanceTo(waypoints.get(i + 1).getPos()) / 1852.0;
+            double dist = waypoints.get(i).getPos()
+                    .rhumbLineDistanceTo(waypoints.get(i + 1).getPos()) / 1852.0;
             routeRange += dist;
             ranges.add(routeRange);
         }
@@ -229,7 +234,8 @@ public class IntendedRoute extends Route {
      * @param posData
      */
     public void update(VesselPositionData posData) {
-        if (posData == null || posData.getPos() == null || waypoints.size() == 0) {
+        if (posData == null || posData.getPos() == null
+                || waypoints.size() == 0) {
             return;
         }
 
@@ -298,13 +304,15 @@ public class IntendedRoute extends Route {
 
         // Is the ship on the route yet? or where it was planning to be?
         // If not, don't draw anything as nothing is planned
-        if (plannedEtas == null || plannedEtas.size() != getWaypoints().size() || currentTime < plannedEtas.get(0).getTime()) {
+        if (plannedEtas == null || plannedEtas.size() != getWaypoints().size()
+                || currentTime < plannedEtas.get(0).getTime()) {
             return null;
         } else {
 
             for (int i = 0; i < getWaypoints().size(); i++) {
 
-                // We haven't found the match so the ship must have finished it's
+                // We haven't found the match so the ship must have finished
+                // it's
                 // route - Display the box at the end
                 if (i == getWaypoints().size() - 1) {
                     plannedPositionBearing = 0;
@@ -313,29 +321,43 @@ public class IntendedRoute extends Route {
                 } else {
 
                     // We should be beyond this
-                    if (currentTime > plannedEtas.get(i).getTime() && currentTime < plannedEtas.get(i + 1).getTime()) {
+                    if (currentTime > plannedEtas.get(i).getTime()
+                            && currentTime < plannedEtas.get(i + 1).getTime()) {
 
                         Position plannedPosition;
 
                         // How long have we been sailing between these
                         // waypoints?
-                        long secondsSailTime = (currentTime - plannedEtas.get(i).getTime()) / 1000;
+                        long secondsSailTime = (currentTime - plannedEtas
+                                .get(i).getTime()) / 1000;
 
-                        double distanceTravelledNauticalMiles = Converter.milesToNM(Calculator.distanceAfterTimeMph(getWaypoints()
-                                .get(i).getOutLeg().getSpeed(), secondsSailTime));
+                        double distanceTravelledNauticalMiles = Calculator
+                                .distanceAfterTimeMph(getWaypoints().get(i)
+                                        .getOutLeg().getSpeed(),
+                                        secondsSailTime);
 
                         if (this.getWaypoints().get(i).getOutLeg().getHeading() == Heading.GC) {
-                            plannedPosition = Calculator.findPosition(this.getWaypoints().get(i).getPos(),
-                                    this.getWaypoints().get(i + 1).getPos(), Converter.nmToMeters(distanceTravelledNauticalMiles));
+                            plannedPosition = Calculator
+                                    .findPosition(
+                                            this.getWaypoints().get(i).getPos(),
+                                            this.getWaypoints().get(i + 1)
+                                                    .getPos(),
+                                            Converter
+                                                    .nmToMeters(distanceTravelledNauticalMiles));
                         } else {
-                            plannedPosition = Calculator.findPosition(this.getWaypoints().get(i).getPos(),
-                                    this.getWaypoints().get(i).getOutLeg().calcBrg(),
-                                    Converter.nmToMeters(distanceTravelledNauticalMiles));
+                            plannedPosition = Calculator
+                                    .findPosition(
+                                            this.getWaypoints().get(i).getPos(),
+                                            this.getWaypoints().get(i)
+                                                    .getOutLeg().calcBrg(),
+                                            Converter
+                                                    .nmToMeters(distanceTravelledNauticalMiles));
                         }
 
                         RouteLeg leg = getWaypoints().get(i).getOutLeg();
-                        plannedPositionBearing = Calculator.bearing(leg.getStartWp().getPos(), leg.getEndWp().getPos(),
-                                leg.getHeading());
+                        plannedPositionBearing = Calculator.bearing(leg
+                                .getStartWp().getPos(),
+                                leg.getEndWp().getPos(), leg.getHeading());
 
                         return plannedPosition;
                     }
@@ -358,10 +380,12 @@ public class IntendedRoute extends Route {
 
     /**
      * Create an IntendedRouteMessage from a route model instance
+     * 
      * @param route
      * @return
      */
-    public static IntendedRouteMessage fromRoute(dk.dma.enav.model.voyage.Route route) {
+    public static IntendedRouteMessage fromRoute(
+            dk.dma.enav.model.voyage.Route route) {
         IntendedRouteMessage irm = new IntendedRouteMessage();
         ArrayList<dk.dma.epd.common.prototype.enavcloud.intendedroute.Waypoint> wps = new ArrayList<>();
         for (Waypoint wp : route.getWaypoints()) {
@@ -383,15 +407,17 @@ public class IntendedRoute extends Route {
                 }
                 iwp.setOutLeg(leg);
             }
-            wps.add(iwp);            
+            wps.add(iwp);
         }
         irm.setWaypoints(wps);
         return irm;
     }
-    
-    public static List<Waypoint> wpsFromIntendedRouteMessage(IntendedRouteMessage message) {
-        List<Waypoint> wps = new ArrayList<>();        
-        for (dk.dma.epd.common.prototype.enavcloud.intendedroute.Waypoint iwp : message.getWaypoints()) {
+
+    public static List<Waypoint> wpsFromIntendedRouteMessage(
+            IntendedRouteMessage message) {
+        List<Waypoint> wps = new ArrayList<>();
+        for (dk.dma.epd.common.prototype.enavcloud.intendedroute.Waypoint iwp : message
+                .getWaypoints()) {
             Waypoint wp = new Waypoint();
             wp.setLatitude(iwp.getLatitude());
             wp.setLongitude(iwp.getLongitude());
@@ -400,7 +426,7 @@ public class IntendedRoute extends Route {
             wp.setTurnRad(iwp.getTurnRad());
             if (iwp.getOutLeg() != null) {
                 Leg leg = iwp.getOutLeg();
-                dk.dma.enav.model.voyage.RouteLeg rleg = new dk.dma.enav.model.voyage.RouteLeg();                
+                dk.dma.enav.model.voyage.RouteLeg rleg = new dk.dma.enav.model.voyage.RouteLeg();
                 rleg.setSpeed(leg.getSpeed());
                 rleg.setXtdStarboard(leg.getXtdStarboard());
                 rleg.setXtdPort(leg.getXtdPort());
@@ -411,13 +437,13 @@ public class IntendedRoute extends Route {
                 }
                 wp.setRouteLeg(rleg);
             }
-            wps.add(wp);            
-        }        
-        return wps;        
+            wps.add(wp);
+        }
+        return wps;
     }
 
     public List<Date> getPlannedEtas() {
         return plannedEtas;
     }
-    
+
 }

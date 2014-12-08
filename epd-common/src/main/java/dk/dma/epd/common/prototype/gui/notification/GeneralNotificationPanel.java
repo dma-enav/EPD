@@ -103,22 +103,28 @@ public class GeneralNotificationPanel extends
                         DateTime notificationTime = ((GeneralNotification) notification)
                                 .getOptionalDateTimeOfAlertRelevance();
 
-                        long timeLeft = notificationTime.getMillis()
-                                - PntTime.getDate().getTime();
+                        if (notificationTime != null){
+                            long timeLeft = notificationTime.getMillis()
+                                    - PntTime.getDate().getTime();
 
-                        timeLeft = Math.abs(timeLeft);
+                            timeLeft = Math.abs(timeLeft);
 
-                        String timeLeftStr = String
-                                .format("%d min, %d sec",
-                                        TimeUnit.MILLISECONDS
-                                                .toMinutes(timeLeft),
-                                        TimeUnit.MILLISECONDS
-                                                .toSeconds(timeLeft)
-                                                - TimeUnit.MINUTES
-                                                        .toSeconds(TimeUnit.MILLISECONDS
-                                                                .toMinutes(timeLeft)));
+                            String timeLeftStr = String
+                                    .format("%d min, %d sec",
+                                            TimeUnit.MILLISECONDS
+                                                    .toMinutes(timeLeft),
+                                            TimeUnit.MILLISECONDS
+                                                    .toSeconds(timeLeft)
+                                                    - TimeUnit.MINUTES
+                                                            .toSeconds(TimeUnit.MILLISECONDS
+                                                                    .toMinutes(timeLeft)));
 
-                        return timeLeftStr;
+                            return timeLeftStr;                            
+                        }else{
+                            return "N/A";
+                        }
+                        
+
 
                         // DateTime currentTime = new DateTime(PntTime.getDate()
                         // .getTime());

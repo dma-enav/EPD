@@ -25,9 +25,11 @@ import java.util.Map.Entry;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.EPD;
@@ -285,7 +287,17 @@ public class JMenuWorkspaceBar extends JMenuBar {
         // }
         // }
         // });
+        
+//        add(new JSeparator());
+        
+        
+        JLabel jlabelTime = new JLabel("N/A:");
+        this.add(jlabelTime);
 
+        new Clock(jlabelTime);
+
+        
+        
     }
 
     /**

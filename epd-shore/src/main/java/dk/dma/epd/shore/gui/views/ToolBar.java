@@ -353,29 +353,6 @@ public class ToolBar extends JInternalFrame {
             System.out.println("failed to load enc dongle");
         }
 
-        // Tool: MSI layer
-        final JLabel intendedRoutes = new JLabel(toolbarIcon("images/toolbar/direction.png"));
-        intendedRoutes.setName("intended routes");
-        intendedRoutes.addMouseListener(new MouseAdapter() {
-            public void mouseReleased(MouseEvent e) {
-                boolean intendedRoutesVisible = settings.getCloudSettings().isShowIntendedRoute();
-                settings.getCloudSettings().setShowIntendedRoute(!intendedRoutesVisible);
-                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                    mapFrame.getChartPanel().intendedRouteLayerVisible(!intendedRoutesVisible);
-                }
-                if (intendedRoutesVisible) {
-                    setInactiveToolItem(intendedRoutes);
-                } else {
-                    setActiveToolItem(intendedRoutes, layerToolItems);
-                }
-            }
-        });
-        intendedRoutes.setToolTipText("Show/hide intended routes");
-        layerToolItems.addToolItem(intendedRoutes);
-        if (settings.getCloudSettings().isShowIntendedRoute()) {
-            setActiveToolItem(intendedRoutes, layerToolItems);
-        }
-
         // Set that the layer tools can have more than 1 active tool item at a
         // time
         layerToolItems.setSingleEnable(false);

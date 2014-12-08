@@ -259,11 +259,10 @@ public class ActiveRoute extends Route {
                         long secondsSailTime = (currentTime - originalRoute
                                 .getEtas().get(i).getTime()) / 1000;
 
-                        double distanceTravelledNauticalMiles = Converter
-                                .milesToNM(Calculator.distanceAfterTimeMph(
+                        double distanceTravelledNauticalMiles = Calculator.distanceAfterTimeMph(
                                         originalRoute.getWaypoints().get(i)
                                                 .getOutLeg().getSpeed(),
-                                        secondsSailTime));
+                                        secondsSailTime);
 
                         if (this.getWaypoints().get(i).getOutLeg().getHeading() == Heading.GC) {
                             safeHavenLocation = Calculator

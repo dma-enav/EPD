@@ -179,7 +179,7 @@ public class AisTargetPanel extends JPanel {
         gbc_intendedRouteCheckbox.anchor = GridBagConstraints.NORTH;
         gbc_intendedRouteCheckbox.gridx = 0;
         gbc_intendedRouteCheckbox.gridy = 8;
-        add(intendedRouteCheckbox, gbc_intendedRouteCheckbox);
+//        add(intendedRouteCheckbox, gbc_intendedRouteCheckbox);
 
         intendedRouteTitelLabel.setHorizontalAlignment(SwingConstants.LEFT);
         intendedRouteTitelLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -188,7 +188,7 @@ public class AisTargetPanel extends JPanel {
         gbc_IntendedRouteTitelLabel.insets = new Insets(0, 0, 5, 0);
         gbc_IntendedRouteTitelLabel.gridx = 1;
         gbc_IntendedRouteTitelLabel.gridy = 8;
-        add(intendedRouteTitelLabel, gbc_IntendedRouteTitelLabel);
+//        add(intendedRouteTitelLabel, gbc_IntendedRouteTitelLabel);
 
     }
 

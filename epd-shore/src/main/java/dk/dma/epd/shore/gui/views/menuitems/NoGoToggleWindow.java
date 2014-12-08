@@ -12,37 +12,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
-import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.shore.gui.views.NoGoPanel;
 
 /**
- * Opens the route suggestion notification
+ * Toggles the visibility of the Layer Toggling window
  */
-public class RouteSuggestionDetails extends JMenuItem implements IMapMenuAction {
+public class NoGoToggleWindow extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
-    RouteSuggestionData routeSuggestion;
 
-    public RouteSuggestionDetails(String text) {
+    private NoGoPanel nogoToggling;
+
+    public NoGoToggleWindow(String text) {
         super();
         setText(text);
     }
 
     @Override
     public void doAction() {
-        EPDShip.getInstance()
-                .getNotificationCenter()
-                .openNotification(NotificationType.TACTICAL_ROUTE,
-                        routeSuggestion.getId(), false);
+        nogoToggling.setVisible(!nogoToggling.isVisible());
     }
 
-    public void setRouteSuggestion(RouteSuggestionData routeSuggestion) {
-        this.routeSuggestion = routeSuggestion;
+    public void setLayerToggling(NoGoPanel layerToggling) {
+        this.nogoToggling = layerToggling;
     }
 }

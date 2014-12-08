@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
@@ -35,10 +36,10 @@ public class RouteGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
 
-    private static final float SCALE = 0.7f; // "Size" of graphics
+    protected static final float SCALE = 0.7f; // "Size" of graphics
     private Route route;
     private boolean arrowsVisible;
-    private LinkedList<RouteWaypoint> routeWaypoints;
+    protected LinkedList<RouteWaypoint> routeWaypoints;
     protected List<RouteLegGraphic> routeLegs = new ArrayList<>();
 
     protected Stroke routeStroke;
@@ -64,8 +65,8 @@ public class RouteGraphic extends OMGraphicList {
     public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color, Color broadLineColor,
             boolean circleDash, boolean lineDash) {
         super();
-        this.lineDash = lineDash;
         this.route = route;
+        this.lineDash = lineDash;
         this.routeIndex = routeIndex;
         this.arrowsVisible = arrowsVisible;
         this.routeStroke = stroke;
@@ -108,12 +109,12 @@ public class RouteGraphic extends OMGraphicList {
                 RouteLegGraphic routeLegGraphic = null;
 
                 if (lineDash) {
-                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, broadLineColor, SCALE);
+                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, broadLineColor, SCALE, this);
                 } else {
                     float[] dash = { 1000000.0f };
 
                     routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, broadLineColor, dash,
-                            SCALE);
+                            SCALE, this);
                 }
 
                 add(routeLegGraphic);
@@ -172,7 +173,7 @@ public class RouteGraphic extends OMGraphicList {
 
                 RouteLegGraphic routeLegGraphic;
                 if (route instanceof ActiveRoute) {
-                    routeLegGraphic = new ActiveRouteLegGraphic(routeLeg, routeIndex, legColor, this.routeStroke, SCALE, this, i);
+                    routeLegGraphic = new ActiveRouteLegGraphic(routeLeg, routeIndex, legColor, this.routeStroke, SCALE, this, i, EPD.getInstance().getSettings().getNavSettings().isShowXtd());
                 } else {
                     routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, legColor, this.routeStroke, SCALE, this, i);
                 }

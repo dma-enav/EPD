@@ -40,12 +40,13 @@ import javax.swing.JPopupMenu;
 import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.CenterVesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.HideAllIntendedRoutes;
 import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteColor;
+import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteToggle;
+import dk.dma.epd.common.prototype.gui.menuitems.MsiAcknowledge;
 import dk.dma.epd.common.prototype.gui.menuitems.MsiDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.MsiZoomTo;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteAppendWaypoint;
@@ -62,10 +63,8 @@ import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointActivateToggle;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointDelete;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointEditEta;
 import dk.dma.epd.common.prototype.gui.menuitems.SendChatMessage;
-import dk.dma.epd.common.prototype.gui.menuitems.ShowAllIntendedRoutes;
-import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteToggle;
-import dk.dma.epd.common.prototype.gui.menuitems.MsiAcknowledge;
 import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
+import dk.dma.epd.common.prototype.gui.menuitems.ShowAllIntendedRoutes;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
@@ -316,27 +315,14 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected void addIntendedRouteToggle(IntendedRoute intendedRoute) {
         if (intendedRoute != null) {
             intendedRouteToggle.setIntendedRouteHandler(intendedRouteHandler);
+            intendedRouteToggle.setAisHandler(aisHandler);
             intendedRouteToggle.setIntendedRoute(intendedRoute);
     
             intendedRouteToggle.setEnabled(intendedRoute.hasRoute());
             intendedRouteToggle.setText(intendedRoute.isVisible() 
                     ? "Hide intended route" 
                     : "Show intended route");
-            checkIntendedRouteItems(intendedRouteToggle);
             add(intendedRouteToggle);
-        }
-    }
-    
-    /**
-     * Checks if the intended route layer is visible. If not,
-     * the menu items are disabled.
-     * @param items the intended route menu items to check
-     */
-    protected void checkIntendedRouteItems(JMenuItem... items) {
-        if (!EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute()) {
-            for (JMenuItem item : items) {
-                item.setEnabled(false);
-            }
         }
     }
     

@@ -81,15 +81,21 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
     MapFrameType type = MapFrameType.standard;
 
     LayerTogglingPanel layerTogglingPanel = new LayerTogglingPanel();
+    NoGoPanel nogoPanel = new NoGoPanel();
 
     /**
      * Constructor for setting up the map frame
      * 
-     * @param id the id number for this map frame
-     * @param mainFrame reference to the map frame
-     * @param type the type of map frame
-     * @param center where to center map
-     * @param scale map zoom level
+     * @param id
+     *            the id number for this map frame
+     * @param mainFrame
+     *            reference to the map frame
+     * @param type
+     *            the type of map frame
+     * @param center
+     *            where to center map
+     * @param scale
+     *            map zoom level
      */
     public JMapFrame(int id, MainFrame mainFrame, final MapFrameType type, Point2D center, float scale) {
         super("New Window " + id, true, true, true, true);
@@ -107,32 +113,35 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         initGUI();
 
         layerTogglingPanel.setChartPanel(chartPanel);
-
         setVisible(true);
     }
 
     /**
      * Constructor for setting up the map frame
      * 
-     * @param id the id number for this map frame
-     * @param mainFrame reference to the map frame
-     * @param type the type of map frame
+     * @param id
+     *            the id number for this map frame
+     * @param mainFrame
+     *            reference to the map frame
+     * @param type
+     *            the type of map frame
      */
     public JMapFrame(int id, MainFrame mainFrame, final MapFrameType type) {
-        this(id, 
-             mainFrame, 
-             type,
-             EPDShore.getInstance().getSettings().getMapSettings().getCenter(), 
-             EPDShore.getInstance().getSettings().getMapSettings().getScale());
+        this(id, mainFrame, type, EPDShore.getInstance().getSettings().getMapSettings().getCenter(), EPDShore.getInstance()
+                .getSettings().getMapSettings().getScale());
     }
-    
+
     /**
      * Overloaded constructor for setting up the map frame
      * 
-     * @param id the id number for this map frame
-     * @param mainFrame reference to the map frame
-     * @param center where to center map
-     * @param scale map zoom level
+     * @param id
+     *            the id number for this map frame
+     * @param mainFrame
+     *            reference to the map frame
+     * @param center
+     *            where to center map
+     * @param scale
+     *            map zoom level
      */
     public JMapFrame(int id, MainFrame mainFrame, Point2D center, float scale) {
         this(id, mainFrame, MapFrameType.standard, center, scale);
@@ -147,11 +156,14 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         glassPanel.setVisible(false);
 
         layerTogglingPanel.setParent(this);
-        // layerTogglingPanel.setBounds(0, 20, 208, 300);
+        nogoPanel.setParent(this);
+
 
         glassPanel.add(layerTogglingPanel);
+        glassPanel.add(nogoPanel);
         glassPanel.setVisible(true);
         layerTogglingPanel.setVisible(true);
+        nogoPanel.setVisible(false);
 
     }
 
@@ -174,20 +186,19 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
     public Component asComponent() {
         return this;
     }
-    
+
     /**
      * Adds the given panel as a content panel next to the chart panel.
      * <p>
-     * The {@code position} is a {@linkplain BorderLayout} position,
-     * and may be either east, west or south.
+     * The {@code position} is a {@linkplain BorderLayout} position, and may be either east, west or south.
      * 
-     * @param panel the panel to add
-     * @param position the position of the panel
+     * @param panel
+     *            the panel to add
+     * @param position
+     *            the position of the panel
      */
     public void addContentPanel(JPanel panel, String position) {
-        if (!BorderLayout.EAST.equals(position) && 
-                !BorderLayout.WEST.equals(position) &&
-                !BorderLayout.SOUTH.equals(position)) {
+        if (!BorderLayout.EAST.equals(position) && !BorderLayout.WEST.equals(position) && !BorderLayout.SOUTH.equals(position)) {
             throw new IllegalArgumentException("Invalid position");
         }
         masterPanel.add(panel, position);
@@ -498,6 +509,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
      */
     public void repaintMapWindow() {
         layerTogglingPanel.checkPosition();
+        nogoPanel.checkPosition();
     }
 
     @Override
@@ -532,5 +544,14 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
     public LayerTogglingPanel getLayerTogglingPanel() {
         return layerTogglingPanel;
     }
+
+    /**
+     * @return the nogoPanel
+     */
+    public NoGoPanel getNogoPanel() {
+        return nogoPanel;
+    }
+    
+    
 
 }

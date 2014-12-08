@@ -21,6 +21,8 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.prototype.EPD;
+
 /**
  * Exception handler for uncaught exceptions. 
  */
@@ -31,8 +33,15 @@ public class ExceptionHandler implements UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         LOG.error("Uncaught exception from thread " + t.getName(), e);
-        JOptionPane.showMessageDialog(null, "An error has occured! If the problem persists please restart the software and contact an administrator.", "Application error", JOptionPane.ERROR_MESSAGE);
-        System.exit(1);
+        int result = JOptionPane.showConfirmDialog(
+                null, 
+                "An error has occured! If the problem persists please contact an administrator.\nRestart application?", 
+                "Error occured",
+                JOptionPane.YES_NO_OPTION, 
+                JOptionPane.ERROR_MESSAGE);
+        boolean restart = result == JOptionPane.YES_OPTION;
+        EPD.getInstance().setRestart(restart);
+        System.exit(restart ? 2 : 0);
     }
 
 }

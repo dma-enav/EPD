@@ -12,37 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
-import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.shore.gui.nogo.NogoDialog;
+import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.nogo.NogoHandler;
 
-/**
- * Opens the route suggestion notification
- */
-public class RouteSuggestionDetails extends JMenuItem implements IMapMenuAction {
-
+public class NogoRequest extends JMenuItem implements IMapMenuAction {
     private static final long serialVersionUID = 1L;
-    RouteSuggestionData routeSuggestion;
+    private NogoHandler nogoHandler;
+    private JMapFrame mapFrame;
 
-    public RouteSuggestionDetails(String text) {
+    public void setMapFrame(JMapFrame mapFrame) {
+        this.mapFrame = mapFrame;
+    }
+
+    public void setNogoHandler(NogoHandler nogoHandler) {
+        this.nogoHandler = nogoHandler;
+    }
+
+    public NogoRequest(String text) {
         super();
         setText(text);
     }
 
     @Override
     public void doAction() {
-        EPDShip.getInstance()
-                .getNotificationCenter()
-                .openNotification(NotificationType.TACTICAL_ROUTE,
-                        routeSuggestion.getId(), false);
-    }
-
-    public void setRouteSuggestion(RouteSuggestionData routeSuggestion) {
-        this.routeSuggestion = routeSuggestion;
+        NogoDialog nogoDialog = new NogoDialog(mapFrame, nogoHandler);
+        nogoDialog.setVisible(true);
     }
 }
