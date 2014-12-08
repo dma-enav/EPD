@@ -168,7 +168,7 @@
 		<!-- net.gescobar is not in Maven Central -->
 		<repository>
 			<id>elibom</id>
-			<url>http://repository.elibom.net/nexus/content/repositories/releases</url>
+			<url>http://repository.elibom.net/nexus/content/groups/public/</url>  
 		</repository>
 	</repositories>
 
