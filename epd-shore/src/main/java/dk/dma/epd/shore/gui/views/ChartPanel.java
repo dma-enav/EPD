@@ -258,7 +258,7 @@ public class ChartPanel extends ChartPanelCommon {
 
         // Add WMS Layer
         if (mapSettings.isUseWms()) {
-            wmsLayer = new WMSLayer(EPDShore.getInstance().getSettings().getMapSettings().getWmsQuery());
+            wmsLayer = new WMSLayer(EPDShore.getInstance().getSettings().getMapSettings().getWmsQuery(), EPDShore.getInstance().getSettings().getMapSettings());
             mapHandler.add(wmsLayer);
         }
 

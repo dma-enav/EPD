@@ -136,7 +136,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
 
         // Add WMS Layer
         if (mapSettings.isUseWms()) {
-            wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
+            wmsLayer = new WMSLayer(mapSettings.getWmsQuery(), EPDShip.getInstance().getSettings().getMapSettings());
             mapHandler.add(wmsLayer);
         }
 

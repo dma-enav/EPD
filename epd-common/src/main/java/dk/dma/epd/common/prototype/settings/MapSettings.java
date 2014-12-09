@@ -30,10 +30,10 @@ public class MapSettings implements Serializable {
 
     private LatLonPoint center = new LatLonPoint.Double(56, 11);
     private float scale = 10000000;
-    private boolean useEnc = true;
-    private boolean useWms; //default = false
-    private boolean encVisible = true;
-    private boolean wmsVisible;
+    private boolean useEnc = false;
+    private boolean useWms = true; //default = false
+    private boolean encVisible = false;
+    private boolean wmsVisible = false;
     private int maxScale = 5000;
     private boolean s52ShowText;
     private boolean s52ShallowPattern;

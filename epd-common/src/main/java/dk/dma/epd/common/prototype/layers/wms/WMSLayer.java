@@ -30,6 +30,7 @@ import dk.dma.epd.common.graphics.CenterRaster;
 import dk.dma.epd.common.prototype.event.WMSEvent;
 import dk.dma.epd.common.prototype.event.WMSEventListener;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.settings.MapSettings;
 
 /**
  * Layer handling all WMS data and displaying of it
@@ -38,39 +39,50 @@ import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
  * 
  */
 public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListener {
-    
+
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(WMSLayer.class);
-    
-//    private static final int PROJ_SCALE_THRESHOLD = 3428460;
-    private static final int PROJ_SCALE_THRESHOLD = 5125355;
-    
+
+    // private static final int PROJ_SCALE_THRESHOLD = 3428460;
+//    private static final int PROJ_SCALE_THRESHOLD = 5125355;
+    private static final int PROJ_SCALE_THRESHOLD = 4583541;
+
     volatile boolean shouldRun = true;
     private StreamingTiledWmsService wmsService;
     private int height = -1;
     private int width = -1;
     private float lastScale = -1F;
+    MapSettings mapSettings;
 
     private CopyOnWriteArrayList<OMGraphic> internalCache = new CopyOnWriteArrayList<>();
 
     /**
      * Constructor that starts the WMS layer in a separate thread
-     * @param query the WMS query
+     * 
+     * @param query
+     *            the WMS query
      */
-    public WMSLayer(String query) {
+    public WMSLayer(String query, MapSettings mapSettings) {
         LOG.info("WMS Layer inititated");
+
         wmsService = new StreamingTiledWmsService(query, 4);
         wmsService.addWMSEventListener(this);
+
+        this.mapSettings = mapSettings;
+
         new Thread(this).start();
 
     }
-    
+
     /**
      * Constructor that starts the WMS layer in a separate thread
-     * @param query the WMS query
-     * @param sharedCache the shared cache to use
+     * 
+     * @param query
+     *            the WMS query
+     * @param sharedCache
+     *            the shared cache to use
      */
-    public WMSLayer(String query,ConcurrentHashMap<String, OMGraphicList> sharedCache) {
+    public WMSLayer(String query, ConcurrentHashMap<String, OMGraphicList> sharedCache) {
         wmsService = new StreamingTiledWmsService(query, 4, sharedCache);
         wmsService.addWMSEventListener(this);
         new Thread(this).start();
@@ -78,6 +90,7 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
 
     /**
      * Returns a reference to the WMS service
+     * 
      * @return a reference to the WMS service
      */
     public AbstractWMSService getWmsService() {
@@ -91,11 +104,17 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
      *            of elements to be drawn
      */
     public void drawWMS(OMGraphicList tiles) {
-        this.internalCache.addAllAbsent(tiles);
-        graphics.clear();
-        graphics.addAll(internalCache);
-        graphics.addAll(tiles);
-        doPrepare();            
+        this.setVisible(mapSettings.isWmsVisible());
+        if (mapSettings.isWmsVisible()) {
+            this.internalCache.addAllAbsent(tiles);
+            graphics.clear();
+            graphics.addAll(internalCache);
+            graphics.addAll(tiles);
+            doPrepare();
+        } else {
+
+        }
+
     }
 
     /**
@@ -105,21 +124,17 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
     public void projectionChanged(ProjectionEvent e) {
         if (e.getProjection() != null) {
             Projection proj = e.getProjection().makeClone();
-    
+
             if (proj.getScale() != lastScale) {
                 clearWMS();
                 lastScale = proj.getScale();
-    
+
             }
-    
+
             width = proj.getWidth();
             height = proj.getHeight();
             if (width > 0 && height > 0 && proj.getScale() <= PROJ_SCALE_THRESHOLD) {
-                this.setVisible(true);
                 wmsService.queue(proj);
-            } else {
-
-                this.setVisible(false);
             }
         }
 
@@ -132,12 +147,12 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
      * Clears the WMS layer
      */
     public void clearWMS() {
-        // Aggressively flush the buffered images 
+        // Aggressively flush the buffered images
         for (OMGraphic g : internalCache) {
             if (g instanceof CenterRaster) {
-                CenterRaster cr = (CenterRaster)g;
+                CenterRaster cr = (CenterRaster) g;
                 if (cr.getImage() instanceof BufferedImage) {
-                    ((BufferedImage)cr.getImage()).flush();
+                    ((BufferedImage) cr.getImage()).flush();
                 }
             }
         }
@@ -146,19 +161,22 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
     }
 
     /**
-     * Main thread run method
-     * TODO: remove this since we now use WMSEvent and AbstractWMSService is observable.
+     * Main thread run method TODO: remove this since we now use WMSEvent and AbstractWMSService is observable.
      */
     @Override
     public void run() {
+
         while (shouldRun) {
+
             try {
-                Thread.sleep(25000);
+                Thread.sleep(10000);
+
                 final Projection proj = this.getProjection();
+
                 if (proj != null) {
                     width = proj.getWidth();
                     height = proj.getHeight();
-    
+
                     if (width > 0 && height > 0 && proj.getScale() <= PROJ_SCALE_THRESHOLD) {
                         OMGraphicList result = wmsService.getWmsList(proj);
                         drawWMS(result);
@@ -180,7 +198,9 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
 
     /**
      * Called by the WMS service upon a WMS change
-     * @param evt the WMS event
+     * 
+     * @param evt
+     *            the WMS event
      */
     @Override
     public void changeEventReceived(WMSEvent evt) {
@@ -190,4 +210,30 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
             drawWMS(result);
         }
     }
+
+    /**
+     * Force redraw if the visibility has been changed instead of waiting for thread
+     */
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if (visible) {
+            graphics.addAll(internalCache);
+            // graphics.addAll(tiles);
+            doPrepare();
+
+            // final Projection proj = this.getProjection();
+            //
+            // if (proj != null) {
+            // width = proj.getWidth();
+            // height = proj.getHeight();
+            //
+            // if (width > 0 && height > 0 && proj.getScale() <= PROJ_SCALE_THRESHOLD) {
+            // OMGraphicList result = wmsService.getWmsList(proj);
+            // drawWMS(result);
+            // }
+            // }
+        }
+    }
+
 }
