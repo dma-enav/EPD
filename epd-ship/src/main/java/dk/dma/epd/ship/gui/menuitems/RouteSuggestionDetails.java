@@ -25,21 +25,23 @@ import dk.dma.epd.ship.EPDShip;
  * Opens the route suggestion notification
  */
 public class RouteSuggestionDetails extends JMenuItem implements IMapMenuAction {
-    
+
     private static final long serialVersionUID = 1L;
     RouteSuggestionData routeSuggestion;
-    
+
     public RouteSuggestionDetails(String text) {
         super();
         setText(text);
     }
-    
+
     @Override
     public void doAction() {
-        EPDShip.getInstance().getNotificationCenter()
-            .openNotification(NotificationType.TACTICAL_ROUTE, routeSuggestion.getId(), false);
+        EPDShip.getInstance()
+                .getNotificationCenter()
+                .openNotification(NotificationType.TACTICAL_ROUTE,
+                        routeSuggestion.getId(), false);
     }
-    
+
     public void setRouteSuggestion(RouteSuggestionData routeSuggestion) {
         this.routeSuggestion = routeSuggestion;
     }

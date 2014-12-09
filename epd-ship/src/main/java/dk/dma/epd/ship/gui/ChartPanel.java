@@ -14,32 +14,18 @@
  */
 package dk.dma.epd.ship.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import javax.swing.BorderFactory;
-
-import dk.dma.epd.ship.layers.msi.MsiNmLayer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MouseDelegator;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
+import dk.dma.epd.common.prototype.event.mouse.NoGoMouseModeCommon;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteCPALayer;
+import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
 import dk.dma.epd.common.prototype.layers.predictor.DynamicPredictorLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
@@ -57,17 +43,15 @@ import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.MSIFilterMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
-import dk.dma.epd.ship.event.NoGoMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DockableComponentPanel;
-import dk.dma.epd.ship.gui.nogo.NogoDialog;
 import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
 import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
-import dk.dma.epd.ship.layers.nogo.NogoLayer;
+import dk.dma.epd.ship.layers.msi.MsiNmLayer;
 import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
@@ -75,6 +59,18 @@ import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDMapSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.BorderFactory;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -88,25 +84,21 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
     // Mouse modes
     private MSIFilterMouseMode msiFilterMouseMode;
     private CommonDistanceCircleMouseMode rangeCirclesMouseMode;
-    private NoGoMouseMode noGoMouseMode;
 
     // Layers
     private OwnShipLayer ownShipLayer;
     private VoyageLayer voyageLayer;
-    private NogoLayer nogoLayer;
+
     private VoctLayer voctLayer;
     private CommonRulerLayer rulerLayer;
     private DynamicPredictorLayer dynamicPredictorLayer;
     private IntendedRouteLayer intendedRouteLayer;
-    
+
     private TopPanel topPanel;
     private VOCTManager voctManager;
     private ActiveWaypointComponentPanel activeWaypointPanel;
-    private NogoDialog nogoDialog;
     protected PntData pntData;
 
-    
-    
     /**
      * Constructor
      * 
@@ -141,7 +133,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
 
         // Add WMS Layer
         if (mapSettings.isUseWms()) {
-            wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
+            wmsLayer = new WMSLayer(mapSettings.getWmsQuery(), EPDShip.getInstance().getSettings().getMapSettings());
             mapHandler.add(wmsLayer);
         }
 
@@ -156,7 +148,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         // MapHandler.
         // Adding NavMouseMode first makes it active.
         mapNavMouseMode = new NavigationMouseMode(this);
-        noGoMouseMode = new NoGoMouseMode(this);
+        nogoMouseMode = new NoGoMouseModeCommon(this);
         routeEditMouseMode = new RouteEditMouseMode(this);
 
         msiFilterMouseMode = new MSIFilterMouseMode();
@@ -164,13 +156,13 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         rangeCirclesMouseMode = new CommonDistanceCircleMouseMode();
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
-        mouseDelegator.addMouseMode(noGoMouseMode);
+        mouseDelegator.addMouseMode(nogoMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
         mouseDelegator.addMouseMode(msiFilterMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);
         mouseDelegator.addMouseMode(rangeCirclesMouseMode);
         getMap().addKeyListener(mapNavMouseMode);
-        getMap().addKeyListener(noGoMouseMode);
+        getMap().addKeyListener(nogoMouseMode);
 
         mouseDelegator.setActive(mapNavMouseMode);
         // Inform the distance circle mouse mode what mouse mode was initially
@@ -178,7 +170,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         rangeCirclesMouseMode.setPreviousMouseModeModeID(NavigationMouseMode.MODE_ID);
 
         mapHandler.add(mapNavMouseMode);
-        mapHandler.add(noGoMouseMode);
+        mapHandler.add(nogoMouseMode);
         mapHandler.add(routeEditMouseMode);
         mapHandler.add(msiFilterMouseMode);
         mapHandler.add(activeWaypointPanel);
@@ -252,7 +244,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
-        
+
         // Create Intended Route Layer
         intendedRouteLayer = new IntendedRouteLayer();
         intendedRouteLayer.setVisible(true);
@@ -314,9 +306,6 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
 
         // Show WMS or not
         wmsVisible(EPDShip.getInstance().getSettings().getMapSettings().isWmsVisible());
-
-        // Show intended routes or not
-        intendedRouteLayerVisible(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
 
         getMap().addMouseWheelListener(this);
 
@@ -446,7 +435,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
 
             topPanel.getNavigationMouseMode().setSelected(false);
             topPanel.getDragMouseMode().setSelected(true);
-            System.out.println("Setting drag mouse mode");
+//            System.out.println("Setting drag mouse mode");
         }
 
         // Distance circle mouse mode
@@ -470,9 +459,9 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         }
 
         // Request NoGo Area.
-        if (modeID.equals(NoGoMouseMode.MODE_ID)) {
+        if (modeID.equals(NoGoMouseModeCommon.MODE_ID)) {
             // Set the mouse mode.
-            mouseDelegator.setActive(noGoMouseMode);
+            mouseDelegator.setActive(nogoMouseMode);
         }
     }
 
@@ -672,18 +661,6 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
 
     public HistoryListener getProjectChangeListener() {
         return getHistoryListener();
-    }
-
-    public NoGoMouseMode getNoGoMouseMode() {
-        return noGoMouseMode;
-    }
-
-    public void setNogoDialog(NogoDialog dialog) {
-        this.nogoDialog = dialog;
-    }
-
-    public NogoDialog getNogoDialog() {
-        return nogoDialog;
     }
 
     public void setDynamicPredictorLayerVisibility(boolean visible) {

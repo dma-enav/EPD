@@ -71,7 +71,7 @@ public class FALHandlerCommon extends EnavServiceHandlerCommon implements ICloud
      */
     @Override
     public void messageReceivedByCloud(FALReportMessage message) {
-        System.out.println("Message recieved by cloud");
+//        System.out.println("Message recieved by cloud");
         // EPD.getInstance().getNotificationCenter().checkRefreshSelection(NotificationType.STRATEGIC_ROUTE, message.getId());
     }
 
@@ -80,7 +80,7 @@ public class FALHandlerCommon extends EnavServiceHandlerCommon implements ICloud
      */
     @Override
     public void messageHandled(FALReportMessage message, FALReportReply reply) {
-        System.out.println("Message Recieved by application");
+//        System.out.println("Message Recieved by application");
         // EPD.getInstance().getNotificationCenter().checkRefreshSelection(NotificationType.STRATEGIC_ROUTE, message.getId());
     }
 

@@ -83,7 +83,7 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
         }
 
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
-            System.out.println("SAR PANEL DISPLAY ?");
+//            System.out.println("SAR PANEL DISPLAY ?");
             sarComplete(voctManager.getSarData());
         }
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {

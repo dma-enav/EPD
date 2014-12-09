@@ -49,7 +49,7 @@ public class RouteActivateToggle extends RouteMenuItem {
                                 "The planned ETAs of the route is in the past, \n recommend you adjust the route ETAs before activating.",
                                 "Activate route", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
                                 options[0]);
-                System.out.println("chosen: " + chosen);
+//                System.out.println("chosen: " + chosen);
                 switch (chosen) {
                 case 0:
                     RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(EPD.getInstance()

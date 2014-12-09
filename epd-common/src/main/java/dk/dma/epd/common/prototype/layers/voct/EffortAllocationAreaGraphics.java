@@ -21,6 +21,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
@@ -72,8 +73,8 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
         double height = Converter.metersToNm(A.distanceTo(C, CoordinateSystem.CARTESIAN));
 
-        System.out.println("Width is " + width);
-        System.out.println("Height is : " + height);
+//        System.out.println("Width is " + width);
+//        System.out.println("Height is : " + height);
 
         totalSize = width * height;
 
@@ -119,7 +120,7 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
             if (verticalBearing < 280 && verticalBearing > 260 || verticalBearing < 100 && verticalBearing > 70) {
 
                 double newVer = verticalBearing;
-                System.out.println("swapping");
+//                System.out.println("swapping");
                 verticalBearing = horizontalBearing;
                 horizontalBearing = newVer;
 
@@ -136,13 +137,17 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
                 verticalBearing = Calculator.reverseDirection(verticalBearing);
             }
 
-            System.out.println("Vertical bearing is: " + verticalBearing);
-            System.out.println("Horizontal bearing is: " + horizontalBearing);
+//            System.out.println("Vertical bearing is: " + verticalBearing);
+//            System.out.println("Horizontal bearing is: " + horizontalBearing);
 
         }
 
-        if (sarData instanceof DatumPointData) {
-            DatumPointData datumData = (DatumPointData) data;
+        if (sarData instanceof DatumPointData || sarData instanceof DatumLineData) {
+            
+            DatumLineData datumLineDat = (DatumLineData) sarData;
+            
+            
+            DatumPointData datumData = datumLineDat.getDatumPointDataSets().get(0);
             verticalBearing = Calculator.bearing(datumData.getA(), datumData.getD(), Heading.RL);
             horizontalBearing = Calculator.bearing(datumData.getA(), datumData.getB(), Heading.RL);
             centerPosition = datumData.getDatumDownWind();
@@ -152,7 +157,7 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
             if (verticalBearing < 280 && verticalBearing > 260 || verticalBearing < 100 && verticalBearing > 70) {
 
                 double newVer = verticalBearing;
-                System.out.println("swapping");
+//                System.out.println("swapping");
                 verticalBearing = horizontalBearing;
                 horizontalBearing = newVer;
 
@@ -169,8 +174,8 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
                 verticalBearing = Calculator.reverseDirection(verticalBearing);
             }
 
-            System.out.println("Vertical bearing is: " + verticalBearing);
-            System.out.println("Horizontal bearing is: " + horizontalBearing);
+//            System.out.println("Vertical bearing is: " + verticalBearing);
+//            System.out.println("Horizontal bearing is: " + horizontalBearing);
         }
 
         if (sarData instanceof DatumPointDataSARIS) {
@@ -186,7 +191,7 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
             if (verticalBearing < 280 && verticalBearing > 260 || verticalBearing < 100 && verticalBearing > 70) {
 
                 double newVer = verticalBearing;
-                System.out.println("swapping");
+//                System.out.println("swapping");
                 verticalBearing = horizontalBearing;
                 horizontalBearing = newVer;
 
@@ -203,8 +208,8 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
                 verticalBearing = Calculator.reverseDirection(verticalBearing);
             }
 
-            System.out.println("Vertical bearing is: " + verticalBearing);
-            System.out.println("Horizontal bearing is: " + horizontalBearing);
+//            System.out.println("Vertical bearing is: " + verticalBearing);
+//            System.out.println("Horizontal bearing is: " + horizontalBearing);
         }
 
         // Find A position
@@ -259,7 +264,7 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
         double height = 0;
         double width = 0;
 
-        System.out.println(type);
+//        System.out.println(type);
 
         if (type == LineType.BOTTOM) {
 
@@ -271,7 +276,7 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
                 // of the line ie. inversing
                 double deltaValue = A.getLatitude() - (newPos.getLatitude() + deltaCorrection);
 
-                // System.out.println(deltaValue);
+//                 System.out.println(deltaValue);
 
                 if (deltaValue > 0) {
 
@@ -403,7 +408,7 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
                     updateLines(A, B, C, D);
                 }
             } else {
-                System.out.println("Its null");
+//                System.out.println("Its null");
             }
         }
     }
@@ -497,11 +502,11 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
             intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
 
-            System.out.println(a1);
-            System.out.println(a2);
-            System.out.println(b1);
-            System.out.println(b2);
-            System.out.println(intersectionPoint);
+//            System.out.println(a1);
+//            System.out.println(a2);
+//            System.out.println(b1);
+//            System.out.println(b2);
+//            System.out.println(intersectionPoint);
 
         }
 
@@ -532,7 +537,7 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
             return newPos;
 
         } else {
-            System.out.println("something went bad... for mouse bearing " + bearing);
+//            System.out.println("something went bad... for mouse bearing " + bearing);
 
             return null;
         }
@@ -544,8 +549,8 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
         double bearing = A.rhumbLineBearingTo(newPos);
 
-        System.out.println("Vertical bearing " + verticalBearing);
-        System.out.println("Horizontal bearing " + horizontalBearing);
+//        System.out.println("Vertical bearing " + verticalBearing);
+//        System.out.println("Horizontal bearing " + horizontalBearing);
 
         Geo intersectionPoint = null;
 
@@ -592,7 +597,7 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
             return newPos;
 
         } else {
-            System.out.println("something went bad... for mouse bearing " + bearing);
+//            System.out.println("something went bad... for mouse bearing " + bearing);
 
             return null;
         }
@@ -604,8 +609,8 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
         double bearing = C.rhumbLineBearingTo(newPos);
 
-        System.out.println("Vertical bearing " + verticalBearing);
-        System.out.println("Horizontal bearing " + horizontalBearing);
+//        System.out.println("Vertical bearing " + verticalBearing);
+//        System.out.println("Horizontal bearing " + horizontalBearing);
 
         Geo intersectionPoint = null;
 
@@ -652,7 +657,7 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
             return newPos;
 
         } else {
-            System.out.println("something went bad... for mouse bearing " + bearing);
+//            System.out.println("something went bad... for mouse bearing " + bearing);
 
             return null;
         }
@@ -660,8 +665,8 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
 
     public void updateEffectiveAreaSize(SARData sarData) {
 
-        System.out.println("Is the sar data null? ");
-        System.out.println(sarData == null);
+//        System.out.println("Is the sar data null? ");
+//        System.out.println(sarData == null);
 
         //
         // SRU currentSRU = sruList.get(sruManager.getSRUsAsList()[i].getMmsi());

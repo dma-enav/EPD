@@ -27,27 +27,27 @@ import dk.dma.epd.common.Heading;
  * Graphic for intended route leg graphic
  */
 public class IntendedRouteLegGraphic extends OMLine {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     private IntendedRouteGraphic intendedRouteGraphic;
     private OMArrowHead arrow;
     private int index;
 
-    public IntendedRouteLegGraphic(
-            int index, 
-            IntendedRouteGraphic intendedRouteGraphic, 
-            boolean activeWaypoint, 
-            Position start,
-            Position end, 
-            Heading heading,
-            Color legColor, 
-            float scale) {
-        
-        super(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude(), heading.getOMLineType());
+    private boolean isActiveWpLine;
+
+    public IntendedRouteLegGraphic(int index,
+            IntendedRouteGraphic intendedRouteGraphic, boolean activeWaypoint,
+            Position start, Position end, Heading heading, Color legColor,
+            float scale, boolean isActiveWpLine) {
+
+        super(start.getLatitude(), start.getLongitude(), end.getLatitude(), end
+                .getLongitude(), heading.getOMLineType());
+
+        this.isActiveWpLine = isActiveWpLine;
         this.index = index;
         this.intendedRouteGraphic = intendedRouteGraphic;
-        if(activeWaypoint){
+        if (activeWaypoint) {
             setStroke(new BasicStroke(2.0f * scale, // Width
                     BasicStroke.CAP_SQUARE, // End cap
                     BasicStroke.JOIN_MITER, // Join style
@@ -62,29 +62,34 @@ public class IntendedRouteLegGraphic extends OMLine {
                     new float[] { 10.0f * scale, 8.0f * scale }, // Dash pattern
                     0.0f)); // Dash phase)
         }
-        
-        arrow = new OMArrowHead(
-                OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 
-                55, 
-                (int)(5.0 * scale), 
-                (int)(15 * scale));
-        
-        setLinePaint(legColor);        
+
+        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55,
+                (int) (5.0 * scale), (int) (15 * scale));
+
+        setLinePaint(legColor);
     }
 
     public IntendedRouteGraphic getIntendedRouteGraphic() {
         return intendedRouteGraphic;
     }
-    
+
     public int getIndex() {
         return index;
     }
-    
-    public void setArrows(boolean arrowsVisible){
-        if(!arrowsVisible) {
+
+    public void setArrows(boolean arrowsVisible) {
+        if (!arrowsVisible) {
             this.setArrowHead(null);
         } else {
             this.setArrowHead(arrow);
         }
     }
+
+    /**
+     * @return the isActiveWpLine
+     */
+    public boolean isActiveWpLine() {
+        return isActiveWpLine;
+    }
+
 }

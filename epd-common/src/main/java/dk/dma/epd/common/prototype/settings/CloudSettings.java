@@ -35,8 +35,7 @@ public class CloudSettings  implements Serializable {
     
     // Intended route settings
     private boolean broadcastIntendedRoute = true;
-    private boolean showIntendedRoute = true;
-    private boolean intendedRouteFilterOn = true;
+    private boolean intendedRouteFilterOn;
     private int timeBetweenBroadCast = 1;
     private int adaptionTime = 1;
 
@@ -64,7 +63,6 @@ public class CloudSettings  implements Serializable {
         broadcastIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "broadcastIntendedRoute", broadcastIntendedRoute);
         this.timeBetweenBroadCast = PropUtils.intFromProperties(props, PREFIX + "timeBetweenBroadCast", this.timeBetweenBroadCast);
         this.adaptionTime = PropUtils.intFromProperties(props, PREFIX + "adaptionTime", this.adaptionTime);
-        showIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "showIntendedRoute", showIntendedRoute);
         intendedRouteFilterOn = PropUtils.booleanFromProperties(props, PREFIX + "intendedRouteFilterOn", intendedRouteFilterOn);
     }
     
@@ -85,7 +83,6 @@ public class CloudSettings  implements Serializable {
         props.put(PREFIX + "broadcastIntendedRoute", Boolean.toString(broadcastIntendedRoute));
         props.put(PREFIX + "timeBetweenBroadCast", Integer.toString(this.timeBetweenBroadCast));
         props.put(PREFIX + "adaptionTime",Integer.toString(adaptionTime));
-        props.put(PREFIX + "showIntendedRoute", Boolean.toString(showIntendedRoute));
         props.put(PREFIX + "intendedRouteFilterOn", Boolean.toString(intendedRouteFilterOn));
     }
     
@@ -121,14 +118,6 @@ public class CloudSettings  implements Serializable {
 
     public void setBroadcastIntendedRoute(boolean broadcastIntendedRoute) {
         this.broadcastIntendedRoute = broadcastIntendedRoute;
-    }
-
-    public boolean isShowIntendedRoute() {
-        return showIntendedRoute;
-    }
-
-    public void setShowIntendedRoute(boolean showIntendedRoute) {
-        this.showIntendedRoute = showIntendedRoute;
     }
 
     public int getTimeBetweenBroadCast() {

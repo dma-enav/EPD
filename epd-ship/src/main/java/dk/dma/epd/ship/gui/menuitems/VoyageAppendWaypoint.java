@@ -48,7 +48,7 @@ public class VoyageAppendWaypoint extends JMenuItem implements IMapMenuAction {
 
     @Override
     public void doAction() {
-        System.out.println("VoyageAppendWaypoint clicked!");
+//        System.out.println("VoyageAppendWaypoint clicked!");
         this.route.appendWaypoint();
         // Notify listeners of the new waypoint
         EPDShip.getInstance().getVoyageEventDispatcher().notifyListenersOfVoyageUpdate(

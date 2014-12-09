@@ -14,6 +14,7 @@
  */
 package dk.dma.epd.common.prototype.layers.intendedroute;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -59,18 +60,23 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private String name;
     private boolean arrowsVisible;
     private Position vesselPos;
+    Color highlightColor = new Color(3, 137, 3);
 
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
     private List<WpCircle> routeWps = new ArrayList<>();
+    private ActiveIntendedRouteWpCircle activeWpCircle;
 
-    private PlannedPositionGraphic plannedPositionArea = new PlannedPositionGraphic();
+    // private PlannedPositionGraphic plannedPositionArea = new
+    // PlannedPositionGraphic();
 
     /**
      * Constructor
      */
     public IntendedRouteGraphic() {
         super();
-        add(plannedPositionArea);
+
+        // Temp fix for disabling planned position Area
+        // add(plannedPositionArea);
     }
 
     /**
@@ -85,13 +91,13 @@ public class IntendedRouteGraphic extends OMGraphicList {
      * @param heading
      *            the heading of the leg
      */
-    private void makeLegLine(int index, Position start, Position end,
-            Heading heading) {
-        IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this,
-                false, start, end, heading, routeColor, SCALE);
+    private IntendedRouteLegGraphic makeLegLine(int index, Position start, Position end, Heading heading) {
+        IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this, false, start, end, heading, routeColor, SCALE, false);
         leg.setArrows(arrowsVisible);
-        routeLegs.add(leg);
-        add(leg);
+        // routeLegs.add(leg);
+        // add(leg);
+
+        return leg;
     }
 
     /**
@@ -102,21 +108,41 @@ public class IntendedRouteGraphic extends OMGraphicList {
      * @param wp
      *            the way point position
      */
-    private void makeWpCircle(int index, Position wp) {
+    private void makeWpCircleActiveWP(int index, Position wp) {
 
-        if (intendedRoute.getActiveWpIndex() == index) {
-            ActiveIntendedRouteWpCircle activeWpCircle = new ActiveIntendedRouteWpCircle(
-                    this, index, wp.getLatitude(), wp.getLongitude(),
-                    routeColor, SCALE);
-            add(activeWpCircle);
-            routeWps.add(activeWpCircle);
-        }
+        activeWpCircle = new ActiveIntendedRouteWpCircle(this, index, wp.getLatitude(), wp.getLongitude(), routeColor, SCALE);
+        // add(activeWpCircle);
+        // routeWps.add(activeWpCircle);
 
-        IntendedRouteWpCircle wpCircle = new IntendedRouteWpCircle(this, index,
-                wp.getLatitude(), wp.getLongitude(), routeColor, SCALE);
+        graphics.add(activeWpCircle);
 
-        routeWps.add(wpCircle);
-        add(wpCircle);
+    }
+
+    /**
+     * Creates a new route circle
+     * 
+     * @param index
+     *            the index of the way point
+     * @param wp
+     *            the way point position
+     */
+    private IntendedRouteWpCircle makeWpCircle(int index, Position wp) {
+
+        // if (intendedRoute.getActiveWpIndex() == index) {
+        // ActiveIntendedRouteWpCircle activeWpCircle = new ActiveIntendedRouteWpCircle(this, index, wp.getLatitude(),
+        // wp.getLongitude(), routeColor, SCALE);
+        // add(activeWpCircle);
+        // routeWps.add(activeWpCircle);
+        //
+        // return activeWpCircle;
+        // }
+
+        IntendedRouteWpCircle wpCircle = new IntendedRouteWpCircle(this, index, wp.getLatitude(), wp.getLongitude(), routeColor,
+                SCALE);
+
+        // routeWps.add(wpCircle);
+        // add(wpCircle);
+        return wpCircle;
     }
 
     /**
@@ -141,11 +167,23 @@ public class IntendedRouteGraphic extends OMGraphicList {
      *            the color to use
      */
     private void updateColor(Color color) {
+        int i = 0;
         for (IntendedRouteLegGraphic routeLeg : routeLegs) {
-            routeLeg.setLinePaint(color);
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeLeg.setLinePaint(adjustColor(color, 0.3f, 0.9f));
+            } else {
+                routeLeg.setLinePaint(color);
+            }
+            i++;
         }
+        i = 0;
         for (WpCircle routeWp : routeWps) {
-            routeWp.setLinePaint(color);
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeWp.setLinePaint(adjustColor(color, 0.3f, 0.9f));
+            } else {
+                routeWp.setLinePaint(color);
+            }
+            i++;
         }
         if (activeWpLine != null) {
             activeWpLine.setLinePaint(color);
@@ -160,28 +198,26 @@ public class IntendedRouteGraphic extends OMGraphicList {
      */
     public synchronized void updateVesselPosition(Position vesselPos) {
 
-        if ((vesselPos == null && this.vesselPos != null)
-                || !vesselPos.equals(this.vesselPos)) {
+        if ((vesselPos == null && this.vesselPos != null) || !vesselPos.equals(this.vesselPos)) {
             this.vesselPos = vesselPos;
             renderIntendedRoute();
         }
         if (!this.isVisible()) {
-            plannedPositionArea.setVisible(false);
+            // plannedPositionArea.setVisible(false);
         } else {
-            plannedPositionArea.setVisible(true);
+            // plannedPositionArea.setVisible(true);
         }
     }
 
     /**
-     * Called when the graphics should be updated with the current intended
-     * route
+     * Called when the graphics should be updated with the current intended route
      */
     public synchronized void updateIntendedRoute() {
         updateIntendedRoute(intendedRoute);
 
         // Update planned position
-        plannedPositionArea.moveSymbol(intendedRoute.getPlannedPosition(),
-                intendedRoute.getPlannedPositionBearing(), 1000, 500);
+        // plannedPositionArea.moveSymbol(intendedRoute.getPlannedPosition(),
+        // intendedRoute.getPlannedPositionBearing(), 1000, 500);
     }
 
     /**
@@ -201,59 +237,82 @@ public class IntendedRouteGraphic extends OMGraphicList {
         renderIntendedRoute();
     }
 
-    /**
-     * Re-renders the intended route
-     */
-    private void renderIntendedRoute() {
-        // Clear the graphics
-        clear();
-        routeLegs = new ArrayList<>();
-        routeWps = new ArrayList<>();
-
-        // Re-add planned position
-        add(plannedPositionArea);
-
-        // Handle empty route
-        if (intendedRoute == null || !intendedRoute.hasRoute()) {
-            setVisible(false);
-            return;
-        }
+    private void updateGraphics() {
 
         int x = 0;
+        int legsCreated = 0;
         for (RouteWaypoint wp : intendedRoute.getWaypoints()) {
-            // Make way point circle
-            makeWpCircle(x, wp.getPos());
 
-            // Make the leg
+            WpCircle wpCircle;
+            IntendedRouteLegGraphic wpLeg;
+
+            if (x == intendedRoute.getActiveWpIndex()) {
+
+                if (routeWps.size() > x && activeWpCircle != null) {
+                    activeWpCircle.setLatLon(wp.getPos().getLatitude(), wp.getPos().getLongitude());
+                } else {
+                    makeWpCircleActiveWP(x, wp.getPos());
+                }
+            }
+
+            if (routeWps.size() > x && routeWps.get(x) != null) {
+                wpCircle = routeWps.get(x);
+                wpCircle.setLatLon(wp.getPos().getLatitude(), wp.getPos().getLongitude());
+            } else {
+
+                wpCircle = makeWpCircle(x, wp.getPos());
+                routeWps.add(wpCircle);
+                graphics.add(wpCircle);
+            }
+
             RouteLeg leg = wp.getOutLeg();
             if (leg != null) {
-                makeLegLine(x + 1, leg.getStartWp().getPos(), leg.getEndWp()
-                        .getPos(), leg.getHeading());
+
+                legsCreated++;
+
+                if (routeLegs.size() > x && routeWps.get(x) != null) {
+
+                    wpLeg = routeLegs.get(x);
+
+                    Position startPos = leg.getStartWp().getPos();
+                    Position endPos = leg.getEndWp().getPos();
+
+                    double[] lls = { startPos.getLatitude(), startPos.getLongitude(), endPos.getLatitude(), endPos.getLongitude() };
+                    double[] currentlls = wpLeg.getLL();
+
+                    if (!(lls[0] == currentlls[0] && lls[1] == currentlls[1] && lls[2] == currentlls[2] && lls[3] == currentlls[3])) {
+                        wpLeg.setLL(lls);
+                    }
+                } else {
+                    // // Make the leg
+                    wpLeg = makeLegLine(x + 1, leg.getStartWp().getPos(), leg.getEndWp().getPos(), leg.getHeading());
+
+                    routeLegs.add(wpLeg);
+                    graphics.add(wpLeg);
+                }
             }
 
             x++;
         }
 
-        // Update leg to first way point
-        if (vesselPos != null) {
+        // Remove excess legs and waypoints incase we are at the start/end of route
+        while (intendedRoute.getWaypoints().size() != routeWps.size()) {
 
-            // Attempt to set the heading of this leg to that
-            // of the in-leg of the active way point
-            Heading heading = Heading.RL;
-            if (intendedRoute.getActiveWaypoint().getInLeg() != null) {
-                heading = intendedRoute.getActiveWaypoint().getInLeg()
-                        .getHeading();
-            }
-            Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
-            activeWpLine = new IntendedRouteLegGraphic(0, this, true,
-                    vesselPos, activeWpPos, heading, routeColor, SCALE);
-            add(activeWpLine);
+            WpCircle toBeRemoved = routeWps.get(routeWps.size() - 1);
+            graphics.remove(toBeRemoved);
+            routeWps.remove(routeWps.size() - 1);
+
+        }
+
+        while (legsCreated != routeLegs.size()) {
+            IntendedRouteLegGraphic toBeRemoved = routeLegs.get(routeLegs.size() - 1);
+            graphics.remove(toBeRemoved);
+            routeLegs.remove(routeLegs.size() - 1);
         }
 
         // Adjust the transparency of the color depending on the last-received
         // time for the route
-        long secondsSinceReceived = (PntTime.getDate().getTime() - intendedRoute
-                .getReceived().getTime()) / 1000L;
+        long secondsSinceReceived = (PntTime.getDate().getTime() - intendedRoute.getReceived().getTime()) / 1000L;
 
         if (secondsSinceReceived < TTL) {
             float factor = 1.0f - (float) secondsSinceReceived / (float) TTL;
@@ -263,12 +322,80 @@ public class IntendedRouteGraphic extends OMGraphicList {
         } else {
             setVisible(false);
         }
+    }
+
+    /**
+     * Re-renders the intended route
+     */
+    private void renderIntendedRoute() {
+
+        updateGraphics();
+
+        // Handle empty route
+        if (intendedRoute == null || !intendedRoute.hasRoute()) {
+
+//            System.out.println("No route, it has been deactivated?");
+
+            // Clear the graphics
+            clear();
+            routeLegs = new ArrayList<>();
+            routeWps = new ArrayList<>();
+            activeWpCircle = null;
+            activeWpLine = null;
+            setVisible(false);
+
+            return;
+        }
+
+        // Update leg to first way point
+        if (vesselPos != null) {
+
+            // its null, make it
+            if (activeWpLine == null) {
+                // Attempt to set the heading of this leg to that
+                // of the in-leg of the active way point
+                Heading heading = Heading.RL;
+                if (intendedRoute.getActiveWaypoint().getInLeg() != null) {
+                    heading = intendedRoute.getActiveWaypoint().getInLeg().getHeading();
+                }
+                Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
+                activeWpLine = new IntendedRouteLegGraphic(0, this, true, vesselPos, activeWpPos, heading, routeColor, SCALE, true);
+
+                add(activeWpLine);
+
+                // It already exists, but do we need to update it
+            } else {
+
+                // Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
+
+                double[] lls = { vesselPos.getLatitude(), vesselPos.getLongitude(),
+                        intendedRoute.getActiveWaypoint().getPos().getLatitude(),
+                        intendedRoute.getActiveWaypoint().getPos().getLongitude() };
+                double[] currentlls = activeWpLine.getLL();
+
+                if (!(lls[0] == currentlls[0] && lls[1] == currentlls[1] && lls[2] == currentlls[2] && lls[3] == currentlls[3])) {
+                    activeWpLine.setLL(lls);
+                }
+            }
+
+        } else {
+            // Remove wpLine
+            if (activeWpLine != null) {
+                remove(activeWpLine);
+                activeWpLine = null;
+            }
+        }
+
+        // Instead of clearing all graphics, update each waypoint and leg
+
+        // Update legs (Remove old ones if less than new)
+
+        // Update waypoints (Remove old ones if less than new)
 
     }
 
     /**
-     * Adjusts the saturation and opacity of the color according to the
-     * parameters
+     * Adjusts the saturation and opacity of the color according to the parameters
      * 
      * @param col
      *            the color to adjust
@@ -279,8 +406,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
      * @return the result
      */
     private Color adjustColor(Color col, float saturation, float opacity) {
-        float[] hsb = Color.RGBtoHSB(col.getRed(), col.getGreen(),
-                col.getBlue(), null);
+        float[] hsb = Color.RGBtoHSB(col.getRed(), col.getGreen(), col.getBlue(), null);
         hsb[1] = (float) Math.max(Math.min(hsb[1] * saturation, 1.0), 0.0);
         col = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
         int alpha = (int) Math.max(Math.min(255.0 * opacity, 255.0), 0.0);
@@ -293,8 +419,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
     @Override
     public void render(Graphics g) {
         Graphics2D image = (Graphics2D) g;
-        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
     }
 
@@ -354,4 +479,107 @@ public class IntendedRouteGraphic extends OMGraphicList {
     public Position getVesselPostion() {
         return vesselPos;
     }
+
+    public void highlightRoute() {
+
+        int i = 0;
+        for (IntendedRouteLegGraphic routeLeg : routeLegs) {
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeLeg.setLinePaint(adjustColor(highlightColor, 0.3f, 0.9f));
+
+                routeLeg.setStroke(new BasicStroke(4.0f * SCALE, // Width
+                        BasicStroke.CAP_SQUARE, // End cap
+                        BasicStroke.JOIN_MITER, // Join style
+                        10.0f * SCALE, // Miter limit
+                        new float[] { 3.0f * SCALE, 10.0f * SCALE }, // Dash
+                                                                     // pattern
+                        0.0f)); // Dash phase)
+
+            } else {
+                routeLeg.setLinePaint(highlightColor);
+
+                routeLeg.setStroke(new BasicStroke(4.0f * SCALE, // Width
+                        BasicStroke.CAP_SQUARE, // End cap
+                        BasicStroke.JOIN_MITER, // Join style
+                        10.0f * SCALE, // Miter limit
+                        new float[] { 10.0f * SCALE, 8.0f * SCALE }, // Dash
+                                                                     // pattern
+                        0.0f)); // Dash phase)
+            }
+
+            i++;
+        }
+        i = 0;
+        for (WpCircle routeWp : routeWps) {
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeWp.setLinePaint(adjustColor(highlightColor, 0.3f, 0.9f));
+            } else {
+                routeWp.setLinePaint(highlightColor);
+            }
+            i++;
+        }
+        if (activeWpLine != null) {
+            activeWpLine.setLinePaint(highlightColor);
+
+            activeWpLine.setStroke(new BasicStroke(4.0f * SCALE, // Width
+                    BasicStroke.CAP_SQUARE, // End cap
+                    BasicStroke.JOIN_MITER, // Join style
+                    10.0f * SCALE, // Miter limit
+                    new float[] { 3.0f * SCALE, 10.0f * SCALE }, // Dash pattern
+                    0.0f)); // Dash phase)
+        }
+
+    }
+
+    public void unHightlightRoute() {
+
+        int i = 0;
+        for (IntendedRouteLegGraphic routeLeg : routeLegs) {
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeLeg.setLinePaint(adjustColor(routeColor, 0.3f, 0.9f));
+
+                routeLeg.setStroke(new BasicStroke(2.0f * SCALE, // Width
+                        BasicStroke.CAP_SQUARE, // End cap
+                        BasicStroke.JOIN_MITER, // Join style
+                        10.0f * SCALE, // Miter limit
+                        new float[] { 3.0f * SCALE, 10.0f * SCALE }, // Dash
+                                                                     // pattern
+                        0.0f)); // Dash phase)
+
+            } else {
+                routeLeg.setLinePaint(routeColor);
+
+                routeLeg.setStroke(new BasicStroke(2.0f * SCALE, // Width
+                        BasicStroke.CAP_SQUARE, // End cap
+                        BasicStroke.JOIN_MITER, // Join style
+                        10.0f * SCALE, // Miter limit
+                        new float[] { 10.0f * SCALE, 8.0f * SCALE }, // Dash
+                                                                     // pattern
+                        0.0f)); // Dash phase)
+            }
+
+            i++;
+        }
+        i = 0;
+        for (WpCircle routeWp : routeWps) {
+            if (i < intendedRoute.getActiveWpIndex()) {
+                routeWp.setLinePaint(adjustColor(routeColor, 0.3f, 0.9f));
+            } else {
+                routeWp.setLinePaint(routeColor);
+            }
+            i++;
+        }
+        if (activeWpLine != null) {
+            activeWpLine.setLinePaint(routeColor);
+
+            activeWpLine.setStroke(new BasicStroke(2.0f * SCALE, // Width
+                    BasicStroke.CAP_SQUARE, // End cap
+                    BasicStroke.JOIN_MITER, // Join style
+                    10.0f * SCALE, // Miter limit
+                    new float[] { 3.0f * SCALE, 10.0f * SCALE }, // Dash pattern
+                    0.0f)); // Dash phase)
+        }
+
+    }
+
 }

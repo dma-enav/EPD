@@ -96,9 +96,8 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         super.cloudConnected(connection);
 
 // TODO: Maritime Cloud 0.2 re-factoring
-//        // try {
 //        try {
-//            getMmsClient()
+//            getMaritimeCloudConnection()
 //                    .serviceRegister(
 //                            VOCTCommunicationService.INIT,
 //                            new InvocationCallback<VOCTCommunicationService.VOCTCommunicationMessage, VOCTCommunicationService.VOCTCommunicationReply>() {
@@ -106,7 +105,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 //                                        InvocationCallback.Context<VOCTCommunicationService.VOCTCommunicationReply> context) {
 //
 //                                    // LOG.info("Shore received a VOCT reply");
-//                                    System.out.println("Received SAR Reply from Ship!");
+////                                    System.out.println("Received SAR Reply from Ship!");
 //
 //                                    MaritimeId caller = context.getCaller();
 //                                    long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
@@ -129,7 +128,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 //                            }).awaitRegistered(4, TimeUnit.SECONDS);
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
-//            System.out.println("Failed to register services?");
+////            System.out.println("Failed to register services?");
 //        }
 //
 //        // Start broadcasting our own active route
@@ -226,7 +225,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
         sendMaritimeCloudMessage(voctMessageList, new MmsiId((int) mmsi), voctMessage, this);
 
-        System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
+//        System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
 
     }
 
@@ -297,7 +296,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
     }
 
     public void sendCancelMessage(List<Long> srusToCancel) {
-        System.out.println("Send SAR cancel message " + srusToCancel.size());
+//        System.out.println("Send SAR cancel message " + srusToCancel.size());
         for (int i = 0; i < srusToCancel.size(); i++) {
             VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(voctManager.getVoctID(), VoctMsgStatus.WITHDRAWN);
 

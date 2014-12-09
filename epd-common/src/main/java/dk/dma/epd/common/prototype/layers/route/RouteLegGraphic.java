@@ -22,9 +22,12 @@ import java.awt.RenderingHints;
 import java.awt.Stroke;
 
 import com.bbn.openmap.omGraphics.OMArrowHead;
+import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 
@@ -44,11 +47,16 @@ public class RouteLegGraphic extends OMGraphicList {
     private OMLine broadLine;
 
     float[] dash;
-    private int routeIndex;
+    float scale;
+    private int routeIndex;    
 
     float dashPhase = 5000;
     private RouteGraphic routeGraphic;
     int legIndex;
+    
+    public RouteLegGraphic() {
+        
+    }
 
     /**
      * Creates a route leg
@@ -63,16 +71,19 @@ public class RouteLegGraphic extends OMGraphicList {
      *            Stroke type of the route leg
      * @param routeGraphic
      */
-    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, float scale, RouteGraphic routeGraphic, int legIndex) {
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
+            Stroke stroke, float scale, RouteGraphic routeGraphic, int legIndex) {
         super();
         this.routeIndex = routeIndex;
+        this.scale = scale;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
         this.routeGraphic = routeGraphic;
         this.legIndex = legIndex;
         dash = new float[] { scale * 35.0f, scale * 35.0f };
-        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, (int) (scale * 5.0), (int) (scale * 15.0));
+        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55,
+                (int) (scale * 5.0), (int) (scale * 15.0));
         this.setVague(true);
         initGraphics();
     }
@@ -89,31 +100,42 @@ public class RouteLegGraphic extends OMGraphicList {
      * @param stroke
      *            Stroke type of the route leg
      */
-    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor,
-            float[] broadLineDash, float scale) {
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
+            Stroke stroke, Color broadLineColor, float[] broadLineDash,
+            float scale, RouteGraphic routeGraphic) {
         super();
         this.routeIndex = routeIndex;
+        this.scale = scale;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
         this.setVague(true);
         dash = new float[] { scale * 35.0f, scale * 35.0f };
-        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, (int) (scale * 5.0), (int) (scale * 15.0));
+        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55,
+                (int) (scale * 5.0), (int) (scale * 15.0));
+        
+        this.routeGraphic = routeGraphic;
+        
         initGraphics();
         addBroadLine(broadLineColor, broadLineDash);
     }
 
-    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor, float scale) {
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
+            Stroke stroke, Color broadLineColor, float scale, RouteGraphic routeGraphic) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
+        this.scale = scale;
         this.color = color;
         this.stroke = stroke;
+        this.routeGraphic = routeGraphic;
         dash = new float[] { scale * 35.0f, scale * 35.0f };
-        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, (int) (scale * 5.0), (int) (scale * 15.0));
+        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55,
+                (int) (scale * 5.0), (int) (scale * 15.0));
         this.setVague(true);
         initGraphics();
-        addBroadLine(broadLineColor, new float[] { scale * 40.0f, scale * 15.0f });
+        addBroadLine(broadLineColor,
+                new float[] { scale * 40.0f, scale * 15.0f });
     }
 
     private void addBroadLine(Color color, float[] broadLineDash) {
@@ -128,12 +150,38 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            broadLine = new OMLine(startLat, startLon, endLat, endLon, routeLeg.getHeading().getOMLineType());
+            broadLine = new OMLine(startLat, startLon, endLat, endLon, routeLeg
+                    .getHeading().getOMLineType());
             broadLine.setLinePaint(color);
-            broadLine.setStroke(new BasicStroke(12.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, broadLineDash, 0.0f));
+            broadLine.setStroke(new BasicStroke(12.0f, BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER, 10.0f, broadLineDash, 0.0f));
 
             add(broadLine);
         }
+    }
+
+    public void initIndicateLegGraphics(Position startPosition,
+            Position endPosition) {
+
+        Stroke activeStroke = new BasicStroke(EPD.getInstance().getSettings()
+                .getNavSettings().getRouteWidth() * scale, // Width
+                BasicStroke.CAP_SQUARE, // End cap
+                BasicStroke.JOIN_MITER, // Join style
+                10.0f * scale, // Miter limit
+                new float[] { 3.0f * scale, 10.0f * scale}, // Dash pattern
+                0.0f); // Dash phase
+
+        double startLat = startPosition.getLatitude();
+        double startLon = startPosition.getLongitude();
+
+        double endLat = endPosition.getLatitude();
+        double endLon = endPosition.getLongitude();
+
+        line = new OMLine(startLat, startLon, endLat, endLon,
+                OMGraphicConstants.LINETYPE_RHUMB);
+        line.setLinePaint(color);
+        line.setStroke(activeStroke);
+        add(line);
     }
 
     public void initGraphics() {
@@ -147,7 +195,8 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            line = new OMLine(startLat, startLon, endLat, endLon, routeLeg.getHeading().getOMLineType());
+            line = new OMLine(startLat, startLon, endLat, endLon, routeLeg
+                    .getHeading().getOMLineType());
             line.setLinePaint(color);
             line.setStroke(stroke);
 
@@ -167,9 +216,12 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            animationLine = new OMLine(startLat, startLon, endLat, endLon, routeLeg.getHeading().getOMLineType());
+            animationLine = new OMLine(startLat, startLon, endLat, endLon,
+                    routeLeg.getHeading().getOMLineType());
             animationLine.setLinePaint(new Color(1f, 1f, 0, 0.6f));
-            animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
+            animationLine.setStroke(new BasicStroke(10.0f,
+                    BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash,
+                    dashPhase));
 
             add(animationLine);
         }
@@ -190,7 +242,9 @@ public class RouteLegGraphic extends OMGraphicList {
 
         if (animationLine != null) {
 
-            animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
+            animationLine.setStroke(new BasicStroke(10.0f,
+                    BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash,
+                    dashPhase));
 
         }
         // System.out.println("Changing stroke! " + dashPhase);
@@ -211,7 +265,8 @@ public class RouteLegGraphic extends OMGraphicList {
     @Override
     public void render(Graphics gr) {
         Graphics2D image = (Graphics2D) gr;
-        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
     }
 
@@ -236,8 +291,5 @@ public class RouteLegGraphic extends OMGraphicList {
     public int getLegIndex() {
         return legIndex;
     }
-    
-    
-    
-    
+
 }

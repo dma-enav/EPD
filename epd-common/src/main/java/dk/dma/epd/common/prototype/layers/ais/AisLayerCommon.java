@@ -135,6 +135,11 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         } else {
             this.setSelectedGraphic(null, repaintImmediately);
         }
+        
+        
+        
+        
+        
     }
 
     /**
@@ -146,7 +151,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      *            If this layer should repaint itself to reflect the change in
      *            selection.
      */
-    protected void setSelectedGraphic(ISelectableGraphic newSelection,
+    public void setSelectedGraphic(ISelectableGraphic newSelection,
             boolean repaint) {
         if (this.selectedGraphic != null) {
             // remove current selection
@@ -390,4 +395,14 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // repaint
         this.doPrepare();
     }
+
+    /**
+     * @return the targets
+     */
+    public Map<Long, TargetGraphic> getTargets() {
+        return targets;
+    }
+
+    
+
 }

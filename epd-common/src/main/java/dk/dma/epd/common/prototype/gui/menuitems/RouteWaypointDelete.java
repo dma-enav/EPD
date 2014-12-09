@@ -41,7 +41,7 @@ public class RouteWaypointDelete extends RouteMenuItem {
                             "A route must have at least two waypoints.\nDo you want to delete the route?",
                             "Delete Route?", JOptionPane.YES_NO_OPTION,
                             JOptionPane.QUESTION_MESSAGE);
-            System.out.println(result);
+//            System.out.println(result);
             if (result == JOptionPane.YES_OPTION) {
                 route.deleteWaypoint(routeWaypointIndex);
 

@@ -202,11 +202,11 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         if (selectedGraphic instanceof EffortAllocationLines) {
 
-            System.out.println("Selected line");
+//            System.out.println("Selected line");
 
             EffortAllocationLines selectedLine = (EffortAllocationLines) selectedGraphic;
 
-            System.out.println(selectedLine.getType());
+//            System.out.println(selectedLine.getType());
 
             // If bottom or top we can only adjust latitude
 
@@ -287,7 +287,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             EffortAllocationLines selectedLine = (EffortAllocationLines) selectedGraphic;
 
             double bearing = selectedLine.getA().rhumbLineBearingTo(selectedLine.getB());
-            System.out.println(bearing);
+//            System.out.println(bearing);
 
             LineType type = selectedLine.getType();
 
@@ -572,7 +572,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         for (int i = 0; i < datumLineData.getDatumPointDataSets().size(); i++) {
 
-            System.out.println("Creating area " + i);
+//            System.out.println("Creating area " + i);
             DatumPointData data = datumLineData.getDatumPointDataSets().get(i);
 
             Position datumDownWind = data.getDatumDownWind();

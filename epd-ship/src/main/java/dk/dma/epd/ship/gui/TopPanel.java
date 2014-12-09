@@ -70,7 +70,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
     private final ToggleButtonLabel toggleSafeHaven = new ToggleButtonLabel(toolbarIcon("document-resize-actual.png"));
     private final ToggleButtonLabel navigationMouseMode = new ToggleButtonLabel(toolbarIcon("zoom.png"));
     private final ToggleButtonLabel dragMouseMode = new ToggleButtonLabel(toolbarIcon("drag.png"));
-    private final ToggleButtonLabel toggleIntendedRoute = new ToggleButtonLabel(toolbarIcon("direction.png"));
     private final ToggleButtonLabel toggleIntendedRouteFilter = new ToggleButtonLabel(toolbarIcon("road-sign.png"));
     private final ToggleButtonLabel toggleDynamicPredictorLayer = new ToggleButtonLabel(toolbarIcon("dynamic-predictor.png"));
 
@@ -130,7 +129,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
         encBtn.setToolTipText("Show/hide ENC");
         encBtn.setEnabled(EPDShip.getInstance().getSettings().getMapSettings().isUseEnc());
-        toggleIntendedRoute.setToolTipText("Show/hide intended routes");
         toggleIntendedRouteFilter.setToolTipText("Toggle Intended Route Filter");
 
         goBackBtn.setToolTipText("Go back");
@@ -169,7 +167,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         add(encBtn);
         add(wmsBtn);
         add(toggleSafeHaven);
-        add(toggleIntendedRoute);
         add(toggleIntendedRouteFilter);
         add(this.toggleDynamicPredictorLayer);
 
@@ -202,7 +199,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         navigationMouseMode.addMouseListener(this);
         dragMouseMode.addMouseListener(this);
         toggleDistanceCircleMode.addMouseListener(this);
-        toggleIntendedRoute.addMouseListener(this);
         toggleIntendedRouteFilter.addMouseListener(this);
         toggleDynamicPredictorLayer.addMouseListener(this);
 
@@ -220,8 +216,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         // range circles mode is disabled by default.
         toggleDistanceCircleMode.setSelected(false);
 
-        toggleIntendedRoute.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
-        
         toggleIntendedRouteFilter.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isIntendedRouteFilterOn());
 
         // toggle button according to value stored in settings
@@ -342,6 +336,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
             menuBar.getEncLayer().setSelected(encBtn.isSelected());
 
         } else if (e.getSource() == wmsBtn) {
+//            System.out.println("WMS Layer visible : " + wmsBtn.isSelected());
             mainFrame.getChartPanel().wmsVisible(wmsBtn.isSelected());
 
         } else if (e.getSource() == routeManagerBtn) {
@@ -401,12 +396,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
                                 .getPreviousMouseMode());
             }
 
-        } else if (e.getSource() == toggleIntendedRoute) {
-            boolean visible = toggleIntendedRoute.isSelected();            
-            mainFrame.getChartPanel().intendedRouteLayerVisible(visible);
-            menuBar.getIntendedRouteLayer().setSelected(visible);
-            EPD.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(visible);
-
         } else if (e.getSource() == toggleIntendedRouteFilter) {
             boolean visible = toggleIntendedRouteFilter.isSelected();
             EPD.getInstance().getSettings().getCloudSettings().setIntendedRouteFilterOn(visible);
@@ -436,10 +425,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
 
     public ToggleButtonLabel getEncBtn() {
         return encBtn;
-    }
-
-    public ToggleButtonLabel getIntendedRouteButton() {
-        return toggleIntendedRoute;
     }
 
     public ToggleButtonLabel getAutoFollowBtn() {

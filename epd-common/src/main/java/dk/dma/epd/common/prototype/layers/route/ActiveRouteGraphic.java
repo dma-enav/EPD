@@ -17,6 +17,9 @@ package dk.dma.epd.common.prototype.layers.route;
 import java.awt.Color;
 import java.awt.Stroke;
 
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
 
 /**
@@ -25,15 +28,28 @@ import dk.dma.epd.common.prototype.model.route.Route;
 public class ActiveRouteGraphic extends RouteGraphic {
 
     private static final long serialVersionUID = 1L;
+    private ActiveRouteLegGraphic activeWpLine;
 
-//    protected List<RouteLegGraphic> routeLegs = new ArrayList<>();
-
-    public ActiveRouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color) {
+    public ActiveRouteGraphic(Route route, int routeIndex,
+            boolean arrowsVisible, Stroke stroke, Color color) {
         super(route, routeIndex, arrowsVisible, stroke, color);
     }
 
-    public ActiveRouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color, Color backgroundColor) {
-        super(route, routeIndex, arrowsVisible, stroke, color, backgroundColor, false, false);
+    public ActiveRouteGraphic(Route route, int routeIndex,
+            boolean arrowsVisible, Stroke stroke, Color color,
+            Color backgroundColor) {
+        super(route, routeIndex, arrowsVisible, stroke, color, backgroundColor,
+                false, false);
+    }
+
+    public void updateActiveWpLine(Position vesselPos) {
+        if (activeWpLine != null) {
+            remove(activeWpLine);
+        }
+        Position activeWpPos = routeWaypoints.get(EPD.getInstance().getRouteManager().getActiveRoute().getActiveWaypointIndex())
+                .getPos();
+        activeWpLine = new ActiveRouteLegGraphic(this, vesselPos, activeWpPos, Heading.RL, Color.red, SCALE);
+        add(activeWpLine);
     }
 
 }

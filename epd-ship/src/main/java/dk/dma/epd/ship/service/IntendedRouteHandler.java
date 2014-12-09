@@ -424,7 +424,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements
 
             FilteredIntendedRoute filter = findTCPA(
                     routeManager.getActiveRoute(), route);
-            // Try other way around
+            
+            // Try other way around or dont
             if (!filter.include()) {
                 filter = findTCPA(route, routeManager.getActiveRoute());
             }
@@ -435,7 +436,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements
                 // Remove it, if it exists
                 if (this.filteredIntendedRoutes.containsKey(route.getMmsi())) {
                     filteredIntendedRoutes.remove(route.getMmsi());
-                    LOG.debug("Remove from filter");
+                    LOG.debug("Remove from filter as it is no longer valid");
                 }
 
             } else {

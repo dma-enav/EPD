@@ -49,6 +49,7 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.sensor.nmea.IAisSensorListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.status.AisStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
@@ -57,31 +58,33 @@ import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 
 public abstract class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisSensorListener, IStatusComponent {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(AisHandlerCommon.class);
-    
+
     protected static final String AIS_VIEW_FILE = EPD.getInstance().getHomePath().resolve(".aisview").toString();
 
     // How long targets are saved without reports
     protected static final long TARGET_TTL = 60 * 60 * 1000; // One hour
-    
+
     protected ConcurrentHashMap<Integer, AtoNTarget> atonTargets = new ConcurrentHashMap<>();
     protected ConcurrentHashMap<Long, VesselTarget> vesselTargets = new ConcurrentHashMap<>();
     protected ConcurrentHashMap<Long, SarTarget> sarTargets = new ConcurrentHashMap<>();
 
     protected CopyOnWriteArrayList<IAisTargetListener> listeners = new CopyOnWriteArrayList<>();
-    
+
     protected AisStatus aisStatus = new AisStatus();
     protected final boolean strictAisMode;
     protected final String sartMmsiPrefix;
     protected final Set<String> simulatedSartMmsi = new ConcurrentHashSet<>();
-    protected final int pastTrackMaxTime;       // NB: In minutes
-    protected final int pastTrackDisplayTime;   // NB: In minutes
-    protected final int pastTrackMinDist;       // NB: In meters
-    
+    protected final int pastTrackMaxTime; // NB: In minutes
+    protected final int pastTrackDisplayTime; // NB: In minutes
+    protected final int pastTrackMinDist; // NB: In meters
+
+    private IntendedRouteHandlerCommon intendedRouteHandlerCommon;
 
     /**
      * Constructor
+     * 
      * @param aisSettings
      */
     public AisHandlerCommon(AisSettings aisSettings) {
@@ -92,7 +95,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         this.pastTrackDisplayTime = aisSettings.getPastTrackDisplayTime();
         this.pastTrackMinDist = aisSettings.getPastTrackMinDist();
     }
-    
+
     /**
      * Method receiving AIS messages from AIS sensor
      */
@@ -128,7 +131,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             updateClassBStatics(msg24);
         }
     }
-    
+
     /**
      * Clears all AIS targets
      */
@@ -138,12 +141,12 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         sarTargets.clear();
         publishAll();
     }
-    
+
     @Override
     public synchronized void receiveOwnMessage(AisMessage aisMessage) {
         return;
     }
-    
+
     /**
      * Update AtoN target
      * 
@@ -202,7 +205,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
      */
     protected void updateClassBStatics(AisMessage24 msg24) {
         // Try to find exiting target
-        VesselTarget vesselTarget = vesselTargets.get( (long) msg24.getUserId());
+        VesselTarget vesselTarget = vesselTargets.get((long) msg24.getUserId());
         // If not exists, wait for it to be created by position report
         if (vesselTarget == null) {
             return;
@@ -236,30 +239,32 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         sarTarget.setStaticData(staticData);
     }
 
-
     /**
      * Update the vessel or SAR target with position data
-     * @param mobileTarget the target to update
-     * @param positionData the position data
+     * 
+     * @param mobileTarget
+     *            the target to update
+     * @param positionData
+     *            the position data
      */
     protected void updateMobileTargetPos(MobileTarget mobileTarget, VesselPositionData positionData) {
 
         // Update class pos data
         mobileTarget.setPositionData(positionData);
-        
+
         // Update past-track
         mobileTarget.addPastTrackPosition(positionData.getPos());
-        
+
         // Update last received
         mobileTarget.setLastReceived(PntTime.getDate());
-        
+
         // Update status
         mobileTarget.setStatus(AisTarget.Status.OK);
-        
+
         // Publish update
         publishUpdate(mobileTarget);
     }
-    
+
     /**
      * Update vessel target position data
      * 
@@ -286,9 +291,12 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             vesselTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
             vesselTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
             vesselTarget.setMmsi(mmsi);
+
+            vesselTarget.setShowIntendedRoute(intendedRouteHandlerCommon.isIntendedRoutesIsVisibleGlobal());
+
             vesselTargets.put(mmsi, vesselTarget);
         }
-        // Update class 
+        // Update class
         vesselTarget.setAisClass(aisClass);
         // Update target from position data
         updateMobileTargetPos(vesselTarget, positionData);
@@ -318,18 +326,20 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         updateMobileTargetPos(sarTarget, positionData);
     }
 
-    
     /**
      * Should be implemented by specialized versions of the AisHandlerCommon class
      * 
-     * @param pos the position to check
+     * @param pos
+     *            the position to check
      * @return if the position is within range
      */
     protected abstract boolean isWithinRange(Position pos);
-    
+
     /**
      * Shows or hides past tracks for all vessel and sar targets
-     * @param show whether to show or hide past tracks
+     * 
+     * @param show
+     *            whether to show or hide past tracks
      */
     public void setShowAllPastTracks(boolean show) {
         for (VesselTarget vesselTarget : vesselTargets.values()) {
@@ -347,7 +357,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             }
         }
     }
-    
+
     /**
      * Get list of all ships
      * 
@@ -379,15 +389,16 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         }
         return list;
     }
-    
+
     /**
      * Returns the list of mobile (vessel + sar) targets. Optionally specify a required status.
      * 
-     * @param status if not null, the targets must have this status
+     * @param status
+     *            if not null, the targets must have this status
      * @return the list of targets.
      */
     public final List<MobileTarget> getMobileTargets(AisTarget.Status status) {
-        
+
         List<MobileTarget> mobileTargets = new ArrayList<>(vesselTargets.size() + sarTargets.size());
         for (VesselTarget vesselTarget : vesselTargets.values()) {
             if (status == null || status == vesselTarget.status) {
@@ -414,6 +425,14 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         return vesselTargets.get(mmsi);
     }
     
+    
+    /**
+     * @return the vesselTargets
+     */
+    public ConcurrentHashMap<Long, VesselTarget> getVesselTargets() {
+        return vesselTargets;
+    }
+
     /**
      * Get target with mmsi
      * 
@@ -446,26 +465,43 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
 
         // Go through all sart targets
         updateStatus(sarTargets, deadTargets, now, false);
-        
+
         // Allow sub-classes to perform a periodic update
         updatePeriodic();
     }
-    
+
     /**
-     * Sub-classes can override to perform periodic updates.
-     * Called every 10 seconds.
+     * Sub-classes can override to perform periodic updates. Called every 10 seconds.
      */
     protected void updatePeriodic() {
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+
+        if (obj instanceof IntendedRouteHandlerCommon) {
+            intendedRouteHandlerCommon = (IntendedRouteHandlerCommon) obj;
+        }
+    }
+
     /**
      * Update the list of AIS targets and purge the dead targets
-     * @param aisTargets the list of AIS targets to update
-     * @param deadTargets use for collecting dead targets
-     * @param now the current time
-     * @param intKey cater with atonTargets, which use Integer as a key
+     * 
+     * @param aisTargets
+     *            the list of AIS targets to update
+     * @param deadTargets
+     *            use for collecting dead targets
+     * @param now
+     *            the current time
+     * @param intKey
+     *            cater with atonTargets, which use Integer as a key
      */
-    protected final <T extends AisTarget, N extends Number> void updateStatus(Map<N, T> aisTargets, List<Long> deadTargets, Date now, boolean intKey) {
+    protected final <T extends AisTarget, N extends Number> void updateStatus(Map<N, T> aisTargets, List<Long> deadTargets,
+            Date now, boolean intKey) {
         // Go through the list of AIS targets
         for (T aisTarget : aisTargets.values()) {
             if (updateTarget(aisTarget, now)) {
@@ -477,12 +513,12 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         for (Long mmsi : deadTargets) {
             LOG.debug("Dead target " + mmsi);
             // cater with atonTargets, which use Integer as a key
-            aisTargets.remove(intKey ? Integer.valueOf((int)mmsi.longValue()) : mmsi);
+            aisTargets.remove(intKey ? Integer.valueOf((int) mmsi.longValue()) : mmsi);
         }
 
         deadTargets.clear();
     }
-    
+
     /**
      * Update AIS target. Return true if the target is considered dead, not just gone
      * 
@@ -494,9 +530,9 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         // Clean up old past-track points of the mobile targets
         if (aisTarget instanceof MobileTarget) {
             // Convert from minutes to seconds
-            ((MobileTarget)aisTarget).getPastTrackData().cleanup(60*pastTrackMaxTime); 
+            ((MobileTarget) aisTarget).getPastTrackData().cleanup(60 * pastTrackMaxTime);
         }
-        
+
         if (aisTarget.isGone()) {
             // Maybe too old and needs to be deleted
             if (aisTarget.isDeadTarget(TARGET_TTL, now)) {
@@ -518,7 +554,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         }
         return false;
     }
-    
+
     /**
      * Determine if mmsi belongs to a SART
      * 
@@ -527,18 +563,18 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
      */
     public final boolean isSarTarget(long mmsi) {
         String strMmsi = Long.toString(mmsi);
-        
+
         // Check if we have simulated SarTargets.
         // These are configured in the settings.properties file, by specifying
         // a comma-separated list of vessel mmsi for the "ais.simulatedSartMmsi" property.
         if (simulatedSartMmsi.contains(strMmsi)) {
             return true;
         }
-                    
+
         // AIS-SART transponder MMSI begins with 970
         return strMmsi.startsWith(sartMmsiPrefix);
     }
-   
+
     /**
      * Publish the update of a target to all listeners
      * 
@@ -549,7 +585,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             listener.targetUpdated(aisTarget);
         }
     }
-    
+
     protected final void publishAll() {
         LOG.debug("Published all targets");
         publishAll(vesselTargets.values());
@@ -575,7 +611,8 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
      * Get AisMessageExtended for a single VesselTarget
      * 
      * @param currentTarget
-     * @param currentData the current PntData
+     * @param currentData
+     *            the current PntData
      * @return
      */
     public AisMessageExtended getShip(VesselTarget currentTarget, PntData currentData) {
@@ -603,7 +640,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
 
         return new AisMessageExtended(name, currentTarget.getMmsi(), hdg, dst);
     }
-        
+
     /**
      * Try to load AIS view from disk
      */
@@ -652,7 +689,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         aisStore.setVesselTargets(vesselTargets);
         aisStore.setAtonTargets(atonTargets);
         aisStore.setSarTargets(sarTargets);
-        
+
         try (FileOutputStream fileOut = new FileOutputStream(AIS_VIEW_FILE);
                 ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
             objectOut.writeObject(aisStore);
@@ -661,7 +698,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             LOG.error("Failed to save Ais view file: " + e.getMessage());
         }
     }
-    
+
     @Override
     public void run() {
         // Publish loaded targets
@@ -687,10 +724,12 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             this.hdg = hdg;
             this.dst = dst2;
         }
-        
+
         /**
          * Overwrites the fields of this object with the values from their corresponding fields in {@code other}
-         * @param other The object to copy data from.
+         * 
+         * @param other
+         *            The object to copy data from.
          */
         public void updateFrom(AisMessageExtended other) {
             this.name = other.name;

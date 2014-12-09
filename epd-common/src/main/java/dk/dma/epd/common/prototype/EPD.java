@@ -400,5 +400,9 @@ public abstract class EPD implements ISettingsListener {
     public FALHandlerCommon getFalHandler() {
         return falHandler;
     }
+    
+    public void setRestart(boolean restart) {
+        this.restart = restart;
+    }
 
 }

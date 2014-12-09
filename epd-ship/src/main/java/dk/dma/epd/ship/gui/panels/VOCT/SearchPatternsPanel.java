@@ -107,7 +107,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon{
 
     @Override
     public void effortAllocationGenerated(){
-        System.out.println("Enabling search pattern btn");
+//        System.out.println("Enabling search pattern btn");
         btnGenerateSearchPattern.setEnabled(true);
     }
   

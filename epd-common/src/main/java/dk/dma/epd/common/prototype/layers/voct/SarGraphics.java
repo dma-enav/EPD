@@ -38,7 +38,7 @@ public class SarGraphics extends OMGraphicList {
 
         // currents is first
         // winds is the last
-        System.out.println(currents.size());
+//        System.out.println(currents.size());
 
         if (winds.size() == 00) {
             SarLinesGraphics sarLines = new SarLinesGraphics(LKP, currents.get(0), datum, true, "Datum");
@@ -50,11 +50,11 @@ public class SarGraphics extends OMGraphicList {
 
                 // First one, connect from LKP
                 if (i == 0) {
-                    System.out.println("first");
+//                    System.out.println("first");
                     sarLines = new SarLinesGraphics(LKP, currents.get(i), winds.get(i));
 
                 } else {
-                    System.out.println("next");
+//                    System.out.println("next");
                     sarLines = new SarLinesGraphics(winds.get(i - 1), currents.get(i), winds.get(i));
                 }
 

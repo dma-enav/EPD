@@ -158,7 +158,7 @@ public class ActiveRoute extends Route {
      */
     private int getBestWaypoint(Route route, PntData pntData) {
 
-        if (pntData == null || pntData.isBadPosition()) {
+        if (pntData == null || pntData.isBadPosition() || pntData.getCog() == null) {
             return 0;
         }
 
@@ -258,11 +258,10 @@ public class ActiveRoute extends Route {
                         long secondsSailTime = (currentTime - originalRoute
                                 .getEtas().get(i).getTime()) / 1000;
 
-                        double distanceTravelledNauticalMiles = Converter
-                                .milesToNM(Calculator.distanceAfterTimeMph(
+                        double distanceTravelledNauticalMiles = Calculator.distanceAfterTimeMph(
                                         originalRoute.getWaypoints().get(i)
                                                 .getOutLeg().getSpeed(),
-                                        secondsSailTime));
+                                        secondsSailTime);
 
                         if (this.getWaypoints().get(i).getOutLeg().getHeading() == Heading.GC) {
                             safeHavenLocation = Calculator

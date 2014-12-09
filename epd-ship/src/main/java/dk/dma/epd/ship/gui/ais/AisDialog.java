@@ -446,7 +446,7 @@ public class AisDialog extends ComponentDialog implements ListSelectionListener,
         for (int i = 0; i < aisTable.getRowCount(); i++){
             Long currentValue = (Long) aisTable.getValueAt(i, 1);
             if (currentValue == mmsi){
-                System.out.println("Value found");
+//                System.out.println("Value found");
                 return i;
             }
         }

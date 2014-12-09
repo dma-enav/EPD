@@ -105,8 +105,8 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
 
         CSSDate = CSSDate.plusHours(1);
 
-        System.out.println(LKPDate.toDate());
-        System.out.println(CSSDate.toDate());
+//        System.out.println(LKPDate.toDate());
+//        System.out.println(CSSDate.toDate());
 
         setPreferredSize(new Dimension(500, 600));
         // inputPanel.setPreferredSize(new Dimension(500, 700));
@@ -360,7 +360,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
 
         }
 
-//        initSetValues();
+        initSetValues();
 
     }
 
@@ -565,7 +565,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         String LKPLatitude = lkpFirstLat.getText() + " " + lkpSecondLat.getText() + "." + lkpThirdLat.getText()
                 + comboLKPLat.getSelectedItem();
 
-        System.out.println(LKPLatitude);
+//        System.out.println(LKPLatitude);
 
         try {
             return parseLat(LKPLatitude);
@@ -581,13 +581,13 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         String LKPLongitude = lkpFirstLon.getText() + " " + lkpSecondLon.getText() + "." + lkpThirdLon.getText()
                 + comboLKPLon.getSelectedItem();
 
-        System.out.println(LKPLongitude);
+//        System.out.println(LKPLongitude);
 
         try {
             return parseLon(LKPLongitude);
         } catch (Exception e1) {
             displayMissingField("LKP Longitude");
-            System.out.println(e1.getMessage());
+//            System.out.println(e1.getMessage());
         }
 
         return -9999;

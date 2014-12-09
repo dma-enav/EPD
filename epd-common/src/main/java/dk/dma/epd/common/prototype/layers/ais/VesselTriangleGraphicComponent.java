@@ -124,7 +124,7 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
             this.vessel.updateGraphic(vesselTarget, mapScale);
             this.heading.setLocation(lat, lon,
                     OMGraphicConstants.DECIMAL_DEGREES, hdgR);
-            if (noHeading) {
+            if (noHeading || posData.getSog() <= 0.1) {
                 this.heading.setVisible(false);
             }
 

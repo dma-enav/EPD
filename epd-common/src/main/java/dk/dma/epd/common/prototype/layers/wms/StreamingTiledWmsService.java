@@ -184,7 +184,6 @@ public class StreamingTiledWmsService extends TiledWMSService implements
     // meh!
     public String getBbox(Projection p) {
         String meh = (new SingleWMSService(wmsQuery, p)).getBbox();
-        // System.out.println(meh);
         return meh;
     }
 

@@ -87,6 +87,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     private boolean stopped;
     @GuardedBy("this")
     private boolean terminated;
+    private volatile boolean vessel = true;
 
     private final AisPacketParser packetReader = new AisPacketParser();
 
@@ -286,7 +287,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
 
         // Distribute message
         for (IAisSensorListener aisListener : aisListeners) {
-            if (ownMessage) {
+            if (ownMessage && vessel) {
                 aisListener.receiveOwnMessage(message);
             } else {
                 aisListener.receive(message);
@@ -562,5 +563,21 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
      */
     protected void flagTerminated() {
         this.terminated = true;
+    }
+    
+    /**
+     * Whether used for vessel
+     * @return
+     */
+    public boolean isVessel() {
+        return vessel;
+    }
+    
+    /**
+     * Indicate that this sensor is used for vessel
+     * @param vessel
+     */
+    public void setVessel(boolean vessel) {
+        this.vessel = vessel;
     }
 }

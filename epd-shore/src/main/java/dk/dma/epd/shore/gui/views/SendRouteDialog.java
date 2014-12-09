@@ -472,7 +472,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
      * Called when the name selection has changed
      */
     private void nameSelectionChanged() {
-        System.out.println("Name selection changed");
+//        System.out.println("Name selection changed");
         if (nameComboBox.getSelectedItem() != null) {
             mmsiListComboBox.setSelectedIndex(nameComboBox.getSelectedIndex());
         }        
@@ -671,6 +671,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
             if (route != null) {
                 routeLengthLbl.setText(Integer.toString(route.getWaypoints().size()));
                 
+                route.adjustStartTime();
                 Date starttime = route.getStarttime();
     
                 if (fieldLookup.contains(RouteFields.DEPARTURE)) {

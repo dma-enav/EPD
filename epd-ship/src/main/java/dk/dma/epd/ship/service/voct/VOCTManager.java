@@ -121,7 +121,7 @@ public class VOCTManager extends VOCTManagerCommon {
                         Iterator<Entry<Long, EffortAllocationData>> iter = sarData.getEffortAllocationData().entrySet().iterator();
                         while (iter.hasNext()) {
                             Entry<Long, EffortAllocationData> entry = iter.next();
-                            System.out.println("Entry long is " + entry.getKey());
+//                            System.out.println("Entry long is " + entry.getKey());
                             if (entry.getValue().getSearchPatternRoute() != null) {
 
                                 SearchPatternRoute searchPattern = entry.getValue().getSearchPatternRoute();
@@ -228,7 +228,7 @@ public class VOCTManager extends VOCTManagerCommon {
         if (sarData != null) {
             if (sarData.getEffortAllocationData().size() > 0) {
                 if (sarData.getEffortAllocationData().get(0L).getSearchPatternRoute() != null) {
-                    System.out.println("Removing existing routes");
+//                    System.out.println("Removing existing routes");
 
                     int routeIndex = EPDShip.getInstance().getRouteManager()
                             .getRouteIndex(sarData.getEffortAllocationData().get(0L).getSearchPatternRoute());
@@ -376,7 +376,7 @@ public class VOCTManager extends VOCTManagerCommon {
     @Override
     public void showSARFuture(int i) {
 
-        if (this.sarOperation.getOperationType() != SAR_TYPE.SARIS_DATUM_POINT) {
+        if (this.sarOperation.getOperationType() != SAR_TYPE.SARIS_DATUM_POINT && this.sarOperation.getOperationType() != SAR_TYPE.DATUM_LINE) {
 
             if (i == 0) {
                 voctLayer.showFutureData(sarData);

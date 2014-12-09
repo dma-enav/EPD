@@ -14,11 +14,8 @@
  */
 package dk.dma.epd.shore.ais;
 
-import java.util.Map;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 
 /**
@@ -38,7 +35,8 @@ public class AisHandler extends AisHandlerCommon {
     /**
      * Should be implemented by specialized versions of the AisHandlerCommon class
      * 
-     * @param pos the position to check
+     * @param pos
+     *            the position to check
      * @return if the position is within range
      */
     @Override
@@ -46,8 +44,4 @@ public class AisHandler extends AisHandlerCommon {
         return true;
     }
 
-    public Map<Long, VesselTarget> getVesselTargets() {
-        return vesselTargets;
-        
-    }
 }

@@ -253,7 +253,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         mapHandler.add(monaLisaRouteExchange);
 
         // Create NoGo handler
-        nogoHandler = new NogoHandler(getSettings().getEnavSettings());
+        nogoHandler = new NogoHandler();
         mapHandler.add(nogoHandler);
 
         // Create Maritime Cloud service
@@ -723,12 +723,19 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             // props.put("tooltipCastShadow", "true");
 
             // small font
+//            props.setProperty("controlTextFont", "Dialog 12");
+//            props.setProperty("systemTextFont", "Dialog 12");
+//            props.setProperty("userTextFont", "Dialog 12");
+//            props.setProperty("menuTextFont", "Dialog 12");
+//            props.setProperty("windowTitleFont", "Dialog bold 12");
+//            props.setProperty("subTextFont", "Dialog 10");
             props.setProperty("controlTextFont", "Dialog 10");
             props.setProperty("systemTextFont", "Dialog 10");
             props.setProperty("userTextFont", "Dialog 10");
             props.setProperty("menuTextFont", "Dialog 10");
             props.setProperty("windowTitleFont", "Dialog bold 10");
             props.setProperty("subTextFont", "Dialog 8");
+
 
             // props.put("tooltipBorderSize", "15");
             // props.put("tooltipShadowSize", "15");

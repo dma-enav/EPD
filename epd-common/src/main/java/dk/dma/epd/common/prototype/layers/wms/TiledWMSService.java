@@ -174,7 +174,7 @@ public class TiledWMSService extends AbstractWMSService {
             for (Future<OMGraphicList> f : futures) {
                 try {
                     result.addAll(f.get());
-                    System.out.println("added tile");
+//                    System.out.println("added tile");
                 } catch (CancellationException e) {
                     LOG.debug("WMS TILE CANCELLED");
                 }

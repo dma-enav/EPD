@@ -104,7 +104,7 @@ public class Route implements Serializable {
 
     protected long strategicRouteId;
 
-    protected EtaCalculationType etaCalculationType = EtaCalculationType.PLANNED_SPEED;
+    protected EtaCalculationType etaCalculationType = EtaCalculationType.DYNAMIC_SPEED;
 
     public Route() {
 
@@ -808,7 +808,7 @@ public class Route implements Serializable {
         return wp;
     }
 
-    public void appendWaypoint() {
+    public synchronized void appendWaypoint() {
         RouteWaypoint lastWaypoint = waypoints.get(waypoints.size() - 1);
         RouteWaypoint nextLastWaypoint = waypoints.get(waypoints.size() - 2);
         Position startPoint = nextLastWaypoint.getPos();
