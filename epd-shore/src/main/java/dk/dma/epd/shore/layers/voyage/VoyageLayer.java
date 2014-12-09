@@ -182,7 +182,7 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
             Voyage voyage = voyageManager.getVoyages().get(i);
             // System.out.println(route);
             if (voyage.getRoute().isVisible()) {
-                System.out.println("Adding Voyage");
+//                System.out.println("Adding Voyage");
                 VoyageGraphic voyageGraphic = new VoyageGraphic(voyage, i, new Color(0.4f, 0.8f, 0.5f, 0.5f));
                 graphics.add(voyageGraphic);
             }

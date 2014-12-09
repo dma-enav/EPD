@@ -142,8 +142,8 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
         
         DSP3Date = DSP3Date.plusHours(2);
         
-        System.out.println(LKPDate.toDate());
-        System.out.println(CSSDate.toDate());
+//        System.out.println(LKPDate.toDate());
+//        System.out.println(CSSDate.toDate());
 
         setPreferredSize(new Dimension(500, 902));
         // setPreferredSize(new Dimension(500, 600));
@@ -874,7 +874,7 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
                 + dsp1SecondLat.getText() + "." + dsp1ThirdLat.getText()
                 + comboDsp1Lat.getSelectedItem();
 
-        System.out.println(LKPLatitude);
+//        System.out.println(LKPLatitude);
 
         try {
             return parseLat(LKPLatitude);
@@ -891,7 +891,7 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
                 + dsp2SecondLat.getText() + "." + dsp2ThirdLat.getText()
                 + comboDsp2Lat.getSelectedItem();
 
-        System.out.println(LKPLatitude);
+//        System.out.println(LKPLatitude);
 
         try {
             return parseLat(LKPLatitude);
@@ -909,7 +909,7 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
                 + dsp3SecondLat.getText() + "." + dsp3ThirdLat.getText()
                 + comboDsp3Lat.getSelectedItem();
 
-        System.out.println(LKPLatitude);
+//        System.out.println(LKPLatitude);
 
         try {
             return parseLat(LKPLatitude);
@@ -927,13 +927,13 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
                 + dsp1SecondLon.getText() + "." + dsp1ThirdLon.getText()
                 + comboDsp1Lon.getSelectedItem();
 
-        System.out.println(LKPLongitude);
+//        System.out.println(LKPLongitude);
 
         try {
             return parseLon(LKPLongitude);
         } catch (Exception e1) {
             displayMissingField("LKP Longitude");
-            System.out.println(e1.getMessage());
+//            System.out.println(e1.getMessage());
         }
 
         return -9999;
@@ -945,13 +945,13 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
                 + dsp2SecondLon.getText() + "." + dsp2ThirdLon.getText()
                 + comboDsp2Lon.getSelectedItem();
 
-        System.out.println(LKPLongitude);
+//        System.out.println(LKPLongitude);
 
         try {
             return parseLon(LKPLongitude);
         } catch (Exception e1) {
             displayMissingField("DSP 2 Longitude");
-            System.out.println(e1.getMessage());
+//            System.out.println(e1.getMessage());
         }
 
         return -9999;
@@ -963,13 +963,13 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
                 + dsp3SecondLon.getText() + "." + dsp3ThirdLon.getText()
                 + comboDsp3Lon.getSelectedItem();
 
-        System.out.println(LKPLongitude);
+//        System.out.println(LKPLongitude);
 
         try {
             return parseLon(LKPLongitude);
         } catch (Exception e1) {
             displayMissingField("DSP 3 Longitude");
-            System.out.println(e1.getMessage());
+//            System.out.println(e1.getMessage());
         }
 
         return -9999;

@@ -334,7 +334,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         // Handle empty route
         if (intendedRoute == null || !intendedRoute.hasRoute()) {
 
-            System.out.println("No route, it has been deactivated?");
+//            System.out.println("No route, it has been deactivated?");
 
             // Clear the graphics
             clear();

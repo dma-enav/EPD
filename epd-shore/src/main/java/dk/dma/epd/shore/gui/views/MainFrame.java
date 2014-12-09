@@ -299,9 +299,9 @@ public class MainFrame extends MainFrameCommon {
 
         List<JMapFrame> windowsToSave = new ArrayList<JMapFrame>();
 
-        System.out.println("Saving " + mapWindows.size() + " map windows to workspace");
+//        System.out.println("Saving " + mapWindows.size() + " map windows to workspace");
         for (int i = 0; i < mapWindows.size(); i++) {
-            System.out.println(mapWindows.get(i).getType() + " id " + i);
+//            System.out.println(mapWindows.get(i).getType() + " id " + i);
             // System.out.println("With type " + mapWindows.get(i).getType());
             if (mapWindows.get(i).getType() == MapFrameType.standard) {
                 windowsToSave.add(mapWindows.get(i));

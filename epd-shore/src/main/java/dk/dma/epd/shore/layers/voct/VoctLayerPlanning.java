@@ -238,7 +238,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             EffortAllocationLines selectedLine = (EffortAllocationLines) selectedGraphic;
 
             double bearing = selectedLine.getA().rhumbLineBearingTo(selectedLine.getB());
-            System.out.println(bearing);
+//            System.out.println(bearing);
 
             LineType type = selectedLine.getType();
 
@@ -362,7 +362,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
             if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
                 drawRapidResponse();
-                System.out.println("Painting Rapid Response");
+//                System.out.println("Painting Rapid Response");
             }
             if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT) {
                 drawDatumPoint();
@@ -383,7 +383,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         }
 
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED) {
-            System.out.println("Draw Effort Allocation Areas");
+//            System.out.println("Draw Effort Allocation Areas");
             drawEffortAllocationAreasFromSerialization();
         }
 
@@ -433,9 +433,9 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
                 if (!exists) {
                     effectiveSRUAreas.add(effectiveArea);
-                    System.out.println("Add stuff");
+//                    System.out.println("Add stuff");
                 } else {
-                    System.out.println("Why can\t I add?");
+//                    System.out.println("Why can\t I add?");
                 }
 
                 // }
@@ -444,10 +444,10 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
         }
 
-        System.out.println("Draw Serialized stuff? " + effectiveSRUAreas.size());
+//        System.out.println("Draw Serialized stuff? " + effectiveSRUAreas.size());
 
         for (int i = 0; i < effectiveSRUAreas.size(); i++) {
-            System.out.println("Adding graphics");
+//            System.out.println("Adding graphics");
             graphics.add(effectiveSRUAreas.get(i));
         }
 
@@ -464,11 +464,11 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
         DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
 
-        System.out.println("Draw SARIS DATUM " + data.getSarisTarget().size());
+//        System.out.println("Draw SARIS DATUM " + data.getSarisTarget().size());
 
         for (int i = 0; i < data.getSarAreaData().size(); i++) {
 
-            System.out.println("Adding graphics");
+//            System.out.println("Adding graphics");
             SARAreaData sarArea = data.getSarAreaData().get(i);
 
             SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(), sarArea.getB(), sarArea.getC(), sarArea.getD(),
@@ -492,7 +492,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
         for (int i = 0; i < datumLineData.getDatumPointDataSets().size(); i++) {
 
-            System.out.println("Creating area " + i);
+//            System.out.println("Creating area " + i);
             DatumPointData data = datumLineData.getDatumPointDataSets().get(i);
 
             Position datumDownWind = data.getDatumDownWind();
@@ -604,7 +604,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             if (!effortAllocationData.isNoRedraw()) {
                 double effectiveAreaSize = effortAllocationData.getEffectiveAreaSize();
 
-                System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
+//                System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
 
                 // Effective Area: 10 nm2 Initialize by creating box
                 double width = Math.sqrt(effectiveAreaSize);
@@ -653,7 +653,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
     @Override
     public void toggleEffectiveAreaVisibility(int i, boolean visible) {
-        System.out.println("Toggle visibiity " + effectiveSRUAreas.size() + " and i " + i);
+//        System.out.println("Toggle visibiity " + effectiveSRUAreas.size() + " and i " + i);
         if (effectiveSRUAreas.size() >= i + 1) {
 
             effectiveSRUAreas.get(i).setVisible(visible);

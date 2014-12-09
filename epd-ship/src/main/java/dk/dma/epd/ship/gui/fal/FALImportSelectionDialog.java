@@ -161,7 +161,7 @@ public class FALImportSelectionDialog extends JDialog implements ActionListener,
     @Override
     public void tableChanged(TableModelEvent arg0) {
         if (arg0.getColumn() == 1) {
-            System.out.println("Changed inclusion");
+//            System.out.println("Changed inclusion");
             // selectedWp.
             // Visibility has changed
             // routeManager
@@ -205,7 +205,7 @@ public class FALImportSelectionDialog extends JDialog implements ActionListener,
         try {
             setOpacity((float) 0.95);
         } catch (Exception E) {
-            System.out.println("Failed to set opacity, ignore");
+//            System.out.println("Failed to set opacity, ignore");
         }
 
     }

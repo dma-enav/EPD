@@ -52,7 +52,7 @@ public class FALManagerDialog extends JDialog {
         try {
             setOpacity((float) 0.95);
         } catch (Exception E) {
-            System.out.println("Failed to set opacity, ignore");
+//            System.out.println("Failed to set opacity, ignore");
         }
 
 
@@ -65,7 +65,7 @@ public class FALManagerDialog extends JDialog {
         try {
             setOpacity((float) 0.95);
         } catch (Exception E) {
-            System.out.println("Failed to set opacity, ignore");
+//            System.out.println("Failed to set opacity, ignore");
         }
 
 
@@ -86,7 +86,6 @@ public class FALManagerDialog extends JDialog {
         // getRootPane ().setOpaque (false);
         // getContentPane ().setBackground(new Color (48, 48, 48, 200));
 
-        // System.out.println("Set location yo");
 
         //
         // if (routePanel != null){

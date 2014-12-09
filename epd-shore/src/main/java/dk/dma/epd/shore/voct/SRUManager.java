@@ -260,7 +260,7 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
 
     public void handleSRUReply(VOCTCommunicationReply reply) {
 
-        System.out.println("Handling SRU Reply!");
+//        System.out.println("Handling SRU Reply!");
 
         if (srus.containsKey(reply.getMmsi())) {
             SRU sru = null;

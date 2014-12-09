@@ -347,7 +347,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
         if (arg0.getSource() == nextButton) {
             // Get the current card and action depends on that
 
-            System.out.println("Next button pressed, currently at :"
+//            System.out.println("Next button pressed, currently at :"
                     + currentCard);
 
             // We're at SAR selection screen
@@ -357,7 +357,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
                 inititateSarType();
 
-                System.out.println("Setting panel to " + currentCard);
+//                System.out.println("Setting panel to " + currentCard);
 
                 // The type select determines which panel we show
                 cl.show(masterPanel, currentCard);
@@ -371,7 +371,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
 
                 if (validateInputAndInititate()) {
-                    System.out.println("Validated");
+//                    System.out.println("Validated");
                     calculationsText.setText(voctManager.getSarData()
                             .generateHTML());
                     backButton.setEnabled(true);
@@ -388,7 +388,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
             // We're at confirmation screen
             if (currentCard == CALCULATIONSPANEL) {
-                System.out.println(currentCard);
+//                System.out.println(currentCard);
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
                 backButton.setEnabled(true);
                 nextButton.setText("Next");
@@ -424,7 +424,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     // Set the dialog back to input screen for reentering
                     cl.show(masterPanel, currentCard);
 
-                    System.out.println("Hiding");
+//                    System.out.println("Hiding");
 
                     // Display SAR command
                     voctManager.setLoadSarFromSerialize(false);
@@ -551,7 +551,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
     }
 
     private boolean validateDatumLine() {
-        System.out.println("Validating Datum Line");
+//        System.out.println("Validating Datum Line");
 
         double datumLineDSP1Lat = datumLineInputPanel.getLKPLat();
 
@@ -567,7 +567,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
             dsp1 = Position.create(datumLineDSP1Lat, datumLineDSP1Lon);
         } else {
             // msgbox
-            System.out.println("Failed lat");
+//            System.out.println("Failed lat");
             return false;
         }
 
@@ -585,7 +585,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
             dsp2 = Position.create(datumLineDSP2Lat, datumLineDSP2Lon);
         } else {
             // msgbox
-            System.out.println("Failed lat");
+//            System.out.println("Failed lat");
             return false;
         }
 
@@ -603,19 +603,19 @@ public class SARInputCommon extends JDialog implements ActionListener,
             dsp3 = Position.create(datumLineDSP3Lat, datumLineDSP3Lon);
         } else {
             // msgbox
-            System.out.println("Failed lat");
+//            System.out.println("Failed lat");
             return false;
         }
 
-        System.out.println("All validated correctly, we got positions");
+//        System.out.println("All validated correctly, we got positions");
 
-        System.out.println("DSp1 Date is " + datumLineInputPanel.getLKPDate());
+//        System.out.println("DSp1 Date is " + datumLineInputPanel.getLKPDate());
 
-        System.out.println("DSp2 Date is " + datumLineInputPanel.getDSP2Date());
+//        System.out.println("DSp2 Date is " + datumLineInputPanel.getDSP2Date());
 
-        System.out.println("DSp3 Date is " + datumLineInputPanel.getDSP2Date());
+//        System.out.println("DSp3 Date is " + datumLineInputPanel.getDSP2Date());
 
-        System.out.println("CSS Date is " + datumLineInputPanel.getCSSDate());
+//        System.out.println("CSS Date is " + datumLineInputPanel.getCSSDate());
 
         // Time and date will be automatically sorted
 
@@ -691,7 +691,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
         // Only valid search objects is value 0 to 19
         if (searchObject < 0 || searchObject > 20) {
             // Error message is handled within function
-            System.out.println("failed search object with id " + searchObject);
+//            System.out.println("failed search object with id " + searchObject);
             return false;
         }
 
@@ -727,7 +727,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
     private boolean validateRapidResponse() {
 
-        System.out.println("Validating Rapid Response");
+//        System.out.println("Validating Rapid Response");
 
         // Get LKP values
         double rapidResponseLKPLat = rapidResponseDatumPointInputPanel
@@ -747,16 +747,16 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     rapidResponseLKPLon);
         } else {
             // msgbox
-            System.out.println("Failed lat");
+//            System.out.println("Failed lat");
             return false;
         }
 
-        System.out.println("All validated correctly, we got positions");
+//        System.out.println("All validated correctly, we got positions");
 
-        System.out.println("LKP Date is "
-                + rapidResponseDatumPointInputPanel.getLKPDate());
-        System.out.println("CSS Date is "
-                + rapidResponseDatumPointInputPanel.getCSSDate());
+//        System.out.println("LKP Date is "
+//                + rapidResponseDatumPointInputPanel.getLKPDate());
+//        System.out.println("CSS Date is "
+//                + rapidResponseDatumPointInputPanel.getCSSDate());
 
         // Time and date will be automatically sorted
 
@@ -834,7 +834,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
         // Only valid search objects is value 0 to 19
         if (searchObject < 0 || searchObject > 20) {
             // Error message is handled within function
-            System.out.println("failed search object with id " + searchObject);
+//            System.out.println("failed search object with id " + searchObject);
             return false;
         }
 
@@ -887,8 +887,8 @@ public class SARInputCommon extends JDialog implements ActionListener,
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
 
-        System.out.println(e);
-        System.out.println(currentCard);
+//        System.out.println(e);
+//        System.out.println(currentCard);
         if (e == VOCTUpdateEvent.SAR_READY) {
             sarReady = true;
         } else {

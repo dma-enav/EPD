@@ -69,7 +69,7 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon impleme
         getMaritimeCloudConnection().broadcastListen(VOCTSARInfoMessage.class, new BroadcastListener<VOCTSARInfoMessage>() {
             public void onMessage(BroadcastMessageHeader l, VOCTSARInfoMessage r) {
 
-                System.out.println("SAR Info message recieved");
+//                System.out.println("SAR Info message recieved");
                 additionalInformationMsgs.add(r);
                 notifyVoctInfoMsgListeners();
             }

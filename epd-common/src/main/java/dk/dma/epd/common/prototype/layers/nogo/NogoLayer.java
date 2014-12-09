@@ -78,7 +78,7 @@ public class NogoLayer extends EPDLayerCommon {
                 graphics.add(multipleNoGo.get(id));
                 currentSelected = id;
             } else {
-                System.out.println("Value is null");
+//                System.out.println("Value is null");
             }
         }
 

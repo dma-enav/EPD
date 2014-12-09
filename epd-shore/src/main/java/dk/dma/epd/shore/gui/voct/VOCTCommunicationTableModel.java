@@ -147,7 +147,7 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        System.out.println("Set value at, aValue: " + aValue + " rowIndex: " + rowIndex + " columIndex: " + columnIndex);
+//        System.out.println("Set value at, aValue: " + aValue + " rowIndex: " + rowIndex + " columIndex: " + columnIndex);
         SRU sru = sruManager.getSRUsAsList()[rowIndex];
         switch (columnIndex) {
         case 0:
@@ -161,9 +161,9 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
         case 4:
             // SAR data - we always have this
             tableContent.get(rowIndex).setSarData((boolean) aValue);
-            System.out.println("Remove SAR Data Mark");
+//            System.out.println("Remove SAR Data Mark");
             if (!(boolean) aValue) {
-                System.out.println("removing ao and search pattern");
+//                System.out.println("removing ao and search pattern");
                 tableContent.get(rowIndex).setAO(false);
                 tableContent.get(rowIndex).setSearchPattern(false);
             }

@@ -433,7 +433,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon impleme
 
         for (int i = 0; i < sruList.size(); i++) {
 
-            System.out.println("Calculation for " + i + (boolean) sruTable.getValueAt(i, 2));
+//            System.out.println("Calculation for " + i + (boolean) sruTable.getValueAt(i, 2));
             SRU currentSRU = sruList.get(sruManager.getSRUsAsList()[i].getMmsi());
             if ((boolean) sruTable.getValueAt(i, 2)) {
 
@@ -444,7 +444,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon impleme
 
                     // Delete the old route
                     if (data.getSearchPatternRoute() != null) {
-                        System.out.println("Removing routes from old sar effort allocation data");
+//                        System.out.println("Removing routes from old sar effort allocation data");
                         EPDShore.getInstance().getRouteManager().getRoutes().remove(data.getSearchPatternRoute());
                         EPDShore.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
                         data.setSearchPatternRoute(null);
@@ -515,15 +515,15 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon impleme
 
                 double wc = wu * fw * ff;
 
-                System.out.println("wu is " + wu + " fw " + fw + " ff " + ff);
+//                System.out.println("wu is " + wu + " fw " + fw + " ff " + ff);
 
                 data.setW(wc);
 
                 data.setMmsi(currentSRU.getMmsi());
 
-                System.out.println("Calculating for ");
+//                System.out.println("Calculating for ");
 
-                System.out.println("Setting W to " + wc);
+//                System.out.println("Setting W to " + wc);
 
                 data.setSearchTime(currentSRU.getSearchTime());
 

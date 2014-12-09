@@ -313,11 +313,11 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
                 
                 
                 
-                System.out.println("Creating mona lisa request with the following data: ");
-                System.out.println("Remove ETA? " + removeIntermediateETA);
-                System.out.println("Draft: " + draft);
-                System.out.println("UKC "  + ukc);
-                System.out.println("Timeout " + timeout);
+//                System.out.println("Creating mona lisa request with the following data: ");
+//                System.out.println("Remove ETA? " + removeIntermediateETA);
+//                System.out.println("Draft: " + draft);
+//                System.out.println("UKC "  + ukc);
+//                System.out.println("Timeout " + timeout);
                 
                 
                 this.dispose();

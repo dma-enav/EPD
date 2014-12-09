@@ -347,10 +347,10 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
                 if (!aisNameLabels.isOpaque()) {
                     setActiveToolItem(aisNameLabels);
-                    System.out.println("Activating");
+//                    System.out.println("Activating");
                 } else {
                     setInactiveToolItem(aisNameLabels);
-                    System.out.println("Deactivating");
+//                    System.out.println("Deactivating");
                 }
 
             }

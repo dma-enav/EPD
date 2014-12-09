@@ -99,7 +99,7 @@ public class EffortAllocationWindowTabelModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        System.out.println("Set value at, aValue: " + aValue + " rowIndex: " + rowIndex + " columIndex: " + columnIndex);
+//        System.out.println("Set value at, aValue: " + aValue + " rowIndex: " + rowIndex + " columIndex: " + columnIndex);
         // SRU sru = sruManager.getSRUs().get(rowIndex);
         switch (columnIndex) {
         case 2:

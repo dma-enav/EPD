@@ -382,12 +382,12 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
 
         effortAllocationData.setW(wc);
 
-        System.out.println("The following Sweep Width is calculated:");
-        System.out.println("Wc = Wu x Fw x Ff");
-        System.out.println(wc + " = " + wu + " * " + fw + " * " + ff);
+//        System.out.println("The following Sweep Width is calculated:");
+//        System.out.println("Wc = Wu x Fw x Ff");
+//        System.out.println(wc + " = " + wu + " * " + fw + " * " + ff);
 
         double probabilityOfDetection = getProbabilityOfDetection();
-        System.out.println(probabilityOfDetection);
+//        System.out.println(probabilityOfDetection);
         if (probabilityOfDetection == -9999) {
             return false;
         }
@@ -397,7 +397,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
         int timeSearching = getSearchTimeHours();
 
         if (timeSearching == -9999) {
-            System.out.println("failed to get time searching spinner val");
+//            System.out.println("failed to get time searching spinner val");
             return false;
         }
         effortAllocationData.setSearchTime(timeSearching);

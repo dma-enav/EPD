@@ -167,7 +167,7 @@ public class FALSelectRequestShipDialog extends JDialog implements ActionListene
     @Override
     public void tableChanged(TableModelEvent arg0) {
         if (arg0.getColumn() == 1) {
-            System.out.println("Changed inclusion");
+//            System.out.println("Changed inclusion");
             // selectedWp.
             // Visibility has changed
             // routeManager

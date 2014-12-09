@@ -254,7 +254,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener, Acti
         }
 
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
-            System.out.println("SAR PANEL DISPLAY ?");
+//            System.out.println("SAR PANEL DISPLAY ?");
             // sarComplete(voctManager.getSarData());
         }
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {

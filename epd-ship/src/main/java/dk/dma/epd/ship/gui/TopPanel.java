@@ -336,7 +336,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
             menuBar.getEncLayer().setSelected(encBtn.isSelected());
 
         } else if (e.getSource() == wmsBtn) {
-            System.out.println("WMS Layer visible : " + wmsBtn.isSelected());
+//            System.out.println("WMS Layer visible : " + wmsBtn.isSelected());
             mainFrame.getChartPanel().wmsVisible(wmsBtn.isSelected());
 
         } else if (e.getSource() == routeManagerBtn) {

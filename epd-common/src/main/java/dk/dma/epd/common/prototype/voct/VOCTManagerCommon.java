@@ -82,7 +82,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     }
 
     public void setSarType(SAR_TYPE type) {
-        System.out.println("SET SAR TYPE " + type);
+//        System.out.println("SET SAR TYPE " + type);
         sarOperation = null;
         sarOperation = new SAROperation(type);
     }

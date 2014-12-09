@@ -92,7 +92,6 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
         // getRootPane ().setOpaque (false);
         // getContentPane ().setBackground(new Color (48, 48, 48, 200));
 
-        // System.out.println("Set location yo");
 
         //
         // if (routePanel != null){

@@ -180,7 +180,7 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
             RouteLegGraphic routeLeg = (RouteLegGraphic) newClosest;
             
             if (routeLeg.getRouteGraphic() == null){
-                System.out.println("Route Graphic is null?");
+//                System.out.println("Route Graphic is null?");
             }
             
             Point2D worldLocation = chartPanel.getMap().getProjection().inverse(evt.getPoint());

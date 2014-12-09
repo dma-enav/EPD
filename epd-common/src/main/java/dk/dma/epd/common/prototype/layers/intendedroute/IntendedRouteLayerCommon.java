@@ -380,7 +380,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         if (aisLayer != null) {
             aisLayer.setSelectedTarget(highlightedGraphics.getIntendedRoute().getMmsi(), true);
         } else {
-            System.out.println("AIS layer is nullllll");
+//            System.out.println("AIS layer is null");
         }
 
         doPrepare();

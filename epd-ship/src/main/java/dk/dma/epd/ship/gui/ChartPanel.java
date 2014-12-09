@@ -438,7 +438,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
 
             topPanel.getNavigationMouseMode().setSelected(false);
             topPanel.getDragMouseMode().setSelected(true);
-            System.out.println("Setting drag mouse mode");
+//            System.out.println("Setting drag mouse mode");
         }
 
         // Distance circle mouse mode

@@ -71,7 +71,7 @@ public final class SingleWMSService extends AbstractWMSService implements ImageS
             BufferedImage image = ImageIO.read(url);
 
             if (image == null) {
-                System.out.println("Image is null");
+                System.out.println("Unable to retrieve image from URL, check the WMS URL");
                 Image noImage = EPD.res().getCachedImageIcon("images/noWMSAvailable.png").getImage();
                 BufferedImage bi = new BufferedImage(noImage.getWidth(null), noImage.getHeight(null), BufferedImage.TYPE_INT_ARGB);
                 Graphics g = bi.createGraphics();

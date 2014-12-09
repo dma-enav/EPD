@@ -175,10 +175,10 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
         VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(id, message, recievedAccepted);
 
         // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(null, null, null);
-        System.out.println("Replying to : " + (long) voctInvitations.get(id));
+//        System.out.println("Replying to : " + (long) voctInvitations.get(id));
         boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(id)), voctMessage, this);
 
-        System.out.println("To Send is " + toSend);
+//        System.out.println("To Send is " + toSend);
 
         // sendMaritimeCloudMessage(new MmsiId((int)100), routeMessage, EPDShip.getInstance()
         // .getRouteSuggestionHandler());
@@ -231,13 +231,13 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
     public void messageReceivedByCloud(VOCTCommunicationMessage message) {
         // TODO Auto-generated method stub
 
-        System.out.println("Message recieved by Cloud, do we care?");
+//        System.out.println("Message recieved by Cloud, do we care?");
     }
 
     @Override
     public void messageHandled(VOCTCommunicationMessage message, VOCTCommunicationReply reply) {
         // TODO Auto-generated method stub
-        System.out.println("Message Handled / whats this?");
+//        System.out.println("Message Handled / whats this?");
     }
 
     @Override

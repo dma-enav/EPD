@@ -116,7 +116,7 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
                                 InvocationCallback.Context<FALReportingService.FALReportReply> context) {
 
                             // LOG.info("Shore received a VOCT reply");
-                            System.out.println("Received a FAL report from Ship! " + message.getFalReport());
+//                            System.out.println("Received a FAL report from Ship! " + message.getFalReport());
 
                             MaritimeId caller = context.getCaller();
                             long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
@@ -138,7 +138,7 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
                     }).awaitRegistered(4, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
-            System.out.println("Failed to register services?");
+//            System.out.println("Failed to register services?");
         }
 
         // Start broadcasting our own active route
@@ -189,7 +189,7 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
 
         boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) 0), falMessage, this);
 
-        System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
+//        System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
 
     }
 

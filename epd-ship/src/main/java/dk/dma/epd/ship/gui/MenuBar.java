@@ -400,7 +400,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
 
                 String name = null;
                 name = JOptionPane.showInputDialog(mainFrame, "Please input name of layout");
-                System.out.println(name);
+//                System.out.println(name);
 
                 if (name != null) {
 

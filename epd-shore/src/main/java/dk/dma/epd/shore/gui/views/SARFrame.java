@@ -53,7 +53,7 @@ public class SARFrame extends JMapFrame {
     public SARFrame(int id, MainFrame mainFrame, MapFrameType type) {
         super(id, mainFrame, type);
 
-        System.out.println("SAR Frame created with type : " + type);
+//        System.out.println("SAR Frame created with type : " + type);
     }
 
     @Override
@@ -179,10 +179,10 @@ public class SARFrame extends JMapFrame {
         masterPanel = new JPanel(new BorderLayout());
         masterPanel.add(mapPanel, BorderLayout.NORTH);
 
-        System.out.println("Init gui called");
+//        System.out.println("Init gui called");
         
         if (type == MapFrameType.SAR_Planning) {
-            System.out.println("SAR Planning panel created");
+//            System.out.println("SAR Planning panel created");
             sarPanelPlanning = new SARPanelPlanning();
 
             masterPanel.add(sarPanelPlanning, BorderLayout.EAST);
@@ -190,7 +190,7 @@ public class SARFrame extends JMapFrame {
             sarPanelPlanning.setSize(sarPanelWidth, 768);
             sarPanelPlanning.setPreferredSize(new Dimension(sarPanelWidth, 768));
         } else {
-            System.out.println("SAR Tracking panel created");
+//            System.out.println("SAR Tracking panel created");
             sarPanelTracking = new SARPanelTracking();
 
             masterPanel.add(sarPanelTracking, BorderLayout.EAST);
@@ -219,7 +219,7 @@ public class SARFrame extends JMapFrame {
     @Override
     public void repaintMapWindow() {
 
-        System.out.println("Repaint called");
+//        System.out.println("Repaint called");
         
         width = getSize().width;
         int innerHeight = getSize().height - moveHandlerHeight

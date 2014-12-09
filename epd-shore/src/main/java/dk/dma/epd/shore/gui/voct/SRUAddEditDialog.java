@@ -319,7 +319,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener, FocusLi
                 } else {
                     type = SRU_TYPE.Ship;
                 }
-                System.out.println("Type is : " + type);
+//                System.out.println("Type is : " + type);
 
                 int visibility = (int) visibilityDropDown.getSelectedItem();
                 double fatigue = (double) fatigueDropDown.getSelectedItem();

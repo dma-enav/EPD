@@ -45,13 +45,13 @@ public class IntendedRouteToggle extends JMenuItem implements IMapMenuAction {
      */
     @Override
     public void doAction() {
-        System.out.println("Toggle visiblity");
+//        System.out.println("Toggle visiblity");
         if (aisHandler != null) {
 
             // Try to find exiting target
             VesselTarget vesselTarget = aisHandler.getVesselTarget(intendedRoute.getMmsi());
             if (vesselTarget != null) {
-                System.out.println("Visibility Updated on vessel target");
+//                System.out.println("Visibility Updated on vessel target");
                 vesselTarget.setShowIntendedRoute(!vesselTarget.isShowIntendedRoute());
                 intendedRoute.setVisible(vesselTarget.isShowIntendedRoute());
             }else{

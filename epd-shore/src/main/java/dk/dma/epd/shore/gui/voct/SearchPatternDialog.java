@@ -326,7 +326,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
                 + cssSecondLon.getText() + "." + cssThirdLon.getText()
                 + comboCSSLon.getSelectedItem();
 
-        System.out.println(LKPLongitude);
+//        System.out.println(LKPLongitude);
 
         try {
             return parseLon(LKPLongitude);
@@ -365,7 +365,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
     public void resetValues(long id) {
         this.currentID = id;
         
-        System.out.println("CURRENT ID: " + currentID);
+//        System.out.println("CURRENT ID: " + currentID);
         
         cssFirstLat.setText("");
         cssSecondLat.setText("");
@@ -485,22 +485,22 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
 
         String lat = importedPosition.getLatitudeAsString();
 
-        System.out.println("Lat is" + lat);
+//        System.out.println("Lat is" + lat);
 
         // Get last character
 
         String latValues = lat.substring(0, lat.length() - 1);
-        System.out.println("Lat values is: " + latValues);
+//        System.out.println("Lat values is: " + latValues);
 
         String firstSplit = latValues.split(" ")[1].trim();
 
-        System.out.println("Split space 1 is " + firstSplit);
+//        System.out.println("Split space 1 is " + firstSplit);
 
-        System.out.println(firstSplit.contains("."));
+//        System.out.println(firstSplit.contains("."));
 
-        for (int i = 0; i < firstSplit.split("\\.").length; i++) {
-            System.out.println("Splitted val is" + firstSplit.split("\\.")[i]);
-        }
+//        for (int i = 0; i < firstSplit.split("\\.").length; i++) {
+//            System.out.println("Splitted val is" + firstSplit.split("\\.")[i]);
+//        }
 
         String firstValueLat = latValues.split(" ")[0].trim();
         String secondValueLat = firstSplit.split("\\.")[0].trim();

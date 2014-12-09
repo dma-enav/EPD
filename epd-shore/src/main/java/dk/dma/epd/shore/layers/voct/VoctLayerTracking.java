@@ -123,11 +123,11 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
     }
 
     public void drawEffectiveArea(long mmsi) {
-        System.out.println("Drawing effective Area on tracking layer");
+//        System.out.println("Drawing effective Area on tracking layer");
         // effectiveAreas
 
         if (effectiveAreas.containsKey(mmsi)) {
-            System.out.println("Removing existing");
+//            System.out.println("Removing existing");
             EffortAllocationAreaGraphics area = effectiveAreas.get(mmsi);
             graphics.remove(area);
             effectiveAreas.remove(mmsi);
@@ -137,8 +137,8 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
 
             EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(mmsi);
 
-            System.out.println("The effort allocation is : " + effortAllocationData);
-            System.out.println(sruManager.getSRUs(mmsi).getName());
+//            System.out.println("The effort allocation is : " + effortAllocationData);
+//            System.out.println(sruManager.getSRUs(mmsi).getName());
 
             EffortAllocationAreaGraphics area = new EffortAllocationAreaGraphics(effortAllocationData.getEffectiveAreaA(),
                     effortAllocationData.getEffectiveAreaB(), effortAllocationData.getEffectiveAreaC(),
@@ -197,7 +197,7 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
 
         for (int i = 0; i < datumLineData.getDatumPointDataSets().size(); i++) {
 
-            System.out.println("Creating area " + i);
+//            System.out.println("Creating area " + i);
             DatumPointData data = datumLineData.getDatumPointDataSets().get(i);
 
             Position A = data.getA();
