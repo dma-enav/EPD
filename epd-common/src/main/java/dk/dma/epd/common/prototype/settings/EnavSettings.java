@@ -62,7 +62,7 @@ public class EnavSettings implements Serializable {
     private double msiRelevanceGpsUpdateRange = 0.5d;
     private double msiRelevanceFromOwnShipRange = 40.0d;
     private double msiVisibilityFromNewWaypoint = 30.0d;
-    private boolean msiFilter = true;
+    private boolean msiFilter;
     private String msiNmServiceId = "";
     private String monaLisaServer = "www.optiroute.se/RouteRequest";
     private int monaLisaPort = 80;
