@@ -348,7 +348,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
             // Get the current card and action depends on that
 
 //            System.out.println("Next button pressed, currently at :"
-                    + currentCard);
+//                    + currentCard);
 
             // We're at SAR selection screen
             if (currentCard == SELECTSARTYPE) {
