@@ -14,13 +14,6 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-import static java.util.Objects.requireNonNull;
-
-import java.io.Serializable;
-import java.util.Date;
-
-import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
-import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voct.DatumPointDTO;
 import dk.dma.enav.model.voct.DatumPointSARISDTO;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
@@ -29,13 +22,18 @@ import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 
+import java.io.Serializable;
+import java.util.Date;
+
+import static java.util.Objects.requireNonNull;
+
 public class VOCTCommunicationService {
 
     /** An initiation point */
-    public static final ServiceInitiationPoint<VOCTCommunicationMessage> INIT = new ServiceInitiationPoint<>(
+    public static final TODO.ServiceInitiationPoint<VOCTCommunicationMessage> INIT = new TODO.ServiceInitiationPoint<>(
             VOCTCommunicationMessage.class);
 
-    public static class VOCTCommunicationMessage extends ServiceMessage<VOCTCommunicationReply> implements Serializable {
+    public static class VOCTCommunicationMessage extends TODO.ServiceMessage<VOCTCommunicationReply> implements Serializable {
 
         private static final long serialVersionUID = -3556815314608410502L;
         private RapidResponseDTO sarDataRapidResponse;
@@ -298,7 +296,7 @@ public class VOCTCommunicationService {
 
     }
 
-    public static class VOCTCommunicationReply extends ServiceMessage<Void> {
+    public static class VOCTCommunicationReply extends TODO.ServiceMessage<Void> {
 
         // private String message;
         private long id;
@@ -308,9 +306,6 @@ public class VOCTCommunicationService {
         public VOCTCommunicationReply() {
         }
 
-        /**
-         * @param message
-         */
         public VOCTCommunicationReply(long id, long mmsi, long sendDate) {
             // this.message = message;
             this.id = requireNonNull(id);

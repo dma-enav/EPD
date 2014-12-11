@@ -30,7 +30,7 @@ public class CloudSettings  implements Serializable {
     /**
      * Cloud server configuration
      */
-    private String cloudServerHost = "mms.maritimecloud.net";
+    private String cloudServerHost = "mms03.maritimecloud.net";
     private int cloudServerPort = 43234;
     
     // Intended route settings
@@ -52,9 +52,12 @@ public class CloudSettings  implements Serializable {
      * @param props the properties to load the Maritime Cloud-specific properties from
      */
     public void readProperties(Properties props) {
-        // Cloud server configuration
-        cloudServerHost = props.getProperty(PREFIX + "cloudServerHost", cloudServerHost);
-        cloudServerPort = PropUtils.intFromProperties(props, PREFIX + "cloudServerPort", cloudServerPort);
+
+// TODO: Maritime Cloud 0.2 re-factoring
+// Force cloud server 0.2 for the test:
+//        // Cloud server configuration
+//        cloudServerHost = props.getProperty(PREFIX + "cloudServerHost", cloudServerHost);
+//        cloudServerPort = PropUtils.intFromProperties(props, PREFIX + "cloudServerPort", cloudServerPort);
         
         // Intended route settings
         broadcastIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "broadcastIntendedRoute", broadcastIntendedRoute);

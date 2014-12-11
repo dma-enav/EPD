@@ -14,25 +14,21 @@
  */
 package dk.dma.epd.ship.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import dk.dma.enav.model.fal.FALReport;
+import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportMessage;
+import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportReply;
+import dk.dma.epd.common.prototype.enavcloud.TODO;
+import dk.dma.epd.common.prototype.service.FALHandlerCommon;
+import dk.dma.epd.common.util.Util;
+import dk.dma.epd.ship.fal.FALManager;
 import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.service.ServiceEndpoint;
-
+import net.maritimecloud.net.mms.MmsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.enav.model.fal.FALReport;
-import dk.dma.epd.common.prototype.enavcloud.FALReportingService;
-import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportMessage;
-import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportReply;
-import dk.dma.epd.common.prototype.service.FALHandlerCommon;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.fal.FALManager;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Ship specific intended route service implementation.
@@ -53,7 +49,7 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
     private boolean running;
     private FALManager falManager;
 
-    private List<ServiceEndpoint<FALReportMessage, FALReportReply>> falRecievers = new ArrayList<ServiceEndpoint<FALReportMessage, FALReportReply>>();
+    private List<TODO.ServiceEndpoint<FALReportMessage, FALReportReply>> falRecievers = new ArrayList<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(FALHandler.class);
 
@@ -68,12 +64,12 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(MaritimeCloudClient connection) {
+    public void cloudConnected(MmsClient connection) {
         super.cloudConnected(connection);
         //
         // // Register for RapidResponse
         // try {
-        // getMaritimeCloudConnection().serviceRegister(FALReportingService.INIT,
+        // getMmsClient().serviceRegister(FALReportingService.INIT,
         // new InvocationCallback<FALReportingService.FALReportMessage, FALReportingService.FALReportReply>() {
         // public void process(FALReportMessage message,
         // InvocationCallback.Context<FALReportingService.FALReportReply> context) {
@@ -127,8 +123,9 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
      */
     private void fetchSTCCList() {
         try {
-            falRecievers = MaritimeCloudUtils.findSTCCServices(getMaritimeCloudConnection().serviceLocate(FALReportingService.INIT)
-                    .nearest(Integer.MAX_VALUE).get());
+// TODO: Maritime Cloud 0.2 re-factoring
+//            falRecievers = MaritimeCloudUtils.findSTCCServices(getMmsClient().serviceLocate(FALReportingService.INIT)
+//                    .nearest(Integer.MAX_VALUE).get());
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
@@ -160,7 +157,7 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
     /**
      * @return the falRecievers
      */
-    public List<ServiceEndpoint<FALReportMessage, FALReportReply>> getFalRecievers() {
+    public List<TODO.ServiceEndpoint<FALReportMessage, FALReportReply>> getFalRecievers() {
         return falRecievers;
     }
 

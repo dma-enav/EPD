@@ -14,29 +14,26 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import java.net.URI;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.net.ClosingCode;
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.MaritimeCloudClientConfiguration;
-import net.maritimecloud.net.MaritimeCloudConnection;
-import net.maritimecloud.util.geometry.PositionReader;
-import net.maritimecloud.util.geometry.PositionTime;
-
 import com.bbn.openmap.MapHandlerChild;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.net.mms.MmsClient;
+import net.maritimecloud.net.mms.MmsClientConfiguration;
+import net.maritimecloud.net.mms.MmsConnection;
+import net.maritimecloud.net.mms.MmsConnectionClosingCode;
+import net.maritimecloud.util.geometry.PositionReader;
+import net.maritimecloud.util.geometry.PositionTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Service that provides an interface to the Maritime Cloud connection.
@@ -54,14 +51,14 @@ import dk.dma.epd.common.util.Util;
 public class MaritimeCloudService extends MapHandlerChild implements Runnable, IStatusComponent {
 
     /**
-     * Set this flag to true, if you want to log all messages sent and received by the {@linkplain MaritimeCloudClient}
+     * Set this flag to true, if you want to log all messages sent and received by the {@linkplain MmsClient}
      */
     private static final boolean LOG_MARITIME_CLOUD_ACTIVITY = false;
     private static final int MARITIME_CLOUD_SLEEP_TIME = 10000;
 
     private static final Logger LOG = LoggerFactory.getLogger(MaritimeCloudService.class);
 
-    protected MaritimeCloudClient connection;
+    protected MmsClient connection;
 
     protected List<IMaritimeCloudListener> listeners = new CopyOnWriteArrayList<>();
     protected CloudStatus cloudStatus = new CloudStatus();
@@ -87,7 +84,7 @@ public class MaritimeCloudService extends MapHandlerChild implements Runnable, I
      * 
      * @return a reference to the cloud client connection
      */
-    public MaritimeCloudClient getConnection() {
+    public MmsClient getConnection() {
         return connection;
     }
 
@@ -184,7 +181,9 @@ public class MaritimeCloudService extends MapHandlerChild implements Runnable, I
     private boolean initConnection(String host, MaritimeId id) {
         LOG.info("Connecting to cloud server: " + host + " with maritime id " + id);
 
-        MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration.create(id);
+        MmsClientConfiguration enavCloudConnection = MmsClientConfiguration.create(id);
+        enavCloudConnection.properties().setName(EPD.getInstance().getClass().getSimpleName() + " - mmsi: " + EPD.getInstance().getMmsi());
+
 
         // Hook up a position reader
         enavCloudConnection.setPositionReader(new PositionReader() {
@@ -201,43 +200,61 @@ public class MaritimeCloudService extends MapHandlerChild implements Runnable, I
         });
 
         // Check if we need to log the MaritimeCloudConnection activity
-
-        enavCloudConnection.addListener(new MaritimeCloudConnection.Listener() {
-            @Override
-            public void messageReceived(String message) {
-                cloudStatus.markCloudReception();
-                if (LOG_MARITIME_CLOUD_ACTIVITY) {
-                    LOG.info("Received:" + message);
-                }
-
-            }
-
-            @Override
-            public void messageSend(String message) {
-                cloudStatus.markSuccesfullSend();
-                if (LOG_MARITIME_CLOUD_ACTIVITY) {
-                    LOG.info("Sending :" + message);
-                }
-
-            }
-
+        enavCloudConnection.addListener(new MmsConnection.Listener() {
             @Override
             public void connecting(URI host) {
-                cloudStatus.markCloudReception();
                 if (LOG_MARITIME_CLOUD_ACTIVITY) {
-                    LOG.info("Connecting to cloud :" + host);
+                    LOG.info("Connecting to " + host);
                 }
-
             }
 
             @Override
-            public void disconnected(ClosingCode closeReason) {
+            public void connected(URI host) {
+                cloudStatus.markCloudReception();
+                if (LOG_MARITIME_CLOUD_ACTIVITY) {
+                    LOG.info("Connected to " + host);
+                }
+            }
+
+            @Override
+            public void binaryMessageReceived(byte[] message) {
+                cloudStatus.markCloudReception();
+                if (LOG_MARITIME_CLOUD_ACTIVITY) {
+                    LOG.info("Received binary message: " + (message == null ? 0 : message.length) + " bytes");
+                }
+            }
+
+            @Override
+            public void binaryMessageSend(byte[] message) {
+                cloudStatus.markSuccesfullSend();
+                if (LOG_MARITIME_CLOUD_ACTIVITY) {
+                    LOG.info("Sending binary message: " + (message == null ? 0 : message.length) + " bytes");
+                }
+            }
+
+            @Override
+            public void textMessageReceived(String message) {
+                cloudStatus.markCloudReception();
+                if (LOG_MARITIME_CLOUD_ACTIVITY) {
+                    LOG.info("Received text message: " + message);
+                }
+            }
+
+            @Override
+            public void textMessageSend(String message) {
+                cloudStatus.markSuccesfullSend();
+                if (LOG_MARITIME_CLOUD_ACTIVITY) {
+                    LOG.info("Sending text message: " + message);
+                }
+            }
+
+            @Override
+            public void disconnected(MmsConnectionClosingCode closeReason) {
                 cloudStatus.markFailedReceive();
                 cloudStatus.markFailedSend();
                 if (LOG_MARITIME_CLOUD_ACTIVITY) {
-                    LOG.info("Disconnecting from cloud :" + closeReason);
+                    LOG.info("Disconnected with reason: " + closeReason);
                 }
-
             }
         });
 
@@ -293,7 +310,7 @@ public class MaritimeCloudService extends MapHandlerChild implements Runnable, I
      * @param connection
      *            the connection
      */
-    protected void fireConnected(MaritimeCloudClient connection) {
+    protected void fireConnected(MmsClient connection) {
         for (IMaritimeCloudListener listener : listeners) {
             listener.cloudConnected(connection);
         }
@@ -336,7 +353,7 @@ public class MaritimeCloudService extends MapHandlerChild implements Runnable, I
          * @param connection
          *            the maritime cloud connection
          */
-        void cloudConnected(MaritimeCloudClient connection);
+        void cloudConnected(MmsClient connection);
 
         /**
          * Called when the connection to the maritime cloud has been terminated.

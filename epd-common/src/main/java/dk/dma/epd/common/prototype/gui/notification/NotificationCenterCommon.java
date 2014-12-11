@@ -14,10 +14,35 @@
  */
 package dk.dma.epd.common.prototype.gui.notification;
 
-import static java.awt.GridBagConstraints.BOTH;
-import static java.awt.GridBagConstraints.HORIZONTAL;
-import static java.awt.GridBagConstraints.WEST;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.ComponentDialog;
+import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
+import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
+import dk.dma.epd.common.prototype.notification.ChatNotification;
+import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.MsiNmNotification;
+import dk.dma.epd.common.prototype.notification.Notification;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon.RouteSuggestionListener;
+import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
+import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
+import dma.msinm.MCMsiNmService;
+import net.maritimecloud.core.id.MaritimeId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.GridBagConstraints;
@@ -33,37 +58,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-
-import net.maritimecloud.core.id.MaritimeId;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.gui.ComponentDialog;
-import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
-import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
-import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.notification.ChatNotification;
-import dk.dma.epd.common.prototype.notification.GeneralNotification;
-import dk.dma.epd.common.prototype.notification.MsiNotification;
-import dk.dma.epd.common.prototype.notification.Notification;
-import dk.dma.epd.common.prototype.notification.NotificationAlert;
-import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
-import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
-import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
-import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
-import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon.RouteSuggestionListener;
-import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
-import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
+import static dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon.IMsiNmServiceListener;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.WEST;
 
 /**
  * Defines the base class for the notification center. Can either be used directly or extended.
@@ -74,14 +72,14 @@ import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.Strategic
  * <li>MSI: A maritime safety information panel.</li>
  * </ul>
  */
-public abstract class NotificationCenterCommon extends ComponentDialog implements ActionListener, IMsiUpdateListener,
+public abstract class NotificationCenterCommon extends ComponentDialog implements ActionListener, IMsiNmServiceListener,
         IChatServiceListener, StrategicRouteListener, RouteSuggestionListener {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(NotificationCenterCommon.class);
 
     protected Timer alertTimer = new Timer(3 * 1000, this); // Every 3 seconds
 
-    protected MsiHandler msiHandler;
+    protected MsiNmServiceHandlerCommon msiNmHandler;
     protected ChatServiceHandlerCommon chatServiceHandler;
     protected StrategicRouteHandlerCommon strategicRouteHandler;
     protected RouteSuggestionHandlerCommon routeSuggestionHandler;
@@ -93,7 +91,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     protected JPanel typePanel = new JPanel(new GridBagLayout());
 
     protected GeneralNotificationPanel generalPanel = new GeneralNotificationPanel(this);
-    protected MsiNotificationPanel msiPanel = new MsiNotificationPanel(this);
+    protected MsiNmNotificationPanel msiNmPanel = new MsiNmNotificationPanel(this);
     protected ChatNotificationPanel chatPanel = new ChatNotificationPanel(this);
 
     protected List<NotificationPanel<?>> panels = new CopyOnWriteArrayList<>();
@@ -132,6 +130,11 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         routeSuggestionHandler = EPD.getInstance().getRouteSuggestionHandler();
         routeSuggestionHandler.addRouteSuggestionListener(this);
 
+        msiNmHandler = EPD.getInstance().getMsiNmHandler();
+        msiNmHandler.addListener(this);
+        msiNmPanel.refreshMsiNmServices();
+        msiNmPanel.refreshNotifications();
+
         alertTimer.setCoalesce(true);
         alertTimer.setRepeats(true);
         alertTimer.start();
@@ -143,7 +146,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     protected void registerPanels() {
         panels.add(generalPanel);
         panels.add(chatPanel);
-        panels.add(msiPanel);
+        panels.add(msiNmPanel);
     }
 
     /**
@@ -245,12 +248,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      */
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof MsiHandler && msiHandler == null) {
-            msiHandler = (MsiHandler) obj;
-            msiHandler.addListener(this);
-            msiPanel.refreshNotifications();
-
-        } else if (obj instanceof ChatServiceHandlerCommon && chatServiceHandler == null) {
+        if (obj instanceof ChatServiceHandlerCommon && chatServiceHandler == null) {
             chatServiceHandler = (ChatServiceHandlerCommon) obj;
             chatServiceHandler.addListener(this);
             chatPanel.refreshNotifications();
@@ -466,8 +464,8 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     public void addNotification(Notification<?, ?> notification) {
         if (notification instanceof GeneralNotification) {
             generalPanel.addNotification((GeneralNotification) notification);
-        } else if (notification instanceof MsiNotification) {
-            msiPanel.addNotification((MsiNotification) notification);
+        } else if (notification instanceof MsiNmNotification) {
+            msiNmPanel.addNotification((MsiNmNotification) notification);
         } else if (notification instanceof ChatNotification) {
             chatPanel.addNotification((ChatNotification) notification);
         } else {
@@ -540,18 +538,25 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      * {@inheritDoc}
      */
     @Override
-    public void msiUpdate() {
-        msiPanel.refreshNotifications();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void chatMessagesUpdated(MaritimeId targetId) {
 
         // Update the chat panel
         chatPanel.refreshNotifications();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void msiNmServicesChanged(List<MCMsiNmService> msiNmServiceList) {
+        msiNmPanel.refreshMsiNmServices();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void msiNmMessagesChanged(List<MsiNmNotification> msiNmMessages) {
+        msiNmPanel.refreshNotifications();
+    }
 }

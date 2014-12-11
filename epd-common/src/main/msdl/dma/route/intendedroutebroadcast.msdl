@@ -1,0 +1,14 @@
+namespace dma.route;
+
+//import "route.msdl";
+
+broadcast MCIntendedRouteBroadcast {
+    /** The route or route segment currently being followed by sender. */
+    1: MCRoute route;
+
+    /** The currently active waypoint, points to an index in routes waypoint list. */
+    2: int activeWaypointIndex;
+
+    /** Dynamically calculated ETAs of the active route. One for each waypoint. */
+    3: list<timestamp> calculatedEtas;
+}

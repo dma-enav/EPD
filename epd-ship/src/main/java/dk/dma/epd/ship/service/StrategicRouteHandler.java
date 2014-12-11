@@ -14,24 +14,10 @@
  */
 package dk.dma.epd.ship.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.JOptionPane;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.service.ServiceEndpoint;
-import net.maritimecloud.net.service.invocation.InvocationCallback;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
+import dk.dma.epd.common.prototype.enavcloud.TODO;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
@@ -40,6 +26,16 @@ import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.route.RouteManager;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.net.mms.MmsClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.JOptionPane;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Handler class for the strategic route e-Navigation service
@@ -61,7 +57,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
     private Route route;
     private boolean routeModified;
 
-    private List<ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> strategicRouteSTCCList = new ArrayList<>();
+    private List<TODO.ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> strategicRouteSTCCList = new ArrayList<>();
 
     /**
      * Constructor
@@ -82,26 +78,27 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(MaritimeCloudClient connection) {
-        try {
-            getMaritimeCloudConnection().serviceRegister(StrategicRouteService.INIT,
-                    new InvocationCallback<StrategicRouteMessage, StrategicRouteReply>() {
-                        public void process(StrategicRouteMessage message, Context<StrategicRouteReply> context) {
-
-                            // The cloud status is transient, so this ought to be unnecessary
-                            message.setCloudMessageStatus(null);
-                            
-                            LOG.info("Ship received a strategic route request");
-                            handleStrategicRouteMessageFromStcc(message, context.getCaller());
-                            
-                            // Acknowledge that the message has been handled 
-                            context.complete(new StrategicRouteReply(message.getId()));
-                        }
-                    }).awaitRegistered(4, TimeUnit.SECONDS);
-
-        } catch (Exception e) {
-            LOG.error("Error hooking up services", e);
-        }
+    public void cloudConnected(MmsClient connection) {
+// TODO: Maritime Cloud 0.2 re-factoring
+//        try {
+//            getMmsClient().serviceRegister(StrategicRouteService.INIT,
+//                    new InvocationCallback<StrategicRouteMessage, StrategicRouteReply>() {
+//                        public void process(StrategicRouteMessage message, Context<StrategicRouteReply> context) {
+//
+//                            // The cloud status is transient, so this ought to be unnecessary
+//                            message.setCloudMessageStatus(null);
+//
+//                            LOG.info("Ship received a strategic route request");
+//                            handleStrategicRouteMessageFromStcc(message, context.getCaller());
+//
+//                            // Acknowledge that the message has been handled
+//                            context.complete(new StrategicRouteReply(message.getId()));
+//                        }
+//                    }).awaitRegistered(4, TimeUnit.SECONDS);
+//
+//        } catch (Exception e) {
+//            LOG.error("Error hooking up services", e);
+//        }
 
         // Refresh the service lists
         fetchSTCCList();
@@ -111,13 +108,13 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * Fetches the list of Sea Traffic Control Centers
      */
     private void fetchSTCCList() {
-        try {
-            strategicRouteSTCCList = getMaritimeCloudConnection().serviceLocate(StrategicRouteService.INIT)
-                    .nearest(Integer.MAX_VALUE).get();
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-        }
+//        try {
+//            strategicRouteSTCCList = getMmsClient().serviceLocate(StrategicRouteService.INIT)
+//                    .nearest(Integer.MAX_VALUE).get();
+//
+//        } catch (Exception e) {
+//            LOG.error(e.getMessage());
+//        }
     }
 
     /**
@@ -131,7 +128,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * Returns the list of strategic route STCC's
      * @return the list of strategic route STCC's
      */
-    public List<ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> getStrategicRouteSTCCList() {
+    public List<TODO.ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> getStrategicRouteSTCCList() {
         return strategicRouteSTCCList;
     }
     
@@ -154,9 +151,6 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
 
     /**
      * Sends the route to an STCC
-     * 
-     * @param route
-     * @param windowLocation
      */
     public void sendStrategicRouteToSTCC(long stccMmsi, Route route, String message) {
 

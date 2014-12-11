@@ -58,7 +58,7 @@ public class FALSelectRequestShipTableModel extends AbstractTableModel {
         switch (columnIndex) {
         case 0:
 
-            return NameUtils.getName(EPD.getInstance().getChatServiceHandler().getChatServiceList().get(rowIndex).getId());
+            return NameUtils.getName(EPD.getInstance().getChatServiceHandler().getChatServiceList().get(rowIndex).getRemoteId());
 
         default:
             LOG.error("Unknown column " + columnIndex);

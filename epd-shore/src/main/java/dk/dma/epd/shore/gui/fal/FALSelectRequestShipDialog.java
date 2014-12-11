@@ -14,13 +14,11 @@
  */
 package dk.dma.epd.shore.gui.fal;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.service.ChatServiceData;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -35,12 +33,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
-import dk.dma.epd.common.prototype.service.ChatServiceData;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class FALSelectRequestShipDialog extends JDialog implements ActionListener, ListSelectionListener, TableModelListener,
         MouseListener {
@@ -208,7 +207,7 @@ public class FALSelectRequestShipDialog extends JDialog implements ActionListene
         int selectedIndex = vesselNameTable.getSelectedRow();
         if (selectedIndex >= 0) {
 
-            MaritimeId id = EPD.getInstance().getChatServiceHandler().getChatServiceList().get(selectedIndex).getId();
+            MaritimeId id = EPD.getInstance().getChatServiceHandler().getChatServiceList().get(selectedIndex).getRemoteId();
 
             int mmsi = Integer.parseInt(id.toString().split("mmsi://")[1]);
 

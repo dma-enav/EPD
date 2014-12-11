@@ -14,29 +14,20 @@
  */
 package dk.dma.epd.common.prototype.gui.notification;
 
-import static java.awt.GridBagConstraints.HORIZONTAL;
-import static java.awt.GridBagConstraints.VERTICAL;
-import static java.awt.GridBagConstraints.NORTH;
-import static java.awt.GridBagConstraints.BOTH;
-import static java.awt.GridBagConstraints.NONE;
-
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Polygon;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.Area;
-import java.awt.geom.RoundRectangle2D;
-import java.util.Date;
+import dk.dma.epd.common.graphics.GraphicsUtil;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.service.ChatServiceData;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
+import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.NameUtils;
+import dk.dma.epd.common.util.NameUtils.NameFormat;
+import dma.messaging.MCChatMessage;
+import dma.messaging.MCNotificationSeverity;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.util.Timestamp;
+import org.apache.commons.lang.StringUtils;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -56,20 +47,29 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.JTextComponent;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Polygon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Area;
+import java.awt.geom.RoundRectangle2D;
+import java.util.Date;
 
-import org.apache.commons.lang.StringUtils;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import dk.dma.epd.common.graphics.GraphicsUtil;
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
-import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
-import dk.dma.epd.common.prototype.service.ChatServiceData;
-import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
-import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.common.util.NameUtils;
-import dk.dma.epd.common.util.NameUtils.NameFormat;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.NORTH;
+import static java.awt.GridBagConstraints.VERTICAL;
 
 /**
  * Display the chat service messages exchanged with a specific maritime id.
@@ -81,7 +81,7 @@ import dk.dma.epd.common.util.NameUtils.NameFormat;
  * If you hook the panel up as a {@linkplain IChatServiceListener} to the chat service handler, 
  * it will display the message exchange of the latest chat message being received or sent.
  * <p>
- * Otherwise, use the {@linkplain #setChatServiceData()} function to control which exchange to display.
+ * Otherwise, use the {@code #setChatServiceData()} function to control which exchange to display.
  * <p>
  * You can set a {@code noDataComponent} that gets displayed when no chat data is available. 
  */
@@ -211,7 +211,6 @@ public class ChatServicePanel extends JPanel implements ActionListener, IChatSer
     /**
      * Can be called whenever the chat service data for the given maritime id to display has changed
      * @param id the target maritime id
-     * @param chatData the new updated chat service data
      */
     public void setTargetMaritimeId(MaritimeId id) {
         ChatServiceData chatData = EPD.getInstance().getChatServiceHandler()
@@ -255,13 +254,13 @@ public class ChatServicePanel extends JPanel implements ActionListener, IChatSer
             
             // Add the messages
             long lastMessageTime = 0;
-            for (ChatServiceMessage message : chatData.getMessages()) {
+            for (MCChatMessage message : chatData.getMessages()) {
                 
                 // Check if we need to add a time label
                 if (message.getSendDate().getTime() - lastMessageTime > PRINT_DATE_INTERVAL) {
                     JLabel dateLabel = new JLabel(String.format(
-                            message.isOwnMessage() ? "Sent to %s" : "Received %s", 
-                            Formatter.formatShortDateTimeNoTz(message.getSendDate())));
+                            message.getOwnMessage() ? "Sent to %s" : "Received %s",
+                            Formatter.formatShortDateTimeNoTz(new Date(message.getSendDate().getTime()))));
                     dateLabel.setFont(dateLabel.getFont().deriveFont(9.0f).deriveFont(Font.PLAIN));
                     dateLabel.setHorizontalAlignment(SwingConstants.CENTER);
                     dateLabel.setForeground(Color.LIGHT_GRAY);
@@ -271,7 +270,7 @@ public class ChatServicePanel extends JPanel implements ActionListener, IChatSer
                 // Add a chat message field
                 JPanel msg = new JPanel();
                 msg.setBorder(new ChatMessageBorder(message));
-                JLabel msgLabel = new ChatMessageLabel(message.getMessage(), message.isOwnMessage());
+                JLabel msgLabel = new ChatMessageLabel(message.getMsg(), message.getOwnMessage());
                 msg.add(msgLabel);
                 messagesPanel.add(msg, new GridBagConstraints(0, y++, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, insets, 0, 0)); 
                 
@@ -366,7 +365,11 @@ public class ChatServicePanel extends JPanel implements ActionListener, IChatSer
 
             @Override
             protected void sendChatMessage() {
-                chatData.addChatMessage(new ChatServiceMessage(messageText.getText(), true));
+                MCChatMessage chatMessage = new MCChatMessage();
+                chatMessage.setMsg(messageText.getText());
+                chatMessage.setOwnMessage(true);
+                chatMessage.setSendDate(Timestamp.now());
+                chatData.addChatMessage(chatMessage);
                 updateChatMessagePanel();
             }
         };
@@ -378,12 +381,14 @@ public class ChatServicePanel extends JPanel implements ActionListener, IChatSer
         for (int x = 0; x < 10; x++) {
             time += Math.random() * 1000L * 60L * 10L; // add 0-10 minutes
             boolean ownMessage = Math.random() < 0.5;
-            ChatServiceMessage msg = new ChatServiceMessage("hello yourself\nJGsfdkjfhg", ownMessage);
-            msg.setSendDate(new Date(time));
+            MCChatMessage msg = new MCChatMessage();
+            msg.setMsg("hello yourself\nJGsfdkjfhg");
+            msg.setOwnMessage(ownMessage);
+            msg.setSendDate(Timestamp.create(time));
             if (Math.random() < 0.1) {
-                msg.setSeverity(NotificationSeverity.ALERT);
+                msg.setSeverity(MCNotificationSeverity.ALERT);
             } else if (Math.random() < 0.2) {
-                msg.setSeverity(NotificationSeverity.WARNING);
+                msg.setSeverity(MCNotificationSeverity.WARNING);
             }
             chatData.addChatMessage(msg);
         }
@@ -450,17 +455,17 @@ class ChatMessageBorder extends AbstractBorder {
     int pointerFromBottom = 11;
     int pad = 2;
     Insets insets;
-    ChatServiceMessage message;
+    MCChatMessage message;
     boolean pointerLeft;
 
     /**
      * Constructor
-     * @param color
+     * @param message
      */
-    public ChatMessageBorder(ChatServiceMessage message) {
+    public ChatMessageBorder(MCChatMessage message) {
         super();
         this.message = message;
-        this.pointerLeft = !message.isOwnMessage();
+        this.pointerLeft = !message.getOwnMessage();
         
         int i = 2;
         insets = pointerLeft 
@@ -516,9 +521,9 @@ class ChatMessageBorder extends AbstractBorder {
         g2.setColor(col);
         g2.fill(area);
         
-        if (message.getSeverity() == NotificationSeverity.WARNING || message.getSeverity() == NotificationSeverity.ALERT) {
+        if (message.getSeverity() == MCNotificationSeverity.WARNING || message.getSeverity() == MCNotificationSeverity.ALERT) {
             g2.setStroke(new BasicStroke(2.0f));
-            g2.setColor(message.getSeverity() == NotificationSeverity.WARNING ? WARN_COLOR : ALERT_COLOR);
+            g2.setColor(message.getSeverity() == MCNotificationSeverity.WARNING ? WARN_COLOR : ALERT_COLOR);
             g2.draw(area);
         }
     }

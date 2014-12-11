@@ -14,11 +14,6 @@
  */
 package dk.dma.epd.common.prototype.gui.views;
 
-import java.awt.Point;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapHandler;
@@ -30,7 +25,6 @@ import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.ProjMath;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.HistoryListener;
@@ -44,7 +38,7 @@ import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteCPALayer;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
-import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
+import dk.dma.epd.common.prototype.layers.msi.MsiNmLayerCommon;
 import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
 import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
@@ -53,6 +47,11 @@ import dk.dma.epd.common.prototype.layers.util.LayerVisibilityAdapter;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.settings.MapSettings;
+
+import java.awt.Point;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -85,7 +84,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected RouteLayerCommon routeLayer;
     protected RouteEditLayerCommon routeEditLayer;
     protected NewRouteContainerLayer newRouteContainerLayer;
-    protected MsiLayerCommon msiLayer;
+    protected MsiNmLayerCommon msiNmLayer;
     protected IntendedRouteLayerCommon intendedRouteLayer;
     protected IntendedRouteCPALayer intendedRouteCPALayer;
     protected NogoLayer nogoLayer;
@@ -133,8 +132,8 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     /**
      * Change the mouse mode.
      * 
-     * @param mode
-     *            The mode ID of the mouse mode to swap to (e.g. DistanceCircleMouseMode.MODE_ID).
+     * @param modeID The mode ID of the mouse mode to swap to (e.g.
+     *            DistanceCircleMouseMode.MODE_ID).
      */
     public abstract void setMouseMode(String modeID);
 
@@ -420,8 +419,8 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         return newRouteContainerLayer;
     }
 
-    public MsiLayerCommon getMsiLayer() {
-        return msiLayer;
+    public MsiNmLayerCommon getMsiNmLayer() {
+        return msiNmLayer;
     }
 
     public WMSLayer getWmsLayer() {

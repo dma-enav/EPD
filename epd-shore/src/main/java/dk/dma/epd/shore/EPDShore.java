@@ -14,29 +14,9 @@
  */
 package dk.dma.epd.shore;
 
-import java.beans.beancontext.BeanContextServicesSupport;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bbn.openmap.PropertyConsumer;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
-
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
@@ -48,7 +28,6 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
@@ -59,6 +38,7 @@ import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.service.MaritimeCloudService;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
@@ -83,6 +63,22 @@ import dk.dma.epd.shore.settings.EPDSettings;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
 import dk.dma.epd.shore.voyage.VoyageManager;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.beans.beancontext.BeanContextServicesSupport;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Main class with main method.
@@ -229,9 +225,9 @@ public final class EPDShore extends EPD {
         routeSuggestionHandler = RouteSuggestionHandler.loadRouteSuggestionHandler();
         beanHandler.add(routeSuggestionHandler);
 
-        // Create MSI handler
-        msiHandler = new MsiHandler(getSettings().getEnavSettings());
-        beanHandler.add(msiHandler);
+        // Create a new MSI-NM handler
+        msiNmHandler = new MsiNmServiceHandlerCommon();
+        beanHandler.add(msiNmHandler);
 
         // Create a chat service handler
         chatServiceHandler = new ChatServiceHandlerCommon();
@@ -377,7 +373,7 @@ public final class EPDShore extends EPD {
         // Handler settings
         voyageManager.saveToFile();
         routeManager.saveToFile();
-        msiHandler.saveToFile();
+        msiNmHandler.saveToFile();
         aisHandler.saveView();
         transponderFrame.shutdown();
         falManager.saveToFile();
@@ -388,6 +384,7 @@ public final class EPDShore extends EPD {
         routeSuggestionHandler.shutdown();
         intendedRouteHandler.shutdown();
         chatServiceHandler.shutdown();
+        msiNmHandler.shutdown();
 
         // Stop the system tray
         systemTray.shutdown();
@@ -753,10 +750,10 @@ public final class EPDShore extends EPD {
     }
 
     /**
-     * Returns a {@linkplain Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShore}
+     * Returns a {@code Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShore}
      * class.
      * 
-     * @return a new {@linkplain Resource} instance
+     * @return a new {@code Resource} instance
      */
     public static Resources res() {
         return Resources.get(EPDShore.class);

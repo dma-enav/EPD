@@ -18,7 +18,7 @@ package dk.dma.epd.common.prototype.notification;
  * Enumerates the notification types
  */
 public enum NotificationType {
-    MSI("MSI"),
+    MSI_NM("MSI-NM"),
     TACTICAL_ROUTE("Tactical Route"),
     STRATEGIC_ROUTE("Strategic Route"),
     NOTIFICATION("Notifications"),

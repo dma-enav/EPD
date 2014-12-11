@@ -16,9 +16,7 @@ package dk.dma.epd.common.prototype.enavcloud;
 
 import java.util.Date;
 
-import net.maritimecloud.net.broadcast.BroadcastMessage;
-
-public class VOCTSARInfoMessage extends BroadcastMessage {
+public class VOCTSARInfoMessage extends TODO.BroadcastMessage {
 
     private String message;
     private long date;

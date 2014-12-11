@@ -14,30 +14,21 @@
  */
 package dk.dma.epd.ship.gui;
 
-import java.util.Locale;
-
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JLabel;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.border.EtchedBorder;
-
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.proj.coords.LatLonPoint;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.event.mouse.IMapCoordListener;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.panels.ActiveWaypointPanel;
@@ -48,6 +39,13 @@ import dk.dma.epd.ship.gui.panels.ScalePanel;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.JLabel;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.border.EtchedBorder;
+import java.util.Locale;
+
 /**
  * Sensor panel right of map
  */
@@ -57,7 +55,7 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
     
     private PntHandler gpsHandler;
     private OwnShipHandler ownShipHandler;
-    private MsiHandler msiHandler;
+    private MsiNmServiceHandlerCommon msiNmHandler;
     
     private PntData gpsData;
     private ChartPanel chartPanel;
@@ -273,8 +271,8 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
         if (ownShipHandler == null && obj instanceof OwnShipHandler) {
             ownShipHandler = (OwnShipHandler)obj;
         }
-        if (msiHandler == null && obj instanceof MsiHandler) {
-            msiHandler = (MsiHandler)obj;
+        if (msiNmHandler == null && obj instanceof MsiNmServiceHandlerCommon) {
+            msiNmHandler = (MsiNmServiceHandlerCommon)obj;
         }
     }
     

@@ -14,35 +14,9 @@
  */
 package dk.dma.epd.ship;
 
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.PropertyConsumer;
 import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
-
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
 import dk.dma.enav.model.geometry.Position;
@@ -54,7 +28,6 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
@@ -66,6 +39,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.MaritimeCloudService;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
@@ -95,6 +69,28 @@ import dk.dma.epd.ship.service.shore.ShoreServices;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 import dk.dma.epd.ship.settings.EPDSettings;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Main class with main method.
@@ -256,10 +252,6 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         monaLisaRouteExchange = new MonaLisaRouteOptimization();
         mapHandler.add(monaLisaRouteExchange);
 
-        // Create MSI handler
-        msiHandler = new MsiHandler(getSettings().getEnavSettings());
-        mapHandler.add(msiHandler);
-
         // Create NoGo handler
         nogoHandler = new NogoHandler();
         mapHandler.add(nogoHandler);
@@ -281,6 +273,10 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         // routeSuggestionHandler = new RouteSuggestionHandler();
         routeSuggestionHandler = RouteSuggestionHandler.loadRouteSuggestionHandler();
         mapHandler.add(routeSuggestionHandler);
+
+        // Create a new MSI-NM handler
+        msiNmHandler = new MsiNmServiceHandlerCommon();
+        mapHandler.add(msiNmHandler);
 
         // Create a chat service handler
         chatServiceHandler = new ChatServiceHandlerCommon();
@@ -699,7 +695,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_RIGHT, 0), "panRight");
         inputMap.put(KeyStroke.getKeyStroke("control N"), "newRoute");
         inputMap.put(KeyStroke.getKeyStroke("control R"), "routes");
-        inputMap.put(KeyStroke.getKeyStroke("control M"), "msi");
+        inputMap.put(KeyStroke.getKeyStroke("control M"), "msi-nm");
         inputMap.put(KeyStroke.getKeyStroke("control A"), "ais");
 
         content.getActionMap().put("ZoomOut", zoomOut);
@@ -763,7 +759,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         mainFrame.saveSettings();
         settings.saveToFile();
         routeManager.saveToFile();
-        msiHandler.saveToFile();
+        msiNmHandler.saveToFile();
         aisHandler.saveView();
         ownShipHandler.saveView();
         transponderFrame.shutdown();
@@ -774,6 +770,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         routeSuggestionHandler.shutdown();
         intendedRouteHandler.shutdown();
         chatServiceHandler.shutdown();
+        msiNmHandler.shutdown();
         maritimeCloudService.stop();
 
         // Stop the system tray
@@ -963,10 +960,10 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     }
 
     /**
-     * Returns a {@linkplain Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShip}
+     * Returns a {@code Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShip}
      * class.
      * 
-     * @return a new {@linkplain Resource} instance
+     * @return a new {@code Resource} instance
      */
     public static Resources res() {
         return Resources.get(EPDShip.class);

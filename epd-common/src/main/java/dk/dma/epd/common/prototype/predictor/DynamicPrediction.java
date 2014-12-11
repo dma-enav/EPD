@@ -14,14 +14,13 @@
  */
 package dk.dma.epd.common.prototype.predictor;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import net.maritimecloud.net.broadcast.BroadcastMessage;
+import dk.dma.epd.common.prototype.enavcloud.TODO;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorPredictionData;
 import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
+
+import java.util.List;
 
 /**
  * Encapsulation of a full dynamic prediction. A dynamic prediction consists of
@@ -29,7 +28,7 @@ import dk.dma.epd.common.prototype.sensor.predictor.DynamicPredictorStateData;
  * 
  * @author Janus Varmarken
  */
-public class DynamicPrediction extends BroadcastMessage {
+public class DynamicPrediction extends TODO.BroadcastMessage {
 
     /**
      * MMSI of vessel.

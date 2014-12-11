@@ -14,11 +14,9 @@
  */
 package dk.dma.epd.ship.predictor;
 
-import java.util.concurrent.TimeUnit;
-
-import net.maritimecloud.net.MaritimeCloudClient;
 import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
 import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandlerCommon;
+import net.maritimecloud.net.mms.MmsClient;
 
 /**
  * Extends {@link DynamicPredictorHandlerCommon} with functionality that allows
@@ -44,36 +42,37 @@ public class DynamicPredictorHandler extends DynamicPredictorHandlerCommon {
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(final MaritimeCloudClient connection) {
+    public void cloudConnected(final MmsClient connection) {
         /*
          * Let super register as broadcast listener of dynamic predictions from
          * other vessels.
          */
-        super.cloudConnected(connection);
-        // Prepare broadcast of own ship dynamic prediction.
-        ConnectedRunnableWrapper job = new ConnectedRunnableWrapper(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        /*
-                         * Use a local reference to allow null check without a
-                         * field lock.
-                         */
-                        DynamicPrediction toBroadcast = DynamicPredictorHandler.this.latestOwnShipPrediction;
-                        // If no prediction or timed out prediction, we don't
-                        // broadcast
-                        if (toBroadcast == null
-                                || !DynamicPredictorHandler.this
-                                        .isDynamicPredictionValid(DynamicPredictorHandler.this.latestOwnShipPrediction)) {
-                            return;
-                        }
-                        connection.broadcast(toBroadcast);
-                    }
-                });
-        // Schedule broadcast to run repeatedly.
-        getScheduler().scheduleWithFixedDelay(job,
-                DYNAMIC_PREDICTION_BROADCAST_INTERVAL,
-                DYNAMIC_PREDICTION_BROADCAST_INTERVAL, TimeUnit.MILLISECONDS);
+// TODO: Maritime Cloud 0.2 re-factoring
+//        super.cloudConnected(connection);
+//        // Prepare broadcast of own ship dynamic prediction.
+//        ConnectedRunnableWrapper job = new ConnectedRunnableWrapper(
+//                new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        /*
+//                         * Use a local reference to allow null check without a
+//                         * field lock.
+//                         */
+//                        DynamicPrediction toBroadcast = DynamicPredictorHandler.this.latestOwnShipPrediction;
+//                        // If no prediction or timed out prediction, we don't
+//                        // broadcast
+//                        if (toBroadcast == null
+//                                || !DynamicPredictorHandler.this
+//                                        .isDynamicPredictionValid(DynamicPredictorHandler.this.latestOwnShipPrediction)) {
+//                            return;
+//                        }
+//                        connection.broadcast(toBroadcast);
+//                    }
+//                });
+//        // Schedule broadcast to run repeatedly.
+//        getScheduler().scheduleWithFixedDelay(job,
+//                DYNAMIC_PREDICTION_BROADCAST_INTERVAL,
+//                DYNAMIC_PREDICTION_BROADCAST_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     /**

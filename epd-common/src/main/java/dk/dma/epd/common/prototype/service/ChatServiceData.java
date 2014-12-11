@@ -14,12 +14,12 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import dma.messaging.MCChatMessage;
+import net.maritimecloud.core.id.MaritimeId;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import net.maritimecloud.core.id.MaritimeId;
-import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
 
 /**
  * Wraps a list of chat messages for a given maritime id
@@ -29,7 +29,7 @@ public class ChatServiceData implements Serializable {
     private static final long serialVersionUID = 1L;
     
     private MaritimeId id;
-    private List<ChatServiceMessage> messages = new CopyOnWriteArrayList<>();
+    private List<MCChatMessage> messages = new CopyOnWriteArrayList<>();
     private boolean read = true; // Initially empty list of messages
 
     /**
@@ -53,7 +53,7 @@ public class ChatServiceData implements Serializable {
      * Returns the list of chat service messages 
      * @return the list of chat service messages 
      */
-    public List<ChatServiceMessage> getMessages() {
+    public List<MCChatMessage> getMessages() {
         return messages;
     }
 
@@ -61,7 +61,7 @@ public class ChatServiceData implements Serializable {
      * Returns the latest chat message
      * @return the latest chat message
      */
-    public ChatServiceMessage getLatestMessage() {
+    public MCChatMessage getLatestMessage() {
         return (messages == null) ? null : messages.get(messages.size() - 1);
     }
 
@@ -78,9 +78,9 @@ public class ChatServiceData implements Serializable {
      * and mark the chat communication as unread if this is not an own-message.
      * @param message the message to add
      */
-    public void addChatMessage(ChatServiceMessage message) {
+    public void addChatMessage(MCChatMessage message) {
         messages.add(message);
-        if (!message.isOwnMessage()) {
+        if (!message.getOwnMessage()) {
             setRead(false);
         }
     }

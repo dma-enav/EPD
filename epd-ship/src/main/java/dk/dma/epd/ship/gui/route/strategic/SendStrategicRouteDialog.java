@@ -14,25 +14,24 @@
  */
 package dk.dma.epd.ship.gui.route.strategic;
 
-import static java.awt.GridBagConstraints.BOTH;
-import static java.awt.GridBagConstraints.CENTER;
-import static java.awt.GridBagConstraints.HORIZONTAL;
-import static java.awt.GridBagConstraints.NONE;
-import static java.awt.GridBagConstraints.NORTHWEST;
-import static java.awt.GridBagConstraints.WEST;
-import static java.awt.GridBagConstraints.EAST;
-
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteReply;
+import dk.dma.epd.common.prototype.enavcloud.TODO;
+import dk.dma.epd.common.prototype.gui.ComponentDialog;
+import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
+import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.util.NameUtils;
+import dk.dma.epd.common.util.NameUtils.NameFormat;
+import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.gui.identity.IdentityViewer;
+import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.ship.service.StrategicRouteHandler;
+import net.maritimecloud.core.id.MmsiId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -45,27 +44,25 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
-import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.service.ServiceEndpoint;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteReply;
-import dk.dma.epd.common.prototype.gui.ComponentDialog;
-import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
-import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.util.NameUtils;
-import dk.dma.epd.common.util.NameUtils.NameFormat;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.identity.IdentityViewer;
-import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.service.StrategicRouteHandler;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.CENTER;
+import static java.awt.GridBagConstraints.EAST;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.NORTHWEST;
+import static java.awt.GridBagConstraints.WEST;
 
 /**
  * Sends a strategic route to an STCC
@@ -392,7 +389,7 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
         // Initialize MMSI list
         mmsiList.clear();
         stccMmsiListComboBox.removeAllItems();
-        for (ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply> service : strategicRouteHandler.getStrategicRouteSTCCList()) {
+        for (TODO.ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply> service : strategicRouteHandler.getStrategicRouteSTCCList()) {
             if (MaritimeCloudUtils.isSTCC(service.getId())) {
                 mmsiList.add(MaritimeCloudUtils.toMmsi(service.getId()));
                 stccMmsiListComboBox.addItem(NameUtils.getName(service.getId(), NameFormat.MEDIUM));

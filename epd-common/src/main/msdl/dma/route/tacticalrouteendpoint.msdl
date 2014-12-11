@@ -1,0 +1,22 @@
+namespace dma.route;
+
+//import "route.msdl";
+
+/** Status of the Route Suggestion. */
+enum MCRouteSuggestionStatus {
+    PENDING = 1;
+    ACCEPTED = 2;
+    REJECTED = 3;
+}
+
+endpoint MCTacticalRouteEndpoint {
+
+	void routeSuggestion(
+        /** The suggested route */
+        1: MCRoute route,
+        /** The transaction ID */
+        2: int64 id,
+        /** The status, used for replying*/
+        3: MCRouteSuggestionStatus status
+    );
+}

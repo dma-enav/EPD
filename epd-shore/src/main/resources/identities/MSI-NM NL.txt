@@ -1,0 +1,9 @@
+name=MSI-NM Service Netherlands
+role=VTS
+affiliation=Dutch Maritime Authority
+maritimeID=999000304
+description=Provides MSI and NM P&T warnings
+service.name=MSI-NM
+service.description=MSI-NM
+service.lat=56.18 56.10 55.12 55.14;56.18 56.10 55.12 55.14;56.18 56.10 55.12 55.14
+service.lon=11.24 12.36 11.09 13.01;11.24 12.36 11.09 13.01;11.24 12.36 11.09 13.01

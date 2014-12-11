@@ -1,0 +1,50 @@
+namespace dma.msinm;
+
+//import "dma/msinm/msinm-model.msdl";
+
+/**
+ * Service that broadcasts message updates
+ */
+broadcast MCMsiNmUpdatesBroadcast {
+
+   1: MCMessage msg;
+}
+
+/**
+ * Encapsulates a search result
+ */
+message MCSearchResult {
+    1: list<MCMessage> messages;
+    2: timestamp searchTime;
+    3: timestamp lastUpdate;
+    4: boolean unchanged;
+    5: text error;
+}
+
+/**
+ * Interface for querying MSI-NM messages
+ */
+endpoint MCMsiNmService {
+
+    /**
+     * Returns the list of active messages
+     * @param lang the language
+     * @return the list of active messages
+     */
+    MCSearchResult activeMessages(
+        1: text lang
+    );
+
+    /**
+     * Returns the list of active messages if there are any updates after the given timestamp
+     * @param lang the language
+     * @param date the threshold timestamp
+     * @return the list of active messages or null if no updates after the given timestamp
+     */
+    MCSearchResult activeMessagesIfUpdates(
+        1: text lang,
+        2: timestamp date
+    );
+
+
+}

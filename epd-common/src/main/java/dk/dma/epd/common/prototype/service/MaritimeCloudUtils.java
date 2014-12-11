@@ -14,12 +14,12 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.service.ServiceEndpoint;
+import net.maritimecloud.net.LocalEndpoint;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility methods for converting between different representations of MMSI identifiers and for searching lists of Maritime Cloud
@@ -84,8 +84,13 @@ public class MaritimeCloudUtils {
         if (id == null || !(id instanceof MmsiId)) {
             return null;
         }
-        String mmsi = id.toString().split("mmsi://")[1];
-        return Integer.parseInt(mmsi);
+        String str = id.toString();
+        if (str.startsWith("mmsi://")) {
+            return Integer.parseInt(id.toString().split("mmsi://")[1]);
+        } else if (str.startsWith("mmsi:")) {
+            return Integer.parseInt(id.toString().split("mmsi:")[1]);
+        }
+        return null;
     }
 
     /**
@@ -97,7 +102,7 @@ public class MaritimeCloudUtils {
      *            the MMSI of the service to find
      * @return the matching service or null if not found
      */
-    public static <E, T> ServiceEndpoint<E, T> findServiceWithMmsi(List<ServiceEndpoint<E, T>> serviceList, long mmsi) {
+    public static <E extends LocalEndpoint> E  findServiceWithMmsi(List<E> serviceList, long mmsi) {
         return findServiceWithId(serviceList, new MmsiId((int) mmsi));
     }
 
@@ -110,10 +115,10 @@ public class MaritimeCloudUtils {
      *            the maritime id of the service to find
      * @return the matching service or null if not found
      */
-    public static <E, T> ServiceEndpoint<E, T> findServiceWithId(List<ServiceEndpoint<E, T>> serviceList, MaritimeId id) {
+    public static <E extends LocalEndpoint> E findServiceWithId(List<E> serviceList, MaritimeId id) {
         if (serviceList != null) {
-            for (ServiceEndpoint<E, T> service : serviceList) {
-                if (id.equals(service.getId())) {
+            for (E service : serviceList) {
+                if (id.equals(service.getRemoteId())) {
                     return service;
                 }
             }
@@ -128,10 +133,10 @@ public class MaritimeCloudUtils {
      *            the list of services to check
      * @return an STCC service or null if not found
      */
-    public static <E, T> ServiceEndpoint<E, T> findSTCCService(List<ServiceEndpoint<E, T>> serviceList) {
+    public static LocalEndpoint findSTCCService(List<? extends LocalEndpoint> serviceList) {
         if (serviceList != null) {
-            for (ServiceEndpoint<E, T> service : serviceList) {
-                if (isSTCC(service.getId())) {
+            for (LocalEndpoint service : serviceList) {
+                if (isSTCC(service.getRemoteId())) {
                     return service;
                 }
             }
@@ -146,13 +151,13 @@ public class MaritimeCloudUtils {
      *            the list of services to check
      * @return all STCC services in a list or empty list if none exists
      */
-    public static <E, T> List<ServiceEndpoint<E, T>> findSTCCServices(List<ServiceEndpoint<E, T>> serviceList) {
+    public static List<LocalEndpoint> findSTCCServices(List<? extends LocalEndpoint> serviceList) {
 
-        List<ServiceEndpoint<E, T>> returnList = new ArrayList<ServiceEndpoint<E, T>>();
+        List<LocalEndpoint> returnList = new ArrayList<>();
 
         if (serviceList != null) {
-            for (ServiceEndpoint<E, T> service : serviceList) {
-                if (isSTCC(service.getId())) {
+            for (LocalEndpoint service : serviceList) {
+                if (isSTCC(service.getRemoteId())) {
                     returnList.add(service);
                 }
             }

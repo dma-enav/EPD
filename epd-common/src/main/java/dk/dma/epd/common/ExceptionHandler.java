@@ -14,14 +14,12 @@
  */
 package dk.dma.epd.common;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
-import javax.swing.JOptionPane;
-
+import dk.dma.epd.common.prototype.EPD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.epd.common.prototype.EPD;
+import javax.swing.JOptionPane;
+import java.lang.Thread.UncaughtExceptionHandler;
 
 /**
  * Exception handler for uncaught exceptions. 

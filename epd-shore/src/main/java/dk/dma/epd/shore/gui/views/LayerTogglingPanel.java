@@ -51,7 +51,7 @@ import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.utils.ToolItemGroup;
 import dk.dma.epd.shore.layers.ais.AisLayer;
-import dk.dma.epd.shore.layers.msi.MsiLayer;
+import dk.dma.epd.shore.layers.msi.MsiNmLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.voyage.EmbeddedInfoPanelMoveMouseListener;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
@@ -216,7 +216,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
     private void addMSI(final Layer msiLayer) {
         // Tool: MSI layer
         msi = new JLabel(toolbarIcon("images/toolbar/msi_symbol_16.png"));
-        msi.setName("msi");
+        msi.setName("msi-nm");
         msi.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
 
@@ -485,7 +485,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
             layer.addVisibilityListener(this);
         }
 
-        if (layer instanceof MsiLayer) {
+        if (layer instanceof MsiNmLayer) {
             addMSI(layer);
             layer.addVisibilityListener(this);
         }
@@ -652,7 +652,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
             toggleLayerButton(layer, wms);
         }
 
-        if (layer instanceof MsiLayer) {
+        if (layer instanceof MsiNmLayer) {
             toggleLayerButton(layer, msi);
         }
         if (layer instanceof AisLayer) {

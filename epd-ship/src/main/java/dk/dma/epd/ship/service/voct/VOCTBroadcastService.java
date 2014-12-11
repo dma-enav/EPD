@@ -110,7 +110,7 @@ package dk.dma.epd.ship.service.voct;
 ////                public void run() {
 ////                    BroadcastOptions options = new BroadcastOptions();
 ////                    options.setBroadcastRadius(BROADCAST_RADIUS);
-////                    getMaritimeCloudConnection().broadcast(message, options);
+////                    getMmsClient().broadcast(message, options);
 ////                    getStatus().markSuccesfullSend();
 ////                }
 ////            });

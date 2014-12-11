@@ -14,18 +14,6 @@
  */
 package dk.dma.epd.ship.service;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.broadcast.BroadcastOptions;
-
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
-import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteMessage;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoutes;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
@@ -44,6 +32,15 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.settings.handlers.IIntendedRouteHandlerSettingsObserver;
+import dma.route.MCIntendedRouteBroadcast;
+import dma.route.MCRoute;
+import net.maritimecloud.net.mms.MmsClient;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 /**
  * Ship specific intended route service implementation.
@@ -84,7 +81,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(MaritimeCloudClient connection) {
+    public void cloudConnected(MmsClient connection) {
         // Let super hook up for intended route broadcasts from other vessels
         super.cloudConnected(connection);
 
@@ -222,34 +219,32 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements
     public void broadcastIntendedRoute(ActiveRoute activeRoute, boolean async) {
         // Sanity check
         if (!running || routeManager == null
-                || getMaritimeCloudConnection() == null) {
+                || getMmsClient() == null) {
             return;
         }
 
         // Make intended route message
-        final IntendedRouteBroadcast message = new IntendedRouteBroadcast();
+        MCIntendedRouteBroadcast message = new MCIntendedRouteBroadcast();
 
         if (activeRoute != null) {
             PartialRouteFilter filter = EPDShip.getInstance().getSettings()
                     .getCloudSettings().getIntendedRouteFilter();
-            activeRoute.getPartialRouteData(filter, message);
+            message = activeRoute.getPartialRouteData(filter);
 
             lastTransmitActiveWp = new DateTime(
                     activeRoute.getActiveWaypointEta());
 
         } else {
-            message.setRoute(new IntendedRouteMessage());
+            message.setRoute(new MCRoute());
         }
 
         // send message
         LOG.debug("Broadcasting intended route");
-
+        final MCIntendedRouteBroadcast broadcast = message;
         Runnable broadcastMessage = new Runnable() {
             @Override
             public void run() {
-                BroadcastOptions options = new BroadcastOptions();
-                options.setBroadcastRadius(BROADCAST_RADIUS);
-                getMaritimeCloudConnection().broadcast(message, options);
+                getMmsClient().broadcast(broadcast);
             }
         };
 

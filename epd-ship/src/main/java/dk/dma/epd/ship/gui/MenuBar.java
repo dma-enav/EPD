@@ -14,6 +14,26 @@
  */
 package dk.dma.epd.ship.gui;
 
+import com.bbn.openmap.Environment;
+import com.bbn.openmap.I18n;
+import com.bbn.openmap.LightMapHandlerChild;
+import com.bbn.openmap.PropertyConsumer;
+import com.bbn.openmap.gui.WindowSupport;
+import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
+import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.nogo.NogoHandler;
+
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,28 +52,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
-
-import com.bbn.openmap.Environment;
-import com.bbn.openmap.I18n;
-import com.bbn.openmap.LightMapHandlerChild;
-import com.bbn.openmap.PropertyConsumer;
-import com.bbn.openmap.gui.WindowSupport;
-
-import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.nogo.NogoHandler;
-
 public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextChild, BeanContextMembershipListener,
         LightMapHandlerChild {
 
@@ -70,7 +68,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     MainFrame mainFrame;
     TopPanel topPanel;
     NogoHandler nogoHandler;
-    MsiHandler msiHandler;
+    MsiNmServiceHandlerCommon msiNmHandler;
     TransponderFrame transponderFrame;
 
     JCheckBoxMenuItem lock;
@@ -305,7 +303,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             @Override
             public void actionPerformed(ActionEvent e) {
                 EPDShip.getInstance().getSettings().getEnavSettings().setMsiFilter(!EPDShip.getInstance().getSettings().getEnavSettings().isMsiFilter());
-                msiHandler.notifyUpdate();
+                msiNmHandler.recomputeMsiNmMessageFilter(true);
             }
         });
         
@@ -589,8 +587,8 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         if (obj instanceof NogoLayer) {
             nogoLayer.setSelected(((NogoLayer) obj).isVisible());
         }
-        if (obj instanceof MsiHandler) {
-            msiHandler = (MsiHandler) obj;
+        if (obj instanceof MsiNmServiceHandlerCommon) {
+            msiNmHandler = (MsiNmServiceHandlerCommon) obj;
         }
         if (obj instanceof TransponderFrame) {
             transponderFrame = (TransponderFrame) obj;

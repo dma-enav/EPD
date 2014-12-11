@@ -1,0 +1,51 @@
+namespace dma.route;
+
+/** The heading of each leg. */
+enum MCHeadingType {
+    RHUMB_LINE = 1;
+    GREAT_CIRCLE = 2;
+}
+
+/** A route leg. */
+message MCLeg {
+    /** The speed over ground in knots. */
+    1: double speed;
+
+    /** Cross track starboard distance in meters. */
+    2: double xtdStarboard;
+
+    /** Cross track port distance in meters. */
+    3: double xtdPort;
+    
+    /** The heading of the leg. */
+    4: MCHeadingType headingType;
+    
+    /** The length of the navigational window in meters. */
+    5: double navWindow;
+}
+
+/** A waypoint in a route. */
+message MCWaypoint {
+
+    /** The position. */
+    1: position waypointPosition;
+
+    /** The planned or estimated time of arrival at the waypoint position. */
+    2: timestamp eta;
+
+    /** The rate of turn of the waypoint. In degrees */
+    3: double rot;
+
+    /** The turn radius of the vessel. In nautical miles. */
+    4: double turnRad;
+    
+    /** The waypoints outleg, will be null for the final waypoint. */
+    5: MCLeg outLeg;
+}
+
+/** Route. */
+message MCRoute {
+    /** A list of waypoints on the route . */
+    1: list<MCWaypoint> waypoints;
+    2: text routename;
+}

@@ -14,26 +14,21 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import com.bbn.openmap.MapHandlerChild;
+import dk.dma.epd.common.prototype.enavcloud.TODO;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService.IMaritimeCloudListener;
+import dk.dma.epd.common.prototype.status.CloudStatus;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.net.mms.MmsClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.bbn.openmap.MapHandlerChild;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.service.ServiceEndpoint;
-import net.maritimecloud.net.service.ServiceInvocationFuture;
-import net.maritimecloud.net.service.spi.ServiceMessage;
-import net.maritimecloud.util.function.BiConsumer;
-import dk.dma.epd.common.prototype.service.MaritimeCloudService.IMaritimeCloudListener;
-import dk.dma.epd.common.prototype.status.CloudStatus;
 
 
 /**
@@ -77,7 +72,7 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * Returns a reference to the cloud client connection
      * @return a reference to the cloud client connection
      */
-    public synchronized MaritimeCloudClient getMaritimeCloudConnection() {
+    public synchronized MmsClient getMmsClient() {
         return (maritimeCloudService == null) ? null : maritimeCloudService.getConnection();
     }
     
@@ -193,7 +188,7 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(MaritimeCloudClient connection) {
+    public void cloudConnected(MmsClient connection) {
     }
 
     /**
@@ -226,21 +221,23 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * @param statusListener if not {@code null}, the listener will be updated with the message status
      * @return if the message was submitted to an endpoint
      */
-    protected <M extends ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(List<ServiceEndpoint<M, R>> serviceList, MaritimeId id, M message, 
+    protected <M extends TODO.ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(List<TODO.ServiceEndpoint<M, R>> serviceList, MaritimeId id, M message,
             ICloudMessageListener<M, R> statusListener) {
-        
-        // Look up the service endpoint
-        ServiceEndpoint<M, R> endpoint = MaritimeCloudUtils.findServiceWithId(serviceList, id);
 
-        if (endpoint != null) {
-            // Send the message
-            return sendMaritimeCloudMessage(endpoint, message, statusListener);
-            
-        } else {
-            LOG.error("No Maritime Cloud service endpoint. Message skipped: " + message);
-            return false;
-        }
-        
+        return true;
+// TODO: Maritime Cloud 0.2 re-factoring
+//        // Look up the service endpoint
+//        ServiceEndpoint<M, R> endpoint = MaritimeCloudUtils.findServiceWithId(serviceList, id);
+//
+//        if (endpoint != null) {
+//            // Send the message
+//            return sendMaritimeCloudMessage(endpoint, message, statusListener);
+//
+//        } else {
+//            LOG.error("No Maritime Cloud service endpoint. Message skipped: " + message);
+//            return false;
+//        }
+
     }
     
     /**
@@ -251,18 +248,20 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * @param statusListener if not {@code null}, the listener will be updated with the message status
      * @return if the message was submitted to an endpoint
      */
-    protected <M extends ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(ServiceEndpoint<M, R> endpoint, final M message, final ICloudMessageListener<M, R> statusListener) {
+    protected <M extends TODO.ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(TODO.ServiceEndpoint<M, R> endpoint, final M message, final ICloudMessageListener<M, R> statusListener) {
         
         if (endpoint == null) {
             return false;
         }
-        
-        // Send the message
-        ServiceInvocationFuture<R> f = endpoint.invoke(message);
-        registerStatusListener(f, message, statusListener);
-        
-        LOG.info("Sent Maritime Cloud message: " +  message);
+
         return true;
+// TODO: Maritime Cloud 0.2 re-factoring
+//        // Send the message
+//        ServiceInvocationFuture<R> f = endpoint.invoke(message);
+//        registerStatusListener(f, message, statusListener);
+//
+//        LOG.info("Sent Maritime Cloud message: " +  message);
+//        return true;
     }
 
     /**
@@ -273,18 +272,20 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * @param statusListener if not {@code null}, the listener will be updated with the message status
      * @return if the message was submitted to an endpoint
      */
-    protected <M extends ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(MaritimeId id, final M message, final ICloudMessageListener<M, R> statusListener) {
-        
-        if (id == null) {
-            return false;
-        }
-        
-        // Send the message
-        ServiceInvocationFuture<R> f = getMaritimeCloudConnection().serviceInvoke(id, message);
-        registerStatusListener(f, message, statusListener);
-        
-        LOG.info("Sent Maritime Cloud message: " +  message);
+    protected <M extends TODO.ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(MaritimeId id, final M message, final ICloudMessageListener<M, R> statusListener) {
+
         return true;
+// TODO: Maritime Cloud 0.2 re-factoring
+//        if (id == null) {
+//            return false;
+//        }
+//
+//        // Send the message
+//        ServiceInvocationFuture<R> f = getMmsClient().serviceInvoke(id, message);
+//        registerStatusListener(f, message, statusListener);
+//
+//        LOG.info("Sent Maritime Cloud message: " +  message);
+//        return true;
     }
 
     /**
@@ -294,24 +295,25 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * @param message the message 
      * @param statusListener the status listener
      */
-    private <M, R>  void registerStatusListener(ServiceInvocationFuture<R> f, final M message, final ICloudMessageListener<M, R> statusListener) {
+    private <M, R>  void registerStatusListener(TODO.ServiceInvocationFuture<R> f, final M message, final ICloudMessageListener<M, R> statusListener) {
         if (statusListener != null) {
-            
-            // Register a consumer that will be called when the recipient has completed the request
-            f.handle(new BiConsumer<R, Throwable>() {
-                @Override
-                public void accept(R reply, Throwable r) {
-                    statusListener.messageHandled(message, reply);
-                }
-            });
-            
-            // Register a consumer that will be called when the Maritime Cloud has received the message
-            f.receivedByCloud().handle(new BiConsumer<Object, Throwable>() {
-                @Override
-                public void accept(Object l, Throwable r) {
-                    statusListener.messageReceivedByCloud(message);
-                }
-            }); 
+
+// TODO: Maritime Cloud 0.2 re-factoring
+//            // Register a consumer that will be called when the recipient has completed the request
+//            f.handle(new BiConsumer<R, Throwable>() {
+//                @Override
+//                public void accept(R reply, Throwable r) {
+//                    statusListener.messageHandled(message, reply);
+//                }
+//            });
+//
+//            // Register a consumer that will be called when the Maritime Cloud has received the message
+//            f.receivedByCloud().handle(new BiConsumer<Object, Throwable>() {
+//                @Override
+//                public void accept(Object l, Throwable r) {
+//                    statusListener.messageReceivedByCloud(message);
+//                }
+//            });
         }
     }
     
@@ -355,7 +357,7 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     
     /**
      * Can be implemented by status listeners passed along to the 
-     * {@linkplain #sendMaritimeCloudMessage()} function 
+     * {@code sendMaritimeCloudMessage()} function
      */
     public interface ICloudMessageListener<M, R> {
         

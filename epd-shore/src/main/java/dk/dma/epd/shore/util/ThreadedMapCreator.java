@@ -311,7 +311,7 @@ public class ThreadedMapCreator implements Runnable {
         }
 
         if (!mainFrame.isMsiLayerEnabled()) {
-            window.getChartPanel().getMsiLayer().setVisible(false);
+            window.getChartPanel().getMsiNmLayer().setVisible(false);
 
         }
 

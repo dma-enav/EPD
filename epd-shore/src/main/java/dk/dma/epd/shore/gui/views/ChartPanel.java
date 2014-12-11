@@ -14,22 +14,12 @@
  */
 package dk.dma.epd.shore.gui.views;
 
-import java.awt.Color;
-import java.awt.geom.Point2D;
-import java.util.Properties;
-
-import javax.swing.BoxLayout;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.event.ProjectionSupport;
 import com.bbn.openmap.layer.shape.MultiShapeLayer;
-
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.NoGoMouseModeCommon;
@@ -42,7 +32,7 @@ import dk.dma.epd.common.prototype.layers.nogo.NogoLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
@@ -52,7 +42,7 @@ import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.layers.EncLayerFactory;
 import dk.dma.epd.shore.layers.GeneralLayer;
 import dk.dma.epd.shore.layers.ais.AisLayer;
-import dk.dma.epd.shore.layers.msi.MsiLayer;
+import dk.dma.epd.shore.layers.msi.MsiNmLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeedit.RouteEditLayer;
 import dk.dma.epd.shore.layers.voct.VoctLayerCommon;
@@ -63,6 +53,13 @@ import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.nogo.NogoHandler;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.settings.EPDMapSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.BoxLayout;
+import java.awt.Color;
+import java.awt.geom.Point2D;
+import java.util.Properties;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -190,6 +187,10 @@ public class ChartPanel extends ChartPanelCommon {
     /**
      * Initiate the default map values - must be called by a chart
      * 
+<<<<<<< HEAD
+     * @param type
+=======
+>>>>>>> master
      */
     public void initChartDefault(MapFrameType type) {
 
@@ -274,9 +275,9 @@ public class ChartPanel extends ChartPanelCommon {
             mapHandler.add(aisLayer);
 
             // Add MSI Layer
-            msiLayer = new MsiLayer();
-            msiLayer.setVisible(true);
-            mapHandler.add(msiLayer);
+            msiNmLayer = new MsiNmLayer();
+            msiNmLayer.setVisible(true);
+            mapHandler.add(msiNmLayer);
 
             // Add Route Layer
             routeLayer = new RouteLayer();
@@ -315,9 +316,9 @@ public class ChartPanel extends ChartPanelCommon {
         if (type == MapFrameType.suggestedRoute) {
 
             // Add MSI Layer
-            msiLayer = new MsiLayer();
-            msiLayer.setVisible(true);
-            mapHandler.add(msiLayer);
+            msiNmLayer = new MsiNmLayer();
+            msiNmLayer.setVisible(true);
+            mapHandler.add(msiNmLayer);
 
             // Add Voyage Layer
             voyageLayer = new VoyageLayer(true);
@@ -404,8 +405,8 @@ public class ChartPanel extends ChartPanelCommon {
         }
 
         // Create MSI handler
-        MsiHandler msiHandler = EPDShore.getInstance().getMsiHandler();
-        mapHandler.add(msiHandler);
+        MsiNmServiceHandlerCommon msiNmHandler = EPDShore.getInstance().getMsiNmHandler();
+        mapHandler.add(msiNmHandler);
 
         StrategicRouteHandler strategicRouteHandler = EPDShore.getInstance().getStrategicRouteHandler();
         mapHandler.add(strategicRouteHandler);

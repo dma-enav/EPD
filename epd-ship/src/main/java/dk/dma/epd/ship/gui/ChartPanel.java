@@ -14,24 +14,9 @@
  */
 package dk.dma.epd.ship.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import javax.swing.BorderFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MouseDelegator;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
@@ -66,7 +51,7 @@ import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
 import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
-import dk.dma.epd.ship.layers.msi.MsiLayer;
+import dk.dma.epd.ship.layers.msi.MsiNmLayer;
 import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
@@ -74,6 +59,18 @@ import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDMapSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.BorderFactory;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -224,9 +221,9 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         mapHandler.add(routeEditLayer);
 
         // Create MSI layer
-        msiLayer = new MsiLayer();
-        msiLayer.setVisible(true);
-        mapHandler.add(msiLayer);
+        msiNmLayer = new MsiNmLayer();
+        msiNmLayer.setVisible(true);
+        mapHandler.add(msiNmLayer);
 
         // Create Nogo layer
         nogoLayer = new NogoLayer();
@@ -297,7 +294,7 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
         activeWaypointPanel.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
 
         // Force a MSI layer update
-        msiLayer.doUpdate();
+        msiNmLayer.doUpdate();
 
         // Add this class as PNT data listener
         EPDShip.getInstance().getPntHandler().addListener(this);

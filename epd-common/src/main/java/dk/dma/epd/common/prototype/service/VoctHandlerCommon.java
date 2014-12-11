@@ -14,19 +14,16 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.broadcast.BroadcastListener;
-import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
-import net.maritimecloud.net.broadcast.BroadcastOptions;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARInfoMessage;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
+import net.maritimecloud.net.mms.MmsClient;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Intended route service implementation.
@@ -64,16 +61,17 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon impleme
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(MaritimeCloudClient connection) {
+    public void cloudConnected(MmsClient connection) {
 
-        getMaritimeCloudConnection().broadcastListen(VOCTSARInfoMessage.class, new BroadcastListener<VOCTSARInfoMessage>() {
-            public void onMessage(BroadcastMessageHeader l, VOCTSARInfoMessage r) {
-
+// TODO: Maritime Cloud 0.2 re-factoring
+//        getMmsClient().broadcastListen(VOCTSARInfoMessage.class, new BroadcastListener<VOCTSARInfoMessage>() {
+//            public void onMessage(BroadcastMessageHeader l, VOCTSARInfoMessage r) {
+//
 //                System.out.println("SAR Info message recieved");
-                additionalInformationMsgs.add(r);
-                notifyVoctInfoMsgListeners();
-            }
-        });
+//                additionalInformationMsgs.add(r);
+//                notifyVoctInfoMsgListeners();
+//            }
+//        });
 
     }
 
@@ -81,15 +79,16 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon impleme
         additionalInformationMsgs.add(r);
         notifyVoctInfoMsgListeners();
 
-        Runnable broadcastMessage = new Runnable() {
-            @Override
-            public void run() {
-                BroadcastOptions options = new BroadcastOptions();
-                options.setBroadcastRadius(BROADCAST_RADIUS);
-                getMaritimeCloudConnection().broadcast(r, options);
-            }
-        };
-        submitIfConnected(broadcastMessage);
+// TODO: Maritime Cloud 0.2 re-factoring
+//        Runnable broadcastMessage = new Runnable() {
+//            @Override
+//            public void run() {
+//                BroadcastOptions options = new BroadcastOptions();
+//                options.setBroadcastRadius(BROADCAST_RADIUS);
+//                getMmsClient().broadcast(r, options);
+//            }
+//        };
+//        submitIfConnected(broadcastMessage);
     }
 
     private void notifyVoctInfoMsgListeners() {
@@ -113,9 +112,6 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon impleme
 
         /**
          * Called when a SAR info message has been received or sent
-         * 
-         * @param targetId
-         *            the maritime id of the target
          */
         void voctMessageUpdate();
 

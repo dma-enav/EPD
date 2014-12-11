@@ -14,28 +14,22 @@
  */
 package dk.dma.epd.ship.service;
 
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.net.mms.MmsClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.ObjectInputStream;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.service.invocation.InvocationCallback;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
-import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
 
 /**
  * Ship-specific route suggestion e-Nav service.
@@ -55,28 +49,29 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
      * {@inheritDoc}
      */
     @Override
-    public void cloudConnected(MaritimeCloudClient connection) {
+    public void cloudConnected(MmsClient connection) {
 
-        // Register a cloud route suggestion service
-        try {
-            getMaritimeCloudConnection().serviceRegister(RouteSuggestionService.INIT,
-                    new InvocationCallback<RouteSuggestionMessage, RouteSuggestionReply>() {
-                        public void process(RouteSuggestionMessage message, Context<RouteSuggestionReply> context) {
-
-                            // The cloud status is transient, so this ought to be unnecessary
-                            message.setCloudMessageStatus(null);
-
-                            LOG.info("Shore received a suggeset route reply");
-                            routeSuggestionReceived(message, context.getCaller());
-
-                            // Acknowledge that the message has been handled
-                            context.complete(new RouteSuggestionReply(message.getId()));
-                        }
-                    }).awaitRegistered(4, TimeUnit.SECONDS);
-
-        } catch (InterruptedException e) {
-            LOG.error("Error hooking up services", e);
-        }
+// TODO: Maritime Cloud 0.2 re-factoring
+//        // Register a cloud route suggestion service
+//        try {
+//            getMmsClient().serviceRegister(RouteSuggestionService.INIT,
+//                    new InvocationCallback<RouteSuggestionMessage, RouteSuggestionReply>() {
+//                        public void process(RouteSuggestionMessage message, Context<RouteSuggestionReply> context) {
+//
+//                            // The cloud status is transient, so this ought to be unnecessary
+//                            message.setCloudMessageStatus(null);
+//
+//                            LOG.info("Shore received a suggeset route reply");
+//                            routeSuggestionReceived(message, context.getCaller());
+//
+//                            // Acknowledge that the message has been handled
+//                            context.complete(new RouteSuggestionReply(message.getId()));
+//                        }
+//                    }).awaitRegistered(4, TimeUnit.SECONDS);
+//
+//        } catch (InterruptedException e) {
+//            LOG.error("Error hooking up services", e);
+//        }
     }
 
     /**
@@ -101,7 +96,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
     /**
      * Accepts the given suggested route
      * 
-     * @param route
+     * @param routeData
      *            the suggested route to accept
      * @return if the route was accepted
      */

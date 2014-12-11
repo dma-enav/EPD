@@ -14,6 +14,30 @@
  */
 package dk.dma.epd.common.prototype;
 
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
+import dk.dma.epd.common.prototype.fal.FALManagerCommon;
+import dk.dma.epd.common.prototype.gui.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
+import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.FALHandlerCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService;
+import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
+import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
+import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
+import dk.dma.epd.common.prototype.settings.SensorSettings;
+import dk.dma.epd.common.prototype.settings.Settings;
+import net.maritimecloud.core.id.MaritimeId;
+
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -24,31 +48,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-
-import net.maritimecloud.core.id.MaritimeId;
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.graphics.Resources;
-import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
-import dk.dma.epd.common.prototype.fal.FALManagerCommon;
-import dk.dma.epd.common.prototype.gui.MainFrameCommon;
-import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
-import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
-import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
-import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
-import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
-import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
-import dk.dma.epd.common.prototype.service.FALHandlerCommon;
-import dk.dma.epd.common.prototype.service.MaritimeCloudService;
-import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
-import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
-import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
-import dk.dma.epd.common.prototype.settings.SensorSettings;
-import dk.dma.epd.common.prototype.settings.Settings;
 
 /**
  * Abstract super class for the main system, i.e either {@code EPDShore} or {@code EPDShip}
@@ -68,7 +67,7 @@ public abstract class EPD implements ISettingsListener {
     protected MaritimeCloudService maritimeCloudService;
     protected ChatServiceHandlerCommon chatServiceHandler;
     protected AisHandlerCommon aisHandler;
-    protected MsiHandler msiHandler;
+    protected MsiNmServiceHandlerCommon msiNmHandler;
     protected NotificationCenterCommon notificationCenter;
     protected StrategicRouteHandlerCommon strategicRouteHandler;
     protected RouteSuggestionHandlerCommon routeSuggestionHandler;
@@ -102,9 +101,9 @@ public abstract class EPD implements ISettingsListener {
     }
 
     /**
-     * Returns a {@linkplain Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPD} class.
+     * Returns a {@code Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPD} class.
      * 
-     * @return a new {@linkplain Resource} instance
+     * @return a new {@code Resource} instance
      */
     public static Resources res() {
         return Resources.get(EPD.class);
@@ -225,15 +224,6 @@ public abstract class EPD implements ISettingsListener {
         return aisHandler;
     }
 
-    /**
-     * Return the msiHandler
-     * 
-     * @return - MsiHandler
-     */
-    public MsiHandler getMsiHandler() {
-        return msiHandler;
-    }
-
     public RouteManagerCommon getRouteManager() {
         return routeManager;
     }
@@ -244,6 +234,10 @@ public abstract class EPD implements ISettingsListener {
 
     public RouteSuggestionHandlerCommon getRouteSuggestionHandler() {
         return routeSuggestionHandler;
+    }
+
+    public MsiNmServiceHandlerCommon getMsiNmHandler() {
+        return msiNmHandler;
     }
 
     public MaritimeCloudService getMaritimeCloudService() {

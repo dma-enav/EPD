@@ -14,16 +14,14 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-import static java.util.Objects.requireNonNull;
+import dk.dma.enav.model.voyage.Route;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 
 import java.awt.Color;
 import java.io.Serializable;
 import java.util.Date;
 
-import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
-import net.maritimecloud.net.service.spi.ServiceMessage;
-import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Maritime cloud service for exchanging routes suggestions from 
@@ -40,7 +38,7 @@ import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessage
 public class RouteSuggestionService {
     
     /** An initiation point */
-    public static final ServiceInitiationPoint<RouteSuggestionMessage> INIT = new ServiceInitiationPoint<>(
+    public static final TODO.ServiceInitiationPoint<RouteSuggestionMessage> INIT = new TODO.ServiceInitiationPoint<>(
             RouteSuggestionMessage.class);
     
     /**
@@ -65,7 +63,7 @@ public class RouteSuggestionService {
      * Used for sending a suggested route from STCC to a ship
      * and a status back from the ship to the STCC
      */
-    public static class RouteSuggestionMessage extends ServiceMessage<RouteSuggestionReply>
+    public static class RouteSuggestionMessage extends TODO.ServiceMessage<RouteSuggestionReply>
         implements Serializable {
         
         private static final long serialVersionUID = 2190397388847226293L;
@@ -102,8 +100,6 @@ public class RouteSuggestionService {
         /**
          * Constructor - used for replys
          * 
-         * @param route the suggested route
-         * @param sender the sender
          * @param message an additional message
          */
         public RouteSuggestionMessage(long id, String message, RouteSuggestionStatus status) {
@@ -180,7 +176,7 @@ public class RouteSuggestionService {
     /**
      * Used to acknowledge the message
      */
-    public static class RouteSuggestionReply extends ServiceMessage<Void> {
+    public static class RouteSuggestionReply extends TODO.ServiceMessage<Void> {
 
         private long id;
         private Date receivedDate;
