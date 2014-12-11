@@ -5,12 +5,12 @@
 	<parent>
 		<groupId>dk.dma.epd</groupId>
 		<artifactId>epd-parent</artifactId>
-		<version>4.0-SNAPSHOT</version>
+		<version>3.2-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>epd-shore</artifactId>
-	<name>EPD Shore Core</name>
+	<artifactId>epd-ship</artifactId>
+	<name>EPD Ship Core</name>
 
 	<dependencies>
 		<dependency>
@@ -18,10 +18,8 @@
 			<artifactId>epd-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.jgoodies</groupId>
-			<artifactId>forms</artifactId>
-			<version>1.2.1</version>
-		</dependency>
+
+
+
 	</dependencies>
 </project>

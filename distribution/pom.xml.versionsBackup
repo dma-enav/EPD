@@ -5,13 +5,13 @@
   <parent>
     <groupId>dk.dma.epd</groupId>
     <artifactId>epd-parent</artifactId>
-    <version>4.0-SNAPSHOT</version>
+    <version>3.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>dk.dma.epd</groupId>
   <artifactId>epd-distribution-parent</artifactId>
-  <version>4.0-SNAPSHOT</version>
+  <version>3.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>EPD Distribution Parent</name>
   <description>EPD distribution parent module</description>
