@@ -1,13 +1,13 @@
 namespace dma.route;
 
 /** The heading of each leg. */
-enum MCHeadingType {
+enum HeadingType {
     RHUMB_LINE = 1;
     GREAT_CIRCLE = 2;
 }
 
 /** A route leg. */
-message MCLeg {
+message Leg {
     /** The speed over ground in knots. */
     1: double speed;
 
@@ -18,14 +18,14 @@ message MCLeg {
     3: double xtdPort;
     
     /** The heading of the leg. */
-    4: MCHeadingType headingType;
+    4: HeadingType headingType;
     
     /** The length of the navigational window in meters. */
     5: double navWindow;
 }
 
 /** A waypoint in a route. */
-message MCWaypoint {
+message Waypoint {
 
     /** The position. */
     1: position waypointPosition;
@@ -40,12 +40,12 @@ message MCWaypoint {
     4: double turnRad;
     
     /** The waypoints outleg, will be null for the final waypoint. */
-    5: MCLeg outLeg;
+    5: Leg outLeg;
 }
 
 /** Route. */
-message MCRoute {
+message Route {
     /** A list of waypoints on the route . */
-    1: list<MCWaypoint> waypoints;
+    1: list<Waypoint> waypoints;
     2: text routename;
 }

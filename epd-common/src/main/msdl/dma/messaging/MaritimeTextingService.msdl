@@ -1,13 +1,19 @@
 namespace dma.messaging;
+
+/** Severity of the message. */
 enum MaritimeTextingNotificationSeverity {
     MESSAGE = 1;
     WARNING = 2;
     ALERT  = 3;
 }
+
+/** The message being sent, contains a single string and the severity. */
 message MaritimeText {
     1: MaritimeTextingNotificationSeverity severity;
     2: text msg;
 }
+
+/** End point send message function */
 endpoint MaritimeTextingService {
 	void sendMessage(
         1: MaritimeText msg

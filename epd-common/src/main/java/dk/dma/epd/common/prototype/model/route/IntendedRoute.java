@@ -21,11 +21,6 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
-import dma.route.MCHeadingType;
-import dma.route.MCIntendedRouteBroadcast;
-import dma.route.MCLeg;
-import dma.route.MCRoute;
-import dma.route.MCWaypoint;
 import net.maritimecloud.util.Timestamp;
 
 import java.util.ArrayList;
@@ -60,7 +55,7 @@ public class IntendedRoute extends Route {
      * @param intendedRouteMessage
      *            route data received over the cloud
      */
-    public IntendedRoute(MCIntendedRouteBroadcast intendedRouteMessage) {
+    public IntendedRoute(dma.route.IntendedRouteBroadcast intendedRouteMessage) {
         super();
         received = PntTime.getDate();
         parseRoute(intendedRouteMessage);
@@ -80,7 +75,7 @@ public class IntendedRoute extends Route {
      * @param intendedRouteMessage
      *            route data received over the cloud
      */
-    private void parseRoute(MCIntendedRouteBroadcast intendedRouteMessage) {
+    private void parseRoute(dma.route.IntendedRouteBroadcast intendedRouteMessage) {
         List<Waypoint> cloudRouteWaypoints = wpsFromIntendedRouteMessage(intendedRouteMessage);
 
         LinkedList<RouteWaypoint> routeWaypoints = this.getWaypoints();
@@ -392,26 +387,26 @@ public class IntendedRoute extends Route {
      * @param route
      * @return
      */
-    public static MCIntendedRouteBroadcast fromRoute(dk.dma.enav.model.voyage.Route route) {
-        MCIntendedRouteBroadcast irm = new MCIntendedRouteBroadcast();
-        MCRoute r = new MCRoute();
+    public static dma.route.IntendedRouteBroadcast fromRoute(dk.dma.enav.model.voyage.Route route) {
+        dma.route.IntendedRouteBroadcast irm = new dma.route.IntendedRouteBroadcast();
+        dma.route.Route r = new dma.route.Route();
         r.setRoutename(route.getName());
         for (Waypoint wp : route.getWaypoints()) {
-            MCWaypoint iwp = new MCWaypoint();
+            dma.route.Waypoint iwp = new dma.route.Waypoint();
             net.maritimecloud.util.geometry.Position pos = net.maritimecloud.util.geometry.Position.create(wp.getLatitude(), wp.getLongitude());
             iwp.setWaypointPosition(pos);
             iwp.setEta(Timestamp.create(wp.getEta().getTime()));
             iwp.setRot(wp.getRot());
             iwp.setTurnRad(wp.getTurnRad());
             if (wp.getRouteLeg() != null) {
-                MCLeg leg = new MCLeg();
+                dma.route.Leg leg = new dma.route.Leg();
                 leg.setSpeed(wp.getRouteLeg().getSpeed());
                 leg.setXtdStarboard(wp.getRouteLeg().getXtdStarboard());
                 leg.setXtdPort(wp.getRouteLeg().getXtdPort());
                 if (wp.getRouteLeg().getHeading() == dk.dma.enav.model.voyage.RouteLeg.Heading.RL) {
-                    leg.setHeadingType(MCHeadingType.RHUMB_LINE);
+                    leg.setHeadingType(dma.route.HeadingType.RHUMB_LINE);
                 } else {
-                    leg.setHeadingType(MCHeadingType.GREAT_CIRCLE);
+                    leg.setHeadingType(dma.route.HeadingType.GREAT_CIRCLE);
                 }
                 iwp.setOutLeg(leg);
             }
@@ -421,9 +416,9 @@ public class IntendedRoute extends Route {
         return irm;
     }
 
-    public static List<Waypoint> wpsFromIntendedRouteMessage(MCIntendedRouteBroadcast message) {
+    public static List<Waypoint> wpsFromIntendedRouteMessage(dma.route.IntendedRouteBroadcast message) {
         List<Waypoint> wps = new ArrayList<>();        
-        for (MCWaypoint iwp : message.getRoute().getWaypoints()) {
+        for (dma.route.Waypoint iwp : message.getRoute().getWaypoints()) {
             Waypoint wp = new Waypoint();
             wp.setLatitude(iwp.getWaypointPosition().getLatitude());
             wp.setLongitude(iwp.getWaypointPosition().getLongitude());
@@ -431,12 +426,12 @@ public class IntendedRoute extends Route {
             wp.setRot(iwp.getRot());
             wp.setTurnRad(iwp.getTurnRad());
             if (iwp.getOutLeg() != null) {
-                MCLeg leg = iwp.getOutLeg();
+                dma.route.Leg leg = iwp.getOutLeg();
                 dk.dma.enav.model.voyage.RouteLeg rleg = new dk.dma.enav.model.voyage.RouteLeg();                
                 rleg.setSpeed(leg.getSpeed());
                 rleg.setXtdStarboard(leg.getXtdStarboard());
                 rleg.setXtdPort(leg.getXtdPort());
-                if (leg.getHeadingType() == MCHeadingType.GREAT_CIRCLE) {
+                if (leg.getHeadingType() == dma.route.HeadingType.GREAT_CIRCLE) {
                     rleg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.GC);
                 } else {
                     rleg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.RL);

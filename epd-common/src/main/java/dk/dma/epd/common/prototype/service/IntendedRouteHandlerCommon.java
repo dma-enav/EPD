@@ -46,7 +46,7 @@ import dk.dma.epd.common.util.TypedValue.Speed;
 import dk.dma.epd.common.util.TypedValue.SpeedType;
 import dk.dma.epd.common.util.TypedValue.Time;
 import dk.dma.epd.common.util.TypedValue.TimeType;
-import dma.route.MCIntendedRouteBroadcast;
+import dma.route.IntendedRouteBroadcast;
 import net.maritimecloud.net.BroadcastConsumer;
 import net.maritimecloud.net.MessageHeader;
 import net.maritimecloud.net.mms.MmsClient;
@@ -139,9 +139,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     public void cloudConnected(final MmsClient connection) {
 
         // Hook up as a broadcast listener
-        connection.broadcastSubscribe(MCIntendedRouteBroadcast.class, new BroadcastConsumer<MCIntendedRouteBroadcast>() {
+        connection.broadcastSubscribe(IntendedRouteBroadcast.class, new BroadcastConsumer<IntendedRouteBroadcast>() {
             @Override
-            public void onMessage(MessageHeader header, MCIntendedRouteBroadcast broadcast) {
+            public void onMessage(MessageHeader header, IntendedRouteBroadcast broadcast) {
                 long id = MaritimeCloudUtils.toMmsi(header.getSender());
                 updateIntendedRoute(id, broadcast);
             }
@@ -154,7 +154,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * @param mmsi
      * @param r
      */
-    private synchronized void updateIntendedRoute(long mmsi, MCIntendedRouteBroadcast r) {
+    private synchronized void updateIntendedRoute(long mmsi, IntendedRouteBroadcast r) {
 
         IntendedRoute intendedRoute = new IntendedRoute(r);
         intendedRoute.setMmsi(mmsi);

@@ -24,7 +24,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
-import dma.route.MCIntendedRouteBroadcast;
+import dma.route.IntendedRouteBroadcast;
 import net.maritimecloud.util.Timestamp;
 import org.joda.time.DateTime;
 
@@ -609,7 +609,7 @@ public class ActiveRoute extends Route {
      *            the filter to apply to extract the partial route
      * @return the partial route
      */
-    public synchronized MCIntendedRouteBroadcast getPartialRouteData(
+    public synchronized IntendedRouteBroadcast getPartialRouteData(
             PartialRouteFilter filter) {
 
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
@@ -621,7 +621,7 @@ public class ActiveRoute extends Route {
         if (filter.getType() == FilterType.MINUTES) {
             Date activeWpEta = getActiveWaypointEta();
             if (activeWpEta == null) {
-                return new MCIntendedRouteBroadcast();
+                return new IntendedRouteBroadcast();
             }
             startDate = new Date(activeWpEta.getTime() - filter.getBackward() * 1000L * 60L);
             endDate = new Date(activeWpEta.getTime() + filter.getForward() * 1000L * 60L);
@@ -724,7 +724,7 @@ public class ActiveRoute extends Route {
         }
 
         // Make the broadcast message
-        MCIntendedRouteBroadcast broadcast = IntendedRoute.fromRoute(voyageRoute);
+        IntendedRouteBroadcast broadcast = IntendedRoute.fromRoute(voyageRoute);
         for (Date date : originalEtas) {
             broadcast.addCalculatedEtas(Timestamp.create(date.getTime()));
         }

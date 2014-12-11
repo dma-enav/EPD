@@ -271,8 +271,6 @@ public class ChatServicePanel extends JPanel implements ActionListener, IChatSer
             long lastMessageTime = 0;
             for (EPDChatMessage message : chatData.getMessages()) {
 
-                System.out.println("Message is " + message);
-
                 // Check if we need to add a time label
                 if (message.getSendDate().getTime() - lastMessageTime > PRINT_DATE_INTERVAL) {
                     JLabel dateLabel = new JLabel(String.format(message.isOwnMessage() ? "Sent to %s" : "Received %s",
