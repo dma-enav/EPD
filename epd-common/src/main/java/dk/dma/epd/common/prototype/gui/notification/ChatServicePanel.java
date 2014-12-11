@@ -23,7 +23,7 @@ import dk.dma.epd.common.prototype.service.internal.EPDChatMessage;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.NameUtils;
 import dk.dma.epd.common.util.NameUtils.NameFormat;
-import dma.messaging.MCChatMessage;
+import dma.messaging.MaritimeText;
 import dma.messaging.MCNotificationSeverity;
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
@@ -380,7 +380,7 @@ public class ChatServicePanel extends JPanel implements ActionListener, IChatSer
 
             @Override
             protected void sendChatMessage() {
-                MCChatMessage chatMessage = new MCChatMessage();
+                MaritimeText chatMessage = new MaritimeText();
                 chatMessage.setMsg(messageText.getText());
                 EPDChatMessage epdChatMessage = new EPDChatMessage(chatMessage, true, Timestamp.now());
 
@@ -396,7 +396,7 @@ public class ChatServicePanel extends JPanel implements ActionListener, IChatSer
         for (int x = 0; x < 10; x++) {
             time += Math.random() * 1000L * 60L * 10L; // add 0-10 minutes
             boolean ownMessage = Math.random() < 0.5;
-            MCChatMessage msg = new MCChatMessage();
+            MaritimeText msg = new MaritimeText();
             msg.setMsg("hello yourself\nJGsfdkjfhg");
 
             EPDChatMessage epdChatMessage = new EPDChatMessage(msg, ownMessage, Timestamp.create(time));

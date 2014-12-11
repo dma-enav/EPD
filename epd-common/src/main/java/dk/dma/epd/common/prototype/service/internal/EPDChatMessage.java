@@ -1,17 +1,17 @@
 package dk.dma.epd.common.prototype.service.internal;
 
 import net.maritimecloud.util.Timestamp;
-import dma.messaging.MCChatMessage;
 import dma.messaging.MCNotificationSeverity;
+import dma.messaging.MaritimeText;
 
 public class EPDChatMessage {
 
-    MCChatMessage chatMessage;
+    MaritimeText chatMessage;
 
     boolean ownMessage;
     Timestamp sendDate;
 
-    public EPDChatMessage(MCChatMessage chatMessage, boolean ownMessage, Timestamp sendDate) {
+    public EPDChatMessage(MaritimeText chatMessage, boolean ownMessage, Timestamp sendDate) {
         
         this.chatMessage = chatMessage;
         this.sendDate = sendDate;
@@ -21,7 +21,7 @@ public class EPDChatMessage {
     /**
      * @return the chatMessage
      */
-    public MCChatMessage getChatMessage() {
+    public MaritimeText getChatMessage() {
         return chatMessage;
     }
 

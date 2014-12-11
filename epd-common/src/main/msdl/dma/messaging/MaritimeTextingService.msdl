@@ -1,19 +1,15 @@
 namespace dma.messaging;
-
 enum MCNotificationSeverity {
     MESSAGE = 1;
     WARNING = 2;
     ALERT  = 3;
 }
-
-
-message MCChatMessage {
+message MaritimeText {
     1: MCNotificationSeverity severity;
     2: text msg;
 }
-
-endpoint MCChatMessageService {
+endpoint MaritimeTextingService {
 	void sendMessage(
-        1: MCChatMessage msg
+        1: MaritimeText msg
     );
 }

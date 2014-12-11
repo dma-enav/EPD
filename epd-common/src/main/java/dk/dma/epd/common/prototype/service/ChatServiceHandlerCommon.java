@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import dk.dma.epd.common.prototype.service.internal.EPDChatMessage;
-import dma.messaging.AbstractMCChatMessageService;
-import dma.messaging.MCChatMessage;
-import dma.messaging.MCChatMessageService;
+import dma.messaging.AbstractMaritimeTextingService;
 import dma.messaging.MCNotificationSeverity;
+import dma.messaging.MaritimeText;
+import dma.messaging.MaritimeTextingService;
 
 /**
  * An implementation of a Maritime Cloud chat service
@@ -42,7 +42,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(ChatServiceHandlerCommon.class);
 
-    private List<MCChatMessageService> chatServiceList = new ArrayList<>();
+    private List<MaritimeTextingService> chatServiceList = new ArrayList<>();
     protected List<IChatServiceListener> listeners = new CopyOnWriteArrayList<>();
     private ConcurrentHashMap<MaritimeId, ChatServiceData> chatMessages = new ConcurrentHashMap<>();
 
@@ -71,9 +71,9 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
 
         // Register a cloud chat service
         try {
-            getMmsClient().endpointRegister(new AbstractMCChatMessageService() {
+            getMmsClient().endpointRegister(new AbstractMaritimeTextingService() {
                 @Override
-                protected void sendMessage(MessageHeader header, MCChatMessage msg) {
+                protected void sendMessage(MessageHeader header, MaritimeText msg) {
                     receiveChatMessage(header.getSender(), msg, header.getSenderTime());
                 }
             }).awaitRegistered(4, TimeUnit.SECONDS);
@@ -88,12 +88,12 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
      */
     private void fetchChatServices() {
         try {
-            chatServiceList = getMmsClient().endpointLocate(MCChatMessageService.class).findAll().get();
+            chatServiceList = getMmsClient().endpointLocate(MaritimeTextingService.class).findAll().get();
 
             List<MaritimeId> newChatTargets = new ArrayList<>();
 
             // Create an empty chat service data for new chat services
-            for (MCChatMessageService chatService : chatServiceList) {
+            for (MaritimeTextingService chatService : chatServiceList) {
                 if (!chatMessages.containsKey(chatService.getRemoteId())) {
                     getOrCreateChatServiceData(chatService.getRemoteId());
                     newChatTargets.add(chatService.getRemoteId());
@@ -115,7 +115,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
      * 
      * @return the chat services list
      */
-    public List<MCChatMessageService> getChatServiceList() {
+    public List<MaritimeTextingService> getChatServiceList() {
         return chatServiceList;
     }
 
@@ -155,7 +155,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
 
         // Create a new chat message
 
-        MCChatMessage chatMessage = new MCChatMessage();
+        MaritimeText chatMessage = new MaritimeText();
         chatMessage.setMsg(message);
 
         switch (severity) {
@@ -178,7 +178,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         getOrCreateChatServiceData(targetId).addChatMessage(epdChatMessage);
 
         // Find a matching chat end point and send the message
-        MCChatMessageService chatMessageService = MaritimeCloudUtils.findServiceWithMmsi(chatServiceList,
+        MaritimeTextingService chatMessageService = MaritimeCloudUtils.findServiceWithMmsi(chatServiceList,
                 MaritimeCloudUtils.toMmsi(targetId));
         if (chatMessageService != null) {
             chatMessageService.sendMessage(chatMessage);
@@ -234,10 +234,9 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
      *            the message
      * @param timestamp
      */
-    protected void receiveChatMessage(MaritimeId senderId, MCChatMessage message, Timestamp timestamp) {
+    protected void receiveChatMessage(MaritimeId senderId, MaritimeText message, Timestamp timestamp) {
 
-        
-        //Temp fix if timestamp is null
+        // Temp fix if timestamp is null
         if (timestamp == null) {
             timestamp = Timestamp.now();
         }
