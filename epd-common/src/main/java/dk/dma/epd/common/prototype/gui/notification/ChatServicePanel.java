@@ -14,22 +14,29 @@
  */
 package dk.dma.epd.common.prototype.gui.notification;
 
-import dk.dma.epd.common.graphics.GraphicsUtil;
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
-import dk.dma.epd.common.prototype.service.ChatServiceData;
-import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
-import dk.dma.epd.common.prototype.service.internal.EPDChatMessage;
-import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.common.util.NameUtils;
-import dk.dma.epd.common.util.NameUtils.NameFormat;
-import dma.messaging.MaritimeText;
-import dma.messaging.MCNotificationSeverity;
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.util.Timestamp;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.NORTH;
+import static java.awt.GridBagConstraints.VERTICAL;
 
-import org.apache.commons.lang.StringUtils;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Polygon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Area;
+import java.awt.geom.RoundRectangle2D;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -50,29 +57,23 @@ import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.JTextComponent;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Polygon;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.Area;
-import java.awt.geom.RoundRectangle2D;
-import java.util.Date;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.util.Timestamp;
 
-import static java.awt.GridBagConstraints.BOTH;
-import static java.awt.GridBagConstraints.HORIZONTAL;
-import static java.awt.GridBagConstraints.NONE;
-import static java.awt.GridBagConstraints.NORTH;
-import static java.awt.GridBagConstraints.VERTICAL;
+import org.apache.commons.lang.StringUtils;
+
+import dk.dma.epd.common.graphics.GraphicsUtil;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.service.ChatServiceData;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
+import dk.dma.epd.common.prototype.service.internal.EPDChatMessage;
+import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.NameUtils;
+import dk.dma.epd.common.util.NameUtils.NameFormat;
+import dma.messaging.MaritimeText;
+import dma.messaging.MaritimeTextingNotificationSeverity;
 
 /**
  * Display the chat service messages exchanged with a specific maritime id.
@@ -402,9 +403,9 @@ public class ChatServicePanel extends JPanel implements ActionListener, IChatSer
             EPDChatMessage epdChatMessage = new EPDChatMessage(msg, ownMessage, Timestamp.create(time));
 
             if (Math.random() < 0.1) {
-                epdChatMessage.setSeverity(MCNotificationSeverity.ALERT);
+                epdChatMessage.setSeverity(MaritimeTextingNotificationSeverity.ALERT);
             } else if (Math.random() < 0.2) {
-                epdChatMessage.setSeverity(MCNotificationSeverity.WARNING);
+                epdChatMessage.setSeverity(MaritimeTextingNotificationSeverity.WARNING);
             }
             chatData.addChatMessage(epdChatMessage);
         }
@@ -532,9 +533,10 @@ class ChatMessageBorder extends AbstractBorder {
         g2.setColor(col);
         g2.fill(area);
 
-        if (message.getSeverity() == MCNotificationSeverity.WARNING || message.getSeverity() == MCNotificationSeverity.ALERT) {
+        if (message.getSeverity() == MaritimeTextingNotificationSeverity.WARNING
+                || message.getSeverity() == MaritimeTextingNotificationSeverity.ALERT) {
             g2.setStroke(new BasicStroke(2.0f));
-            g2.setColor(message.getSeverity() == MCNotificationSeverity.WARNING ? WARN_COLOR : ALERT_COLOR);
+            g2.setColor(message.getSeverity() == MaritimeTextingNotificationSeverity.WARNING ? WARN_COLOR : ALERT_COLOR);
             g2.draw(area);
         }
     }

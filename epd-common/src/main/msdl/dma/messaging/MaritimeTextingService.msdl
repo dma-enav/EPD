@@ -1,11 +1,11 @@
 namespace dma.messaging;
-enum MCNotificationSeverity {
+enum MaritimeTextingNotificationSeverity {
     MESSAGE = 1;
     WARNING = 2;
     ALERT  = 3;
 }
 message MaritimeText {
-    1: MCNotificationSeverity severity;
+    1: MaritimeTextingNotificationSeverity severity;
     2: text msg;
 }
 endpoint MaritimeTextingService {

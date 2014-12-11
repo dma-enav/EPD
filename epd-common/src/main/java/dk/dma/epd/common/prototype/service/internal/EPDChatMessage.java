@@ -1,7 +1,7 @@
 package dk.dma.epd.common.prototype.service.internal;
 
 import net.maritimecloud.util.Timestamp;
-import dma.messaging.MCNotificationSeverity;
+import dma.messaging.MaritimeTextingNotificationSeverity;
 import dma.messaging.MaritimeText;
 
 public class EPDChatMessage {
@@ -43,11 +43,11 @@ public class EPDChatMessage {
         return chatMessage.getMsg();
     }
 
-    public MCNotificationSeverity getSeverity() {
+    public MaritimeTextingNotificationSeverity getSeverity() {
         return chatMessage.getSeverity();
     }
 
-    public void setSeverity(MCNotificationSeverity alert) {
+    public void setSeverity(MaritimeTextingNotificationSeverity alert) {
         chatMessage.setSeverity(alert);
     }
 

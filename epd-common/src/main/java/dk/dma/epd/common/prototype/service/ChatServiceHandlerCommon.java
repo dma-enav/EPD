@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import dk.dma.epd.common.prototype.service.internal.EPDChatMessage;
 import dma.messaging.AbstractMaritimeTextingService;
-import dma.messaging.MCNotificationSeverity;
 import dma.messaging.MaritimeText;
+import dma.messaging.MaritimeTextingNotificationSeverity;
 import dma.messaging.MaritimeTextingService;
 
 /**
@@ -160,13 +160,13 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
 
         switch (severity) {
         case ALERT:
-            chatMessage.setSeverity(MCNotificationSeverity.ALERT);
+            chatMessage.setSeverity(MaritimeTextingNotificationSeverity.ALERT);
             break;
         case MESSAGE:
-            chatMessage.setSeverity(MCNotificationSeverity.MESSAGE);
+            chatMessage.setSeverity(MaritimeTextingNotificationSeverity.MESSAGE);
             break;
         case WARNING:
-            chatMessage.setSeverity(MCNotificationSeverity.WARNING);
+            chatMessage.setSeverity(MaritimeTextingNotificationSeverity.WARNING);
             break;
         }
 
@@ -235,11 +235,6 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
      * @param timestamp
      */
     protected void receiveChatMessage(MaritimeId senderId, MaritimeText message, Timestamp timestamp) {
-
-        // Temp fix if timestamp is null
-        if (timestamp == null) {
-            timestamp = Timestamp.now();
-        }
 
         EPDChatMessage chatMessage = new EPDChatMessage(message, false, timestamp);
 
