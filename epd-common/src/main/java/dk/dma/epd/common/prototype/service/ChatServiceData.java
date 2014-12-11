@@ -14,12 +14,12 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import dma.messaging.MCChatMessage;
-import net.maritimecloud.core.id.MaritimeId;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import net.maritimecloud.core.id.MaritimeId;
+import dk.dma.epd.common.prototype.service.internal.EPDChatMessage;
 
 /**
  * Wraps a list of chat messages for a given maritime id
@@ -27,22 +27,24 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ChatServiceData implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     private MaritimeId id;
-    private List<MCChatMessage> messages = new CopyOnWriteArrayList<>();
+    private List<EPDChatMessage> messages = new CopyOnWriteArrayList<>();
     private boolean read = true; // Initially empty list of messages
 
     /**
-     * Constructor 
+     * Constructor
      * 
-     * @param id the maritime id 
+     * @param id
+     *            the maritime id
      */
     public ChatServiceData(MaritimeId id) {
         this.id = id;
     }
-    
+
     /**
      * Returns the maritime id of the target
+     * 
      * @return the maritime id of the target
      */
     public MaritimeId getId() {
@@ -50,37 +52,41 @@ public class ChatServiceData implements Serializable {
     }
 
     /**
-     * Returns the list of chat service messages 
-     * @return the list of chat service messages 
+     * Returns the list of chat service messages
+     * 
+     * @return the list of chat service messages
      */
-    public List<MCChatMessage> getMessages() {
+    public List<EPDChatMessage> getMessages() {
         return messages;
     }
 
     /**
      * Returns the latest chat message
+     * 
      * @return the latest chat message
      */
-    public MCChatMessage getLatestMessage() {
+    public EPDChatMessage getLatestMessage() {
         return (messages == null) ? null : messages.get(messages.size() - 1);
     }
 
     /**
      * Returns the number of messages
+     * 
      * @return the number of messages
      */
     public int getMessageCount() {
         return messages.size();
     }
-    
+
     /**
-     * Adds a chat service message to the list
-     * and mark the chat communication as unread if this is not an own-message.
-     * @param message the message to add
+     * Adds a chat service message to the list and mark the chat communication as unread if this is not an own-message.
+     * 
+     * @param message
+     *            the message to add
      */
-    public void addChatMessage(MCChatMessage message) {
+    public void addChatMessage(EPDChatMessage message) {
         messages.add(message);
-        if (!message.getOwnMessage()) {
+        if (!message.isOwnMessage()) {
             setRead(false);
         }
     }

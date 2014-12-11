@@ -14,23 +14,26 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
-import dma.messaging.AbstractMCChatMessageService;
-import dma.messaging.MCChatMessage;
-import dma.messaging.MCChatMessageService;
-import dma.messaging.MCNotificationSeverity;
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.net.MessageHeader;
-import net.maritimecloud.net.mms.MmsClient;
-import net.maritimecloud.util.Timestamp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.net.MessageHeader;
+import net.maritimecloud.net.mms.MmsClient;
+import net.maritimecloud.util.Timestamp;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.service.internal.EPDChatMessage;
+import dma.messaging.AbstractMCChatMessageService;
+import dma.messaging.MCChatMessage;
+import dma.messaging.MCChatMessageService;
+import dma.messaging.MCNotificationSeverity;
 
 /**
  * An implementation of a Maritime Cloud chat service
@@ -71,7 +74,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
             getMmsClient().endpointRegister(new AbstractMCChatMessageService() {
                 @Override
                 protected void sendMessage(MessageHeader header, MCChatMessage msg) {
-                    receiveChatMessage(header.getSender(), msg);
+                    receiveChatMessage(header.getSender(), msg, header.getSenderTime());
                 }
             }).awaitRegistered(4, TimeUnit.SECONDS);
 
@@ -151,9 +154,10 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     public void sendChatMessage(MaritimeId targetId, String message, NotificationSeverity severity) {
 
         // Create a new chat message
+
         MCChatMessage chatMessage = new MCChatMessage();
         chatMessage.setMsg(message);
-        chatMessage.setOwnMessage(true);
+
         switch (severity) {
         case ALERT:
             chatMessage.setSeverity(MCNotificationSeverity.ALERT);
@@ -165,12 +169,13 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
             chatMessage.setSeverity(MCNotificationSeverity.WARNING);
             break;
         }
-        chatMessage.setSendDate(Timestamp.now());
+
+        EPDChatMessage epdChatMessage = new EPDChatMessage(chatMessage, true, Timestamp.now());
 
         LOG.info("Sending chat message to maritime id: " + targetId);
 
         // Store the message
-        getOrCreateChatServiceData(targetId).addChatMessage(chatMessage);
+        getOrCreateChatServiceData(targetId).addChatMessage(epdChatMessage);
 
         // Find a matching chat end point and send the message
         MCChatMessageService chatMessageService = MaritimeCloudUtils.findServiceWithMmsi(chatServiceList,
@@ -227,10 +232,19 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
      *            the id of the sender
      * @param message
      *            the message
+     * @param timestamp
      */
-    protected void receiveChatMessage(MaritimeId senderId, MCChatMessage message) {
-        message.setOwnMessage(false);
-        getOrCreateChatServiceData(senderId).addChatMessage(message);
+    protected void receiveChatMessage(MaritimeId senderId, MCChatMessage message, Timestamp timestamp) {
+
+        
+        //Temp fix if timestamp is null
+        if (timestamp == null) {
+            timestamp = Timestamp.now();
+        }
+
+        EPDChatMessage chatMessage = new EPDChatMessage(message, false, timestamp);
+
+        getOrCreateChatServiceData(senderId).addChatMessage(chatMessage);
 
         // Notify listeners
         fireChatMessagesUpdated(senderId);

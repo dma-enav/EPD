@@ -10,8 +10,6 @@ enum MCNotificationSeverity {
 message MCChatMessage {
     1: MCNotificationSeverity severity;
     2: text msg;
-    3: timestamp sendDate;
-    4: boolean ownMessage;
 }
 
 endpoint MCChatMessageService {
