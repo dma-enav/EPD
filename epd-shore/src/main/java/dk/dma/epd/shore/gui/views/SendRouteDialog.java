@@ -298,13 +298,13 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         loading = true;
         
         // Initialize MMSI list
-        Set<Integer> mmsiList = new HashSet<>();
+        Set<Long> mmsiList = new HashSet<>();
         for (int i = 0; i < routeSuggestionHandler.getRouteSuggestionServiceList().size(); i++) {
             mmsiList.add(MaritimeCloudUtils.toMmsi(routeSuggestionHandler.getRouteSuggestionServiceList().get(i).getId()));
         }
 
         mmsiListComboBox.removeAllItems();
-        for (Integer mmsi : mmsiList) {
+        for (Long mmsi : mmsiList) {
             mmsiListComboBox.addItem(String.valueOf(mmsi));
         }
         mmsiListComboBox.setEnabled(mmsiList.size() > 0);
@@ -318,7 +318,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
 
         // Initialize names
         nameComboBox.removeAllItems();
-        for (Integer mmsi : mmsiList) {
+        for (Long mmsi : mmsiList) {
 
             VesselTarget selectedShip = aisHandler.getVesselTarget(mmsi.longValue());
             if (selectedShip != null && selectedShip.getStaticData() != null) {

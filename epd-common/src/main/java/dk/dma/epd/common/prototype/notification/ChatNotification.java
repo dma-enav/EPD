@@ -72,7 +72,7 @@ public class ChatNotification extends Notification<ChatServiceData, MaritimeId> 
         
         // Try to determine the position
         AisHandlerCommon aisHandler = EPD.getInstance().getAisHandler();
-        Integer mmsi = MaritimeCloudUtils.toMmsi(chatData.getId());
+        Long mmsi = MaritimeCloudUtils.toMmsi(chatData.getId());
         if (mmsi != null && 
             aisHandler.getVesselTarget(mmsi.longValue()) != null &&
             aisHandler.getVesselTarget(mmsi.longValue()).getPositionData() != null) {

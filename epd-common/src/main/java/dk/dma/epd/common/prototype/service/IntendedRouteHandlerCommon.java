@@ -142,7 +142,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         connection.broadcastSubscribe(MCIntendedRouteBroadcast.class, new BroadcastConsumer<MCIntendedRouteBroadcast>() {
             @Override
             public void onMessage(MessageHeader header, MCIntendedRouteBroadcast broadcast) {
-                int id = MaritimeCloudUtils.toMmsi(header.getSender());
+                long id = MaritimeCloudUtils.toMmsi(header.getSender());
                 updateIntendedRoute(id, broadcast);
             }
         });

@@ -58,7 +58,7 @@ public class NameUtils {
      * @return the name associated with the id
      */
     public static String getName(MaritimeId id, NameFormat format) {
-        Integer mmsi = MaritimeCloudUtils.toMmsi(id);
+        Long mmsi = MaritimeCloudUtils.toMmsi(id);
         if (mmsi == null) {
             return "N/A";
         }
@@ -136,7 +136,7 @@ public class NameUtils {
      * @return the type associated with the id
      */
     public static String getType(MaritimeId id) {
-        Integer mmsi = MaritimeCloudUtils.toMmsi(id);
+        Long mmsi = MaritimeCloudUtils.toMmsi(id);
         if (mmsi == null) {
             return "N/A";
         }

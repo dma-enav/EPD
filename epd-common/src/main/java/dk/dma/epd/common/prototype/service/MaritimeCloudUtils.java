@@ -80,15 +80,15 @@ public class MaritimeCloudUtils {
      *            the maritime id to extract the MMSI from
      * @return the MMSI or null, if none can be extracted
      */
-    public static Integer toMmsi(MaritimeId id) {
+    public static Long toMmsi(MaritimeId id) {
         if (id == null || !(id instanceof MmsiId)) {
             return null;
         }
         String str = id.toString();
         if (str.startsWith("mmsi://")) {
-            return Integer.parseInt(id.toString().split("mmsi://")[1]);
+            return Long.parseLong(id.toString().split("mmsi://")[1]);
         } else if (str.startsWith("mmsi:")) {
-            return Integer.parseInt(id.toString().split("mmsi:")[1]);
+            return Long.parseLong(id.toString().split("mmsi:")[1]);
         }
         return null;
     }

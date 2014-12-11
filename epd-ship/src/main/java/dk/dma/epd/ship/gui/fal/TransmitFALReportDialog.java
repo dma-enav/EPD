@@ -90,7 +90,7 @@ public class TransmitFALReportDialog extends ComponentDialog implements ActionLi
     private boolean loading;
     private boolean wasVisible;
 
-    private ArrayList<Integer> mmsiList = new ArrayList<Integer>();
+    private ArrayList<Long> mmsiList = new ArrayList<Long>();
 
     IdentityViewer viewer;
 

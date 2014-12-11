@@ -88,7 +88,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
             chatServiceList = getMmsClient().endpointLocate(MCChatMessageService.class).findAll().get();
 
             List<MaritimeId> newChatTargets = new ArrayList<>();
-            
+
             // Create an empty chat service data for new chat services
             for (MCChatMessageService chatService : chatServiceList) {
                 if (!chatMessages.containsKey(chatService.getRemoteId())) {
@@ -119,17 +119,19 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     /**
      * Checks the given MMSI in the chat service list
      * 
-     * @param id the MMSI of the ship to search for
+     * @param id
+     *            the MMSI of the ship to search for
      * @return if the MMSI supports chat
      */
     public boolean availableForChat(MaritimeId id) {
         return availableForChat(MaritimeCloudUtils.toMmsi(id));
     }
-    
+
     /**
      * Checks the given MMSI in the chat service list
      * 
-     * @param mmsi the MMSI of the ship to search for
+     * @param mmsi
+     *            the MMSI of the ship to search for
      * @return if the MMSI supports chat
      */
     public boolean availableForChat(long mmsi) {
@@ -139,9 +141,12 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     /**
      * Sends a chat message to the given ship
      * 
-     * @param targetId the id of the ship
-     * @param message the message
-     * @param severity the severity
+     * @param targetId
+     *            the id of the ship
+     * @param message
+     *            the message
+     * @param severity
+     *            the severity
      */
     public void sendChatMessage(MaritimeId targetId, String message, NotificationSeverity severity) {
 
@@ -150,9 +155,15 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         chatMessage.setMsg(message);
         chatMessage.setOwnMessage(true);
         switch (severity) {
-            case ALERT:  chatMessage.setSeverity(MCNotificationSeverity.ALERT); break;
-            case MESSAGE:  chatMessage.setSeverity(MCNotificationSeverity.MESSAGE); break;
-            case WARNING:  chatMessage.setSeverity(MCNotificationSeverity.WARNING); break;
+        case ALERT:
+            chatMessage.setSeverity(MCNotificationSeverity.ALERT);
+            break;
+        case MESSAGE:
+            chatMessage.setSeverity(MCNotificationSeverity.MESSAGE);
+            break;
+        case WARNING:
+            chatMessage.setSeverity(MCNotificationSeverity.WARNING);
+            break;
         }
         chatMessage.setSendDate(Timestamp.now());
 
@@ -162,8 +173,8 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         getOrCreateChatServiceData(targetId).addChatMessage(chatMessage);
 
         // Find a matching chat end point and send the message
-        MCChatMessageService chatMessageService = MaritimeCloudUtils
-                .findServiceWithMmsi(chatServiceList, MaritimeCloudUtils.toMmsi(targetId));
+        MCChatMessageService chatMessageService = MaritimeCloudUtils.findServiceWithMmsi(chatServiceList,
+                MaritimeCloudUtils.toMmsi(targetId));
         if (chatMessageService != null) {
             chatMessageService.sendMessage(chatMessage);
         } else {
@@ -187,7 +198,8 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     /**
      * Returns all the stored chat messages for the given maritime id
      * 
-     * @param id the maritime id
+     * @param id
+     *            the maritime id
      * @return the chatMessages
      */
     public ChatServiceData getChatServiceData(MaritimeId id) {
@@ -195,10 +207,10 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     }
 
     /**
-     * Returns all the stored chat messages for the given maritime id.
-     * Creates a new empty element if it did not exist in advance
+     * Returns all the stored chat messages for the given maritime id. Creates a new empty element if it did not exist in advance
      * 
-     * @param id the maritime id
+     * @param id
+     *            the maritime id
      * @return the chatMessages
      */
     public ChatServiceData getOrCreateChatServiceData(MaritimeId id) {
@@ -207,12 +219,14 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         }
         return chatMessages.get(id);
     }
-    
+
     /**
      * Called upon receiving a new chat message. Broadcasts the message to all listeners.
      * 
-     * @param senderId the id of the sender
-     * @param message the message
+     * @param senderId
+     *            the id of the sender
+     * @param message
+     *            the message
      */
     protected void receiveChatMessage(MaritimeId senderId, MCChatMessage message) {
         message.setOwnMessage(false);
@@ -221,33 +235,34 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         // Notify listeners
         fireChatMessagesUpdated(senderId);
     }
-    
+
     /**
      * Clears the chat message for the given maritime id.
      * 
-     * @param id the maritime id
+     * @param id
+     *            the maritime id
      */
     public void clearChatMessages(MaritimeId id) {
         ChatServiceData chatData = getChatServiceData(id);
         if (chatData != null) {
             chatData.getMessages().clear();
-            
+
             // Notify listeners
             fireChatMessagesUpdated(id);
         }
     }
-    
+
     /**
      * Called when the chat message exchange has been updated for the given maritime id
      * 
-     * @param targetId the maritime id of the target
+     * @param targetId
+     *            the maritime id of the target
      */
     synchronized void fireChatMessagesUpdated(MaritimeId targetId) {
         for (IChatServiceListener listener : listeners) {
             listener.chatMessagesUpdated(targetId);
         }
     }
-    
 
     /**
      * Adds an chat service listener
@@ -277,7 +292,8 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         /**
          * Called when the chat message exchange has been updated for the given maritime id
          * 
-         * @param targetId the maritime id of the target
+         * @param targetId
+         *            the maritime id of the target
          */
         void chatMessagesUpdated(MaritimeId targetId);
     }
