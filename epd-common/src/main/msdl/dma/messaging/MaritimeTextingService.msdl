@@ -3,8 +3,9 @@ namespace dma.messaging;
 /** Severity of the message. */
 enum MaritimeTextingNotificationSeverity {
     MESSAGE = 1;
-    WARNING = 2;
-    ALERT  = 3;
+    SAFETY = 2;
+    WARNING = 3;
+    ALERT  = 4;
 }
 
 /** The message being sent, contains a single string and the severity. */

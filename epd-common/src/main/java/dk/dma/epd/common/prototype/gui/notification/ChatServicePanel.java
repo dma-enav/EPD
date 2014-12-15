@@ -460,6 +460,7 @@ class ChatMessageBorder extends AbstractBorder {
     private static final long serialVersionUID = 1L;
     private static final Color ALERT_COLOR = new Color(255, 50, 50, 200);
     private static final Color WARN_COLOR = new Color(255, 225, 50, 200);
+    private static final Color SAFETY_COLOR = new Color(2, 158, 50, 200);
 
     int cornerRadius = 12;
     int pointerWidth = 10;
@@ -532,9 +533,23 @@ class ChatMessageBorder extends AbstractBorder {
         g2.fill(area);
 
         if (message.getSeverity() == MaritimeTextingNotificationSeverity.WARNING
-                || message.getSeverity() == MaritimeTextingNotificationSeverity.ALERT) {
+                || message.getSeverity() == MaritimeTextingNotificationSeverity.ALERT
+                || message.getSeverity() == MaritimeTextingNotificationSeverity.SAFETY) {
             g2.setStroke(new BasicStroke(2.0f));
-            g2.setColor(message.getSeverity() == MaritimeTextingNotificationSeverity.WARNING ? WARN_COLOR : ALERT_COLOR);
+
+            switch (message.getSeverity()) {
+            case WARNING:
+                g2.setColor(WARN_COLOR);
+            case ALERT:
+                g2.setColor(ALERT_COLOR);
+            case SAFETY:
+                g2.setColor(SAFETY_COLOR);
+            default:
+                g2.setColor(WARN_COLOR);
+            }
+
+            // g2.setColor(message.getSeverity() == MaritimeTextingNotificationSeverity.WARNING ? WARN_COLOR : ALERT_COLOR);
+
             g2.draw(area);
         }
     }
