@@ -15,6 +15,7 @@
 package dk.dma.epd.shore.service;
 
 import dk.dma.enav.model.voyage.Route;
+import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
@@ -27,10 +28,12 @@ import dma.messaging.MaritimeText;
 import dma.messaging.MaritimeTextingService;
 import dma.route.StrategicRouteEndpoint;
 import dma.route.TacticalRouteEndpoint;
+import dma.route.TacticalRouteSuggestion;
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
 import net.maritimecloud.net.MessageHeader;
 import net.maritimecloud.net.mms.MmsClient;
+import net.maritimecloud.util.Timestamp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +56,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionHandler.class);
 
-    private List<StrategicRouteEndpoint> routeSuggestionServiceList = new ArrayList<>();
+    private List<TacticalRouteEndpoint> routeSuggestionServiceList = new ArrayList<>();
 
     /**
      * Constructor
@@ -123,7 +126,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
     public void fetchRouteSuggestionServices() {
 
         try {
-            routeSuggestionServiceList = getMmsClient().endpointLocate(StrategicRouteEndpoint.class).findAll().get();
+            routeSuggestionServiceList = getMmsClient().endpointLocate(TacticalRouteEndpoint.class).findAll().get();
 
         } catch (Exception e) {
             LOG.error("Failed looking up route suggestion services", e.getMessage());
@@ -136,7 +139,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
      * 
      * @return the route suggestion service list
      */
-    public List<StrategicRouteEndpoint> getRouteSuggestionServiceList() {
+    public List<TacticalRouteEndpoint> getRouteSuggestionServiceList() {
         return routeSuggestionServiceList;
     }
 
@@ -165,26 +168,71 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
     public void sendRouteSuggestion(long mmsi, Route route, String message) throws InterruptedException, ExecutionException,
             TimeoutException {
 
-        TacticalRouteEndpoint routeSegmentSuggestion = new TacticalRouteEndpoint();
-        
+        TacticalRouteSuggestion routeSegmentSuggestion = fromRoute(route);
 
-        // Create a new message
-        RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(route, message, RouteSuggestionStatus.PENDING);
-        LOG.info("Sending to mmsi: " + mmsi + " with ID: " + routeMessage.getId());
+        TacticalRouteEndpoint tacticalRouteEndpoint = MaritimeCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, mmsi);
+
+        if (tacticalRouteEndpoint != null) {
+            tacticalRouteEndpoint.sendRouteSuggestion(routeSegmentSuggestion);
+        } else {
+            LOG.error("Could not find tactical route endpoint for mmsi: " + mmsi);
+            return;
+        }
+
+        // // Create a new message
+        // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(route, message, RouteSuggestionStatus.PENDING);
+        // LOG.info("Sending to mmsi: " + mmsi + " with ID: " + routeMessage.getId());
 
         // Cache the message by the transaction id
-        RouteSuggestionData routeData = new RouteSuggestionData(routeMessage, mmsi);
+        RouteSuggestionData routeData = new RouteSuggestionData(routeSegmentSuggestion, mmsi);
         routeData.setAcknowleged(false);
         routeSuggestions.put(routeMessage.getId(), routeData);
 
         // Send the message over the cloud
-        routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
-        if (sendMaritimeCloudMessage(routeSuggestionServiceList, new MmsiId(mmsi), routeMessage, this)) {
-            routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
-        }
+        // routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
+        // if (sendMaritimeCloudMessage(routeSuggestionServiceList, new MmsiId((int) mmsi), routeMessage, this)) {
+        // routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
+        // }
 
         // Update listeners
         notifyRouteSuggestionListeners();
+    }
+
+    /**
+     * Create an TacticalRouteSuggestion from a route model instance Add the ID based on current timestamp
+     * 
+     * @param route
+     * @return
+     */
+    public static dma.route.TacticalRouteSuggestion fromRoute(dk.dma.enav.model.voyage.Route route) {
+        dma.route.TacticalRouteSuggestion irm = new dma.route.TacticalRouteSuggestion();
+        dma.route.Route r = new dma.route.Route();
+        r.setRoutename(route.getName());
+        for (Waypoint wp : route.getWaypoints()) {
+            dma.route.Waypoint iwp = new dma.route.Waypoint();
+            net.maritimecloud.util.geometry.Position pos = net.maritimecloud.util.geometry.Position.create(wp.getLatitude(),
+                    wp.getLongitude());
+            iwp.setWaypointPosition(pos);
+            iwp.setEta(Timestamp.create(wp.getEta().getTime()));
+            iwp.setRot(wp.getRot());
+            iwp.setTurnRad(wp.getTurnRad());
+            if (wp.getRouteLeg() != null) {
+                dma.route.Leg leg = new dma.route.Leg();
+                leg.setSpeed(wp.getRouteLeg().getSpeed());
+                leg.setXtdStarboard(wp.getRouteLeg().getXtdStarboard());
+                leg.setXtdPort(wp.getRouteLeg().getXtdPort());
+                if (wp.getRouteLeg().getHeading() == dk.dma.enav.model.voyage.RouteLeg.Heading.RL) {
+                    leg.setHeadingType(dma.route.HeadingType.RHUMB_LINE);
+                } else {
+                    leg.setHeadingType(dma.route.HeadingType.GREAT_CIRCLE);
+                }
+                iwp.setOutLeg(leg);
+            }
+            r.addWaypoints(iwp);
+        }
+        irm.setRoute(r);
+        irm.setId(System.currentTimeMillis());
+        return irm;
     }
 
     @SuppressWarnings("unchecked")

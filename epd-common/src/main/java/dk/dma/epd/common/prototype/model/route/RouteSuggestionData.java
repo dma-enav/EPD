@@ -20,6 +20,7 @@ import java.util.Objects;
 
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
+import dma.route.TacticalRouteSuggestion;
 
 /**
  * Used for caching the negotiation data used tactical routes
@@ -27,9 +28,9 @@ import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggest
 public class RouteSuggestionData implements Comparable<RouteSuggestionData>, Serializable {
 
     private static final long serialVersionUID = -3345162806743074138L;
-    
-    private RouteSuggestionMessage message;
-    private RouteSuggestionMessage reply;
+
+    private TacticalRouteSuggestion message;
+    // private TacticalRouteSuggestion reply;
     private long mmsi;
     private boolean acknowleged;
     private Route route;
@@ -37,25 +38,24 @@ public class RouteSuggestionData implements Comparable<RouteSuggestionData>, Ser
     /**
      * Constructor
      * 
-     * @param message
+     * @param routeSegmentSuggestion
      * @param mmsi
      */
-    public RouteSuggestionData(RouteSuggestionMessage message, long mmsi) {
-        this.message = Objects.requireNonNull(message);
+    public RouteSuggestionData(TacticalRouteSuggestion routeSegmentSuggestion, long mmsi) {
+        this.message = Objects.requireNonNull(routeSegmentSuggestion);
         this.mmsi = Objects.requireNonNull(mmsi);
-        this.route = Objects.requireNonNull(new Route(message.getRoute()));
+        this.route = Objects.requireNonNull(new Route(routeSegmentSuggestion.getRoute()));
     }
 
     /**
-     * Returns the latest message, i.e. the reply if defined and
-     * the original message otherwise
+     * Returns the latest message, i.e. the reply if defined and the original message otherwise
      * 
      * @return the latest message
      */
     public RouteSuggestionMessage getLatestMessage() {
         return (reply == null) ? message : reply;
     }
-    
+
     public RouteSuggestionMessage getMessage() {
         return message;
     }
@@ -87,7 +87,7 @@ public class RouteSuggestionData implements Comparable<RouteSuggestionData>, Ser
     public RouteSuggestionStatus getStatus() {
         return getLatestMessage().getStatus();
     }
-    
+
     public Route getRoute() {
         return route;
     }
@@ -95,12 +95,11 @@ public class RouteSuggestionData implements Comparable<RouteSuggestionData>, Ser
     public boolean isReplied() {
         return reply != null;
     }
-    
+
     @Override
     public String toString() {
-        return "RouteSuggestionData [message=" + message + ", reply="
-                + reply + ", id=" + getId() + ", mmsi=" + mmsi + ", acknowleged="
-                + acknowleged + ", status=" + getStatus() + "]";
+        return "RouteSuggestionData [message=" + message + ", reply=" + reply + ", id=" + getId() + ", mmsi=" + mmsi
+                + ", acknowleged=" + acknowleged + ", status=" + getStatus() + "]";
     }
 
     /**
