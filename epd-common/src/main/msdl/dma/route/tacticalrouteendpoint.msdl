@@ -1,20 +1,11 @@
 namespace dma.route;
 
-/** Status of the Route Suggestion. */
-enum RouteSuggestionStatus {
-    PENDING = 1;
-    ACCEPTED = 2;
-    REJECTED = 3;
-}
-
 endpoint TacticalRouteEndpoint {
 
-	void routeSuggestion(
-        /** The suggested route */
+	void routeSegment(
+        /** The route segment*/
         1: Route route,
         /** The transaction ID */
-        2: int64 id,
-        /** The status, used for replying*/
-        3: RouteSuggestionStatus status
+        2: int64 id
     );
 }
