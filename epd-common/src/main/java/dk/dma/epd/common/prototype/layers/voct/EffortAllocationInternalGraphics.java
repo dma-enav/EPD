@@ -241,7 +241,7 @@ public class EffortAllocationInternalGraphics extends OMGraphicList {
         // data.getEffortAllocationData().setEffectiveAreaC(C);
         // data.getEffortAllocationData().setEffectiveAreaD(D);
 
-        System.out.println("Polygon created");
+//        System.out.println("Polygon created");
 
         checkLabel();
     }

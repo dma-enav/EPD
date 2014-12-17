@@ -135,7 +135,7 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
         }
 
         if (compactLayout) {
-            addBtn = new JButton("Add Message");
+            addBtn = new JButton("Add to Log");
             sendPanel.add(addBtn, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, NORTH, NONE, insets, 0, 0));
         }
         // addBtn.setEnabled(false);
@@ -203,7 +203,7 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
             // Check if we need to add a time label
             if (message.getDate() - lastMessageTime > PRINT_DATE_INTERVAL) {
 
-                JLabel dateLabel = new JLabel(String.format(ownMessage ? "Sent to %s" : "Received %s",
+                JLabel dateLabel = new JLabel(String.format(ownMessage ? "Added %s" : "Received %s",
                         Formatter.formatShortDateTimeNoTz(new Date(message.getDate()))));
                 dateLabel.setFont(dateLabel.getFont().deriveFont(9.0f).deriveFont(Font.PLAIN));
                 dateLabel.setHorizontalAlignment(SwingConstants.CENTER);

@@ -132,8 +132,8 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     /**
      * Change the mouse mode.
      * 
-     * @param modeID The mode ID of the mouse mode to swap to (e.g.
-     *            DistanceCircleMouseMode.MODE_ID).
+     * @param modeID
+     *            The mode ID of the mouse mode to swap to (e.g. DistanceCircleMouseMode.MODE_ID).
      */
     public abstract void setMouseMode(String modeID);
 
@@ -232,7 +232,10 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
                     p1.setLocation(p1.getX(), p0.getY() + sign * Math.abs(routeWidth * mapRatio));
                 }
 
-                float scale = ProjMath.getScale(proj.inverse(p0), proj.inverse(p1), proj);
+                Point point1 = new Point((int) proj.inverse(p0).getX(), (int) proj.inverse(p0).getY());
+                Point point2 = new Point((int) proj.inverse(p1).getX(), (int) proj.inverse(p1).getY());
+
+                float scale = ProjMath.getScale(point1, point2, proj);
 
                 // Restrict to maxScale and scale with 10%
                 scale = Math.max((float) maxScale, scale * 1.1f);
