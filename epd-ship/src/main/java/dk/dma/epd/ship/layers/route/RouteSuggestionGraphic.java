@@ -29,6 +29,7 @@ import com.bbn.openmap.omGraphics.OMLine;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
+import dma.route.RouteSegmentSuggestionStatus;
 
 /**
  * Graphic for a suggested route
@@ -42,8 +43,7 @@ public class RouteSuggestionGraphic extends OMGraphicList {
 
     private Stroke stroke;
 
-    public RouteSuggestionGraphic(RouteSuggestionData routeSuggestion,
-            Stroke stroke) {
+    public RouteSuggestionGraphic(RouteSuggestionData routeSuggestion, Stroke stroke) {
         this.routeSuggestion = routeSuggestion;
         this.stroke = stroke;
 
@@ -80,27 +80,21 @@ public class RouteSuggestionGraphic extends OMGraphicList {
         for (RouteWaypoint geoLocation : routeWaypoints) {
             nextPoint = geoLocation;
             if (prevPoint != null) {
-                OMLine leg = new OMLine(prevPoint.getPos().getLatitude(),
-                        prevPoint.getPos().getLongitude(), nextPoint.getPos()
-                                .getLatitude(), nextPoint.getPos()
-                                .getLongitude(),
-                        OMGraphicConstants.LINETYPE_RHUMB);
+                OMLine leg = new OMLine(prevPoint.getPos().getLatitude(), prevPoint.getPos().getLongitude(), nextPoint.getPos()
+                        .getLatitude(), nextPoint.getPos().getLongitude(), OMGraphicConstants.LINETYPE_RHUMB);
                 leg.setStroke(stroke);
                 leg.setLinePaint(new Color(0, 0, 0, 120));
                 add(leg);
 
-                OMLine legBackground = new OMLine(prevPoint.getPos()
-                        .getLatitude(), prevPoint.getPos().getLongitude(),
-                        nextPoint.getPos().getLatitude(), nextPoint.getPos()
-                                .getLongitude(),
-                        OMGraphicConstants.LINETYPE_RHUMB);
+                OMLine legBackground = new OMLine(prevPoint.getPos().getLatitude(), prevPoint.getPos().getLongitude(), nextPoint
+                        .getPos().getLatitude(), nextPoint.getPos().getLongitude(), OMGraphicConstants.LINETYPE_RHUMB);
                 legBackground.setStroke(backgroundStroke);
-                
-                if (routeSuggestion.getStatus() == RouteSuggestionStatus.PENDING) {
+
+                if (routeSuggestion.getStatus() == RouteSegmentSuggestionStatus.PENDING) {
                     legBackground.setLinePaint(new Color(251, 253, 57, 120));
                 }
-                
-                if (routeSuggestion.getStatus() == RouteSuggestionStatus.ACCEPTED) {
+
+                if (routeSuggestion.getStatus() == RouteSegmentSuggestionStatus.ACCEPTED) {
                     legBackground.setLinePaint(new Color(42, 172, 12, 120));
                 }
 
@@ -117,8 +111,7 @@ public class RouteSuggestionGraphic extends OMGraphicList {
     @Override
     public void render(Graphics gr) {
         Graphics2D image = (Graphics2D) gr;
-        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
     }
 }

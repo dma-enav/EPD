@@ -23,7 +23,6 @@ import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.GeneralClearMap;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
@@ -44,9 +43,9 @@ import dk.dma.epd.ship.gui.menuitems.MonaLisaRouteRequest;
 import dk.dma.epd.ship.gui.menuitems.NogoRequest;
 import dk.dma.epd.ship.gui.menuitems.RouteActivateToggle;
 import dk.dma.epd.ship.gui.menuitems.RouteEditEndRoute;
+import dk.dma.epd.ship.gui.menuitems.RouteSuggestionDetails;
 import dk.dma.epd.ship.gui.menuitems.RouteSuggestionRemove;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
-import dk.dma.epd.ship.gui.menuitems.RouteSuggestionDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
 import dk.dma.epd.ship.gui.menuitems.VoyageHandlingWaypointDelete;
 import dk.dma.epd.ship.layers.ais.AisLayer;
@@ -54,6 +53,7 @@ import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
+import dma.route.RouteSegmentSuggestionStatus;
 
 /**
  * Right click map menu
@@ -125,18 +125,15 @@ public class MapMenu extends MapMenuCommon {
         routeActivateToggle = new RouteActivateToggle();
         routeActivateToggle.addActionListener(this);
 
-        monaLisaRouteRequest = new MonaLisaRouteRequest(
-                "Request Optimized SSPA Route");
+        monaLisaRouteRequest = new MonaLisaRouteRequest("Request Optimized SSPA Route");
         monaLisaRouteRequest.addActionListener(this);
 
         // suggested route menu
-        routeSuggestionDetails = new RouteSuggestionDetails(
-                "Route suggestion details...");
+        routeSuggestionDetails = new RouteSuggestionDetails("Route suggestion details...");
         routeSuggestionDetails.addActionListener(this);
 
         // remove suggestion
-        routeSuggestionRemove = new RouteSuggestionRemove(
-                "Remove route suggestion");
+        routeSuggestionRemove = new RouteSuggestionRemove("Remove route suggestion");
         routeSuggestionRemove.addActionListener(this);
 
         // route edit menu
@@ -146,18 +143,15 @@ public class MapMenu extends MapMenuCommon {
         // Init STCC Route negotiation items
         voyageAppendWaypoint = new VoyageAppendWaypoint("Append waypoint");
         voyageAppendWaypoint.addActionListener(this);
-        voyageDeleteWaypoint = new VoyageHandlingWaypointDelete(
-                "Delete waypoint");
+        voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
         voyageDeleteWaypoint.addActionListener(this);
-        voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint(
-                "Insert waypoint here", EPDShip.getInstance()
-                        .getVoyageEventDispatcher());
+        voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getInstance()
+                .getVoyageEventDispatcher());
         voyageLegInsertWaypoint.addActionListener(this);
     }
 
     /**
-     * Adds the general menu to the right-click menu. Remember to always add
-     * this first, when creating specific menus.
+     * Adds the general menu to the right-click menu. Remember to always add this first, when creating specific menus.
      * 
      * @param alone
      */
@@ -181,8 +175,7 @@ public class MapMenu extends MapMenuCommon {
 
         // Prep the clearMap action
         routeHide.setRouteIndex(RouteHide.ALL_INACTIVE_ROUTES);
-        clearMap.setMapMenuActions(hideIntendedRoutes, routeHide,
-                hidePastTracks, mainFrame.getTopPanel().getHideAisNamesAction());
+        clearMap.setMapMenuActions(hideIntendedRoutes, routeHide, hidePastTracks, mainFrame.getTopPanel().getHideAisNamesAction());
 
         if (alone) {
             removeAll();
@@ -191,8 +184,7 @@ public class MapMenu extends MapMenuCommon {
             add(showIntendedRoutes);
             add(newRoute);
             addSeparator();
-            if (!EPDShip.getInstance().getSettings().getGuiSettings()
-                    .isRiskNogoDisabled()) {
+            if (!EPDShip.getInstance().getSettings().getGuiSettings().isRiskNogoDisabled()) {
                 add(nogoRequest);
                 addSeparator();
             }
@@ -215,8 +207,7 @@ public class MapMenu extends MapMenuCommon {
     /**
      * Builds ais target menu
      */
-    public void aisMenu(VesselGraphicComponentSelector targetGraphic,
-            TopPanel toppanel) {
+    public void aisMenu(VesselGraphicComponentSelector targetGraphic, TopPanel toppanel) {
         removeAll();
         aisTargetDetails.setTopPanel(toppanel);
 
@@ -225,14 +216,12 @@ public class MapMenu extends MapMenuCommon {
         add(aisTargetDetails);
 
         // Toggle show intended route
-        addIntendedRouteToggle(intendedRouteHandler
-                .getIntendedRoute(vesselTarget.getMmsi()));
+        addIntendedRouteToggle(intendedRouteHandler.getIntendedRoute(vesselTarget.getMmsi()));
 
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(vesselTarget);
         aisTogglePastTrack.setAisLayerToRefresh(aisLayer);
-        aisTogglePastTrack.setText((vesselTarget.getSettings()
-                .isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
 
         // Clear past-track
@@ -271,9 +260,7 @@ public class MapMenu extends MapMenuCommon {
         VesselTarget ownShip = ownShipHandler.getAisTarget();
         aisTogglePastTrack.setMobileTarget(ownShip);
         aisTogglePastTrack.setAisLayerToRefresh(null);
-        aisTogglePastTrack
-                .setText((ownShip.getSettings().isShowPastTrack()) ? "Hide past-track"
-                        : "Show past-track");
+        aisTogglePastTrack.setText((ownShip.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
 
         // Clear past-track
@@ -306,9 +293,7 @@ public class MapMenu extends MapMenuCommon {
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(sarTarget);
         aisTogglePastTrack.setAisLayerToRefresh(aisLayer);
-        aisTogglePastTrack
-                .setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track"
-                        : "Show past-track");
+        aisTogglePastTrack.setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
 
         // Clear past-track
@@ -327,8 +312,7 @@ public class MapMenu extends MapMenuCommon {
         // Check if we are in a route exchange transaction
         if (strategicRouteHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info...");
-            sendToSTCC.setTransactionId(strategicRouteHandler
-                    .getCurrentTransactionId());
+            sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
 
         } else {
             try {
@@ -340,18 +324,13 @@ public class MapMenu extends MapMenuCommon {
 
                 sendToSTCC.setText("Send to STCC...");
                 sendToSTCC.setRoute(route);
-                sendToSTCC
-                        .setEnabled(strategicRouteHandler
-                                .strategicRouteSTCCExists()
-                                && routeManager.getActiveRouteIndex() != routeIndex
-                                && strategicRouteHandler.getStatus()
-                                        .getStatus() == ComponentStatus.Status.OK);
+                sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
+                        && routeManager.getActiveRouteIndex() != routeIndex
+                        && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
             } catch (Exception ex) {
                 sendToSTCC.setEnabled(false);
-                LOG.error(
-                        "Error opening Send to STCC map menu for route index "
-                                + routeIndex, ex);
+                LOG.error("Error opening Send to STCC map menu for route index " + routeIndex, ex);
             }
         }
 
@@ -359,24 +338,21 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
-    public void addVoyageHandlingWaypointAppendMenuItem(Route route,
-            int routeIndex) {
+    public void addVoyageHandlingWaypointAppendMenuItem(Route route, int routeIndex) {
         // Update associated route + route index
         this.voyageAppendWaypoint.setRouteIndex(routeIndex);
         this.voyageAppendWaypoint.setRoute(route);
         this.add(this.voyageAppendWaypoint);
     }
 
-    public void addVoyageHandlingWaypointDeleteMenuItem(Route route,
-            int routeIndex, int waypointIndex) {
+    public void addVoyageHandlingWaypointDeleteMenuItem(Route route, int routeIndex, int waypointIndex) {
         this.voyageDeleteWaypoint.setRouteIndex(routeIndex);
         this.voyageDeleteWaypoint.setRoute(route);
         this.voyageDeleteWaypoint.setVoyageWaypointIndex(waypointIndex);
         this.add(this.voyageDeleteWaypoint);
     }
 
-    public void addVoyageHandlingLegInsertWaypointMenuItem(Route route,
-            RouteLeg routeLeg, Point point, int routeIndex) {
+    public void addVoyageHandlingLegInsertWaypointMenuItem(Route route, RouteLeg routeLeg, Point point, int routeIndex) {
         this.voyageLegInsertWaypoint.setMapBean(this.mapBean);
         this.voyageLegInsertWaypoint.setRoute(route);
         this.voyageLegInsertWaypoint.setRouteLeg(routeLeg);
@@ -415,12 +391,9 @@ public class MapMenu extends MapMenuCommon {
         this.add(seperator);
 
         sendToSTCC.setRoute(route);
-        sendToSTCC.setTransactionId(strategicRouteHandler
-                .getCurrentTransactionId());
-        sendToSTCC
-                .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
-                        && routeManager.getActiveRouteIndex() != routeIndex
-                        && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+        sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
+        sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists() && routeManager.getActiveRouteIndex() != routeIndex
+                && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
         if (strategicRouteHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info...");
@@ -462,8 +435,7 @@ public class MapMenu extends MapMenuCommon {
             routeShowMetocToggle.setEnabled(false);
         }
 
-        if (route.getRouteMetocSettings().isShowRouteMetoc()
-                && routeManager.hasMetoc(route)) {
+        if (route.getRouteMetocSettings().isShowRouteMetoc() && routeManager.hasMetoc(route)) {
             routeShowMetocToggle.setText("Hide METOC");
         } else {
             routeShowMetocToggle.setText("Show METOC");
@@ -476,8 +448,7 @@ public class MapMenu extends MapMenuCommon {
         add(routeMetocProperties);
 
         routeProperties.setRouteIndex(routeIndex);
-        routeProperties.setChartPanel(EPDShip.getInstance().getMainFrame()
-                .getChartPanel());
+        routeProperties.setChartPanel(EPDShip.getInstance().getMainFrame().getChartPanel());
         add(routeProperties);
 
         // generalMenu(false); //TODO: is this supposed to be commented out?
@@ -564,7 +535,8 @@ public class MapMenu extends MapMenuCommon {
         add(routeSuggestionDetails);
 
         if (routeSuggestion.isReplied()
-                && routeSuggestion.getReply().getStatus() == RouteSuggestionStatus.ACCEPTED) {
+        // && routeSuggestion.getReply().getStatus() == RouteSuggestionStatus.ACCEPTED) {
+                && routeSuggestion.getReply().getStatus() == RouteSegmentSuggestionStatus.ACCEPTED) {
             routeSuggestionRemove.setRouteSuggestion(routeSuggestion);
             add(routeSuggestionRemove);
 

@@ -41,21 +41,21 @@ public class RouteSuggestionNotification extends RouteSuggestionNotificationComm
 
         if (routeData.getReply() == null) {
             // Original route suggestion from shore
-            description = String.format("Route suggestion '%s' from %s", routeData.getMessage().getRoute().getName(), shoreName);
+            description = String.format("Route suggestion '%s' from %s", routeData.getRoute().getName(), shoreName);
             if (routeData.isAcknowleged()) {
                 severity = NotificationSeverity.MESSAGE;
             } else {
                 severity = NotificationSeverity.WARNING;
                 addAlerts(new NotificationAlert(AlertType.POPUP));
             }
-            date = routeData.getMessage().getSentDate();
+            date = routeData.getSendDate();
 
         } else {
             // Reply to shore
-            description = String.format("Route suggestion '%s' for %s is %s", routeData.getMessage().getRoute().getName(),
-                    shoreName, routeData.getStatus().toString());
+            description = String.format("Route suggestion '%s' for %s is %s", routeData.getRoute().getName(), shoreName, routeData
+                    .getStatus().toString());
             severity = NotificationSeverity.MESSAGE;
-            date = routeData.getReply().getSentDate();
+            date = routeData.getReplyRecieveDate();
 
         }
     }

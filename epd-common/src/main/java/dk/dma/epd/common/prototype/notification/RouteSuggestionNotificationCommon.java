@@ -15,7 +15,6 @@
 package dk.dma.epd.common.prototype.notification;
 
 import net.maritimecloud.core.id.MmsiId;
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 
 /**
@@ -34,12 +33,10 @@ public class RouteSuggestionNotificationCommon extends Notification<RouteSuggest
     public RouteSuggestionNotificationCommon(RouteSuggestionData routeData) {
         super(routeData, routeData.getId(), NotificationType.TACTICAL_ROUTE);
 
-        title = String.format("Route suggestion '%s' is %s", routeData.getMessage().getRoute().getName(), routeData.getStatus()
-                .toString());
+        title = String.format("Route suggestion '%s' is %s", routeData.getRoute().getName(), routeData.getStatus().toString());
 
         read = acknowledged = routeData.isAcknowleged();
-        location = Position.create(routeData.getMessage().getRoute().getWaypoints().get(0).getLatitude(), routeData.getMessage()
-                .getRoute().getWaypoints().get(0).getLongitude());
+        location = routeData.getRoute().getWaypoints().get(0).getPos();
         targetId = (routeData.getMmsi() != -1) ? new MmsiId((int) routeData.getMmsi()) : null;
     }
 

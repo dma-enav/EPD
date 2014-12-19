@@ -272,7 +272,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         // Initialize MMSI list
         Set<Long> mmsiList = new HashSet<>();
         for (int i = 0; i < routeSuggestionHandler.getRouteSuggestionServiceList().size(); i++) {
-            mmsiList.add(MaritimeCloudUtils.toMmsi(routeSuggestionHandler.getRouteSuggestionServiceList().get(i).getId()));
+            mmsiList.add(MaritimeCloudUtils.toMmsi(routeSuggestionHandler.getRouteSuggestionServiceList().get(i).getRemoteId()));
         }
 
         mmsiListComboBox.removeAllItems();

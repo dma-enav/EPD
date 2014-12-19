@@ -29,8 +29,10 @@ import dma.messaging.MaritimeTextingService;
 import dma.route.StrategicRouteEndpoint;
 import dma.route.TacticalRouteEndpoint;
 import dma.route.TacticalRouteSuggestion;
+import dma.route.TacticalRouteSuggestionReply;
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.net.EndpointInvocationFuture;
 import net.maritimecloud.net.MessageHeader;
 import net.maritimecloud.net.mms.MmsClient;
 import net.maritimecloud.util.Timestamp;
@@ -43,11 +45,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiConsumer;
 
 /**
  * Shore-specific route suggestion e-Nav service.
@@ -173,7 +177,13 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         TacticalRouteEndpoint tacticalRouteEndpoint = MaritimeCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, mmsi);
 
         if (tacticalRouteEndpoint != null) {
-            tacticalRouteEndpoint.sendRouteSuggestion(routeSegmentSuggestion);
+            EndpointInvocationFuture<Void> returnVal = tacticalRouteEndpoint.sendRouteSuggestion(routeSegmentSuggestion);
+            returnVal.handle(new BiConsumer<Void, Throwable>() {
+                @Override
+                public void accept(Void t, Throwable u) {
+
+                }
+            });
         } else {
             LOG.error("Could not find tactical route endpoint for mmsi: " + mmsi);
             return;
@@ -184,9 +194,9 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         // LOG.info("Sending to mmsi: " + mmsi + " with ID: " + routeMessage.getId());
 
         // Cache the message by the transaction id
-        RouteSuggestionData routeData = new RouteSuggestionData(routeSegmentSuggestion, mmsi);
+        RouteSuggestionData routeData = new RouteSuggestionData(routeSegmentSuggestion, mmsi, route);
         routeData.setAcknowleged(false);
-        routeSuggestions.put(routeMessage.getId(), routeData);
+        routeSuggestions.put(routeSegmentSuggestion.getId(), routeData);
 
         // Send the message over the cloud
         // routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
@@ -267,20 +277,20 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
      * @param message
      *            the reply
      */
-    private void routeSuggestionReplyReceived(RouteSuggestionMessage message) {
+    private void routeSuggestionReplyReceived(TacticalRouteSuggestionReply message, Date recieveDate) {
 
         LOG.info("Route suggestion reply received for ID " + message.getId());
 
         if (routeSuggestions.containsKey(message.getId())) {
 
             RouteSuggestionData routeData = routeSuggestions.get(message.getId());
-            RouteSuggestionStatus response = message.getStatus();
+            // RouteSuggestionStatus response = message.getStatus();
 
-            if (response != routeData.getStatus()) {
-                routeData.setReply(message);
-                routeData.setAcknowleged(false);
-                notifyRouteSuggestionListeners();
-            }
+            // if (response != routeData.getStatus()) {
+            routeData.setReply(message, recieveDate);
+            routeData.setAcknowleged(false);
+            notifyRouteSuggestionListeners();
+            // }
         }
     }
 }

@@ -1,11 +1,18 @@
 namespace dma.route;
 
+	message TacticalRouteSuggestion{
+	/** The route segment*/
+	1: Route route;
+	/** The transaction ID */
+	2: int64 id;
+	/** Text message included */
+	3: text textMessage;
+};
+
 endpoint TacticalRouteEndpoint {
 
-	void routeSegment(
-        /** The route segment*/
-        1: Route route,
-        /** The transaction ID */
-        2: int64 id
+	void sendRouteSuggestion(
+        1: TacticalRouteSuggestion suggestion
     );
 }
+

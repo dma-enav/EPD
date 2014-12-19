@@ -138,7 +138,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
                 case 1:
                     return "" + notification.get().getMmsi();
                 case 2:
-                    return notification.get().getMessage().getRoute().getName();
+                    return notification.get().getRoute().getName();
                 case 3:
                     return Formatter.formatShortDateTimeNoTz(notification.getDate());
                 case 4:
@@ -198,8 +198,8 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
             RouteSuggestionHandler routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
             RouteSuggestionData routeSuggestion = notification.get();
             try {
-                routeSuggestionHandler.sendRouteSuggestion(routeSuggestion.getMmsi(), routeSuggestion.getMessage().getRoute(),
-                        routeSuggestion.getMessage().getMessage());
+                routeSuggestionHandler.sendRouteSuggestion(routeSuggestion.getMmsi(),
+                        routeSuggestion.getRoute().getFullRouteData(), routeSuggestion.getMessage().getTextMessage());
 
             } catch (Exception ex) {
                 LOG.error("Error re-sending route suggestion", ex);
@@ -273,13 +273,13 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         html.append("<table>");
         append(html, "ID", routeSuggestion.getId());
         append(html, "MMSI", routeSuggestion.getMmsi());
-        append(html, "Route Name", routeSuggestion.getMessage().getRoute().getName());
-        append(html, "Sent Date", Formatter.formatShortDateTime(routeSuggestion.getMessage().getSentDate()));
-        append(html, "Message", Formatter.formatHtml(routeSuggestion.getMessage().getMessage()));
+        append(html, "Route Name", routeSuggestion.getRoute().getName());
+        append(html, "Sent Date", Formatter.formatShortDateTime(routeSuggestion.getSendDate()));
+        append(html, "Message", Formatter.formatHtml(routeSuggestion.getMessage().getTextMessage()));
         append(html, "Status", getStatus(routeSuggestion));
-        if (routeSuggestion.getReply() != null) {
-            append(html, "Reply Sent", Formatter.formatShortDateTime(routeSuggestion.getReply().getSentDate()));
-            append(html, "Reply Message", Formatter.formatHtml(routeSuggestion.getReply().getMessage()));
+        if (routeSuggestion.isReplied()) {
+            append(html, "Reply Sent", Formatter.formatShortDateTime(routeSuggestion.getReplyRecieveDate()));
+            append(html, "Reply Message", Formatter.formatHtml(routeSuggestion.getReply().getReplyText()));
         } else {
             append(html, "Reply Sent", "No reply received yet");
             append(html, "Reply Message", "No reply received yet");
@@ -299,9 +299,10 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
     private String getStatus(RouteSuggestionData routeSuggestion) {
         StringBuilder status = new StringBuilder();
         status.append(String.format("<span style='color:%s'>%s</span>",
-                GraphicsUtil.toHtmlColor(routeSuggestion.getStatus().getColor()), routeSuggestion.getStatus().toString()));
-        if (routeSuggestion.getReply() == null && routeSuggestion.getMessage().getCloudMessageStatus() != null) {
-            status.append("&nbsp;<small>(" + routeSuggestion.getMessage().getCloudMessageStatus().getTitle() + ")</small>");
+                GraphicsUtil.toHtmlColor(routeSuggestion.replySuggestionColor()), routeSuggestion.getStatus().toString()));
+        if (routeSuggestion.getReply() == null) {
+            // status.append("&nbsp;<small>(" + routeSuggestion.getMessage().getCloudMessageStatus().getTitle() + ")</small>");
+            status.append("&nbsp;<small>(" + "uh unknown?" + ")</small>");
         }
         return status.toString();
     }
