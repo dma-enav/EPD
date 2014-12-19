@@ -28,40 +28,34 @@ public class RouteSuggestionNotification extends RouteSuggestionNotificationComm
 
     private static final long serialVersionUID = 1L;
 
-
     /**
      * Constructor
      * 
-     * @param routeData the strategic route data
+     * @param routeData
+     *            the strategic route data
      */
     public RouteSuggestionNotification(RouteSuggestionData routeData) {
         super(routeData);
-        
-        String shipName = NameUtils.getName((int)routeData.getMmsi());
-        
+
+        String shipName = NameUtils.getName((int) routeData.getMmsi());
+
         if (routeData.getReply() == null) {
             // Original route suggestion from shore
-            description = String.format(
-                    "Route suggestion '%s' for %s", 
-                    routeData.getMessage().getRoute().getName(),
-                    shipName);
+            description = String.format("Route suggestion '%s' for %s", routeData.getRoute().getName(), shipName);
             severity = NotificationSeverity.MESSAGE;
-            date = routeData.getMessage().getSentDate();
-            
+            date = routeData.getSendDate();
+
         } else {
             // Reply to shore
-            description = String.format(
-                    "Route suggestion '%s' from %s is %s", 
-                    routeData.getMessage().getRoute().getName(),
-                    shipName,
-                    routeData.getStatus().toString());
+            description = String.format("Route suggestion '%s' from %s is %s", routeData.getRoute().getName(), shipName, routeData
+                    .getStatus().toString());
             if (routeData.isAcknowleged()) {
                 severity = NotificationSeverity.MESSAGE;
             } else {
                 severity = NotificationSeverity.WARNING;
                 addAlerts(new NotificationAlert(AlertType.POPUP));
             }
-            date = routeData.getReply().getSentDate();            
+            date = routeData.getReplyRecieveDate();
         }
     }
 }

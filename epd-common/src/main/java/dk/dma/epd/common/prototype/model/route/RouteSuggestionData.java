@@ -14,57 +14,61 @@
  */
 package dk.dma.epd.common.prototype.model.route;
 
+import java.awt.Color;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
+import dma.route.RouteSegmentSuggestionStatus;
+import dma.route.TacticalRouteSuggestion;
+import dma.route.TacticalRouteSuggestionReply;
 
 /**
  * Used for caching the negotiation data used tactical routes
  */
-public class RouteSuggestionData implements Comparable<RouteSuggestionData>, Serializable {
-
+public class RouteSuggestionData implements Serializable, Comparable<RouteSuggestionData> {
+    // implements Comparable<RouteSuggestionData>,
     private static final long serialVersionUID = -3345162806743074138L;
-    
-    private RouteSuggestionMessage message;
-    private RouteSuggestionMessage reply;
+
+    private TacticalRouteSuggestion message;
+    private TacticalRouteSuggestionReply reply;
     private long mmsi;
     private boolean acknowleged;
     private Route route;
+    private Date sendDate;
+    private Date replyRecieveDate;
 
     /**
      * Constructor
      * 
-     * @param message
+     * @param routeSegmentSuggestion
      * @param mmsi
      */
-    public RouteSuggestionData(RouteSuggestionMessage message, long mmsi) {
-        this.message = Objects.requireNonNull(message);
+    public RouteSuggestionData(TacticalRouteSuggestion routeSegmentSuggestion, long mmsi, dk.dma.enav.model.voyage.Route route) {
+        this.message = Objects.requireNonNull(routeSegmentSuggestion);
         this.mmsi = Objects.requireNonNull(mmsi);
-        this.route = Objects.requireNonNull(new Route(message.getRoute()));
+        this.route = Objects.requireNonNull(new Route(route));
+        this.sendDate = new Date();
     }
 
-    /**
-     * Returns the latest message, i.e. the reply if defined and
-     * the original message otherwise
-     * 
-     * @return the latest message
-     */
-    public RouteSuggestionMessage getLatestMessage() {
-        return (reply == null) ? message : reply;
-    }
-    
-    public RouteSuggestionMessage getMessage() {
+    // /**
+    // * Returns the latest message, i.e. the reply if defined and the original message otherwise
+    // *
+    // * @return the latest message
+    // */
+    // public TacticalRouteSuggestionReply getLatestMessage() {
+    // return reply;
+    // }
+
+    public TacticalRouteSuggestion getMessage() {
         return message;
     }
 
-    public RouteSuggestionMessage getReply() {
+    public TacticalRouteSuggestionReply getReply() {
         return reply;
     }
 
-    public void setReply(RouteSuggestionMessage reply) {
+    public void setReply(TacticalRouteSuggestionReply reply, Date replyDate) {
         this.reply = reply;
     }
 
@@ -84,10 +88,10 @@ public class RouteSuggestionData implements Comparable<RouteSuggestionData>, Ser
         this.acknowleged = acknowleged;
     }
 
-    public RouteSuggestionStatus getStatus() {
-        return getLatestMessage().getStatus();
+    public RouteSegmentSuggestionStatus getStatus() {
+        return reply.getStatus();
     }
-    
+
     public Route getRoute() {
         return route;
     }
@@ -95,12 +99,71 @@ public class RouteSuggestionData implements Comparable<RouteSuggestionData>, Ser
     public boolean isReplied() {
         return reply != null;
     }
-    
+
+    /**
+     * @return the sendDate
+     */
+    public Date getSendDate() {
+        return sendDate;
+    }
+
+    /**
+     * @param sendDate
+     *            the sendDate to set
+     */
+    public void setSendDate(Date sendDate) {
+        this.sendDate = sendDate;
+    }
+
+    /**
+     * @return the replyRecieveDate
+     */
+    public Date getReplyRecieveDate() {
+        return replyRecieveDate;
+    }
+
+    /**
+     * @param replyRecieveDate
+     *            the replyRecieveDate to set
+     */
+    public void setReplyRecieveDate(Date replyRecieveDate) {
+        this.replyRecieveDate = replyRecieveDate;
+    }
+
     @Override
     public String toString() {
-        return "RouteSuggestionData [message=" + message + ", reply="
-                + reply + ", id=" + getId() + ", mmsi=" + mmsi + ", acknowleged="
-                + acknowleged + ", status=" + getStatus() + "]";
+        return "RouteSuggestionData [message=" + message + ", reply=" + reply + ", id=" + getId() + ", mmsi=" + mmsi
+                + ", acknowleged=" + acknowleged + ", status=" + getStatus() + "]";
+    }
+
+    public Color replySuggestionColor() {
+
+        if (isReplied()) {
+
+            RouteSegmentSuggestionStatus status = reply.getStatus();
+
+            switch (status) {
+            case ACCEPTED:
+                return Color.GREEN;
+
+            case PENDING:
+                return Color.YELLOW;
+            case REJECTED:
+                return Color.RED;
+
+            }
+
+        }
+        return Color.GRAY;
+
+    }
+
+    public Date getLatestDateUpdate() {
+        if (isReplied()) {
+            return replyRecieveDate;
+        } else {
+            return sendDate;
+        }
     }
 
     /**
@@ -108,8 +171,8 @@ public class RouteSuggestionData implements Comparable<RouteSuggestionData>, Ser
      */
     @Override
     public int compareTo(RouteSuggestionData other) {
-        Date d1 = getLatestMessage().getSentDate();
-        Date d2 = other.getLatestMessage().getSentDate();
+        Date d1 = getLatestDateUpdate();
+        Date d2 = other.getLatestDateUpdate();
         if (d1 == null && d2 == null) {
             return 0;
         } else if (d1 == null) {

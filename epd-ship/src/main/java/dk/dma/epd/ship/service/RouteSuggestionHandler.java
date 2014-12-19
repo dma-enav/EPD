@@ -51,27 +51,27 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
     @Override
     public void cloudConnected(MmsClient connection) {
 
-// TODO: Maritime Cloud 0.2 re-factoring
-//        // Register a cloud route suggestion service
-//        try {
-//            getMmsClient().serviceRegister(RouteSuggestionService.INIT,
-//                    new InvocationCallback<RouteSuggestionMessage, RouteSuggestionReply>() {
-//                        public void process(RouteSuggestionMessage message, Context<RouteSuggestionReply> context) {
-//
-//                            // The cloud status is transient, so this ought to be unnecessary
-//                            message.setCloudMessageStatus(null);
-//
-//                            LOG.info("Shore received a suggeset route reply");
-//                            routeSuggestionReceived(message, context.getCaller());
-//
-//                            // Acknowledge that the message has been handled
-//                            context.complete(new RouteSuggestionReply(message.getId()));
-//                        }
-//                    }).awaitRegistered(4, TimeUnit.SECONDS);
-//
-//        } catch (InterruptedException e) {
-//            LOG.error("Error hooking up services", e);
-//        }
+        // TODO: Maritime Cloud 0.2 re-factoring
+        // // Register a cloud route suggestion service
+        // try {
+        // getMmsClient().serviceRegister(RouteSuggestionService.INIT,
+        // new InvocationCallback<RouteSuggestionMessage, RouteSuggestionReply>() {
+        // public void process(RouteSuggestionMessage message, Context<RouteSuggestionReply> context) {
+        //
+        // // The cloud status is transient, so this ought to be unnecessary
+        // message.setCloudMessageStatus(null);
+        //
+        // LOG.info("Shore received a suggeset route reply");
+        // routeSuggestionReceived(message, context.getCaller());
+        //
+        // // Acknowledge that the message has been handled
+        // context.complete(new RouteSuggestionReply(message.getId()));
+        // }
+        // }).awaitRegistered(4, TimeUnit.SECONDS);
+        //
+        // } catch (InterruptedException e) {
+        // LOG.error("Error hooking up services", e);
+        // }
     }
 
     /**
@@ -86,8 +86,8 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
         // Cache the message
         long mmsi = MaritimeCloudUtils.toMmsi(caller);
-        RouteSuggestionData routeData = new RouteSuggestionData(message, mmsi);
-        routeSuggestions.put(message.getId(), routeData);
+        // RouteSuggestionData routeData = new RouteSuggestionData(message, mmsi);
+        // routeSuggestions.put(message.getId(), routeData);
 
         // Update listeners
         notifyRouteSuggestionListeners();
@@ -133,7 +133,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
                 // Create the reply message
                 RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(routeData.getId(), message, replyStatus);
-                routeData.setReply(routeMessage);
+                // routeData.setReply(routeMessage);
                 routeData.setAcknowleged(true);
 
                 // Send the message over the cloud
