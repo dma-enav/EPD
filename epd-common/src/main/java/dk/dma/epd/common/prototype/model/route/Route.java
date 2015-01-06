@@ -139,7 +139,125 @@ public class Route implements Serializable {
         parseRoute(cloudRouteData);
     }
 
-    // Methods
+    public Route(dma.route.Route route) {
+        parseRoute(route);
+    }
+
+    public void parseRoute(dma.route.Route route) {
+        this.name = route.getRoutename();
+        List<Waypoint> cloudRouteWaypoints = wpsFromRouteMessage(route);
+
+        LinkedList<RouteWaypoint> routeWaypoints = this.getWaypoints();
+
+        for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
+
+            RouteWaypoint waypoint = new RouteWaypoint();
+            Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
+
+            waypoint.setName(cloudWaypoint.getName());
+            Position position = Position.create(cloudWaypoint.getLatitude(), cloudWaypoint.getLongitude());
+            waypoint.setPos(position);
+
+            // Handle leg
+            if (i > 0) {
+                RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
+                RouteLeg leg = new RouteLeg();
+                waypoint.setInLeg(leg);
+                prevWaypoint.setOutLeg(leg);
+                leg.setStartWp(prevWaypoint);
+                leg.setEndWp(waypoint);
+            }
+
+            routeWaypoints.add(waypoint);
+
+        }
+
+        if (routeWaypoints.size() > 1) {
+            for (int i = 0; i < routeWaypoints.size(); i++) {
+
+                RouteWaypoint waypoint = routeWaypoints.get(i);
+                Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
+
+                if (cloudWaypoint.getTurnRad() != null) {
+                    waypoint.setTurnRad(cloudWaypoint.getTurnRad());
+                }
+
+                if (cloudWaypoint.getRot() != null) {
+                    waypoint.setRot(cloudWaypoint.getRot());
+                }
+
+                // Leg
+
+                if (cloudWaypoint.getRouteLeg() != null) {
+
+                    // SOG
+                    if (cloudWaypoint.getRouteLeg().getSpeed() != null) {
+                        waypoint.setSpeed(cloudWaypoint.getRouteLeg().getSpeed());
+                    }
+
+                    // XTDS
+                    if ((cloudWaypoint.getRouteLeg().getXtdStarboard() != null) && waypoint.getOutLeg() != null) {
+                        waypoint.getOutLeg().setXtdStarboard(cloudWaypoint.getRouteLeg().getXtdStarboard());
+                    }
+
+                    // XTDP
+                    if ((cloudWaypoint.getRouteLeg().getXtdPort() != null) && waypoint.getOutLeg() != null) {
+                        waypoint.getOutLeg().setXtdPort(cloudWaypoint.getRouteLeg().getXtdPort());
+                    }
+
+                    // SF Len
+                    if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
+                        waypoint.getOutLeg().setSFLen(cloudWaypoint.getRouteLeg().getSFLen());
+                    }
+
+                    if (waypoint.getOutLeg() != null) {
+
+                        // Heading
+                        if (cloudWaypoint.getRouteLeg().getHeading() == dk.dma.enav.model.voyage.RouteLeg.Heading.GC) {
+                            waypoint.getOutLeg().setHeading(Heading.GC);
+                        } else {
+                            waypoint.getOutLeg().setHeading(Heading.RL);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        etas = new ArrayList<>();
+        // this.calcAllWpEta();
+        for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
+            etas.add(cloudRouteWaypoints.get(i).getEta());
+        }
+
+    }
+
+    public static List<Waypoint> wpsFromRouteMessage(dma.route.Route route) {
+        List<Waypoint> wps = new ArrayList<>();
+        for (dma.route.Waypoint iwp : route.getWaypoints()) {
+            Waypoint wp = new Waypoint();
+            wp.setLatitude(iwp.getWaypointPosition().getLatitude());
+            wp.setLongitude(iwp.getWaypointPosition().getLongitude());
+            wp.setEta(new Date(iwp.getEta().getTime()));
+            wp.setRot(iwp.getRot());
+            wp.setTurnRad(iwp.getTurnRad());
+            if (iwp.getOutLeg() != null) {
+                dma.route.Leg leg = iwp.getOutLeg();
+                dk.dma.enav.model.voyage.RouteLeg rleg = new dk.dma.enav.model.voyage.RouteLeg();
+                rleg.setSpeed(leg.getSpeed());
+                rleg.setXtdStarboard(leg.getXtdStarboard());
+                rleg.setXtdPort(leg.getXtdPort());
+                if (leg.getHeadingType() == dma.route.HeadingType.GREAT_CIRCLE) {
+                    rleg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.GC);
+                } else {
+                    rleg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.RL);
+                }
+                wp.setRouteLeg(rleg);
+            }
+            wps.add(wp);
+        }
+        return wps;
+    }
 
     public void setSpeed(double SOG) {
         for (int i = 0; i < waypoints.size(); i++) {
@@ -154,7 +272,7 @@ public class Route implements Serializable {
     public Route copy() {
 
         Route newRoute = new Route();
-        
+
         LinkedList<RouteWaypoint> waypoints = new LinkedList<>();
         for (RouteWaypoint routeWaypoint : this.waypoints) {
             RouteWaypoint newRouteWaypoint = routeWaypoint.copy();
@@ -220,7 +338,7 @@ public class Route implements Serializable {
         newRoute.dtgs = (this.dtgs != null) ? Arrays.copyOf(this.dtgs, this.dtgs.length) : null;
         newRoute.totalTtg = this.totalTtg;
         newRoute.totalDtg = this.totalDtg;
-        
+
         return newRoute;
     }
 
@@ -1065,8 +1183,7 @@ public class Route implements Serializable {
     public void setEtaCalculationType(EtaCalculationType etaCalculationType) {
         this.etaCalculationType = etaCalculationType;
     }
-    
-    
+
     public double getSpeed(int id) {
         if (waypoints.get(id).getOutLeg() != null) {
             return waypoints.get(id).getOutLeg().getSpeed();
@@ -1116,7 +1233,5 @@ public class Route implements Serializable {
         }
 
     }
-
-
 
 }

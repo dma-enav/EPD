@@ -279,7 +279,11 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         append(html, "Status", getStatus(routeSuggestion));
         if (routeSuggestion.isReplied()) {
             append(html, "Reply Sent", Formatter.formatShortDateTime(routeSuggestion.getReplyRecieveDate()));
-            append(html, "Reply Message", Formatter.formatHtml(routeSuggestion.getReply().getReplyText()));
+            if (routeSuggestion.getReply().getReplyText().equals("")) {
+                append(html, "Reply Message ", Formatter.formatHtml("No Reply Message Attached"));
+            } else {
+                append(html, "Reply Message ", Formatter.formatHtml(routeSuggestion.getReply().getReplyText()));
+            }
         } else {
             append(html, "Reply Sent", "No reply received yet");
             append(html, "Reply Message", "No reply received yet");
@@ -301,8 +305,7 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         status.append(String.format("<span style='color:%s'>%s</span>",
                 GraphicsUtil.toHtmlColor(routeSuggestion.replySuggestionColor()), routeSuggestion.getStatus().toString()));
         if (routeSuggestion.getReply() == null) {
-            // status.append("&nbsp;<small>(" + routeSuggestion.getMessage().getCloudMessageStatus().getTitle() + ")</small>");
-            status.append("&nbsp;<small>(" + "uh unknown?" + ")</small>");
+            status.append("&nbsp;<small>(" + routeSuggestion.getCloudMessageStatus().getTitle() + ")</small>");
         }
         return status.toString();
     }

@@ -14,22 +14,36 @@
  */
 package dk.dma.epd.ship.service;
 
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
-import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.mms.MmsClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.net.EndpointInvocationFuture;
+import net.maritimecloud.net.MessageHeader;
+import net.maritimecloud.net.mms.MmsClient;
+import net.maritimecloud.util.Timestamp;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
+import dma.route.AbstractTacticalRouteEndpoint;
+import dma.route.RouteSegmentSuggestionStatus;
+import dma.route.TacticalRouteReplyEndpoint;
+import dma.route.TacticalRouteSuggestion;
+import dma.route.TacticalRouteSuggestionReply;
 
 /**
  * Ship-specific route suggestion e-Nav service.
@@ -37,6 +51,9 @@ import java.util.Map;
 public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionHandler.class);
+
+    // Replyable endpoints
+    private List<TacticalRouteReplyEndpoint> routeSuggestionServiceList = new ArrayList<>();
 
     /**
      * Constructor
@@ -50,6 +67,24 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
      */
     @Override
     public void cloudConnected(MmsClient connection) {
+
+        // Refresh the service list
+        fetchRouteSuggestionServices();
+
+        // Register a cloud chat service
+        try {
+            getMmsClient().endpointRegister(new AbstractTacticalRouteEndpoint() {
+
+                @Override
+                protected void sendRouteSuggestion(MessageHeader header, TacticalRouteSuggestion suggestion) {
+                    routeSuggestionReceived(suggestion, header.getSender(), header.getSenderTime());
+                }
+
+            }).awaitRegistered(4, TimeUnit.SECONDS);
+
+        } catch (InterruptedException e) {
+            LOG.error("Error hooking up services", e);
+        }
 
         // TODO: Maritime Cloud 0.2 re-factoring
         // // Register a cloud route suggestion service
@@ -75,6 +110,20 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
     }
 
     /**
+     * Refreshes the list of route suggestion services
+     */
+    public void fetchRouteSuggestionServices() {
+
+        try {
+            routeSuggestionServiceList = getMmsClient().endpointLocate(TacticalRouteReplyEndpoint.class).findAll().get();
+
+        } catch (Exception e) {
+            LOG.error("Failed looking up route suggestion services", e.getMessage());
+        }
+
+    }
+
+    /**
      * Called when a route suggestion is received over the maritime cloud
      * 
      * @param message
@@ -82,14 +131,20 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
      * @param caller
      *            the caller
      */
-    private void routeSuggestionReceived(RouteSuggestionMessage message, MaritimeId caller) {
+    private void routeSuggestionReceived(TacticalRouteSuggestion message, MaritimeId caller, Timestamp timestamp) {
 
-        // Cache the message
+        // // Cache the message
         long mmsi = MaritimeCloudUtils.toMmsi(caller);
-        // RouteSuggestionData routeData = new RouteSuggestionData(message, mmsi);
-        // routeSuggestions.put(message.getId(), routeData);
 
-        // Update listeners
+        // Hack, we have too many route types, get rid of one?
+        dk.dma.enav.model.voyage.Route route = new dk.dma.epd.common.prototype.model.route.Route(message.getRoute())
+                .getFullRouteData();
+
+        RouteSuggestionData routeData = new RouteSuggestionData(message, mmsi, route);
+        routeData.setAcknowleged(false);
+        routeSuggestions.put(message.getId(), routeData);
+
+        // // Update listeners
         notifyRouteSuggestionListeners();
     }
 
@@ -115,11 +170,10 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
      * @param message
      *            a message to send along with the reply
      */
-    public void sendRouteSuggestionReply(long id, RouteSuggestionStatus replyStatus, String message) {
+    public void sendRouteSuggestionReply(long id, RouteSegmentSuggestionStatus replyStatus, String message) {
 
         // Check that the reply status is valid
-        if (replyStatus != RouteSuggestionStatus.ACCEPTED && replyStatus != RouteSuggestionStatus.REJECTED
-                && replyStatus != RouteSuggestionStatus.WAIT) {
+        if (replyStatus != RouteSegmentSuggestionStatus.ACCEPTED && replyStatus != RouteSegmentSuggestionStatus.REJECTED) {
             LOG.error("Invalid reply status " + replyStatus);
             throw new IllegalArgumentException("Invalid reply status " + replyStatus);
         }
@@ -131,21 +185,55 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
                 RouteSuggestionData routeData = routeSuggestions.get(id);
                 LOG.info("Sending to mmsi: " + routeData.getMmsi() + " with ID: " + routeData.getId());
 
-                // Create the reply message
-                RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(routeData.getId(), message, replyStatus);
-                // routeData.setReply(routeMessage);
-                routeData.setAcknowleged(true);
+                TacticalRouteSuggestionReply reply = new TacticalRouteSuggestionReply();
+                reply.setId(routeData.getId());
+                reply.setReplyText(message);
+                reply.setStatus(replyStatus);
 
-                // Send the message over the cloud
-                routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
-                if (sendMaritimeCloudMessage(new MmsiId((int) routeData.getMmsi()), routeMessage, this)) {
-                    routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
+                routeSuggestions.get(id).setReply(reply, new Date());
+
+                TacticalRouteReplyEndpoint tacticalRouteReplyEndpoint = MaritimeCloudUtils.findServiceWithMmsi(
+                        routeSuggestionServiceList, routeData.getMmsi());
+
+                if (tacticalRouteReplyEndpoint != null) {
+                    EndpointInvocationFuture<Void> returnVal = tacticalRouteReplyEndpoint.sendRouteSuggestionReply(reply);
+
+                    returnVal.relayed().handle(new Consumer<Throwable>() {
+
+                        @Override
+                        public void accept(Throwable t) {
+                            RouteSuggestionData routeData = routeSuggestions.get(id);
+                            routeData.setCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLOUD);
+                            notifyRouteSuggestionListeners();
+                        }
+                    });
+
+                    returnVal.handle(new BiConsumer<Void, Throwable>() {
+                        @Override
+                        public void accept(Void t, Throwable u) {
+                            RouteSuggestionData routeData = routeSuggestions.get(id);
+                            routeData.setCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLIENT);
+                            notifyRouteSuggestionListeners();
+                        }
+                    });
+
                 }
 
-                // For accepted routes, add the route to the route manager, and remove the suggestion
-                if (replyStatus == RouteSuggestionStatus.ACCEPTED) {
+                // // Create the reply message
+                // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(routeData.getId(), message, replyStatus);
+                // // routeData.setReply(routeMessage);
+                // routeData.setAcknowleged(true);
+                //
+                // // Send the message over the cloud
+                // routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
+                // if (sendMaritimeCloudMessage(new MmsiId((int) routeData.getMmsi()), routeMessage, this)) {
+                // routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
+                // }
+                //
+                // // For accepted routes, add the route to the route manager, and remove the suggestion
+                if (replyStatus == RouteSegmentSuggestionStatus.ACCEPTED) {
                     acceptRouteSuggestion(routeData);
-                } else if (replyStatus == RouteSuggestionStatus.REJECTED) {
+                } else if (replyStatus == RouteSegmentSuggestionStatus.REJECTED) {
                     routeData.getRoute().setVisible(false);
                 }
 

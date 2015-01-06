@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dma.route.RouteSegmentSuggestionStatus;
 import dma.route.TacticalRouteSuggestion;
 import dma.route.TacticalRouteSuggestionReply;
@@ -38,6 +39,8 @@ public class RouteSuggestionData implements Serializable, Comparable<RouteSugges
     private Date sendDate;
     private Date replyRecieveDate;
 
+    private CloudMessageStatus cloudMessageStatus;
+
     /**
      * Constructor
      * 
@@ -49,6 +52,7 @@ public class RouteSuggestionData implements Serializable, Comparable<RouteSugges
         this.mmsi = Objects.requireNonNull(mmsi);
         this.route = Objects.requireNonNull(new Route(route));
         this.sendDate = new Date();
+        this.cloudMessageStatus = CloudMessageStatus.NOT_SENT;
     }
 
     // /**
@@ -89,7 +93,27 @@ public class RouteSuggestionData implements Serializable, Comparable<RouteSugges
     }
 
     public RouteSegmentSuggestionStatus getStatus() {
-        return reply.getStatus();
+        if (reply == null) {
+            return RouteSegmentSuggestionStatus.PENDING;
+        } else {
+            return reply.getStatus();
+        }
+
+    }
+
+    /**
+     * @return the cloudMessageStatus
+     */
+    public CloudMessageStatus getCloudMessageStatus() {
+        return cloudMessageStatus;
+    }
+
+    /**
+     * @param cloudMessageStatus
+     *            the cloudMessageStatus to set
+     */
+    public void setCloudMessageStatus(CloudMessageStatus newStatus) {
+        this.cloudMessageStatus = newStatus.combine(cloudMessageStatus);
     }
 
     public Route getRoute() {
@@ -144,12 +168,12 @@ public class RouteSuggestionData implements Serializable, Comparable<RouteSugges
 
             switch (status) {
             case ACCEPTED:
-                return Color.GREEN;
+                return new Color(130, 165, 80);
 
             case PENDING:
                 return Color.YELLOW;
             case REJECTED:
-                return Color.RED;
+                return new Color(165, 80, 80);
 
             }
 

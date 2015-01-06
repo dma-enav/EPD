@@ -62,6 +62,7 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.NameUtils;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.RouteSuggestionHandler;
+import dma.route.RouteSegmentSuggestionStatus;
 
 /**
  * A route suggestion implementation of the {@linkplain NotificationPanel} class
@@ -241,7 +242,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         if (notification != null) {
             EPDShip.getInstance()
                     .getRouteSuggestionHandler()
-                    .sendRouteSuggestionReply(notification.getId(), RouteSuggestionStatus.ACCEPTED,
+                    .sendRouteSuggestionReply(notification.getId(), RouteSegmentSuggestionStatus.ACCEPTED,
                             replyPanel.getMessageTxtField().getText());
             EPDShip.getInstance().getNotificationCenter().setVisible(false);
         }
@@ -255,7 +256,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         if (notification != null) {
             EPDShip.getInstance()
                     .getRouteSuggestionHandler()
-                    .sendRouteSuggestionReply(notification.getId(), RouteSuggestionStatus.REJECTED,
+                    .sendRouteSuggestionReply(notification.getId(), RouteSegmentSuggestionStatus.REJECTED,
                             replyPanel.getMessageTxtField().getText());
             EPDShip.getInstance().getNotificationCenter().setVisible(false);
         }
