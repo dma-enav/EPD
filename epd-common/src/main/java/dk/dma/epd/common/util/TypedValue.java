@@ -34,7 +34,6 @@ import java.util.Locale;
  *                   .in(TimeType.MILLISECONDS).longValue();
  * </pre>
  */
-@SuppressWarnings("unused")
 public abstract class TypedValue<T extends TypedValue.Type> implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
-import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dma.route.AbstractTacticalRouteEndpoint;
 import dma.route.RouteSegmentSuggestionStatus;
 import dma.route.TacticalRouteReplyEndpoint;

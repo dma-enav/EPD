@@ -20,7 +20,6 @@ import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.layers.route.RouteLayer;
 
 /**
  * Opens the route suggestion notification

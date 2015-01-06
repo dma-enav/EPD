@@ -15,9 +15,6 @@
 package dk.dma.epd.common.prototype.layers.common;
 
 import com.bbn.openmap.omGraphics.OMCircle;
-import com.bbn.openmap.proj.coords.LatLonPoint;
-
-import dk.dma.enav.model.geometry.Position;
 
 /**
  * Graphic for a WP circle

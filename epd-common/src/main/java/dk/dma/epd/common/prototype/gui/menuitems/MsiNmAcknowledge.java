@@ -14,13 +14,12 @@
  */
 package dk.dma.epd.common.prototype.gui.menuitems;
 
+import javax.swing.JMenuItem;
+
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.notification.MsiNmNotification;
-import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.MsiNmServiceHandlerCommon;
-
-import javax.swing.JMenuItem;
 
 public class MsiNmAcknowledge extends JMenuItem implements IMapMenuAction {
 

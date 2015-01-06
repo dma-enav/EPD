@@ -40,7 +40,6 @@ import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.util.ParseUtils;
-import dk.dma.epd.ship.EPDShip;
 
 public class SearchPatternDialog extends SearchPatternDialogCommon {
     private static final long serialVersionUID = 1L;

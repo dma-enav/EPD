@@ -14,9 +14,9 @@
  */
 package dk.dma.epd.ship.predictor;
 
+import net.maritimecloud.net.mms.MmsClient;
 import dk.dma.epd.common.prototype.predictor.DynamicPrediction;
 import dk.dma.epd.common.prototype.predictor.DynamicPredictorHandlerCommon;
-import net.maritimecloud.net.mms.MmsClient;
 
 /**
  * Extends {@link DynamicPredictorHandlerCommon} with functionality that allows

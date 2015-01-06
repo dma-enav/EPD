@@ -14,8 +14,16 @@
  */
 package dk.dma.epd.common.prototype.notification;
 
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
@@ -30,13 +38,6 @@ import dma.msinm.MCMessage;
 import dma.msinm.MCPoint;
 import dma.msinm.MCSeriesIdType;
 import dma.msinm.MCSeriesIdentifier;
-import org.apache.commons.lang.StringUtils;
-
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 /**
  * An MSI specific notification class

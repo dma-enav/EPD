@@ -29,7 +29,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.EPD;

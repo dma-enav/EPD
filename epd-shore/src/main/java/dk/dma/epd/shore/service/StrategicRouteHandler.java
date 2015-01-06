@@ -14,6 +14,17 @@
  */
 package dk.dma.epd.shore.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.net.mms.MmsClient;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteReply;
@@ -24,15 +35,6 @@ import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.mms.MmsClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Handler class for the strategic route e-Navigation service
