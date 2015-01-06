@@ -195,6 +195,19 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon imple
     // EPD.getInstance().getNotificationCenter().checkRefreshSelection(NotificationType.TACTICAL_ROUTE, message.getId());
     // }
 
+
+
+    @Override
+    public void messageReceivedByCloud(RouteSuggestionMessage message) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void messageHandled(RouteSuggestionMessage message, RouteSuggestionReply reply) {
+        // TODO Auto-generated method stub
+
+    }
     /****************************************/
     /** Helper classes **/
     /****************************************/
@@ -210,17 +223,4 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon imple
         void routeUpdate();
 
     }
-
-    @Override
-    public void messageReceivedByCloud(RouteSuggestionMessage message) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void messageHandled(RouteSuggestionMessage message, RouteSuggestionReply reply) {
-        // TODO Auto-generated method stub
-
-    }
-
 }
