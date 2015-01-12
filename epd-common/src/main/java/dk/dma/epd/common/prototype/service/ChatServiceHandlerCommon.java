@@ -154,7 +154,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
 
         // Find a matching chat end point and send the message
         ServiceEndpoint<ChatServiceMessage, Void> end = MaritimeCloudUtils
-                .findServiceWithMmsi(chatServiceList, MaritimeCloudUtils.toMmsi(targetId));
+                .findServiceWithMmsi(chatServiceList, (long) MaritimeCloudUtils.toMmsi(targetId));
         if (end != null) {
             end.invoke(chatMessage);
         } else {
