@@ -10,7 +10,7 @@
 
 	<groupId>dk.dma.epd</groupId>
 	<artifactId>epd-parent</artifactId>
-	<version>3.1-SNAPSHOT</version>
+	<version>3.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>EPD Parent</name>
 	<description>eNavigation Prototype Display parent module</description>
@@ -19,7 +19,8 @@
 		<connection>scm:git:git@github.com:dma-enav/EPD.git</connection>
 		<developerConnection>scm:git:git@github.com:dma-enav/EPD.git</developerConnection>
 		<url>https://github.com/dma-enav/EPD</url>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 
 	<dependencies>
 		<dependency>
