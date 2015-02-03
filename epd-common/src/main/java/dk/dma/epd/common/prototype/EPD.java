@@ -38,12 +38,16 @@ import net.maritimecloud.core.id.MaritimeId;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+
+
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +64,7 @@ public abstract class EPD implements ISettingsListener {
     protected Properties properties = new Properties();
     protected volatile boolean restart;
     protected volatile Path homePath;
+    
 
     // Common services
     protected RouteManagerCommon routeManager;
@@ -135,11 +140,36 @@ public abstract class EPD implements ISettingsListener {
     }
 
     /**
-     * Load the properties file
+     * Load the properties file.
+     * Loads the property file specified in {@link #getPropertyFileName()}
+     * from the homepath.
      */
-    public abstract Properties loadProperties();
+    public Properties loadProperties() {
+    	String propertyFileName = getPropertyFileName();
+		Path propertyFile = getHomePath().resolve(propertyFileName);
+        try {
+            InputStream in = Files.newInputStream(propertyFile);
+            if (in == null) {
+                throw new IOException("Properties file not found");
+            }
+            properties.load(in);
+            in.close();
+        } catch (IOException e) {
+        	propertyLoadError("Failed to load resources", e);
+        }
+        return properties;
+    }
 
     /**
+     * The name of the property file to load.
+     * Specify the name without any location
+     * @See {@link #loadProperties()}
+     * @return
+     */
+    protected abstract String getPropertyFileName();
+
+    protected abstract void propertyLoadError(String msg, IOException e);
+	/**
      * Function used to create a thread
      * 
      * @param t
@@ -284,8 +314,12 @@ public abstract class EPD implements ISettingsListener {
      * @return the default shore mouse mode service list
      */
     public abstract String[] getDefaultMouseModeServiceList();
+    
 
-    /**
+
+    
+
+	/**
      * Call this method to terminate the application
      * 
      * @param restart
