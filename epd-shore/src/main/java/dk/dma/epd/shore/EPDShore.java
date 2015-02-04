@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -246,7 +247,14 @@ public final class EPDShore extends EPD {
         startSensors();
 
         pluginLoader = new PluginLoader(getProperties(), getHomePath());
-        pluginLoader.createPluginComponents(comp -> beanHandler.add(comp));
+        pluginLoader.createPluginComponents(
+                new Consumer<Object>() {
+                    public void accept(Object comp) {
+                        beanHandler.add(comp);
+                    }
+                });
+
+        //pluginLoader.createPluginComponents(comp -> beanHandler.add(comp));
 
         final CountDownLatch guiCreated = new CountDownLatch(1);
 
@@ -583,12 +591,12 @@ public final class EPDShore extends EPD {
 
     @Override
     protected String getPropertyFileName() {
-    	return "epd-shore.properties";
+        return "epd-shore.properties";
     }
     
     @Override
     protected void propertyLoadError(String msg, IOException e) {
-    	LOG.error(msg + e.getMessage());
+        LOG.error(msg + e.getMessage());
     }
 
     /**

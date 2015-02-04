@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package dk.dma.epd.common.prototype;
 
 import dk.dma.enav.model.geometry.Position;
@@ -145,8 +146,8 @@ public abstract class EPD implements ISettingsListener {
      * from the homepath.
      */
     public Properties loadProperties() {
-    	String propertyFileName = getPropertyFileName();
-		Path propertyFile = getHomePath().resolve(propertyFileName);
+        String propertyFileName = getPropertyFileName();
+        Path propertyFile = getHomePath().resolve(propertyFileName);
         try {
             InputStream in = Files.newInputStream(propertyFile);
             if (in == null) {
@@ -155,7 +156,7 @@ public abstract class EPD implements ISettingsListener {
             properties.load(in);
             in.close();
         } catch (IOException e) {
-        	propertyLoadError("Failed to load resources", e);
+            propertyLoadError("Failed to load resources", e);
         }
         return properties;
     }
@@ -169,7 +170,8 @@ public abstract class EPD implements ISettingsListener {
     protected abstract String getPropertyFileName();
 
     protected abstract void propertyLoadError(String msg, IOException e);
-	/**
+
+    /**
      * Function used to create a thread
      * 
      * @param t
@@ -319,7 +321,7 @@ public abstract class EPD implements ISettingsListener {
 
     
 
-	/**
+    /**
      * Call this method to terminate the application
      * 
      * @param restart

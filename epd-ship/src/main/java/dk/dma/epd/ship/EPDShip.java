@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -307,7 +308,13 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
         // Create plugin components
         pluginLoader = new PluginLoader(getProperties(), getHomePath());
-        pluginLoader.createPluginComponents( comp -> mapHandler.add(comp));
+        pluginLoader.createPluginComponents(
+                new Consumer<Object>() {
+                    public void accept(Object comp) {
+                        mapHandler.add(comp);
+                    }
+                });
+        //pluginLoader.createPluginComponents(comp -> mapHandler.add(comp));
 
         final CountDownLatch guiCreated = new CountDownLatch(1);
 
@@ -567,11 +574,11 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
     @Override
     protected String getPropertyFileName() {
-    	return "epd-ship.properties";
+        return "epd-ship.properties";
     }
     @Override
     protected void propertyLoadError(String msg, IOException e) {
-    	LOG.error(msg + e.getMessage());
+        LOG.error(msg + e.getMessage());
     }
 
     void createAndShowGUI() {
