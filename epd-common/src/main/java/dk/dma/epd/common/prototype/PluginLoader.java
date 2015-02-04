@@ -1,3 +1,17 @@
+/* Copyright (c) 2011 Danish Maritime Authority.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package dk.dma.epd.common.prototype;
 
 import java.io.Closeable;
@@ -18,41 +32,38 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.PropertyConsumer;
 
 public class PluginLoader {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(PluginLoader.class);
 
-	
+    private static final Logger LOG = LoggerFactory.getLogger(PluginLoader.class);
+
     private List<Object> plugins = new ArrayList<>();
-    
+
     private final Properties properties;
     private final Path homePath;
-    
-    
 
     public PluginLoader(Properties properties, Path homePath) {
-		this.properties = properties;
-		this.homePath = homePath;
-	}
-    
-    public Properties getProperties() {
-		return properties;
-	}
-    
-    public Path getHomePath() {
-		return homePath;
-	}
+        this.properties = properties;
+        this.homePath = homePath;
+    }
 
-	/**
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public Path getHomePath() {
+        return homePath;
+    }
+
+    /**
      * Create the plugin components when possible.
      */
     public void createPluginComponents(Consumer<Object> pluginConsumer) {
-    	Properties props = getProperties();
+        Properties props = getProperties();
         String componentsValue = props.getProperty("epd.plugin_components");
         if (componentsValue == null) {
             return;
         }
         ClassLoader loader = getClassLoader();
-        
+
         String[] componentNames = componentsValue.split(" ");
         for (String compName : componentNames) {
             String classProperty = compName + ".class";
@@ -77,7 +88,7 @@ public class PluginLoader {
             }
         }
     }
-    
+
     /**
      * Get the extended classloader to load extensions.
      * 
@@ -87,50 +98,46 @@ public class PluginLoader {
         Properties props = getProperties();
         String pathsValue = props.getProperty("epd.plugin_classpath");
         if (pathsValue == null || pathsValue.isEmpty()) {
-        	return null;
+            return null;
         }
         String[] pathNames = pathsValue.split(File.pathSeparator);
         List<URL> paths = new ArrayList<>();
         for (String pathName : pathNames) {
-        	File pathElement = new File(pathName);
-        	
-        	// Resolve relative file inside homepath
-        	if (!pathElement.isAbsolute()) {
-        		pathElement = getHomePath().resolve(pathName).toFile();
-        	}
-        	
-        	// Ignore non-existing paths
-        	if (!pathElement.exists()) {
-        		continue;
-        	}
-        	
-        	try {
-				paths.add(pathElement.toURI().toURL());
-			} catch (MalformedURLException e) {
-				LOG.debug("Malformed URL from " + pathName, e);
-			}
+            File pathElement = new File(pathName);
+
+            // Resolve relative file inside homepath
+            if (!pathElement.isAbsolute()) {
+                pathElement = getHomePath().resolve(pathName).toFile();
+            }
+
+            // Ignore non-existing paths
+            if (!pathElement.exists()) {
+                continue;
+            }
+
+            try {
+                paths.add(pathElement.toURI().toURL());
+            } catch (MalformedURLException e) {
+                LOG.debug("Malformed URL from " + pathName, e);
+            }
         }
 
-		return new URLClassLoader(paths.toArray(new URL[paths.size()]), PluginLoader.class.getClassLoader());
-	}
+        return new URLClassLoader(paths.toArray(new URL[paths.size()]), PluginLoader.class.getClassLoader());
+    }
 
-    
     /**
-     * Close all {@link Closeable} plugins.
-     * Exceptions will be logged as pluginDebug.
+     * Close all {@link Closeable} plugins. Exceptions will be logged as pluginDebug.
      */
-	public void closePlugins() {
-		for (Object pluginHandler : plugins) {
-			if (pluginHandler instanceof Closeable) {
-				try {
-					((Closeable) pluginHandler).close();
-				} catch (IOException e) {
-					LOG.debug("Error closing extension", e);
-				}
-			}
-		}
-	}
-
-
+    public void closePlugins() {
+        for (Object pluginHandler : plugins) {
+            if (pluginHandler instanceof Closeable) {
+                try {
+                    ((Closeable) pluginHandler).close();
+                } catch (IOException e) {
+                    LOG.debug("Error closing extension", e);
+                }
+            }
+        }
+    }
 
 }
