@@ -307,7 +307,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         startSensors();
 
         // Create plugin components
-        pluginLoader = new PluginLoader(getProperties(), getHomePath());
+        pluginLoader = new PluginLoader(getProperties(), getHomePath(), getPropertyFileName());
         pluginLoader.createPluginComponents(
                 new Consumer<Object>() {
                     public void accept(Object comp) {

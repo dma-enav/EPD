@@ -22,6 +22,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -33,36 +34,76 @@ import com.bbn.openmap.PropertyConsumer;
 
 public class PluginLoader {
 
+    private static final String METAFILE_PREFIX = "META-INF/";
+
+    private static final String COMPONENTS_PROPERTY = "epd.plugin_components";
+
+    private static final String CLASSPATH_PROPERTY = "epd.plugin_classpath";
+
     private static final Logger LOG = LoggerFactory.getLogger(PluginLoader.class);
 
     private List<Object> plugins = new ArrayList<>();
 
-    private final Properties properties;
+    private final Properties epdProperties;
     private final Path homePath;
+    private final String propertyFileName;
 
-    public PluginLoader(Properties properties, Path homePath) {
-        this.properties = properties;
+    public PluginLoader(Properties properties, Path homePath, String propertyFileName) {
+        this.epdProperties = properties;
         this.homePath = homePath;
+        this.propertyFileName = propertyFileName;
     }
 
-    public Properties getProperties() {
-        return properties;
+    public Properties getEPDProperties() {
+        return epdProperties;
     }
 
     public Path getHomePath() {
         return homePath;
     }
+    
+    public String getPropertyFileName() {
+        return propertyFileName;
+    }
 
     /**
      * Create the plugin components when possible.
+     * 
+     * Examines the 'epd.plugin_classpath' to find additional
+     * property files, which together with the default
+     * properties are being used to instantiate all 
+     * 'epd_plugin_components'
+     * Each plugin loaded are then passed to the pluginConsumer.
+     * Plugins implementing {@link PropertyConsumer} will be given
+     * the system properties.
+     * Plugins implementing {@link Closeable} will be called during
+     * termination (see {@link #closePlugins()}).
+     * @param pluginConsumer
      */
-    public void createPluginComponents(Consumer<Object> pluginConsumer) {
-        Properties props = getProperties();
-        String componentsValue = props.getProperty("epd.plugin_components");
+    public void createPluginComponents(Consumer<Object> pluginConsumer) throws IOException{
+        List<Properties> allMetaFiles = new ArrayList<>();
+        allMetaFiles.add(getEPDProperties());
+        ClassLoader loader = getPluginClassLoader();
+        
+        // Scan for additional property files.
+        Enumeration<URL> resources = loader.getResources(METAFILE_PREFIX + getPropertyFileName());
+        while (resources.hasMoreElements()) {
+            Properties props = new Properties();
+            props.load(resources.nextElement().openStream());
+            allMetaFiles.add(props);
+        }
+
+        // Load plugin_components from all property files.
+        for (Properties props : allMetaFiles) {
+            loadPlugins(loader, props, pluginConsumer);
+        }
+    }
+
+    private void loadPlugins(ClassLoader loader, Properties props, Consumer<Object> pluginConsumer) {
+        String componentsValue = props.getProperty(COMPONENTS_PROPERTY);
         if (componentsValue == null) {
             return;
         }
-        ClassLoader loader = getClassLoader();
 
         String[] componentNames = componentsValue.split(" ");
         for (String compName : componentNames) {
@@ -94,9 +135,9 @@ public class PluginLoader {
      * 
      * @return
      */
-    private ClassLoader getClassLoader() {
-        Properties props = getProperties();
-        String pathsValue = props.getProperty("epd.plugin_classpath");
+    private ClassLoader getPluginClassLoader() {
+        Properties props = getEPDProperties();
+        String pathsValue = props.getProperty(CLASSPATH_PROPERTY);
         if (pathsValue == null || pathsValue.isEmpty()) {
             return null;
         }

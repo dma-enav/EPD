@@ -246,7 +246,7 @@ public final class EPDShore extends EPD {
         // Start sensors
         startSensors();
 
-        pluginLoader = new PluginLoader(getProperties(), getHomePath());
+        pluginLoader = new PluginLoader(getProperties(), getHomePath(), getPropertyFileName());
         pluginLoader.createPluginComponents(
                 new Consumer<Object>() {
                     public void accept(Object comp) {
