@@ -1,9 +1,0 @@
-namespace dma.route;
-
-broadcast MCVoctMessageBroadcast {
-    /** VOCT Message */
-    1: text message;
-    /** VOCT operations id - the operation to which the broadcast message belongs */
-    2: int64 operationid;
-
-}

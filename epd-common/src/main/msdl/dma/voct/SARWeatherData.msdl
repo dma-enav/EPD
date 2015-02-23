@@ -1,0 +1,22 @@
+namespace dma.voct;
+
+/** A SAR Weather Data point */
+message SARWeatherData {
+    /** Total Water Current Heading in Degrees. */
+    1: double twcHeading;
+
+    /** Total Water Current speed in knots. */
+    2: double twcKnots;
+
+    /** Leeway Heading in Degrees*/
+    3: double leewayHeading;
+    
+    /** Leeway speed in knots. */
+    4: double leewayKnots;
+    
+    /** The final bearing downwind in degrees*/
+    5: double downWindBearing;
+	
+	/** Time of weather point */
+	6: timestamp date;
+}

@@ -1,0 +1,68 @@
+namespace dma.voct;
+
+message DatumPoint {
+	/** SAR  Operation Identifier */
+	1: text sarID;
+	/** Time of last known position */
+	2: timestamp LKPDate;
+	/** Time of Commerce Search Start */
+	3: timestamp CSSDate;
+	/** x value */
+	4: double x;
+	/** y value */
+	5: double y;
+	/** safety factor */
+	6: double safetyFactor;
+	/** Search Object Identifier */
+	7: int searchObject;
+	/** List of Weather Objects */
+	8: list<SARWeatherData> weatherData;
+	
+	//Datum Point Specific vars
+	
+	/** List of points calculated for currents */
+	9: list<position> currentListDownWind;
+	10: list<position> currentListMax;
+	11: list<position> currentListMin;
+	
+	/** List of points calculated for winds*/
+	12: list<position> windListDownWind;
+	13: list<position> windListMax;
+	14: list<position> windListMin;
+	
+	/** The calculated Datum Point */
+	15: position datumDownWInd;
+	16: position datumMax;
+	17: position datumMin;
+	
+	/* Radius of search area */
+	18: double radiusDownWind;
+	19: double radiusMax;
+	20: double radiusMin;
+	
+	/** Time elapsed since object missing */
+	21: double timeElapsed;
+	
+	/** Residual Drift Vector Direction in degrees*/
+	22: double rdvDirectionDownWind;
+	23: double rdvDirectionMax;
+	24: double rdvDirectionMin;
+	
+	/** Residual Drift Vector Distance in nm*/
+	25: double rdvDistanceDownWind;
+	26: double rdvDistanceMax;
+	27: double rdvDistanceMin;
+	
+	/** Residual Drift Vector Speed in nm/hour */
+	28: double rdvSpeedDownWind;
+	29: double rdvSpeedMax;
+	30: double rdvSpeedMin;
+	
+	/**Search Area defined by four points */
+	31: position A;
+	32: position B;
+	33: position C;
+	34: position D;
+	
+	
+};

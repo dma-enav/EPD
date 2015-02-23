@@ -1,0 +1,27 @@
+namespace dma.voct;
+
+/** Effort Allocation Data Set */
+message EffortAllocation {
+    /** w */
+    1: double wVar;
+	/** Desired Ground speed in knots */
+    2: double groundSpeed;
+
+    /** Probability of Detection*/
+    3: double pod;
+    
+    /** Track spacing in nm */
+    4: double trackSpacing;
+    
+    /** Search time in hours*/
+    5: double searchTime;
+	
+	/** Area Size in nm2*/
+	6: double areaSize;
+	
+	/** Area Location defined by four points */
+	7: position effectiveAreaA;
+	8: position effectiveAreaB;
+	9: position effectiveAreaC;
+	10: position effectiveAreaD;
+}

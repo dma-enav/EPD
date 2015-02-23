@@ -1,0 +1,19 @@
+namespace dma.voct;
+
+/** SAR Area*/
+message SARArea {
+    /** Position of SAR area defined by four points */
+    1: position A;
+	2: position B;
+	3: position C;
+	4: position D;
+	
+	/** Center of area */
+	5: position center;
+	
+	/** Breadth of area */
+	6: double breadth;
+	
+	/** Length of Area */
+	7: double length;
+}

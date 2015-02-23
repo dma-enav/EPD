@@ -1,0 +1,48 @@
+namespace dma.voct;
+
+import "dma/route/route.msdl";
+
+
+/** The heading of each leg. */
+enum SAR_TYPE {
+    RAPID_RESPONSE = 1;
+    DATUM_POINT = 2;
+	DATUM_LINE = 3;
+	BACKTRACK = 4;
+	SARIS_DATUM_POINT = 5;
+	NONE = 6;
+}
+
+
+message VOCTMessage {
+	/** The transaction ID */
+	1: int64 id;
+	2: SAR_TYPE sarType;
+	
+	//The Message will only contain one type of SAR operation
+	
+	/** Content of a Rapid Response SAR */
+	3: RapidResponse rapidResponse;
+	4: DatumPoint datumPoint;
+	5: DatumLine datumLine;
+	6: BackTrack backTrack;
+	7: SarisDatumPoint sarisDatumPoint;
+	
+	/** Effort Allocation, can be null */
+	8: EffortAllocation effortAllocation;
+	
+	/** Search Pattern, uses standard Route format, can be null */
+	9: Route searchPattern;
+	
+	/** String name of sender */
+	10: text senderName;
+	
+};
+
+endpoint VOCTEndpoint {
+
+	void SendVOCTData(
+        1: VOCTMessage voctMessage
+    );
+}
+
