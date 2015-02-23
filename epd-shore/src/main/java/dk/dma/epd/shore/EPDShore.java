@@ -14,9 +14,28 @@
  */
 package dk.dma.epd.shore;
 
-import com.bbn.openmap.PropertyConsumer;
+import java.beans.beancontext.BeanContextServicesSupport;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.proj.coords.LatLonPoint;
 import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
+
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
@@ -25,6 +44,7 @@ import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.PluginLoader;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
@@ -63,22 +83,6 @@ import dk.dma.epd.shore.settings.EPDSettings;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
 import dk.dma.epd.shore.voyage.VoyageManager;
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import java.beans.beancontext.BeanContextServicesSupport;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Main class with main method.
@@ -106,6 +110,8 @@ public final class EPDShore extends EPD {
     // Maritime Cloud services
     private IntendedRouteHandlerCommon intendedRouteHandler;
     // private VoctHandler voctHandler;
+    
+    private PluginLoader pluginLoader;
 
     /**
      * Event dispatcher used to notify listeners of voyage changes.
@@ -240,7 +246,15 @@ public final class EPDShore extends EPD {
         // Start sensors
         startSensors();
 
-        createPluginComponents();
+        pluginLoader = new PluginLoader(getProperties(), getHomePath(), getPropertyFileName());
+        pluginLoader.createPluginComponents(
+                new Consumer<Object>() {
+                    public void accept(Object comp) {
+                        beanHandler.add(comp);
+                    }
+                });
+
+        //pluginLoader.createPluginComponents(comp -> beanHandler.add(comp));
 
         final CountDownLatch guiCreated = new CountDownLatch(1);
 
@@ -388,9 +402,12 @@ public final class EPDShore extends EPD {
 
         // Stop the system tray
         systemTray.shutdown();
-
+        
         // Stop sensors
         stopSensors();
+
+        // Close all plugins
+        pluginLoader.closePlugins();
 
         LOG.info("Closing EPDShore");
         this.restart = restart;
@@ -419,39 +436,6 @@ public final class EPDShore extends EPD {
         notificationCenter = new NotificationCenter(getMainFrame());
         beanHandler.add(notificationCenter);
 
-    }
-
-    /**
-     * Create the plugin components and initialize the beanhandler
-     */
-    private void createPluginComponents() {
-        Properties props = getProperties();
-        String componentsValue = props.getProperty("epd.plugin_components");
-        if (componentsValue == null) {
-            return;
-        }
-        String[] componentNames = componentsValue.split(" ");
-        for (String compName : componentNames) {
-            String classProperty = compName + ".class";
-            String className = props.getProperty(classProperty);
-            if (className == null) {
-                LOG.error("Failed to locate property " + classProperty);
-                continue;
-            }
-            // Create it if you do...
-            try {
-                Object obj = java.beans.Beans.instantiate(null, className);
-                if (obj instanceof PropertyConsumer) {
-                    PropertyConsumer propCons = (PropertyConsumer) obj;
-                    propCons.setProperties(compName, props);
-                }
-                beanHandler.add(obj);
-            } catch (IOException e) {
-                LOG.error("IO Exception instantiating class \"" + className + "\"");
-            } catch (ClassNotFoundException e) {
-                LOG.error("Component class not found: \"" + className + "\"");
-            }
-        }
     }
 
     /**
@@ -605,22 +589,14 @@ public final class EPDShore extends EPD {
 
     }
 
-    /**
-     * Load the properties file
-     */
     @Override
-    public Properties loadProperties() {
-        InputStream in = EPDShore.class.getResourceAsStream("/epd-shore.properties");
-        try {
-            if (in == null) {
-                throw new IOException("Properties file not found");
-            }
-            properties.load(in);
-            in.close();
-        } catch (IOException e) {
-            LOG.error("Failed to load resources: " + e.getMessage());
-        }
-        return properties;
+    protected String getPropertyFileName() {
+        return "epd-shore.properties";
+    }
+    
+    @Override
+    protected void propertyLoadError(String msg, IOException e) {
+        LOG.error(msg + e.getMessage());
     }
 
     /**

@@ -14,9 +14,34 @@
  */
 package dk.dma.epd.ship;
 
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.MapHandler;
-import com.bbn.openmap.PropertyConsumer;
 import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
+
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
 import dk.dma.enav.model.geometry.Position;
@@ -24,6 +49,7 @@ import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.PluginLoader;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
@@ -69,28 +95,6 @@ import dk.dma.epd.ship.service.shore.ShoreServices;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 import dk.dma.epd.ship.settings.EPDSettings;
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Main class with main method.
@@ -127,6 +131,8 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private String optionalTitle = "";
 
     // private VoctHandler voctHandler;
+    
+    private PluginLoader pluginLoader;
 
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
@@ -301,7 +307,14 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         startSensors();
 
         // Create plugin components
-        createPluginComponents();
+        pluginLoader = new PluginLoader(getProperties(), getHomePath(), getPropertyFileName());
+        pluginLoader.createPluginComponents(
+                new Consumer<Object>() {
+                    public void accept(Object comp) {
+                        mapHandler.add(comp);
+                    }
+                });
+        //pluginLoader.createPluginComponents(comp -> mapHandler.add(comp));
 
         final CountDownLatch guiCreated = new CountDownLatch(1);
 
@@ -560,18 +573,12 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     }
 
     @Override
-    public Properties loadProperties() {
-        InputStream in = EPDShip.class.getResourceAsStream("/epd-ship.properties");
-        try {
-            if (in == null) {
-                throw new IOException("Properties file not found");
-            }
-            properties.load(in);
-            in.close();
-        } catch (IOException e) {
-            LOG.error("Failed to load resources: " + e.getMessage());
-        }
-        return properties;
+    protected String getPropertyFileName() {
+        return "epd-ship.properties";
+    }
+    @Override
+    protected void propertyLoadError(String msg, IOException e) {
+        LOG.error(msg + e.getMessage());
     }
 
     void createAndShowGUI() {
@@ -778,41 +785,13 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
         // Stop sensors
         stopSensors();
+        
+        pluginLoader.closePlugins();
 
         LOG.info("Closing EPD-ship");
         this.restart = restart;
         System.exit(restart ? 2 : 0);
 
-    }
-
-    private void createPluginComponents() {
-        Properties props = getProperties();
-        String componentsValue = props.getProperty("epd.plugin_components");
-        if (componentsValue == null) {
-            return;
-        }
-        String[] componentNames = componentsValue.split(" ");
-        for (String compName : componentNames) {
-            String classProperty = compName + ".class";
-            String className = props.getProperty(classProperty);
-            if (className == null) {
-                LOG.error("Failed to locate property " + classProperty);
-                continue;
-            }
-            // Create it if you do...
-            try {
-                Object obj = java.beans.Beans.instantiate(null, className);
-                if (obj instanceof PropertyConsumer) {
-                    PropertyConsumer propCons = (PropertyConsumer) obj;
-                    propCons.setProperties(compName, props);
-                }
-                mapHandler.add(obj);
-            } catch (IOException e) {
-                LOG.error("IO Exception instantiating class \"" + className + "\"");
-            } catch (ClassNotFoundException e) {
-                LOG.error("Component class not found: \"" + className + "\"");
-            }
-        }
     }
 
     /**
