@@ -56,8 +56,8 @@ public class CloudSettings  implements Serializable {
 // TODO: Maritime Cloud 0.2 re-factoring
 // Force cloud server 0.2 for the test:
 //        // Cloud server configuration
-//        cloudServerHost = props.getProperty(PREFIX + "cloudServerHost", cloudServerHost);
-//        cloudServerPort = PropUtils.intFromProperties(props, PREFIX + "cloudServerPort", cloudServerPort);
+        cloudServerHost = props.getProperty(PREFIX + "cloudServerHost", cloudServerHost);
+        cloudServerPort = PropUtils.intFromProperties(props, PREFIX + "cloudServerPort", cloudServerPort);
         
         // Intended route settings
         broadcastIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "broadcastIntendedRoute", broadcastIntendedRoute);

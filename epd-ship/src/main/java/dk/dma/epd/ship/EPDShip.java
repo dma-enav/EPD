@@ -131,7 +131,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private String optionalTitle = "";
 
     // private VoctHandler voctHandler;
-    
+
     private PluginLoader pluginLoader;
 
     /**
@@ -307,14 +307,19 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         startSensors();
 
         // Create plugin components
-        pluginLoader = new PluginLoader(getProperties(), getHomePath(), getPropertyFileName());
-        pluginLoader.createPluginComponents(
-                new Consumer<Object>() {
-                    public void accept(Object comp) {
-                        mapHandler.add(comp);
-                    }
-                });
-        //pluginLoader.createPluginComponents(comp -> mapHandler.add(comp));
+
+        try {
+            pluginLoader = new PluginLoader(getProperties(), getHomePath(), getPropertyFileName());
+            pluginLoader.createPluginComponents(new Consumer<Object>() {
+                public void accept(Object comp) {
+                    mapHandler.add(comp);
+                }
+            });
+        } catch (Exception e) {
+            LOG.error("Failed to load plugin container " + e.getMessage());
+        }
+
+        // pluginLoader.createPluginComponents(comp -> mapHandler.add(comp));
 
         final CountDownLatch guiCreated = new CountDownLatch(1);
 
@@ -576,6 +581,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     protected String getPropertyFileName() {
         return "epd-ship.properties";
     }
+
     @Override
     protected void propertyLoadError(String msg, IOException e) {
         LOG.error(msg + e.getMessage());
@@ -730,19 +736,18 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             // props.put("tooltipCastShadow", "true");
 
             // small font
-//            props.setProperty("controlTextFont", "Dialog 12");
-//            props.setProperty("systemTextFont", "Dialog 12");
-//            props.setProperty("userTextFont", "Dialog 12");
-//            props.setProperty("menuTextFont", "Dialog 12");
-//            props.setProperty("windowTitleFont", "Dialog bold 12");
-//            props.setProperty("subTextFont", "Dialog 10");
+            // props.setProperty("controlTextFont", "Dialog 12");
+            // props.setProperty("systemTextFont", "Dialog 12");
+            // props.setProperty("userTextFont", "Dialog 12");
+            // props.setProperty("menuTextFont", "Dialog 12");
+            // props.setProperty("windowTitleFont", "Dialog bold 12");
+            // props.setProperty("subTextFont", "Dialog 10");
             props.setProperty("controlTextFont", "Dialog 10");
             props.setProperty("systemTextFont", "Dialog 10");
             props.setProperty("userTextFont", "Dialog 10");
             props.setProperty("menuTextFont", "Dialog 10");
             props.setProperty("windowTitleFont", "Dialog bold 10");
             props.setProperty("subTextFont", "Dialog 8");
-
 
             // props.put("tooltipBorderSize", "15");
             // props.put("tooltipShadowSize", "15");
@@ -785,7 +790,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
 
         // Stop sensors
         stopSensors();
-        
+
         pluginLoader.closePlugins();
 
         LOG.info("Closing EPD-ship");
@@ -939,8 +944,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     }
 
     /**
-     * Returns a {@code Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShip}
-     * class.
+     * Returns a {@code Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShip} class.
      * 
      * @return a new {@code Resource} instance
      */

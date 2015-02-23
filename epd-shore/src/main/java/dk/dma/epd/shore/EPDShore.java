@@ -110,7 +110,7 @@ public final class EPDShore extends EPD {
     // Maritime Cloud services
     private IntendedRouteHandlerCommon intendedRouteHandler;
     // private VoctHandler voctHandler;
-    
+
     private PluginLoader pluginLoader;
 
     /**
@@ -247,14 +247,16 @@ public final class EPDShore extends EPD {
         startSensors();
 
         pluginLoader = new PluginLoader(getProperties(), getHomePath(), getPropertyFileName());
-        pluginLoader.createPluginComponents(
-                new Consumer<Object>() {
-                    public void accept(Object comp) {
-                        beanHandler.add(comp);
-                    }
-                });
 
-        //pluginLoader.createPluginComponents(comp -> beanHandler.add(comp));
+        try {
+            pluginLoader.createPluginComponents(new Consumer<Object>() {
+                public void accept(Object comp) {
+                    beanHandler.add(comp);
+                }
+            });
+        } catch (Exception e) {
+            LOG.error("Failed to load plugin container " + e.getMessage());
+        }
 
         final CountDownLatch guiCreated = new CountDownLatch(1);
 
@@ -402,7 +404,7 @@ public final class EPDShore extends EPD {
 
         // Stop the system tray
         systemTray.shutdown();
-        
+
         // Stop sensors
         stopSensors();
 
@@ -494,12 +496,11 @@ public final class EPDShore extends EPD {
     public MainFrame getMainFrame() {
         return mainFrame;
     }
-    
+
     @Override
     public FALManager getFalManager() {
         return (FALManager) falManager;
     }
-
 
     /**
      * Returns the MMSI of the shore center, or null if not defined
@@ -593,7 +594,7 @@ public final class EPDShore extends EPD {
     protected String getPropertyFileName() {
         return "epd-shore.properties";
     }
-    
+
     @Override
     protected void propertyLoadError(String msg, IOException e) {
         LOG.error(msg + e.getMessage());
@@ -726,8 +727,7 @@ public final class EPDShore extends EPD {
     }
 
     /**
-     * Returns a {@code Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShore}
-     * class.
+     * Returns a {@code Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShore} class.
      * 
      * @return a new {@code Resource} instance
      */
