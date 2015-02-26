@@ -1,6 +1,6 @@
-name=MSI-NM Service Germany
+name=MSI-NM Service Australia
 role=VTS
-affiliation=German Maritime Authority
+affiliation=Australian Maritime Authority
 maritimeID=999000302
 description=Provides MSI and NM P&T warnings
 service.name=MSI-NM

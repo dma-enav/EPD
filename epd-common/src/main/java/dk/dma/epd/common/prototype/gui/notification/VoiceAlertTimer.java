@@ -20,6 +20,8 @@ import java.util.TimerTask;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.notification.ChatNotification;
@@ -116,6 +118,14 @@ class ContinousVoiceAlerts extends TimerTask {
                 clip = AudioSystem.getClip();
                 clip.open(AudioSystem.getAudioInputStream(audioClip));
                 clip.start();
+
+                clip.addLineListener(new LineListener(){
+                    public void update(LineEvent event){
+                        if(event.getType() == LineEvent.Type.STOP){
+                            event.getLine().close();
+                        }
+                    }
+                });
 
                 if (notification.getTitle().contains("Intended")) {
                     // Only play once

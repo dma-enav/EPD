@@ -200,8 +200,13 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
 
             if (EPD.getInstance().getSettings().getGuiSettings().isUseAudio()) {
 
-                VoiceAlertTimer voiceAlertTimer = new VoiceAlertTimer(notification, voiceAlertTimers);
-                voiceAlertTimers.addVoiceAlert(voiceAlertTimer);
+                // Jira EPD-317:
+                // Audio functionality disabled for now. The audio alerts are tied to notifications,
+                // but notifications may be recreated at any point of time (e.g. the list of route
+                // suggestion notifications  is recreated when a new message is received).
+                // This means that the audio may continue after a message has been acknowledged.
+                // VoiceAlertTimer voiceAlertTimer = new VoiceAlertTimer(notification, voiceAlertTimers);
+                // voiceAlertTimers.addVoiceAlert(voiceAlertTimer);
 
                 // java.util.Timer warningTimer;
                 // warningTimer = new java.util.Timer();
