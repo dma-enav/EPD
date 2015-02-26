@@ -220,7 +220,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         // Where we load or serialize old Route Suggestions
         RouteSuggestionHandler routeSuggestionHandler = new RouteSuggestionHandler();
         try (FileInputStream fileIn = new FileInputStream(ROUTE_SUGGESTION_PATH);
-                ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
+                ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
 
             // routeSuggestions =);
             routeSuggestionHandler.setRouteSuggestions((Map<Long, RouteSuggestionData>) objectIn.readObject());

@@ -776,6 +776,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
         ownShipHandler.saveView();
         transponderFrame.shutdown();
         falManager.saveToFile();
+        routeSuggestionHandler.saveToFile();
 
         // Stop the Maritime Cloud connection
         strategicRouteHandler.shutdown();
