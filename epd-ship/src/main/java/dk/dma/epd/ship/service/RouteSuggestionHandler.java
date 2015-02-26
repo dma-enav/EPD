@@ -51,7 +51,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionHandler.class);
 
-    // Replyable endpoints
+    // Reply-able endpoints
     private List<TacticalRouteReplyEndpoint> routeSuggestionServiceList = new ArrayList<>();
 
     /**
@@ -84,28 +84,6 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         } catch (InterruptedException e) {
             LOG.error("Error hooking up services", e);
         }
-
-        // TODO: Maritime Cloud 0.2 re-factoring
-        // // Register a cloud route suggestion service
-        // try {
-        // getMmsClient().serviceRegister(RouteSuggestionService.INIT,
-        // new InvocationCallback<RouteSuggestionMessage, RouteSuggestionReply>() {
-        // public void process(RouteSuggestionMessage message, Context<RouteSuggestionReply> context) {
-        //
-        // // The cloud status is transient, so this ought to be unnecessary
-        // message.setCloudMessageStatus(null);
-        //
-        // LOG.info("Shore received a suggeset route reply");
-        // routeSuggestionReceived(message, context.getCaller());
-        //
-        // // Acknowledge that the message has been handled
-        // context.complete(new RouteSuggestionReply(message.getId()));
-        // }
-        // }).awaitRegistered(4, TimeUnit.SECONDS);
-        //
-        // } catch (InterruptedException e) {
-        // LOG.error("Error hooking up services", e);
-        // }
     }
 
     /**
@@ -218,17 +196,6 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
                 }
 
-                // // Create the reply message
-                // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(routeData.getId(), message, replyStatus);
-                // // routeData.setReply(routeMessage);
-                // routeData.setAcknowleged(true);
-                //
-                // // Send the message over the cloud
-                // routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
-                // if (sendMaritimeCloudMessage(new MmsiId((int) routeData.getMmsi()), routeMessage, this)) {
-                // routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
-                // }
-                //
                 // // For accepted routes, add the route to the route manager, and remove the suggestion
                 if (replyStatus == RouteSegmentSuggestionStatus.ACCEPTED) {
                     acceptRouteSuggestion(routeData);

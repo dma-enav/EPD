@@ -94,44 +94,6 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         } catch (InterruptedException e) {
             LOG.error("Error hooking up services", e);
         }
-
-        // Refresh the service list
-
-        // // Register a cloud chat service
-        // try {
-        // getMmsClient().endpointRegister(new AbstractMaritimeTextingService() {
-        // @Override
-        // protected void sendMessage(MessageHeader header, MaritimeText msg) {
-        // receiveChatMessage(header.getSender(), msg, header.getSenderTime());
-        // }
-        // }).awaitRegistered(4, TimeUnit.SECONDS);
-        //
-        // } catch (InterruptedException e) {
-        // LOG.error("Error hooking up services", e);
-        // }
-        //
-
-        // TODO: Maritime Cloud 0.2 re-factoring
-        // try {
-        // getMmsClient().serviceRegister(RouteSuggestionService.INIT,
-        // new InvocationCallback<RouteSuggestionMessage, RouteSuggestionReply>() {
-        // public void process(RouteSuggestionMessage message, Context<RouteSuggestionReply> context) {
-        //
-        // // The cloud status is transient, so this ought to be unnecessary
-        // message.setCloudMessageStatus(null);
-        //
-        // LOG.info("Shore received a suggeset route reply");
-        // routeSuggestionReplyReceived(message);
-        //
-        // // Acknowledge that the message has been handled
-        // context.complete(new RouteSuggestionReply(message.getId()));
-        // }
-        // }).awaitRegistered(4, TimeUnit.SECONDS);
-        //
-        // } catch (Exception e) {
-        // LOG.error("Error hooking up services", e);
-        // }
-
     }
 
     /**
@@ -219,16 +181,6 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
             return;
         }
-
-        // // Create a new message
-        // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(route, message, RouteSuggestionStatus.PENDING);
-        // LOG.info("Sending to mmsi: " + mmsi + " with ID: " + routeMessage.getId());
-
-        // Send the message over the cloud
-        // routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
-        // if (sendMaritimeCloudMessage(routeSuggestionServiceList, new MmsiId((int) mmsi), routeMessage, this)) {
-        // routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
-        // }
 
         // Update listeners
         notifyRouteSuggestionListeners();

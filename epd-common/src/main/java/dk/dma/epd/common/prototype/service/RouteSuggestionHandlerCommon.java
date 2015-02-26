@@ -14,6 +14,11 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -25,20 +30,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
-import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
-import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
-
 /**
  * Common functionality for route suggestion e-Nav services.
  */
-public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon implements
-        ICloudMessageListener<RouteSuggestionMessage, RouteSuggestionReply> {
+public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon {
 
     protected Map<Long, RouteSuggestionData> routeSuggestions = new ConcurrentHashMap<>();
     protected Set<RouteSuggestionListener> routeExchangeListener = new HashSet<RouteSuggestionListener>();
@@ -168,46 +163,11 @@ public class RouteSuggestionHandlerCommon extends EnavServiceHandlerCommon imple
                 ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
             objectOut.writeObject(routeSuggestions);
         } catch (IOException e) {
-
+            e.printStackTrace();
             LOG.error("Failed to save Route Suggestion data: " + e.getMessage());
         }
     }
 
-    /****************************************/
-    /** ICloudMessageStatus methods **/
-    /****************************************/
-
-    /**
-     * {@inheritDoc}
-     */
-    // @Override
-    // public void messageReceivedByCloud(RouteSuggestionMessage message) {
-    // message.updateCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLOUD);
-    // EPD.getInstance().getNotificationCenter().checkRefreshSelection(NotificationType.TACTICAL_ROUTE, message.getId());
-    // }
-    //
-    // /**
-    // * {@inheritDoc}
-    // */
-    // @Override
-    // public void messageHandled(RouteSuggestionMessage message, RouteSuggestionReply reply) {
-    // message.updateCloudMessageStatus(CloudMessageStatus.HANDLED_BY_CLIENT);
-    // EPD.getInstance().getNotificationCenter().checkRefreshSelection(NotificationType.TACTICAL_ROUTE, message.getId());
-    // }
-
-
-
-    @Override
-    public void messageReceivedByCloud(RouteSuggestionMessage message) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void messageHandled(RouteSuggestionMessage message, RouteSuggestionReply reply) {
-        // TODO Auto-generated method stub
-
-    }
     /****************************************/
     /** Helper classes **/
     /****************************************/

@@ -14,15 +14,18 @@
  */
 package dk.dma.epd.common.prototype.model.route;
 
-import java.awt.Color;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Objects;
-
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dma.route.RouteSegmentSuggestionStatus;
 import dma.route.TacticalRouteSuggestion;
 import dma.route.TacticalRouteSuggestionReply;
+
+import java.awt.Color;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * Used for caching the negotiation data used tactical routes
@@ -40,6 +43,40 @@ public class RouteSuggestionData implements Serializable, Comparable<RouteSugges
     private Date replyRecieveDate;
 
     private CloudMessageStatus cloudMessageStatus;
+
+    /**
+     * Sadly MSDL generated classes are not serializable. Handle serialization ourselves
+     * @param oos the output stream
+     */
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.writeObject(message == null ? null : message.toJSON());
+        oos.writeObject(reply == null ? null : reply.toJSON());
+        oos.writeObject(mmsi);
+        oos.writeObject(acknowleged);
+        oos.writeObject(route);
+        oos.writeObject(sendDate);
+        oos.writeObject(replyRecieveDate);
+        oos.writeObject(cloudMessageStatus);
+    }
+
+    /**
+     * Sadly MSDL generated classes are not serializable. Handle serialization ourselves
+     * @param ois the input stream
+     */
+    private void readObject(ObjectInputStream ois)
+            throws ClassNotFoundException, IOException {
+        String msgString = (String)ois.readObject();
+        message = msgString == null ? null : TacticalRouteSuggestion.fromJSON(msgString);
+        String replyString = (String)ois.readObject();
+        reply = replyString == null ? null : TacticalRouteSuggestionReply.fromJSON(replyString);
+        mmsi = (Long)ois.readObject();
+        acknowleged = (Boolean)ois.readObject();
+        route = (Route)ois.readObject();
+        sendDate = (Date)ois.readObject();
+        replyRecieveDate = (Date)ois.readObject();
+        cloudMessageStatus = (CloudMessageStatus)ois.readObject();
+
+    }
 
     /**
      * Constructor
