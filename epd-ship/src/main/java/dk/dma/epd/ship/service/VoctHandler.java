@@ -15,7 +15,6 @@
 package dk.dma.epd.ship.service;
 
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
@@ -23,7 +22,6 @@ import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.service.voct.VOCTManager;
-import net.maritimecloud.core.id.MmsiId;
 import net.maritimecloud.net.mms.MmsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,7 +167,9 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
 
         // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(null, null, null);
 //        System.out.println("Replying to : " + (long) voctInvitations.get(id));
-        boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(id)), voctMessage, this);
+
+        // TODO: Maritime Cloud 0.2 re-factoring
+        //boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(id)), voctMessage, this);
 
 //        System.out.println("To Send is " + toSend);
 
@@ -221,19 +221,6 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
     }
 
     @Override
-    public void messageReceivedByCloud(VOCTCommunicationMessage message) {
-        // TODO Auto-generated method stub
-
-//        System.out.println("Message recieved by Cloud, do we care?");
-    }
-
-    @Override
-    public void messageHandled(VOCTCommunicationMessage message, VOCTCommunicationReply reply) {
-        // TODO Auto-generated method stub
-//        System.out.println("Message Handled / whats this?");
-    }
-
-    @Override
     public void voctUpdated(VOCTUpdateEvent e) {
 
         if (e == VOCTUpdateEvent.SAR_CANCEL) {
@@ -244,9 +231,9 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
                 VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(voctManager.getCurrentID(),
                         VoctMsgStatus.WITHDRAWN);
 
-                // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(null, null, null);
-                boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(voctManager.getCurrentID())),
-                        voctMessage, this);
+                // TODO: Maritime Cloud 0.2 re-factoring
+                //boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(voctManager.getCurrentID())),
+                //        voctMessage, this);
             }
         }
 

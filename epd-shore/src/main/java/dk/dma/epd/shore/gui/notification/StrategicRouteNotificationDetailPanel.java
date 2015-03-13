@@ -14,28 +14,26 @@
  */
 package dk.dma.epd.shore.gui.notification;
 
-import static java.awt.GridBagConstraints.NONE;
-import static java.awt.GridBagConstraints.HORIZONTAL;
-import static java.awt.GridBagConstraints.WEST;
-import static dk.dma.epd.common.graphics.GraphicsUtil.minSize;
-import static dk.dma.epd.common.graphics.GraphicsUtil.bold;
-
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.ais.VesselStaticData;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData.StrategicRouteMessageData;
+import dk.dma.epd.common.prototype.notification.StrategicRouteNotificationDetailPanelCommon;
+import dk.dma.epd.common.text.Formatter;
+import org.apache.commons.lang.StringUtils;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
-import org.apache.commons.lang.StringUtils;
-
-import dk.dma.epd.common.prototype.ais.VesselPositionData;
-import dk.dma.epd.common.prototype.ais.VesselStaticData;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
-import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
-import dk.dma.epd.common.prototype.notification.StrategicRouteNotificationDetailPanelCommon;
-import dk.dma.epd.common.text.Formatter;
+import static dk.dma.epd.common.graphics.GraphicsUtil.bold;
+import static dk.dma.epd.common.graphics.GraphicsUtil.minSize;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.WEST;
 
 /**
  * Shore-specific panel that displays relevant strategic detail information 
@@ -150,7 +148,7 @@ public class StrategicRouteNotificationDetailPanel extends StrategicRouteNotific
      * {@inheritDoc}
      */
     @Override
-    protected String getMessageViewTitle(StrategicRouteMessage routeMessage) {
+    protected String getMessageViewTitle(StrategicRouteMessageData routeMessage) {
         return routeMessage.isFromStcc() ? "Sent to ship" : "Received from ship";
     }
 }

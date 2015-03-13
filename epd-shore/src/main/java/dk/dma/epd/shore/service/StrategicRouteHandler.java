@@ -14,27 +14,22 @@
  */
 package dk.dma.epd.shore.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.net.mms.MmsClient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteReply;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
-import dk.dma.epd.common.prototype.enavcloud.TODO;
+import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
+import dma.route.StrategicRouteMessage;
+import dma.route.StrategicRouteStatus;
+import net.maritimecloud.core.id.MaritimeId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Handler class for the strategic route e-Navigation service
@@ -45,8 +40,6 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
     
     private VoyageManager voyageManager;
 
-    private List<TODO.ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> strategicRouteShipList = new ArrayList<>();
-
     /**
      * Constructor
      */
@@ -54,94 +47,20 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
         super();
         
         // Schedule a refresh of the strategic route ship list approximately every minute
-        scheduleWithFixedDelayWhenConnected(new Runnable() {
-            @Override public void run() {
-                fetchStrategicRouteShipList();
-            }}, 13, 61, TimeUnit.SECONDS);
-
+        scheduleWithFixedDelayWhenConnected(this::fetchStrategicRouteServices, 13, 61, TimeUnit.SECONDS);
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void cloudConnected(MmsClient connection) {
-        try {
-            registerStrategicRouteService();
-        } catch (Exception e) {
-            LOG.error("Error hooking up services", e);
-        }
-        
-        // Refresh the service list
-        fetchStrategicRouteShipList();
-    }
-
-    /**
-     * Register a strategic route service
-     */
-    private void registerStrategicRouteService() throws InterruptedException {
-
-// TODO: Maritime Cloud 0.2 re-factoring
-//        getMmsClient()
-//                .serviceRegister(
-//                        StrategicRouteService.INIT,
-//                        new InvocationCallback<StrategicRouteMessage, StrategicRouteReply>() {
-//                            public void process(StrategicRouteMessage message,
-//                                    Context<StrategicRouteReply> context) {
-//
-//                                // The cloud status is transient, so this ought to be unnecessary
-//                                message.setCloudMessageStatus(null);
-//
-//                                LOG.info("Shore received a strategic route request");
-//                                handleStrategicRouteRequest(message, context.getCaller());
-//
-//                                // Acknowledge that the message has been handled
-//                                context.complete(new StrategicRouteReply(message.getId()));
-//                            }
-//                        }).awaitRegistered(4, TimeUnit.SECONDS);
-    }
-
-    /**
-     * Sends a strategic route request to the given ship
-     * 
-     * @param mmsiDestination the destination mmsi
-     * @param routeMessage the strategic route to send
-     */
-    private void sendStrategicRouteRequest(long mmsiDestination, StrategicRouteMessage routeMessage) {
-
-        routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
-        if (sendMaritimeCloudMessage(strategicRouteShipList, new MmsiId((int)mmsiDestination), routeMessage, this)) {
-            routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
-        }
-    }
-
-    /**
-     * Fetches the list of ships with a strategic route service
-     */
-    private void fetchStrategicRouteShipList() {
-// TODO: Maritime Cloud 0.2 re-factoring
-//        try {
-//            strategicRouteShipList = getMmsClient().serviceLocate(StrategicRouteService.INIT).nearest(Integer.MAX_VALUE).get();
-//
-//        } catch (Exception e) {
-//            LOG.error(e.getMessage());
-//
-//        }
-    }
-
     /**
      * Checks if the ship with the given mmsi has a strategic route service
      * @param mmsi the mmsi of the ship
      * @return if the given ship has a strategic route service
      */
     public boolean shipAvailableForStrategicRouteTransaction(long mmsi) {
-        return false;
-// TODO: Maritime Cloud 0.2 re-factoring
-//        if (MaritimeCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsi) == null) {
-//            fetchStrategicRouteShipList();
-//        }
-//
-//        return MaritimeCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsi) != null;
+        if (MaritimeCloudUtils.findServiceWithMmsi(strategicRouteServiceList, (int)mmsi) == null) {
+            fetchStrategicRouteServices();
+        }
+
+        return MaritimeCloudUtils.findServiceWithMmsi(strategicRouteServiceList, (int)mmsi) != null;
     }
 
     
@@ -151,50 +70,52 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * 
      * @param id the route id
      * @param text a text message
-     * @param currentTimeMillis the send date
      * @param replyStatus the reply status
      * @param route the route
      * @param renegotiate re-negotiate or not
      */
     
-    public void sendStrategicRouteReply(long id, String text,
-            long currentTimeMillis, StrategicRouteStatus replyStatus, Route route, boolean renegotiate) {
+    public void sendStrategicRouteReply(long id, String text, StrategicRouteStatus replyStatus, Route route, boolean renegotiate) {
         
         StrategicRouteNegotiationData routeData = strategicRouteNegotiationData.get(id);
-        
-        StrategicRouteMessage routeMessage = new StrategicRouteMessage(true, id, route, text, replyStatus);
+
+        StrategicRouteMessage routeMessage = new StrategicRouteMessage()
+                .setId(id)
+                .setRoute(route.toMaritimeCloudRoute())
+                .setTextMessage(text)
+                .setStatus(replyStatus);
 
         if (renegotiate || routeData.getStatus() == StrategicRouteStatus.NEGOTIATING
                 || routeData.getStatus() == StrategicRouteStatus.PENDING) {
 
             if (renegotiate) {
                 LOG.info("Restart negotiation");
-                dk.dma.epd.common.prototype.model.route.Route naRoute = new dk.dma.epd.common.prototype.model.route.Route(route);
+                Route naRoute = new Route(route);
                 naRoute.setName("N/A");
-                routeMessage.setRoute(naRoute.getFullRouteData());
+                routeMessage.setRoute(naRoute.toMaritimeCloudRoute());
             }
             
-            routeData.addMessage(routeMessage);
             routeData.setStatus(StrategicRouteStatus.NEGOTIATING);
             routeData.setHandled(true);
 
-            sendStrategicRouteRequest(routeData.getMmsi(), routeMessage);
+            // Send it off
+            sendStrategicRouteMessage(routeData, routeMessage, routeData.getMmsi());
+
             notifyStrategicRouteListeners();
             
                 
         } else {
-            routeData.addMessage(routeMessage);
+            routeData.addMessage(routeMessage, new Date(), CloudMessageStatus.NOT_SENT, true);
             LOG.error("Cannot send message, transaction concluded");                
         }
     }
-    
+
 
     /**
-     * Sends a strategic route message
-     * @param message the reply to send
-     * @param caller the caller
+     * {@inheritDoc}
      */
-    private void handleStrategicRouteRequest(StrategicRouteMessage message, MaritimeId caller) {
+    @Override
+    protected void handleStrategicRouteMessage(StrategicRouteMessage message, MaritimeId sender, Date senderTime) {
 
         long transactionID = message.getId();
 
@@ -204,7 +125,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
             routeData = strategicRouteNegotiationData.get(transactionID);
 
             // Not handled anymore, new pending message
-            routeData.addMessage(message);
+            routeData.addMessage(message, senderTime, null, false);
             if (message.getStatus() == StrategicRouteStatus.AGREED || 
                     message.getStatus() == StrategicRouteStatus.REJECTED ||
                     message.getStatus() == StrategicRouteStatus.CANCELED) {
@@ -215,9 +136,9 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
             }
             
         } else if (message.getStatus() == StrategicRouteStatus.PENDING) {
-            routeData = new StrategicRouteNegotiationData(message.getId(), MaritimeCloudUtils.toMmsi(caller));
+            routeData = new StrategicRouteNegotiationData(message.getId(), MaritimeCloudUtils.toMmsi(sender));
             strategicRouteNegotiationData.put(message.getId(), routeData);
-            routeData.addMessage(message);
+            routeData.addMessage(message, senderTime, null, false);
             routeData.setHandled(false);
             notifyStrategicRouteListeners();
         }
@@ -250,14 +171,10 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * @return the current list of unhandled transactions
      */
     public synchronized List<Long> getUnhandledTransactions() {
-        List<Long> unhandledTransactions = new ArrayList<>();
-
-        for (StrategicRouteNegotiationData value : strategicRouteNegotiationData.values()) {
-            if (!value.isHandled()) {
-                unhandledTransactions.add(value.getId());
-            }
-        }
-        return unhandledTransactions;
+        return strategicRouteNegotiationData.values().stream()
+                .filter(value -> !value.isHandled())
+                .map(StrategicRouteNegotiationData::getId)
+                .collect(Collectors.toList());
     }
     
     /**

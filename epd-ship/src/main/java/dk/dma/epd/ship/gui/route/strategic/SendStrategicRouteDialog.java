@@ -15,9 +15,6 @@
 package dk.dma.epd.ship.gui.route.strategic;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteReply;
-import dk.dma.epd.common.prototype.enavcloud.TODO;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.route.Route;
@@ -29,6 +26,7 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.identity.IdentityViewer;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
+import dma.route.StrategicRouteEndpoint;
 import net.maritimecloud.core.id.MmsiId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -389,11 +387,9 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
         // Initialize MMSI list
         mmsiList.clear();
         stccMmsiListComboBox.removeAllItems();
-        for (TODO.ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply> service : strategicRouteHandler.getStrategicRouteSTCCList()) {
-            if (MaritimeCloudUtils.isSTCC(service.getId())) {
-                mmsiList.add(MaritimeCloudUtils.toMmsi(service.getId()));
-                stccMmsiListComboBox.addItem(NameUtils.getName(service.getId(), NameFormat.MEDIUM));
-            }
+        for (StrategicRouteEndpoint service : strategicRouteHandler.getStrategicRouteServiceList()) {
+            mmsiList.add(MaritimeCloudUtils.toMmsi(service.getRemoteId()));
+            stccMmsiListComboBox.addItem(NameUtils.getName(service.getRemoteId(), NameFormat.MEDIUM));
         }
         stccMmsiListComboBox.setEnabled(mmsiList.size() > 0);
 

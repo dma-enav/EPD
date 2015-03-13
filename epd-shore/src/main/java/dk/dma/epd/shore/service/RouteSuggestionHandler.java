@@ -28,6 +28,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import dk.dma.epd.common.prototype.model.route.Route;
 import net.maritimecloud.net.EndpointInvocationFuture;
 import net.maritimecloud.net.MessageHeader;
 import net.maritimecloud.net.mms.MmsClient;
@@ -36,8 +37,6 @@ import net.maritimecloud.util.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.enav.model.voyage.Route;
-import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
@@ -52,6 +51,7 @@ import dma.route.TacticalRouteSuggestionReply;
 public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionHandler.class);
+    public static final int CLOUD_TIMEOUT = 10; // Seconds
 
     private List<TacticalRouteEndpoint> routeSuggestionServiceList = new ArrayList<>();
 
@@ -102,10 +102,14 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
     public void fetchRouteSuggestionServices() {
 
         try {
-            routeSuggestionServiceList = getMmsClient().endpointLocate(TacticalRouteEndpoint.class).findAll().get();
+            routeSuggestionServiceList = getMmsClient()
+                    .endpointLocate(TacticalRouteEndpoint.class)
+                    .findAll()
+                    .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS)
+                    .get();
 
         } catch (Exception e) {
-            LOG.error("Failed looking up route suggestion services", e.getMessage());
+            LOG.error("Failed looking up route suggestion services: " + e.getMessage());
         }
 
     }
@@ -192,33 +196,9 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
      * @param route
      * @return
      */
-    public static dma.route.TacticalRouteSuggestion fromRoute(dk.dma.enav.model.voyage.Route route) {
+    public static dma.route.TacticalRouteSuggestion fromRoute(Route route) {
         dma.route.TacticalRouteSuggestion irm = new dma.route.TacticalRouteSuggestion();
-        dma.route.Route r = new dma.route.Route();
-        r.setRoutename(route.getName());
-        for (Waypoint wp : route.getWaypoints()) {
-            dma.route.Waypoint iwp = new dma.route.Waypoint();
-            net.maritimecloud.util.geometry.Position pos = net.maritimecloud.util.geometry.Position.create(wp.getLatitude(),
-                    wp.getLongitude());
-            iwp.setWaypointPosition(pos);
-            iwp.setEta(Timestamp.create(wp.getEta().getTime()));
-            iwp.setRot(wp.getRot());
-            iwp.setTurnRad(wp.getTurnRad());
-            if (wp.getRouteLeg() != null) {
-                dma.route.Leg leg = new dma.route.Leg();
-                leg.setSpeed(wp.getRouteLeg().getSpeed());
-                leg.setXtdStarboard(wp.getRouteLeg().getXtdStarboard());
-                leg.setXtdPort(wp.getRouteLeg().getXtdPort());
-                if (wp.getRouteLeg().getHeading() == dk.dma.enav.model.voyage.RouteLeg.Heading.RL) {
-                    leg.setHeadingType(dma.route.HeadingType.RHUMB_LINE);
-                } else {
-                    leg.setHeadingType(dma.route.HeadingType.GREAT_CIRCLE);
-                }
-                iwp.setOutLeg(leg);
-            }
-            r.addWaypoints(iwp);
-        }
-        irm.setRoute(r);
+        irm.setRoute(route.toMaritimeCloudRoute());
         irm.setId(System.currentTimeMillis());
         return irm;
     }
@@ -229,7 +209,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         // Where we load or serialize old VOCTS
         RouteSuggestionHandler routeSuggestionHandler = new RouteSuggestionHandler();
         try (FileInputStream fileIn = new FileInputStream(ROUTE_SUGGESTION_PATH);
-                ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
+                ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
 
             // routeSuggestions =);
             routeSuggestionHandler.setRouteSuggestions((Map<Long, RouteSuggestionData>) objectIn.readObject());

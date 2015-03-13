@@ -14,13 +14,32 @@
  */
 package dk.dma.epd.ship.gui.notification;
 
-import static dk.dma.epd.common.graphics.GraphicsUtil.bold;
-import static java.awt.GridBagConstraints.HORIZONTAL;
-import static java.awt.GridBagConstraints.NONE;
-import static java.awt.GridBagConstraints.NORTHWEST;
-import static java.awt.GridBagConstraints.WEST;
-import static java.awt.GridBagConstraints.SOUTH;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
+import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
+import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
+import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
+import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
+import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon.RouteChangeListener;
+import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData.StrategicRouteMessageData;
+import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.layers.voyage.VoyageLayer;
+import dk.dma.epd.ship.service.StrategicRouteHandler;
+import dma.route.StrategicRouteStatus;
 
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,32 +51,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
-import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
-import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
-import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
-import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
-import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
-import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon.RouteChangeListener;
-import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
-import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.layers.voyage.VoyageLayer;
-import dk.dma.epd.ship.service.StrategicRouteHandler;
+import static dk.dma.epd.common.graphics.GraphicsUtil.bold;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.NORTHWEST;
+import static java.awt.GridBagConstraints.SOUTH;
+import static java.awt.GridBagConstraints.WEST;
 
 /**
  * A strategic route implementation of the {@linkplain NotificationPanel} class
@@ -157,7 +156,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             gotoBtn.setEnabled(true);
             routeDetailsBtn.setEnabled(true);
             
-            StrategicRouteMessage msg = notification.get().getLatestRouteMessage();            
+            StrategicRouteMessageData msg = notification.get().getLatestRouteMessage();
             cancelBtn.setEnabled(!msg.isFromStcc() && !notification.isAcknowledged());
             replyPanel.getRejectBtn().setEnabled(!notification.isAcknowledged() && msg.isFromStcc());
             replyPanel.getAcceptBtn().setEnabled(!notification.isAcknowledged() && msg.isFromStcc());
@@ -181,7 +180,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         // If the latest message is from the STCC, install a reply panel
         StrategicRouteNotification notification = getSelectedNotification();
         if (notification != null && notification.get().hasRouteMessages()) {
-            StrategicRouteMessage msg = notification.get().getLatestRouteMessage();
+            StrategicRouteMessageData msg = notification.get().getLatestRouteMessage();
             if (msg.isFromStcc()) {
                 replyPanel.getMessageTxtField().setText("");
                 replyPanel.getAcceptBtn().setText("Accept");

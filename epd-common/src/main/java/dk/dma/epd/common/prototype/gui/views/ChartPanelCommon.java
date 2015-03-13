@@ -232,8 +232,8 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
                     p1.setLocation(p1.getX(), p0.getY() + sign * Math.abs(routeWidth * mapRatio));
                 }
 
-                Point point1 = new Point((int) proj.inverse(p0).getX(), (int) proj.inverse(p0).getY());
-                Point point2 = new Point((int) proj.inverse(p1).getX(), (int) proj.inverse(p1).getY());
+                Point.Double point1 = new Point.Double(proj.inverse(p0).getX(), proj.inverse(p0).getY());
+                Point.Double point2 = new Point.Double(proj.inverse(p1).getX(), proj.inverse(p1).getY());
 
                 float scale = ProjMath.getScale(point1, point2, proj);
 

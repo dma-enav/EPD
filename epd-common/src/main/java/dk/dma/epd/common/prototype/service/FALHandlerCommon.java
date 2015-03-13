@@ -17,15 +17,12 @@ package dk.dma.epd.common.prototype.service;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportMessage;
-import dk.dma.epd.common.prototype.enavcloud.FALReportingService.FALReportReply;
 //import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
-import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
 
 /**
  * Common handler class for the strategic route e-Navigation service
  */
-public class FALHandlerCommon extends EnavServiceHandlerCommon implements ICloudMessageListener<FALReportMessage, FALReportReply> {
+public class FALHandlerCommon extends EnavServiceHandlerCommon {
 
     // protected Map<Long, StrategicRouteNegotiationData> strategicRouteNegotiationData = new ConcurrentHashMap<>();
 
@@ -60,28 +57,6 @@ public class FALHandlerCommon extends EnavServiceHandlerCommon implements ICloud
         for (FALReportListener listener : falReportListeners) {
             listener.FALReportCloudUpdate();
         }
-    }
-
-    /****************************************/
-    /** ICloudMessageStatus methods **/
-    /****************************************/
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void messageReceivedByCloud(FALReportMessage message) {
-//        System.out.println("Message recieved by cloud");
-        // EPD.getInstance().getNotificationCenter().checkRefreshSelection(NotificationType.STRATEGIC_ROUTE, message.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void messageHandled(FALReportMessage message, FALReportReply reply) {
-//        System.out.println("Message Recieved by application");
-        // EPD.getInstance().getNotificationCenter().checkRefreshSelection(NotificationType.STRATEGIC_ROUTE, message.getId());
     }
 
     /****************************************/
