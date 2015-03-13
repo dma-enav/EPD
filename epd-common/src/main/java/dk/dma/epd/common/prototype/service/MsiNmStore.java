@@ -15,7 +15,6 @@
 package dk.dma.epd.common.prototype.service;
 
 import dk.dma.epd.common.prototype.notification.MsiNmNotification;
-import dma.msinm.MCMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,13 +78,8 @@ public class MsiNmStore implements Serializable {
              ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
 
             objectOut.writeObject(deletedMsiNmIds);
+            objectOut.writeObject(msiNmMessages);
 
-
-            List<StoreMsiNmMessage> messages = new ArrayList<>();
-            for (MsiNmNotification msg : msiNmMessages) {
-                messages.add(new StoreMsiNmMessage(msg));
-            }
-            objectOut.writeObject(messages);
             LOG.info("Saved MSI-NM store");
         } catch (IOException e) {
             LOG.error("Failed to save MSI-NM file: " + e.getMessage());
@@ -109,12 +103,10 @@ public class MsiNmStore implements Serializable {
             Set<Integer> deletedMsiNmIds = (Set<Integer>)objectIn.readObject();
             store.setDeletedMsiNmIds(deletedMsiNmIds);
 
-            List<StoreMsiNmMessage> messages = (List<StoreMsiNmMessage>)objectIn.readObject();
-            for (StoreMsiNmMessage msg : messages) {
-                store.getMsiNmMessages().add(msg.toNotification());
-            }
+            List<MsiNmNotification> msiNmMessages = (List<MsiNmNotification>)objectIn.readObject();
+            store.setMsiNmMessages(msiNmMessages);
 
-            return  (MsiNmStore) objectIn.readObject();
+            return  store;
         } catch (FileNotFoundException e) {
             // Not an error
         } catch (Exception e) {
@@ -125,71 +117,4 @@ public class MsiNmStore implements Serializable {
         return store;
     }
 
-    /**
-     * Sadly, Maritime Cloud MSDL objects are not serializable. Convert to JSON.
-     * This class is a serializable wrapper to use instead
-     */
-    public static class StoreMsiNmMessage implements Serializable {
-        private static final long serialVersionUID = 1;
-
-        String json;
-        boolean read;
-        boolean acknowledged;
-        boolean filtered = true;
-
-        public StoreMsiNmMessage() {
-        }
-
-        public StoreMsiNmMessage(MsiNmNotification notification) {
-            json = notification.get().toJSON();
-            read = notification.isRead();
-            acknowledged = notification.isAcknowledged();
-            filtered = notification.isFiltered();
-        }
-
-        public MsiNmNotification toNotification() {
-            if (json != null) {
-                MCMessage msg = MCMessage.fromJSON(json);
-                MsiNmNotification notification = new MsiNmNotification(msg);
-                notification.setRead(read);
-                notification.setAcknowledged(acknowledged);
-                notification.setFiltered(filtered);
-                return notification;
-            } else {
-                return null;
-            }
-        }
-
-        public String getJson() {
-            return json;
-        }
-
-        public void setJson(String json) {
-            this.json = json;
-        }
-
-        public boolean isRead() {
-            return read;
-        }
-
-        public void setRead(boolean read) {
-            this.read = read;
-        }
-
-        public boolean isAcknowledged() {
-            return acknowledged;
-        }
-
-        public void setAcknowledged(boolean acknowledged) {
-            this.acknowledged = acknowledged;
-        }
-
-        public boolean isFiltered() {
-            return filtered;
-        }
-
-        public void setFiltered(boolean filtered) {
-            this.filtered = filtered;
-        }
-    }
 }

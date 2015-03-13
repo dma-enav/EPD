@@ -323,6 +323,8 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
 
     }
 
+    boolean adjustingVesselSelection = false;
+
     /**
      * Called when one of the buttons are clicked or if one of the combo-boxes changes value
      */
@@ -332,11 +334,15 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
             return;
         }
 
-        if (ae.getSource() == nameComboBox) {
+        if (ae.getSource() == nameComboBox && !adjustingVesselSelection) {
+            adjustingVesselSelection = true;
             nameSelectionChanged();
+            adjustingVesselSelection = false;
 
-        } else if (ae.getSource() == mmsiListComboBox) {
+        } else if (ae.getSource() == mmsiListComboBox && !adjustingVesselSelection) {
+            adjustingVesselSelection = true;
             mmsiSelectionChanged();
+            adjustingVesselSelection = false;
 
         } else if (ae.getSource() == routeListComboBox) {
             routeSelectionChanged();
@@ -446,7 +452,6 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
      * Called when the name selection has changed
      */
     private void nameSelectionChanged() {
-        // System.out.println("Name selection changed");
         if (nameComboBox.getSelectedItem() != null) {
             mmsiListComboBox.setSelectedIndex(nameComboBox.getSelectedIndex());
         }
