@@ -59,6 +59,8 @@ import java.util.Properties;
  */
 public abstract class EPD implements ISettingsListener {
 
+    public enum EPDType { SHIP, SHORE }
+
     protected static EPD instance;
     protected Settings settings;
     protected SystemTrayCommon systemTray;
@@ -114,6 +116,13 @@ public abstract class EPD implements ISettingsListener {
     public static Resources res() {
         return Resources.get(EPD.class);
     }
+
+    /**
+     * Returns the type of this EPD instance
+     *
+     * @return the type of this EPD instance
+     */
+    public abstract EPDType getType();
 
     /**
      * Returns the path to the home folder, used for settings, persisted data, etc.

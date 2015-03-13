@@ -9,18 +9,21 @@ enum StrategicRouteStatus {
     CANCELED = 5;
 }
 
+message StrategicRouteMessage{
+	/** The route under negotiation */
+	1: Route route;
+	/** The transaction ID */
+	2: int64 id;
+    /** The negotiation status*/
+    3: StrategicRouteStatus status;
+	/** Text message included */
+	4: text textMessage;
+};
+
 endpoint StrategicRouteEndpoint {
 
 	void routeSuggestion(
-        /** The route under negotiation */
-        1: Route route,
-        /** The transaction ID */
-        2: int64 id,
-        /** The negotiation status*/
-        3: StrategicRouteStatus status,
-        /** Message originating from the STCC */
-        4: boolean fromStcc,
-        /** Message attached to the route negotiation */
-        5: text msg
+        /** The strategic route suggestion */
+        1: StrategicRouteMessage suggestion
     );
 }

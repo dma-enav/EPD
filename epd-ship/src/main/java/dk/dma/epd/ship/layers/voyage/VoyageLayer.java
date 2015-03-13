@@ -14,22 +14,9 @@
  */
 package dk.dma.epd.ship.layers.voyage;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Point;
-import java.awt.Stroke;
-import java.awt.event.MouseEvent;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.swing.SwingUtilities;
-
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.proj.coords.LatLonPoint;
-
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
@@ -43,6 +30,17 @@ import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
+import dma.route.StrategicRouteMessage;
+import dma.route.StrategicRouteStatus;
+
+import javax.swing.SwingUtilities;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.Stroke;
+import java.awt.event.MouseEvent;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Layer for showing voyages
@@ -439,7 +437,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
 
     /**
      * Called by the {@link StrategicRouteHandler} upon receiving a reply
-     * @param reply the reply
+     * @param routeMessage the reply
      */
     public void handleReply(StrategicRouteMessage routeMessage) {
 

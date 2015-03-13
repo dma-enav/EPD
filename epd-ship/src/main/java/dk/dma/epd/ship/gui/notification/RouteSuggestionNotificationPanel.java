@@ -499,10 +499,6 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         StringBuilder status = new StringBuilder();
         status.append(String.format("<span style='color:%s'>%s</span>",
                 GraphicsUtil.toHtmlColor(routeSuggestion.replySuggestionColor()), routeSuggestion.getStatus().toString()));
-        if (routeSuggestion.getReply() != null) {
-            // && routeSuggestion.getReply().getCloudMessageStatus() != null) {
-            status.append("&nbsp;<small>(" + "eh unknown" + ")</small>");
-        }
         return status.toString();
     }
 

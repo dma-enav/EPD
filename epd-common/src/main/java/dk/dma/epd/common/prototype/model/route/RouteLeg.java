@@ -79,6 +79,8 @@ public class RouteLeg implements Serializable {
     public RouteLeg(RouteWaypoint startWp, RouteWaypoint endWp) {
         this.startWp = startWp;
         this.endWp = endWp;
+        startWp.setOutLeg(this);
+        endWp.setInLeg(this);
     }
 
     public double getSFLen() {
@@ -114,7 +116,7 @@ public class RouteLeg implements Serializable {
     
     /**
      * Speed in nautical miles pr. hour
-     * @param speed
+     * @return the speed
      */
     public double getSpeed() {
         return speed;

@@ -14,12 +14,16 @@
  */
 package dk.dma.epd.common.prototype.model.route;
 
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
+import dk.dma.epd.common.prototype.service.MaritimeCloudData;
+import dma.route.StrategicRouteMessage;
+import dma.route.StrategicRouteStatus;
+
+import java.awt.Color;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 
 /**
  * Data collected for strategic route negotiation
@@ -28,7 +32,7 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
 
     private long id;
     private long mmsi;
-    private List<StrategicRouteMessage> routeMessages = new ArrayList<StrategicRouteMessage>();
+    private List<StrategicRouteMessageData> routeMessages = new ArrayList<>();
     private StrategicRouteStatus status;
     private boolean handled;
     
@@ -56,7 +60,7 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
      * Returns the original route message
      * @return the original route message
      */
-    public StrategicRouteMessage getOriginalRouteMessage() {
+    public StrategicRouteMessageData getOriginalRouteMessage() {
         return !hasRouteMessages() ? null : routeMessages.get(0);
     }
     
@@ -64,7 +68,7 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
      * Returns the latest route message
      * @return the latest route message
      */
-    public StrategicRouteMessage getLatestRouteMessage() {
+    public StrategicRouteMessageData getLatestRouteMessage() {
         return !hasRouteMessages() ? null : routeMessages.get(routeMessages.size() - 1);
     }
     
@@ -73,7 +77,7 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
      * @return the original route
      */
     public Route getOriginalRoute() {
-        return !hasRouteMessages() ? null : new Route(getOriginalRouteMessage().getRoute());
+        return !hasRouteMessages() ? null : new Route(getOriginalRouteMessage().getMsg().getRoute());
     }
     
     /**
@@ -81,7 +85,7 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
      * @return the latest route
      */
     public Route getLatestRoute() {
-        return !hasRouteMessages() ? null : new Route(getLatestRouteMessage().getRoute());
+        return !hasRouteMessages() ? null : new Route(getLatestRouteMessage().getMsg().getRoute());
     }
     
     /**
@@ -103,9 +107,9 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
     public Route getLatestAcceptedRoute(int startIndex, boolean defaultOriginal) {
         if (hasRouteMessages()) {
             for (int x = startIndex; x >= 0; x--) {
-                if (routeMessages.get(x).getStatus() == StrategicRouteStatus.AGREED &&
-                        routeMessages.get(x).getRoute() != null) {
-                    return new Route(routeMessages.get(x).getRoute());
+                if (routeMessages.get(x).getMsg().getStatus() == StrategicRouteStatus.AGREED &&
+                        routeMessages.get(x).getMsg().getRoute() != null) {
+                    return new Route(routeMessages.get(x).getMsg().getRoute());
                 }
             }
             if (defaultOriginal) {
@@ -128,7 +132,7 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
      * @return the original date of the transaction
      */
     public Date getOriginalSentDate() {
-        return !hasRouteMessages() ? null : getOriginalRouteMessage().getSentDate();
+        return !hasRouteMessages() ? null : getOriginalRouteMessage().getSendDate();
     }
     
     /**
@@ -136,16 +140,22 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
      * @return the latest date of the transaction
      */
     public Date getLatestSentDate() {
-        return !hasRouteMessages() ? null : getLatestRouteMessage().getSentDate();
+        return !hasRouteMessages() ? null : getLatestRouteMessage().getSendDate();
     }
     
     /**
      * Adds a route message and updates the status to match the status of the route message
      * @param message the route message to add
+     * @param sentDate the date the message was sent
+     * @param cloudStatus the Maritime Cloud status of the message
+     * @param fromStcc whether the message is from the STCC or the ship
+     * @return the strategic route message data
      */
-    public void addMessage(StrategicRouteMessage message){
-        routeMessages.add(message);
+    public StrategicRouteMessageData addMessage(StrategicRouteMessage message, Date sentDate, CloudMessageStatus cloudStatus, boolean fromStcc){
+        StrategicRouteMessageData data = new StrategicRouteMessageData(message, sentDate, cloudStatus, fromStcc);
+        routeMessages.add(data);
         status = message.getStatus();
+        return data;
     }
     
     public StrategicRouteStatus getStatus() {
@@ -164,7 +174,7 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
         return mmsi;
     }
     
-    public List<StrategicRouteMessage> getRouteMessage() {
+    public List<StrategicRouteMessageData> getRouteMessage() {
         return routeMessages;
     }
     
@@ -191,6 +201,67 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
             return 1;
         } else {
             return d1.compareTo(d2);
+        }
+    }
+
+
+    /**
+     * Encapsulates a StrategicRouteMessage along with header information
+     */
+    public static class StrategicRouteMessageData extends MaritimeCloudData implements Serializable {
+
+        StrategicRouteMessage msg;
+        private boolean fromStcc;
+
+        /**
+         * No-arg constructor
+         */
+        public StrategicRouteMessageData() {
+            super();
+        }
+
+        /**
+         * Constructor
+         * @param msg the message
+         * @param sentDate the send date
+         * @param cloudStatus the Maritime Cloud status of the message
+         * @param fromStcc whether the message is from the STCC or the ship
+         */
+        public StrategicRouteMessageData(StrategicRouteMessage msg, Date sentDate, CloudMessageStatus cloudStatus, boolean fromStcc) {
+            super(cloudStatus, sentDate);
+            this.msg = msg;
+            this.fromStcc = fromStcc;
+        }
+
+        /**
+         * Returns the color associated with the message status
+         * @return the color associated with the message status
+         */
+        public Color getColor() {
+            switch (msg.getStatus()) {
+                case PENDING: return Color.YELLOW;
+                case AGREED: return new Color(130, 165, 80);
+                case REJECTED: return new Color(165, 80, 80);
+                case NEGOTIATING: return Color.YELLOW;
+                case CANCELED: return new Color(165, 80, 80);
+            }
+            return Color.gray;
+        }
+
+        public StrategicRouteMessage getMsg() {
+            return msg;
+        }
+
+        public void setMsg(StrategicRouteMessage msg) {
+            this.msg = msg;
+        }
+
+        public boolean isFromStcc() {
+            return fromStcc;
+        }
+
+        public void setFromStcc(boolean fromStcc) {
+            this.fromStcc = fromStcc;
         }
     }
 }

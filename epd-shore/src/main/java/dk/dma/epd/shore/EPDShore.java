@@ -310,6 +310,16 @@ public final class EPDShore extends EPD {
     }
 
     /**
+     * Returns the type of this EPD instance
+     *
+     * @return the type of this EPD instance
+     */
+    @Override
+    public EPDType getType() {
+        return EPDType.SHORE;
+    }
+
+    /**
      * Returns the settings associated with the EPD system
      * 
      * @return the settings associated with the EPD system

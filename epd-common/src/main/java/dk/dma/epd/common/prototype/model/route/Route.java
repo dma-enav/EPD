@@ -27,11 +27,14 @@ import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Converter;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
+import dma.route.HeadingType;
 import edu.emory.mathcs.backport.java.util.Arrays;
+import net.maritimecloud.util.Timestamp;
 
 /**
  * Route class
  */
+@SuppressWarnings("unused")
 public class Route implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -113,8 +116,7 @@ public class Route implements Serializable {
     /**
      * Copy constructor, performs a shallow copy.
      * 
-     * @param orig
-     *            Original route to copy
+     * @param orig Original route to copy
      */
     public Route(Route orig) {
         this.waypoints = new LinkedList<>(orig.waypoints);
@@ -139,124 +141,12 @@ public class Route implements Serializable {
         parseRoute(cloudRouteData);
     }
 
+    /**
+     * Instantiate the route from a maritime cloud route
+     * @param route the route from a maritime cloud route
+     */
     public Route(dma.route.Route route) {
-        parseRoute(route);
-    }
-
-    public void parseRoute(dma.route.Route route) {
-        this.name = route.getRoutename();
-        List<Waypoint> cloudRouteWaypoints = wpsFromRouteMessage(route);
-
-        LinkedList<RouteWaypoint> routeWaypoints = this.getWaypoints();
-
-        for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
-
-            RouteWaypoint waypoint = new RouteWaypoint();
-            Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
-
-            waypoint.setName(cloudWaypoint.getName());
-            Position position = Position.create(cloudWaypoint.getLatitude(), cloudWaypoint.getLongitude());
-            waypoint.setPos(position);
-
-            // Handle leg
-            if (i > 0) {
-                RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
-                RouteLeg leg = new RouteLeg();
-                waypoint.setInLeg(leg);
-                prevWaypoint.setOutLeg(leg);
-                leg.setStartWp(prevWaypoint);
-                leg.setEndWp(waypoint);
-            }
-
-            routeWaypoints.add(waypoint);
-
-        }
-
-        if (routeWaypoints.size() > 1) {
-            for (int i = 0; i < routeWaypoints.size(); i++) {
-
-                RouteWaypoint waypoint = routeWaypoints.get(i);
-                Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
-
-                if (cloudWaypoint.getTurnRad() != null) {
-                    waypoint.setTurnRad(cloudWaypoint.getTurnRad());
-                }
-
-                if (cloudWaypoint.getRot() != null) {
-                    waypoint.setRot(cloudWaypoint.getRot());
-                }
-
-                // Leg
-
-                if (cloudWaypoint.getRouteLeg() != null) {
-
-                    // SOG
-                    if (cloudWaypoint.getRouteLeg().getSpeed() != null) {
-                        waypoint.setSpeed(cloudWaypoint.getRouteLeg().getSpeed());
-                    }
-
-                    // XTDS
-                    if ((cloudWaypoint.getRouteLeg().getXtdStarboard() != null) && waypoint.getOutLeg() != null) {
-                        waypoint.getOutLeg().setXtdStarboard(cloudWaypoint.getRouteLeg().getXtdStarboard());
-                    }
-
-                    // XTDP
-                    if ((cloudWaypoint.getRouteLeg().getXtdPort() != null) && waypoint.getOutLeg() != null) {
-                        waypoint.getOutLeg().setXtdPort(cloudWaypoint.getRouteLeg().getXtdPort());
-                    }
-
-                    // SF Len
-                    if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
-                        waypoint.getOutLeg().setSFLen(cloudWaypoint.getRouteLeg().getSFLen());
-                    }
-
-                    if (waypoint.getOutLeg() != null) {
-
-                        // Heading
-                        if (cloudWaypoint.getRouteLeg().getHeading() == dk.dma.enav.model.voyage.RouteLeg.Heading.GC) {
-                            waypoint.getOutLeg().setHeading(Heading.GC);
-                        } else {
-                            waypoint.getOutLeg().setHeading(Heading.RL);
-                        }
-                    }
-                }
-
-            }
-        }
-
-        etas = new ArrayList<>();
-        // this.calcAllWpEta();
-        for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
-            etas.add(cloudRouteWaypoints.get(i).getEta());
-        }
-
-    }
-
-    public static List<Waypoint> wpsFromRouteMessage(dma.route.Route route) {
-        List<Waypoint> wps = new ArrayList<>();
-        for (dma.route.Waypoint iwp : route.getWaypoints()) {
-            Waypoint wp = new Waypoint();
-            wp.setLatitude(iwp.getWaypointPosition().getLatitude());
-            wp.setLongitude(iwp.getWaypointPosition().getLongitude());
-            wp.setEta(new Date(iwp.getEta().getTime()));
-            wp.setRot(iwp.getRot());
-            wp.setTurnRad(iwp.getTurnRad());
-            if (iwp.getOutLeg() != null) {
-                dma.route.Leg leg = iwp.getOutLeg();
-                dk.dma.enav.model.voyage.RouteLeg rleg = new dk.dma.enav.model.voyage.RouteLeg();
-                rleg.setSpeed(leg.getSpeed());
-                rleg.setXtdStarboard(leg.getXtdStarboard());
-                rleg.setXtdPort(leg.getXtdPort());
-                if (leg.getHeadingType() == dma.route.HeadingType.GREAT_CIRCLE) {
-                    rleg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.GC);
-                } else {
-                    rleg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.RL);
-                }
-                wp.setRouteLeg(rleg);
-            }
-            wps.add(wp);
-        }
-        return wps;
+        parseMaritimeCloudRoute(route);
     }
 
     public void setSpeed(double SOG) {
@@ -815,12 +705,8 @@ public class Route implements Serializable {
     /**
      * Create a waypoint by splitting a RouteLeg
      * 
-     * @param routeLeg
-     *            Route leg to be split
-     * @param position
-     *            Geographical position of the new waypoint
-     * @param waypointIndex
-     *            Index of the legs start waypoint
+     * @param routeLeg Route leg to be split
+     * @param position Geographical position of the new waypoint
      */
     public void createWaypoint(RouteLeg routeLeg, Position position) {
         RouteWaypoint previousWaypoint = routeLeg.getStartWp();
@@ -867,7 +753,7 @@ public class Route implements Serializable {
 
             int count = i + 1;
 
-            if (name.contains("WP_")) {
+            if (name != null && name.contains("WP_")) {
                 String wpcountTxt = "";
 
                 if (count < 10) {
@@ -1056,6 +942,84 @@ public class Route implements Serializable {
         this.etas = etas;
     }
 
+    /**
+     * Converts this route into a Maritime Cloud route
+     * @return the Maritime Cloud route
+     */
+    public dma.route.Route toMaritimeCloudRoute() {
+        dma.route.Route r = new dma.route.Route();
+        r.setRoutename(getName());
+        for (int i = 0; i < getWaypoints().size(); i++) {
+            RouteWaypoint wp = getWaypoints().get(i);
+            dma.route.Waypoint iwp = new dma.route.Waypoint();
+            net.maritimecloud.util.geometry.Position pos
+                    = net.maritimecloud.util.geometry.Position.create(wp.getPos().getLatitude(), wp.getPos().getLongitude());
+            iwp.setWaypointPosition(pos);
+            iwp.setEta(Timestamp.create(getEtas().get(i).getTime()));
+            iwp.setRot(wp.getRot());
+            iwp.setTurnRad(wp.getTurnRad());
+            if (wp.getOutLeg() != null) {
+                dma.route.Leg leg = new dma.route.Leg();
+                leg.setSpeed(wp.getOutLeg().getSpeed());
+                leg.setXtdStarboard(wp.getOutLeg().getXtdStarboard());
+                leg.setXtdPort(wp.getOutLeg().getXtdPort());
+                if (wp.getOutLeg().getHeading() == Heading.RL) {
+                    leg.setHeadingType(dma.route.HeadingType.RHUMB_LINE);
+                } else {
+                    leg.setHeadingType(dma.route.HeadingType.GREAT_CIRCLE);
+                }
+                iwp.setOutLeg(leg);
+            }
+            r.addWaypoints(iwp);
+        }
+        return r;
+    }
+
+    /**
+     * Parses the maritime cloud route
+     * @param mcRoute the maritime cloud route
+     */
+    protected void parseMaritimeCloudRoute(dma.route.Route mcRoute) {
+        this.name = mcRoute.getRoutename();
+        etas = new ArrayList<>();
+
+        RouteWaypoint prevWp = null;
+        int wpIndex = 1;
+        for (dma.route.Waypoint mcWp : mcRoute.getWaypoints()) {
+            RouteWaypoint wp = new RouteWaypoint();
+            waypoints.add(wp);
+            etas.add(Date.from(mcWp.getEta().asInstant()));
+
+            // Update the out-leg of the wp
+            if (mcWp.getOutLeg() != null) {
+                RouteLeg leg = new RouteLeg();
+                wp.setOutLeg(leg);
+                leg.setStartWp(wp);
+                leg.setXtdStarboard(mcWp.getOutLeg().getXtdStarboard());
+                leg.setXtdPort(mcWp.getOutLeg().getXtdPort());
+                leg.setHeading(mcWp.getOutLeg().getHeadingType() == HeadingType.GREAT_CIRCLE ? Heading.GC : Heading.RL);
+
+                // Will set the speed of the leg
+                wp.setSpeed(mcWp.getOutLeg().getSpeed() == null ? 0.0 : mcWp.getOutLeg().getSpeed());
+            }
+
+            // Set the out-leg of the previous wp as the in-leg of the current wp
+            if (prevWp != null) {
+                wp.setInLeg(prevWp.getOutLeg());
+                prevWp.getOutLeg().setEndWp(wp);
+            }
+
+            wp.pos = Position.create(mcWp.getWaypointPosition().getLatitude(), mcWp.getWaypointPosition().getLongitude());
+            wp.turnRad = mcWp.getTurnRad();
+            wp.rot = mcWp.getRot();
+            wp.name = String.format("WP_%03d", wpIndex++);
+
+            prevWp = wp;
+        }
+
+        setStarttime((etas.size() > 0) ? etas.get(0) : PntTime.getDate());
+    }
+
     public dk.dma.enav.model.voyage.Route getFullRouteData() {
 
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
@@ -1071,7 +1035,6 @@ public class Route implements Serializable {
             voyageWaypoint.setEta(etas.get(i));
             voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
             voyageWaypoint.setLongitude(currentWaypoint.getPos().getLongitude());
-
             voyageWaypoint.setRot(currentWaypoint.getRot());
             voyageWaypoint.setTurnRad(currentWaypoint.getTurnRad());
 
@@ -1090,6 +1053,7 @@ public class Route implements Serializable {
         return voyageRoute;
     }
 
+    // TODO: Simplify simplify simplify!
     private void parseRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
         this.setName(cloudRouteData.getName());
         List<Waypoint> cloudRouteWaypoints = cloudRouteData.getWaypoints();

@@ -512,7 +512,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         LOG.info(String.format("Sending route suggestion to MMSI %d", mmsi));
 
         try {
-            routeSuggestionHandler.sendRouteSuggestion(mmsi, route.getFullRouteData(), messageTxtField.getText());
+            routeSuggestionHandler.sendRouteSuggestion(mmsi, route, messageTxtField.getText());
             messageTxtField.setText("");
         } catch (Exception e) {
             LOG.error("Failed to send route", e);
@@ -766,7 +766,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
 
     /**
      * Sadly, the change listener fires twice when you click the spinner buttons. This class will only call
-     * {@linkplain #spinnerValueChanged()} when the value has actually changed
+     * {@code spinnerValueChanged()} when the value has actually changed
      */
     class SpinnerChangeListener implements ChangeListener {
         Object oldValue;
@@ -782,7 +782,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
     }
 
     /**
-     * Can be attached to the document of a text field and will call {@linkplain #textFieldValueChanged()} when the value changes
+     * Can be attached to the document of a text field and will call {@code textFieldValueChanged()} when the value changes
      */
     class TextFieldChangeListener implements DocumentListener {
         JTextField field;

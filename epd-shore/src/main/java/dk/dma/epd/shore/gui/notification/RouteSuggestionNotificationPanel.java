@@ -14,20 +14,6 @@
  */
 package dk.dma.epd.shore.gui.notification;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
@@ -38,6 +24,18 @@ import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A route suggestion implementation of the {@linkplain NotificationPanel} class
@@ -199,7 +197,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
             RouteSuggestionData routeSuggestion = notification.get();
             try {
                 routeSuggestionHandler.sendRouteSuggestion(routeSuggestion.getMmsi(),
-                        routeSuggestion.getRoute().getFullRouteData(), routeSuggestion.getMessage().getTextMessage());
+                        routeSuggestion.getRoute(), routeSuggestion.getMessage().getTextMessage());
 
             } catch (Exception ex) {
                 LOG.error("Error re-sending route suggestion", ex);

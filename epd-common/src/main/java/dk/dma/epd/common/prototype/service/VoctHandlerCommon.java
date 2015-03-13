@@ -14,10 +14,7 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARInfoMessage;
-import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
 import net.maritimecloud.net.mms.MmsClient;
 
 import java.util.ArrayList;
@@ -30,8 +27,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * Listens for intended route broadcasts, and updates the vessel target when one is received.
  */
-public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon implements
-        ICloudMessageListener<VOCTCommunicationMessage, VOCTCommunicationReply> {
+public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon {
 
     /**
      * Time an intended route is considered valid without update

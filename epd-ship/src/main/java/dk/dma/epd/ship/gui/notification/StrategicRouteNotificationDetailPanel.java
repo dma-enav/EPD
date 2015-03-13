@@ -14,22 +14,21 @@
  */
 package dk.dma.epd.ship.gui.notification;
 
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData.StrategicRouteMessageData;
+import dk.dma.epd.common.prototype.notification.StrategicRouteNotificationDetailPanelCommon;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
 import static dk.dma.epd.common.graphics.GraphicsUtil.bold;
 import static dk.dma.epd.common.graphics.GraphicsUtil.minSize;
 import static java.awt.GridBagConstraints.HORIZONTAL;
 import static java.awt.GridBagConstraints.NONE;
 import static java.awt.GridBagConstraints.WEST;
-
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
-import dk.dma.epd.common.prototype.notification.StrategicRouteNotificationDetailPanelCommon;
 
 /**
  * Ship-specific panel that displays relevant strategic detail information 
@@ -86,7 +85,7 @@ public class StrategicRouteNotificationDetailPanel extends StrategicRouteNotific
      * {@inheritDoc}
      */
     @Override
-    protected String getMessageViewTitle(StrategicRouteMessage routeMessage) {
+    protected String getMessageViewTitle(StrategicRouteMessageData routeMessage) {
         return routeMessage.isFromStcc() ? "Received from STCC" : "Sent to STCC";
     }
 }

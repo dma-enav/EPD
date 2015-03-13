@@ -142,7 +142,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private JSpinner arrivalSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.HOUR_OF_DAY));
     
     private JTextField inrouteTxT = new JTextField();
-    private JComboBox<EtaCalculationType> etaCalculationTime = new JComboBox<EtaCalculationType>(EtaCalculationType.values());
+    private JComboBox<EtaCalculationType> etaCalculationTime = new JComboBox<>(EtaCalculationType.values());
     
     // Route details table
     private DefaultTableModel routeTableModel;    
@@ -165,7 +165,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * Constructor
      * 
      * @param parent the parent window
-     * @param routeManager the route manager
+     * @param chartPanel the chart panel
      * @param routeId the route index
      */
     public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, int routeId) {
@@ -264,7 +264,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         
         distanceTxT.setEditable(false);
         routeProps.add(new JLabel("Total Distance:"), new GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        routeProps.add(fixSize(distanceTxT, 120), new GridBagConstraints(1, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routeProps.add(fixSize(distanceTxT, 120), new GridBagConstraints(1, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         
         // Column 2 widgets
         gridY = 0;
@@ -292,7 +292,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         allSpeedsBtn.setEnabled(!readOnlyRoute);
         routeProps.add(new JLabel("Speed all legs: "), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
         routeProps.add(fixSize(allSpeeds, 60), new GridBagConstraints(3, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets3, 0, 0));
-        routeProps.add(fixSize(allSpeedsBtn, 60, h), new GridBagConstraints(4, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets4, 0, 0));
+        routeProps.add(fixSize(allSpeedsBtn, 60, h), new GridBagConstraints(4, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets4, 0, 0));
         
         routeProps.add(new JLabel(""), new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
         
@@ -408,7 +408,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                     RouteWaypoint wp = route.getWaypoints().get(rowIndex);
                     switch (columnIndex) {
                     case  0: 
-                        locked[rowIndex] = ((Boolean)value).booleanValue(); 
+                        locked[rowIndex] = (Boolean) value;
                         checkLockedRows();
                         fireTableRowsUpdated(rowIndex, rowIndex); 
                         break;
@@ -1001,7 +1001,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
 
     /**
      * Sadly, the change listener fires twice when you click
-     * the spinner buttons. This class will only call {@linkplain #spinnerValueChanged()}
+     * the spinner buttons. This class will only call {@code spinnerValueChanged()}
      * when the value has actually changed
      */
     class SpinnerChangeListener implements ChangeListener {
@@ -1019,7 +1019,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     
     /**
      * Can be attached to the document of a text field and will call
-     *  {@linkplain #textFieldValueChanged()} when the value changes
+     *  {@code textFieldValueChanged()} when the value changes
      */
     class TextFieldChangeListener implements DocumentListener {
         JTextField field;

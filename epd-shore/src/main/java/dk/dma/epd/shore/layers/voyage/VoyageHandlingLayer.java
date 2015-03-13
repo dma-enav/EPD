@@ -14,22 +14,9 @@
  */
 package dk.dma.epd.shore.layers.voyage;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Stroke;
-import java.awt.event.MouseEvent;
-
-import javax.swing.SwingUtilities;
-
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.proj.coords.LatLonPoint;
-
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
@@ -46,6 +33,16 @@ import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.voyage.Voyage;
+import dma.route.StrategicRouteStatus;
+
+import javax.swing.SwingUtilities;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Stroke;
+import java.awt.event.MouseEvent;
 
 
 /**
@@ -203,18 +200,17 @@ public class VoyageHandlingLayer extends EPDLayerCommon implements IVoyageUpdate
         checkIfETAChanged();
         voyage.setRoute(newRoute);
         
-        StrategicRouteStatus replyStatus = 
+        StrategicRouteStatus replyStatus =
                 modified
-                ? StrategicRouteService.StrategicRouteStatus.NEGOTIATING
-                : StrategicRouteService.StrategicRouteStatus.AGREED;
+                ? StrategicRouteStatus.NEGOTIATING
+                : StrategicRouteStatus.AGREED;
 
         EPDShore.getInstance().getStrategicRouteHandler()
             .sendStrategicRouteReply(
                     voyage.getId(), 
                     message,
-                    System.currentTimeMillis(), 
-                    replyStatus, 
-                    voyage.getRoute().getFullRouteData(), 
+                    replyStatus,
+                    voyage.getRoute(),
                     renegotiate);
         getMapFrame().dispose();
     }
@@ -349,8 +345,6 @@ public class VoyageHandlingLayer extends EPDLayerCommon implements IVoyageUpdate
 
     /**
      * Functions called when creating the layer, it paints the initial voyage
-     * 
-     * @param voyage
      */
     public void handleVoyage(Route originalRoute, Voyage voyage, boolean renegotiate) {
         graphics.clear();

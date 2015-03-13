@@ -32,7 +32,6 @@ import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
-import net.maritimecloud.core.id.MmsiId;
 import net.maritimecloud.net.mms.MmsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,7 +222,8 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
         }
 
-        sendMaritimeCloudMessage(voctMessageList, new MmsiId((int) mmsi), voctMessage, this);
+        // TODO: Maritime Cloud 0.2 re-factoring
+        //sendMaritimeCloudMessage(voctMessageList, new MmsiId((int) mmsi), voctMessage, this);
 
 //        System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
 
@@ -282,25 +282,25 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         super.findAndUndo(obj);
     }
 
-    @Override
-    public void messageReceivedByCloud(VOCTCommunicationMessage message) {
-        // TODO Auto-generated method stub
+    // TODO: Maritime Cloud 0.2 re-factoring
+//    @Override
+//    public void messageReceivedByCloud(VOCTCommunicationMessage message) {
+//        sruManager.sruSRUStatus(message.getReceiversMMSI(), CloudMessageStatus.RECEIVED_BY_CLOUD);
+//    }
 
-        sruManager.sruSRUStatus(message.getReceiversMMSI(), CloudMessageStatus.RECEIVED_BY_CLOUD);
-    }
-
-    @Override
-    public void messageHandled(VOCTCommunicationMessage message, VOCTCommunicationReply reply) {
-        // TODO Auto-generated method stub
-        sruManager.sruSRUStatus(message.getReceiversMMSI(), CloudMessageStatus.RECEIVED_BY_CLIENT);
-    }
+    // TODO: Maritime Cloud 0.2 re-factoring
+//    @Override
+//    public void messageHandled(VOCTCommunicationMessage message, VOCTCommunicationReply reply) {
+//        sruManager.sruSRUStatus(message.getReceiversMMSI(), CloudMessageStatus.RECEIVED_BY_CLIENT);
+//    }
 
     public void sendCancelMessage(List<Long> srusToCancel) {
 //        System.out.println("Send SAR cancel message " + srusToCancel.size());
         for (int i = 0; i < srusToCancel.size(); i++) {
             VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(voctManager.getVoctID(), VoctMsgStatus.WITHDRAWN);
 
-            boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) srusToCancel.get(i)), voctMessage, this);
+            // TODO: Maritime Cloud 0.2 re-factoring
+            //boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) srusToCancel.get(i)), voctMessage, this);
         }
 
     }
