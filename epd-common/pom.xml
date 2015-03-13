@@ -171,6 +171,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <implementsSerializable>true</implementsSerializable>
+                </configuration>
             </plugin>
 
             <!-- Add the generated sources to the classpath -->
@@ -234,7 +237,10 @@
 							</goals>
 						</execution>
 					</executions>
-				</plugin>
+                    <configuration>
+                        <implementsSerializable>true</implementsSerializable>
+                    </configuration>
+                </plugin>
 
 				<!-- Add the generated sources to the classpath -->
 				<plugin>
