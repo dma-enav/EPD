@@ -206,19 +206,4 @@ public class RouteWaypoint implements Serializable {
                 + inLeg + "]";
     }
 
-    // @Override
-    // public String toString() {
-    // StringBuilder builder = new StringBuilder();
-    // builder.append("RouteWaypoint [leg=");
-    // builder.append(outLeg);
-    // builder.append(", name=");
-    // builder.append(name);
-    // builder.append(", pos=");
-    // builder.append(pos);
-    // builder.append(", turnRad=");
-    // builder.append(turnRad);
-    // builder.append("]");
-    // return builder.toString();
-    // }
-
 }

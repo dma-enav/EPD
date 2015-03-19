@@ -18,13 +18,14 @@ import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
 import net.maritimecloud.net.LocalEndpoint;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Utility methods for converting between different representations of MMSI identifiers and for searching lists of Maritime Cloud
  * services based on MMSI
  */
+@SuppressWarnings("unused")
 public class MaritimeCloudUtils {
 
     public static final String STCC_MMSI_PREFIX = "999";
@@ -37,7 +38,7 @@ public class MaritimeCloudUtils {
      * @return if the id is from a sea traffic control center
      */
     public static boolean isSTCC(MaritimeId id) {
-        return id != null && id.toString().startsWith("mmsi://" + STCC_MMSI_PREFIX);
+        return id != null && (id.toString().startsWith("mmsi://" + STCC_MMSI_PREFIX) || id.toString().startsWith("mmsi:" + STCC_MMSI_PREFIX));
     }
 
     /**
@@ -127,41 +128,11 @@ public class MaritimeCloudUtils {
     }
 
     /**
-     * Finds the first STCC (sea traffic control center) in the list
-     * 
-     * @param serviceList
-     *            the list of services to check
-     * @return an STCC service or null if not found
+     * Returns a predicate that filters either ships or shore centers based on the parameter
+     * @param ship whether to filter on ships or shore centers
+     * @return the predicate
      */
-    public static LocalEndpoint findSTCCService(List<? extends LocalEndpoint> serviceList) {
-        if (serviceList != null) {
-            for (LocalEndpoint service : serviceList) {
-                if (isSTCC(service.getRemoteId())) {
-                    return service;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Finds all STCC (sea traffic control centers) in the list
-     * 
-     * @param serviceList
-     *            the list of services to check
-     * @return all STCC services in a list or empty list if none exists
-     */
-    public static List<LocalEndpoint> findSTCCServices(List<? extends LocalEndpoint> serviceList) {
-
-        List<LocalEndpoint> returnList = new ArrayList<>();
-
-        if (serviceList != null) {
-            for (LocalEndpoint service : serviceList) {
-                if (isSTCC(service.getRemoteId())) {
-                    returnList.add(service);
-                }
-            }
-        }
-        return returnList;
+    public static <E extends LocalEndpoint> Predicate<E> filterByType(boolean ship) {
+        return e -> isShip(e.getRemoteId()) == ship;
     }
 }

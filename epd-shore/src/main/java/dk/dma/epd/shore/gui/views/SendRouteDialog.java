@@ -323,6 +323,8 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
 
     }
 
+    boolean adjustingVesselSelection = false;
+
     /**
      * Called when one of the buttons are clicked or if one of the combo-boxes changes value
      */
@@ -332,11 +334,15 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
             return;
         }
 
-        if (ae.getSource() == nameComboBox) {
+        if (ae.getSource() == nameComboBox && !adjustingVesselSelection) {
+            adjustingVesselSelection = true;
             nameSelectionChanged();
+            adjustingVesselSelection = false;
 
-        } else if (ae.getSource() == mmsiListComboBox) {
+        } else if (ae.getSource() == mmsiListComboBox && !adjustingVesselSelection) {
+            adjustingVesselSelection = true;
             mmsiSelectionChanged();
+            adjustingVesselSelection = false;
 
         } else if (ae.getSource() == routeListComboBox) {
             routeSelectionChanged();
@@ -446,7 +452,6 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
      * Called when the name selection has changed
      */
     private void nameSelectionChanged() {
-        // System.out.println("Name selection changed");
         if (nameComboBox.getSelectedItem() != null) {
             mmsiListComboBox.setSelectedIndex(nameComboBox.getSelectedIndex());
         }
@@ -512,7 +517,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         LOG.info(String.format("Sending route suggestion to MMSI %d", mmsi));
 
         try {
-            routeSuggestionHandler.sendRouteSuggestion(mmsi, route.getFullRouteData(), messageTxtField.getText());
+            routeSuggestionHandler.sendRouteSuggestion(mmsi, route, messageTxtField.getText());
             messageTxtField.setText("");
         } catch (Exception e) {
             LOG.error("Failed to send route", e);
@@ -766,7 +771,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
 
     /**
      * Sadly, the change listener fires twice when you click the spinner buttons. This class will only call
-     * {@linkplain #spinnerValueChanged()} when the value has actually changed
+     * {@code spinnerValueChanged()} when the value has actually changed
      */
     class SpinnerChangeListener implements ChangeListener {
         Object oldValue;
@@ -782,7 +787,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
     }
 
     /**
-     * Can be attached to the document of a text field and will call {@linkplain #textFieldValueChanged()} when the value changes
+     * Can be attached to the document of a text field and will call {@code textFieldValueChanged()} when the value changes
      */
     class TextFieldChangeListener implements DocumentListener {
         JTextField field;

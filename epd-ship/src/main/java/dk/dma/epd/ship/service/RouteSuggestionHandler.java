@@ -14,6 +14,23 @@
  */
 package dk.dma.epd.ship.service;
 
+import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
+import dma.route.AbstractTacticalRouteEndpoint;
+import dma.route.RouteSegmentSuggestionStatus;
+import dma.route.TacticalRouteReplyEndpoint;
+import dma.route.TacticalRouteSuggestion;
+import dma.route.TacticalRouteSuggestionReply;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.net.EndpointInvocationFuture;
+import net.maritimecloud.net.MessageHeader;
+import net.maritimecloud.net.mms.MmsClient;
+import net.maritimecloud.util.Timestamp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,24 +42,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.net.EndpointInvocationFuture;
-import net.maritimecloud.net.MessageHeader;
-import net.maritimecloud.net.mms.MmsClient;
-import net.maritimecloud.util.Timestamp;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
-import dma.route.AbstractTacticalRouteEndpoint;
-import dma.route.RouteSegmentSuggestionStatus;
-import dma.route.TacticalRouteReplyEndpoint;
-import dma.route.TacticalRouteSuggestion;
-import dma.route.TacticalRouteSuggestionReply;
 
 /**
  * Ship-specific route suggestion e-Nav service.
@@ -113,9 +112,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         // // Cache the message
         long mmsi = MaritimeCloudUtils.toMmsi(caller);
 
-        // Hack, we have too many route types, get rid of one?
-        dk.dma.enav.model.voyage.Route route = new dk.dma.epd.common.prototype.model.route.Route(message.getRoute())
-                .getFullRouteData();
+        Route route = new dk.dma.epd.common.prototype.model.route.Route(message.getRoute());
 
         RouteSuggestionData routeData = new RouteSuggestionData(message, mmsi, route);
         routeData.setAcknowleged(false);

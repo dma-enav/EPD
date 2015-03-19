@@ -21,7 +21,6 @@ import dk.dma.epd.common.prototype.enavcloud.TODO;
 import dk.dma.epd.common.prototype.service.FALHandlerCommon;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.fal.FALManager;
-import net.maritimecloud.core.id.MmsiId;
 import net.maritimecloud.net.mms.MmsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +136,8 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
         falMessage.setFalReport(falReport);
         falMessage.setSentDate(new Date());
 
-        boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) id), falMessage, this);
+        // TODO: Maritime Cloud 0.2 re-factoring
+        //boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) id), falMessage, this);
     }
 
     /**
@@ -172,15 +172,4 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
         // }
         super.findAndUndo(obj);
     }
-
-    @Override
-    public void messageReceivedByCloud(FALReportMessage message) {
-
-    }
-
-    @Override
-    public void messageHandled(FALReportMessage message, FALReportReply reply) {
-
-    }
-
 }

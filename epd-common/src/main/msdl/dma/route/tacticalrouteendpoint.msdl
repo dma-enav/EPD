@@ -1,6 +1,6 @@
 namespace dma.route;
 
-	message TacticalRouteSuggestion{
+message TacticalRouteSuggestion{
 	/** The route segment*/
 	1: Route route;
 	/** The transaction ID */

@@ -324,7 +324,7 @@ public class MapMenu extends MapMenuCommon {
 
                 sendToSTCC.setText("Send to STCC...");
                 sendToSTCC.setRoute(route);
-                sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
+                sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteServiceExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
                         && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
@@ -392,7 +392,7 @@ public class MapMenu extends MapMenuCommon {
 
         sendToSTCC.setRoute(route);
         sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
-        sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists() && routeManager.getActiveRouteIndex() != routeIndex
+        sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteServiceExists() && routeManager.getActiveRouteIndex() != routeIndex
                 && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
         if (strategicRouteHandler.isTransaction()) {

@@ -28,7 +28,6 @@ import dk.dma.epd.common.prototype.service.FALHandlerCommon;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.fal.FALManager;
-import net.maritimecloud.core.id.MmsiId;
 import net.maritimecloud.net.mms.MmsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,7 +168,8 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
 
         FALReportMessage falMessage = new FALReportMessage();
 
-        boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) 0), falMessage, this);
+        // TODO: Maritime Cloud 0.2 re-factoring
+        //boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) 0), falMessage, this);
 
 //        System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
 
@@ -234,18 +234,4 @@ public class FALHandler extends FALHandlerCommon implements Runnable {
         // }
         super.findAndUndo(obj);
     }
-
-    @Override
-    public void messageReceivedByCloud(FALReportMessage message) {
-        // TODO Auto-generated method stub
-
-        // sruManager.sruSRUStatus(message.getReceiversMMSI(), CloudMessageStatus.RECEIVED_BY_CLOUD);
-    }
-
-    @Override
-    public void messageHandled(FALReportMessage message, FALReportReply reply) {
-        // TODO Auto-generated method stub
-        // sruManager.sruSRUStatus(message.getReceiversMMSI(), CloudMessageStatus.RECEIVED_BY_CLIENT);
-    }
-
 }
