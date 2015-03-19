@@ -61,6 +61,6 @@ public class CalculatorTest {
 
         double result = Calculator.range(start, end, Heading.RL);
 
-        assertEquals( 9260.0, result, 0.0);
+        assertEquals(5.000017243489917, result, 0.0);
     }
 }
