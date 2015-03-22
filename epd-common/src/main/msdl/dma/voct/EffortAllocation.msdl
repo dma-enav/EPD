@@ -4,6 +4,7 @@ namespace dma.voct;
 message EffortAllocation {
     /** w */
     1: double wVar;
+    
 	/** Desired Ground speed in knots */
     2: double groundSpeed;
 

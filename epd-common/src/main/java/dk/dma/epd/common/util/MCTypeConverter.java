@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.dma.epd.common.text;
+package dk.dma.epd.common.util;
 
 import java.util.Date;
 
@@ -22,7 +22,7 @@ import org.joda.time.DateTime;
 
 import dk.dma.enav.model.geometry.Position;
 
-public class MaritimeCloudTypeConverterUtil {
+public class MCTypeConverter {
 
     public static net.maritimecloud.util.geometry.Position getMaritimeCloudPositin(
             Position position) {

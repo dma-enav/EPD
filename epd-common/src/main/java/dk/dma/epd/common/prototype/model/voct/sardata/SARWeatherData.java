@@ -161,9 +161,8 @@ public class SARWeatherData implements Serializable {
 
         dma.voct.SARWeatherData weatherData = new dma.voct.SARWeatherData();
 
-        net.maritimecloud.util.Timestamp timeStamp = MaritimeCloudTypeConverterUtil(dateTime);
-                net.maritimecloud.util.Timestamp
-                .create(dateTime.getMillis());
+        net.maritimecloud.util.Timestamp timeStamp = dk.dma.epd.common.util.MCTypeConverter
+                .getMaritimeCloudTimeStamp(dateTime);
 
         weatherData.setDate(timeStamp);
 

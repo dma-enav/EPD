@@ -21,12 +21,11 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import dk.dma.enav.model.dto.PositionDTO;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voct.RapidResponseDTO;
-import dk.dma.enav.model.voct.WeatherDataDTO;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.MCTypeConverter;
 import dma.voct.RapidResponse;
 
 public class RapidResponseData extends SARData {
@@ -436,7 +435,7 @@ public class RapidResponseData extends SARData {
         return str.toString();
     }
 
-    public RapidResponseDTO getModelData() {
+    public RapidResponse getModelData() {
 
         RapidResponse rapidResponseData = new RapidResponse();
 
@@ -447,58 +446,55 @@ public class RapidResponseData extends SARData {
 
         for (int i = 0; i < windList.size(); i++) {
 
-            rapidResponseData
-                    .addWindList(net.maritimecloud.util.geometry.Position
-                            .create(windList.get(i).getLatitude(), windList
-                                    .get(i).getLongitude()));
+            rapidResponseData.addWindList(MCTypeConverter
+                    .getMaritimeCloudPositin(windList.get(i)));
         }
 
         for (int i = 0; i < currentList.size(); i++) {
-            rapidResponseData
-                    .addCurrentList(net.maritimecloud.util.geometry.Position
-                            .create(currentList.get(i).getLatitude(),
-                                    currentList.get(i).getLongitude()));
+            rapidResponseData.addCurrentList(MCTypeConverter
+                    .getMaritimeCloudPositin(currentList.get(i)));
+
         }
 
         net.maritimecloud.util.geometry.Position cSPPos = null;
 
         if (getCSP() != null) {
-            cSPPos = net.maritimecloud.util.geometry.Position.create(getCSP()
-                    .getLatitude(), getCSP().getLongitude());
+            cSPPos = MCTypeConverter.getMaritimeCloudPositin(getCSP());
 
         }
-        
-        rapidResponseData.setA(A)
-        rapidResponseData.setB(B)
-        rapidResponseData.setC(C)
-        rapidResponseData.setD(D)
-        rapidResponseData.setCSSDate(CSSDate)
-        rapidResponseData.setDatum(datum)
-        rapidResponseData.setLKPDate(LKPDate)
-        rapidResponseData.setRadius(radius)
-        rapidResponseData.setRdvDirection(rdvDirection)
-        rapidResponseData.setRdvDirectionLast(rdvDirectionLast)
-        rapidResponseData.setRdvDistance(rdvDistance)
-        rapidResponseData.setRdvSpeed(rdvSpeed)
-        rapidResponseData.setRdvSpeedLast(rdvSpeedLast)
-        rapidResponseData.setSafetyFactor(safetyFactor)
-        rapidResponseData.setSarID(sarID)
-        rapidResponseData.setSearchObject(searchObject)
-        rapidResponseData.setTimeElapsed(timeElapsed)
-        rapidResponseData.setX(x)
-        rapidResponseData.setY(y)
 
-                
+        rapidResponseData.setA(MCTypeConverter.getMaritimeCloudPositin(A));
+        rapidResponseData.setB(MCTypeConverter.getMaritimeCloudPositin(B));
+        rapidResponseData.setC(MCTypeConverter.getMaritimeCloudPositin(C));
+        rapidResponseData.setD(MCTypeConverter.getMaritimeCloudPositin(D));
+
+        rapidResponseData.setCSSDate(MCTypeConverter
+                .getMaritimeCloudTimeStamp(getCSSDate()));
+
+        rapidResponseData.setDatum(MCTypeConverter
+                .getMaritimeCloudPositin(datum));
+
+        rapidResponseData.setLKPDate(MCTypeConverter
+                .getMaritimeCloudTimeStamp(getLKPDate()));
+        rapidResponseData.setRadius(radius);
+
+        rapidResponseData.setRdvDirection(rdvDirection);
+
+        rapidResponseData.setRdvDirectionLast(rdvDirectionLast);
+
+        rapidResponseData.setRdvDistance(rdvDistance);
+        rapidResponseData.setRdvSpeed(rdvSpeed);
+        rapidResponseData.setRdvSpeedLast(rdvSpeedLast);
+        rapidResponseData.setSafetyFactor(getSafetyFactor());
+        rapidResponseData.setSarID(getSarID());
+        rapidResponseData.setSearchObject(getSearchObject());
+        rapidResponseData.setTimeElapsed(getTimeElasped());
+        rapidResponseData.setX(getX());
+        rapidResponseData.setY(getY());
         
         
 
-        return new RapidResponseDTO(getSarID(), this.getLKPDate().toDate(),
-                this.getCSSDate().toDate(), this.getLKP().getDTO(), cSPPos,
-                this.getX(), this.getY(), this.getSafetyFactor(),
-                this.getSearchObject(), currentListDTO, windListDTO,
-                datum.getDTO(), radius, timeElasped, rdvDirection, rdvDistance,
-                rdvSpeed, rdvDirectionLast, rdvSpeedLast, A.getDTO(),
-                B.getDTO(), C.getDTO(), D.getDTO(), weatherList);
+        return rapidResponseData;
+
     }
-
 }

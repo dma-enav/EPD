@@ -18,6 +18,8 @@ import java.io.Serializable;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
+import dk.dma.epd.common.util.MCTypeConverter;
+import dma.voct.EffortAllocation;
 
 public class EffortAllocationData implements Serializable {
 
@@ -26,7 +28,7 @@ public class EffortAllocationData implements Serializable {
     private double groundSpeed;
     private double pod;
     private double trackSpacing;
-    private int searchTime;
+    private double searchTime;
     private double effectiveAreaSize;
 
     private long mmsi;
@@ -55,13 +57,17 @@ public class EffortAllocationData implements Serializable {
         this.trackSpacing = effortAllocationDTO.getTrackSpacing();
         this.effectiveAreaSize = effortAllocationDTO.getEffectiveAreaSize();
 
-        this.effectiveAreaA = Position.create(effortAllocationDTO.getEffectiveAreaA().getLatitude(), effortAllocationDTO
+        this.effectiveAreaA = Position.create(effortAllocationDTO
+                .getEffectiveAreaA().getLatitude(), effortAllocationDTO
                 .getEffectiveAreaA().getLongitude());
-        this.effectiveAreaB = Position.create(effortAllocationDTO.getEffectiveAreaB().getLatitude(), effortAllocationDTO
+        this.effectiveAreaB = Position.create(effortAllocationDTO
+                .getEffectiveAreaB().getLatitude(), effortAllocationDTO
                 .getEffectiveAreaB().getLongitude());
-        this.effectiveAreaC = Position.create(effortAllocationDTO.getEffectiveAreaC().getLatitude(), effortAllocationDTO
+        this.effectiveAreaC = Position.create(effortAllocationDTO
+                .getEffectiveAreaC().getLatitude(), effortAllocationDTO
                 .getEffectiveAreaC().getLongitude());
-        this.effectiveAreaD = Position.create(effortAllocationDTO.getEffectiveAreaD().getLatitude(), effortAllocationDTO
+        this.effectiveAreaD = Position.create(effortAllocationDTO
+                .getEffectiveAreaD().getLatitude(), effortAllocationDTO
                 .getEffectiveAreaD().getLongitude());
 
     }
@@ -73,10 +79,9 @@ public class EffortAllocationData implements Serializable {
         return mmsi;
     }
 
-    
-    
     /**
-     * @param mmsi the mmsi to set
+     * @param mmsi
+     *            the mmsi to set
      */
     public void setMmsi(long mmsi) {
         this.mmsi = mmsi;
@@ -130,7 +135,7 @@ public class EffortAllocationData implements Serializable {
     /**
      * @return the searchTime
      */
-    public int getSearchTime() {
+    public double getSearchTime() {
         return searchTime;
     }
 
@@ -283,9 +288,29 @@ public class EffortAllocationData implements Serializable {
         this.effectiveAreaD = effectiveAreaD;
     }
 
-    public EffortAllocationDTO getModelData() {
-        return new EffortAllocationDTO(w, groundSpeed, pod, trackSpacing, searchTime, effectiveAreaSize, effectiveAreaA.getDTO(),
-                effectiveAreaB.getDTO(), effectiveAreaC.getDTO(), effectiveAreaD.getDTO());
+    public EffortAllocation getModelData() {
+        dma.voct.EffortAllocation effortAllocationData = new dma.voct.EffortAllocation();
+
+        effortAllocationData.setAreaSize(effectiveAreaSize);
+
+        effortAllocationData.setEffectiveAreaA(MCTypeConverter
+                .getMaritimeCloudPositin(effectiveAreaA));
+
+        effortAllocationData.setEffectiveAreaB(MCTypeConverter
+                .getMaritimeCloudPositin(effectiveAreaB));
+        effortAllocationData.setEffectiveAreaC(MCTypeConverter
+                .getMaritimeCloudPositin(effectiveAreaC));
+        effortAllocationData.setEffectiveAreaD(MCTypeConverter
+                .getMaritimeCloudPositin(effectiveAreaD));
+
+        effortAllocationData.setGroundSpeed(groundSpeed);
+        effortAllocationData.setPod(pod);
+        effortAllocationData.setSearchTime(searchTime);
+        effortAllocationData.setTrackSpacing(trackSpacing);
+
+        effortAllocationData.setWVar(w);
+
+        return effortAllocationData;
     }
 
     /*
@@ -295,10 +320,14 @@ public class EffortAllocationData implements Serializable {
      */
     @Override
     public String toString() {
-        return "EffortAllocationData [w=" + w + ", groundSpeed=" + groundSpeed + ", pod=" + pod + ", trackSpacing=" + trackSpacing
-                + ", searchTime=" + searchTime + ", effectiveAreaSize=" + effectiveAreaSize + ", effectiveAreaA=" + effectiveAreaA
-                + ", effectiveAreaB=" + effectiveAreaB + ", effectiveAreaC=" + effectiveAreaC + ", effectiveAreaD="
-                + effectiveAreaD + ", searchPatternRoute=" + searchPatternRoute + ", noReDraw=" + noReDraw + "]";
+        return "EffortAllocationData [w=" + w + ", groundSpeed=" + groundSpeed
+                + ", pod=" + pod + ", trackSpacing=" + trackSpacing
+                + ", searchTime=" + searchTime + ", effectiveAreaSize="
+                + effectiveAreaSize + ", effectiveAreaA=" + effectiveAreaA
+                + ", effectiveAreaB=" + effectiveAreaB + ", effectiveAreaC="
+                + effectiveAreaC + ", effectiveAreaD=" + effectiveAreaD
+                + ", searchPatternRoute=" + searchPatternRoute + ", noReDraw="
+                + noReDraw + "]";
     }
 
 }
