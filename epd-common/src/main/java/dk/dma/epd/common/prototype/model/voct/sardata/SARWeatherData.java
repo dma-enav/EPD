@@ -18,6 +18,7 @@ import java.io.Serializable;
 
 import org.joda.time.DateTime;
 
+import de.micromata.opengis.kml.v_2_2_0.TimeStamp;
 import dk.dma.enav.model.voct.WeatherDataDTO;
 
 public class SARWeatherData implements Serializable {
@@ -40,7 +41,8 @@ public class SARWeatherData implements Serializable {
         this.dateTime = new DateTime(data.getDate());
     }
 
-    public SARWeatherData(double tWCHeading, double tWCknots, double lWknots, double lWHeading, DateTime dateTime) {
+    public SARWeatherData(double tWCHeading, double tWCknots, double lWknots,
+            double lWHeading, DateTime dateTime) {
         TWCHeading = tWCHeading;
         TWCknots = tWCknots;
         LWknots = lWknots;
@@ -147,14 +149,35 @@ public class SARWeatherData implements Serializable {
 
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Total Water Current: " + TWCknots + " knots with heading " + TWCHeading + "°");
-        str.append("<br>Leeway: " + LWknots + " knots with heading " + LWHeading + "°</br>");
+        str.append("Total Water Current: " + TWCknots + " knots with heading "
+                + TWCHeading + "°");
+        str.append("<br>Leeway: " + LWknots + " knots with heading "
+                + LWHeading + "°</br>");
 
         return str.toString();
     }
 
-    public WeatherDataDTO getDTO() {
-        return new WeatherDataDTO(TWCHeading, TWCknots, LWknots, LWHeading, downWind, dateTime.toDate());
+    public dma.voct.SARWeatherData getDTO() {
+
+        dma.voct.SARWeatherData weatherData = new dma.voct.SARWeatherData();
+
+        net.maritimecloud.util.Timestamp timeStamp = MaritimeCloudTypeConverterUtil(dateTime);
+                net.maritimecloud.util.Timestamp
+                .create(dateTime.getMillis());
+
+        weatherData.setDate(timeStamp);
+
+        weatherData.setDownWindBearing(downWind);
+
+        weatherData.setLeewayHeading(LWHeading);
+
+        weatherData.setLeewayKnots(LWknots);
+
+        weatherData.setTwcHeading(TWCHeading);
+
+        weatherData.setTwcKnots(TWCknots);
+
+        return weatherData;
     }
 
 }

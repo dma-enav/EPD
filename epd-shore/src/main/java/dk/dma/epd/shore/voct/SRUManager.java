@@ -111,25 +111,25 @@ public class SRUManager extends MapHandlerChild implements Runnable, IIntendedRo
 
     public void updateSRUsStatus() {
 
-        for (int i = 0; i < voctHandler.getVoctMessageList().size(); i++) {
-
-            long mmsi = Long.parseLong(voctHandler.getVoctMessageList().get(i).getId().toString().split("//")[1]);
-
-            // System.out.println("Is mmsi " + mmsi + " a SRU?");
-
-            if (srus.containsKey(mmsi)) {
-                SRU sru = srus.get(mmsi);
-
-                // Change the status
-                if (sru.getStatus() != sru_status.ACCEPTED && sru.getStatus() != sru_status.AVAILABLE
-                        && sru.getStatus() != sru_status.INVITED) {
-                    // System.out.println("Updating status WHY");
-                    sru.setStatus(sru_status.AVAILABLE);
-                }
-
-            }
-
-        }
+//        for (int i = 0; i < voctHandler.getVoctMessageList().size(); i++) {
+//
+//            long mmsi = Long.parseLong(voctHandler.getVoctMessageList().get(i).getId().toString().split("//")[1]);
+//
+//            // System.out.println("Is mmsi " + mmsi + " a SRU?");
+//
+//            if (srus.containsKey(mmsi)) {
+//                SRU sru = srus.get(mmsi);
+//
+//                // Change the status
+//                if (sru.getStatus() != sru_status.ACCEPTED && sru.getStatus() != sru_status.AVAILABLE
+//                        && sru.getStatus() != sru_status.INVITED) {
+//                    // System.out.println("Updating status WHY");
+//                    sru.setStatus(sru_status.AVAILABLE);
+//                }
+//
+//            }
+//
+//        }
 
     }
 

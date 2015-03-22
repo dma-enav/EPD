@@ -1,0 +1,23 @@
+namespace dma.voct;
+
+/** Status of the VOCT operation reply. */
+enum VOCTReplyStatus {
+    ACCEPTED = 1;
+    REJECTED = 2;
+}
+
+message VOCTReply{
+	/** The transaction ID */
+	1: int64 id;
+	/** The answer status*/
+	2: VOCTReplyStatus status;
+	/** Reply Text Message*/
+	3: text replyText;
+};
+
+
+endpoint VOCTReplyEndpoint {
+	void sendVOCTReply(
+        1: VOCTReply reply
+    );
+}

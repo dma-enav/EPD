@@ -23,16 +23,32 @@ import dk.dma.epd.common.prototype.enavcloud.TODO;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
+import dma.route.AbstractTacticalRouteReplyEndpoint;
+import dma.route.TacticalRouteEndpoint;
+import dma.route.TacticalRouteSuggestion;
+import dma.route.TacticalRouteSuggestionReply;
+import dma.voct.AbstractVOCTReplyEndpoint;
+import dma.voct.RapidResponse;
+import dma.voct.VOCTEndpoint;
+import dma.voct.VOCTMessage;
+import dma.voct.VOCTReply;
+import dma.voct.VOCTReplyEndpoint;
+import net.maritimecloud.net.EndpointInvocationFuture;
+import net.maritimecloud.net.MessageHeader;
 import net.maritimecloud.net.mms.MmsClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,17 +57,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-/**
- * Ship specific intended route service implementation.
- * <p>
- * Listens for changes to the active route and broadcasts it. Also broadcasts the route periodically.
- * <p>
- * Improvements:
- * <ul>
- * <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
- * </ul>
- */
+
 @SuppressWarnings("unused")
 public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
@@ -60,10 +69,12 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
      * Network list for various SAR data objects
      */
 
-    private List<TODO.ServiceEndpoint<VOCTCommunicationMessage, VOCTCommunicationReply>> voctMessageList = new ArrayList<>();
+    private List<VOCTReplyEndpoint> voctMessageList = new ArrayList<>();
     private boolean running;
-    private static final Logger LOG = LoggerFactory.getLogger(VoctHandlerCommon.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(VoctHandlerCommon.class);
     // private IntendedRouteLayerCommon intendedRouteLayerCommon;
+    public static final int CLOUD_TIMEOUT = 10; // Seconds
 
     public SRUManager sruManager;
     public VOCTManager voctManager;
@@ -83,94 +94,265 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         }, 5, 30, TimeUnit.SECONDS);
     }
 
-    private void listenToVOCTBroadcasts() throws InterruptedException {
-
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     public void cloudConnected(MmsClient connection) {
-        super.cloudConnected(connection);
 
-// TODO: Maritime Cloud 0.2 re-factoring
-//        try {
-//            getMaritimeCloudConnection()
-//                    .serviceRegister(
-//                            VOCTCommunicationService.INIT,
-//                            new InvocationCallback<VOCTCommunicationService.VOCTCommunicationMessage, VOCTCommunicationService.VOCTCommunicationReply>() {
-//                                public void process(VOCTCommunicationMessage message,
-//                                        InvocationCallback.Context<VOCTCommunicationService.VOCTCommunicationReply> context) {
-//
-//                                    // LOG.info("Shore received a VOCT reply");
-////                                    System.out.println("Received SAR Reply from Ship!");
-//
-//                                    MaritimeId caller = context.getCaller();
-//                                    long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
-//
-//                                    // sruManager.sruSRUStatus(mmsi, message.getStatus());
-//
-//                                    sruManager.handleSRUReply(mmsi, message.getStatus());
-//                                    //
-//                                    // voctInvitations.put(message.getId(), mmsi);
-//                                    // cloudStatus.markCloudReception();
-//                                    //
-//                                    // voctContextRapidResponse = context;
-//                                    //
-//                                    // voctManager.handleSARDataPackage(message);
-//
-//                                    // context.complete(new VOCTCommunicationReplyRapidResponse(message.getId(),
-//                                    // EPDShore.getInstance()
-//                                    // .getOwnShipHandler().getMmsi(), System.currentTimeMillis()));
-//                                }
-//                            }).awaitRegistered(4, TimeUnit.SECONDS);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-////            System.out.println("Failed to register services?");
-//        }
-//
-//        // Start broadcasting our own active route
-//        running = true;
-//        new Thread(this).start();
-//        // }
+        // Refresh the service list
+        fetchVOCTMessageList();
+
+        // Register a cloud chat service
+        try {
+            getMmsClient().endpointRegister(new AbstractVOCTReplyEndpoint() {
+
+                @Override
+                protected void sendVOCTReply(MessageHeader header,
+                        VOCTReply reply) {
+
+                    // A reply was sent from a vessel, update
+                    System.out.println("Reply recieved from "
+                            + header.getSender());
+
+                    
+                    // // LOG.info("Shore received a VOCT reply");
+                    // // System.out.println("Received SAR Reply from Ship!");
+                    //
+                    // MaritimeId caller = context.getCaller();
+                    // long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
+                    //
+                    // // sruManager.sruSRUStatus(mmsi, message.getStatus());
+                    //
+                    // sruManager.handleSRUReply(mmsi, message.getStatus());
+                    // //
+                    // // voctInvitations.put(message.getId(), mmsi);
+                    // // cloudStatus.markCloudReception();
+                    // //
+                    // // voctContextRapidResponse = context;
+                    // //
+                    // // voctManager.handleSARDataPackage(message);
+                    
+                }
+
+                // @Override
+                // protected void sendRouteSuggestionReply(MessageHeader header,
+                // TacticalRouteSuggestionReply reply) {
+                // // routeSuggestionReplyReceived(reply,
+                // header.getSenderTime());
+                //
+                // }
+
+            }).awaitRegistered(4, TimeUnit.SECONDS);
+
+        } catch (InterruptedException e) {
+            LOG.error("Error hooking up services", e);
+        }
+
+        // TODO: Maritime Cloud 0.2 re-factoring
+        // try {
+        // getMaritimeCloudConnection()
+        // .serviceRegister(
+        // VOCTCommunicationService.INIT,
+        // new
+        // InvocationCallback<VOCTCommunicationService.VOCTCommunicationMessage,
+        // VOCTCommunicationService.VOCTCommunicationReply>() {
+        // public void process(VOCTCommunicationMessage message,
+        // InvocationCallback.Context<VOCTCommunicationService.VOCTCommunicationReply>
+        // context) {
+        //
+        // // LOG.info("Shore received a VOCT reply");
+        // // System.out.println("Received SAR Reply from Ship!");
+        //
+        // MaritimeId caller = context.getCaller();
+        // long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
+        //
+        // // sruManager.sruSRUStatus(mmsi, message.getStatus());
+        //
+        // sruManager.handleSRUReply(mmsi, message.getStatus());
+        // //
+        // // voctInvitations.put(message.getId(), mmsi);
+        // // cloudStatus.markCloudReception();
+        // //
+        // // voctContextRapidResponse = context;
+        // //
+        // // voctManager.handleSARDataPackage(message);
+        //
+        // // context.complete(new
+        // VOCTCommunicationReplyRapidResponse(message.getId(),
+        // // EPDShore.getInstance()
+        // // .getOwnShipHandler().getMmsi(), System.currentTimeMillis()));
+        // }
+        // }).awaitRegistered(4, TimeUnit.SECONDS);
+        // } catch (InterruptedException e) {
+        // e.printStackTrace();
+        // // System.out.println("Failed to register services?");
+        // }
+        //
+        // // Start broadcasting our own active route
+        // running = true;
+        // new Thread(this).start();
+        // // }
     }
 
     private void fetchVOCTMessageList() {
-// TODO: Maritime Cloud 0.2 re-factoring
-//        // System.out.println("Checking for VOCT message list");
-//        try {
-//
-//            voctMessageList = getMmsClient().serviceLocate(VOCTCommunicationService.INIT).nearest(Integer.MAX_VALUE)
-//                    .get();
-//
-//            sruManager.updateSRUsStatus();
-//        } catch (Exception e) {
-//            LOG.error(e.getMessage());
-//
-//        }
+        // voctMessageList
+
+        try {
+            voctMessageList = getMmsClient()
+                    .endpointLocate(VOCTReplyEndpoint.class).findAll()
+                    .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
+
+        } catch (Exception e) {
+            LOG.error("Failed looking up route suggestion services: "
+                    + e.getMessage());
+        }
+
+        // TODO: Maritime Cloud 0.2 re-factoring
+        // // System.out.println("Checking for VOCT message list");
+        // try {
+        //
+        // voctMessageList =
+        // getMmsClient().serviceLocate(VOCTCommunicationService.INIT).nearest(Integer.MAX_VALUE)
+        // .get();
+        //
+        // sruManager.updateSRUsStatus();
+        // } catch (Exception e) {
+        // LOG.error(e.getMessage());
+        //
+        // }
     }
 
-    public List<TODO.ServiceEndpoint<VOCTCommunicationMessage, VOCTCommunicationReply>> getVoctMessageList() {
-        return voctMessageList;
-    }
+    // public List<TODO.ServiceEndpoint<VOCTCommunicationMessage,
+    // VOCTCommunicationReply>> getVoctMessageList() {
+    // return voctMessageList;
+    // }
 
-    public void sendVOCTMessage(long mmsi, SARData sarData, String sender, String message, boolean isAO, boolean isSearchPattern)
+    
+    private VOCTMessage convertToVOCTMessage(SARData sarData){
+        VOCTMessage message = new VOCTMessage();
+        
+        
+        if (sarData instanceof RapidResponseData) {
+            RapidResponse rapidResponseData;
+            
+            
+            RapidResponseDTO sarModelData = ((RapidResponseData) sarData)
+                    .getModelData();
+            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(
+                    sarModelData, effortAllocationData, searchPattern, sender,
+                    message, voctManager.getVoctID(), mmsi);
+
+        }
+
+        if (sarData instanceof DatumPointData) {
+            DatumPointDTO sarModelData = ((DatumPointData) sarData)
+                    .getModelData();
+            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(
+                    sarModelData, effortAllocationData, searchPattern, sender,
+                    message, voctManager.getVoctID(), mmsi);
+
+        }
+
+        if (sarData instanceof DatumPointDataSARIS) {
+            DatumPointSARISDTO sarModelData = ((DatumPointDataSARIS) sarData)
+                    .getModelData();
+            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(
+                    sarModelData, effortAllocationData, searchPattern, sender,
+                    message, voctManager.getVoctID(), mmsi);
+
+        }
+        
+        
+        
+        return message;
+    }
+    
+    /**
+     * Used to send a VOCT Data package
+     * @param mmsi
+     * @param sarData
+     * @param sender
+     * @param message
+     * @param isAO
+     * @param isSearchPattern
+     * @throws InterruptedException
+     * @throws ExecutionException
+     * @throws TimeoutException
+     */
+    public void sendVOCTMessage(long mmsi, SARData sarData, String sender,
+            String message, boolean isAO, boolean isSearchPattern)
             throws InterruptedException, ExecutionException, TimeoutException {
 
+        
+        VOCTMessage voctMessage ;
+        
+        //Convert SAR data to a VOCT Message
+        
+//        TacticalRouteSuggestion routeSegmentSuggestion = fromRoute(route);
+//
+//        TacticalRouteEndpoint tacticalRouteEndpoint = MaritimeCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, mmsi);
+//
+//        // Cache the message by the transaction id
+//        RouteSuggestionData routeData = new RouteSuggestionData(routeSegmentSuggestion, mmsi, route);
+//        routeData.setAcknowleged(false);
+//        routeSuggestions.put(routeSegmentSuggestion.getId(), routeData);
+//
+//        if (tacticalRouteEndpoint != null) {
+//            EndpointInvocationFuture<Void> returnVal = tacticalRouteEndpoint.sendRouteSuggestion(routeSegmentSuggestion);
+//            routeData.setCloudMessageStatus(CloudMessageStatus.SENT);
+//
+//            returnVal.relayed().handle(new Consumer<Throwable>() {
+//
+//                @Override
+//                public void accept(Throwable t) {
+//                    RouteSuggestionData routeData = routeSuggestions.get(routeSegmentSuggestion.getId());
+//                    routeData.setCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLOUD);
+//                    notifyRouteSuggestionListeners();
+//                }
+//            });
+//
+//            returnVal.handle(new BiConsumer<Void, Throwable>() {
+//                @Override
+//                public void accept(Void t, Throwable u) {
+//                    RouteSuggestionData routeData = routeSuggestions.get(routeSegmentSuggestion.getId());
+//                    routeData.setCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLIENT);
+//                    notifyRouteSuggestionListeners();
+//                }
+//            });
+//        } else {
+//            routeData.setCloudMessageStatus(CloudMessageStatus.SENT_FAILED);
+//            LOG.error("Could not find tactical route endpoint for mmsi: " + mmsi);
+//
+//            return;
+//        }
+//
+//        // Update listeners
+//        notifyRouteSuggestionListeners();
+//        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         // System.out.println("Send to : " + mmsi);
         String mmsiStr = "mmsi://" + mmsi;
 
         // if (sarData instanceof RapidResponseData) {
         TODO.ServiceEndpoint<VOCTCommunicationService.VOCTCommunicationMessage, VOCTCommunicationService.VOCTCommunicationReply> end = null;
 
-        for (int i = 0; i < voctMessageList.size(); i++) {
-            if (voctMessageList.get(i).getId().toString().equals(mmsiStr)) {
-                end = voctMessageList.get(i);
-
-                break;
-            }
-        }
+        // for (int i = 0; i < voctMessageList.size(); i++) {
+        // if (voctMessageList.get(i).getId().toString().equals(mmsiStr)) {
+        // // end = voctMessageList.get(i);
+        //
+        // break;
+        // }
+        // }
         // end = voctMessageList.get(voctMessageList.size() - 1);
 
         VOCTCommunicationMessage voctMessage = null;
@@ -180,18 +362,27 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
         if (isAO) {
             if (sarData.getEffortAllocationData().containsKey(mmsi)) {
-                effortAllocationData = sarData.getEffortAllocationData().get(mmsi).getModelData();
+                effortAllocationData = sarData.getEffortAllocationData()
+                        .get(mmsi).getModelData();
 
                 if (isSearchPattern) {
 
-                    if (sarData.getEffortAllocationData().get(mmsi).getSearchPatternRoute() != null) {
+                    if (sarData.getEffortAllocationData().get(mmsi)
+                            .getSearchPatternRoute() != null) {
 
-                        if (sarData.getEffortAllocationData().get(mmsi).getSearchPatternRoute().isDynamic()) {
-                            sarData.getEffortAllocationData().get(mmsi).getSearchPatternRoute().switchToStatic();
-                            searchPattern = sarData.getEffortAllocationData().get(mmsi).getSearchPatternRoute().getFullRouteData();
-                            sarData.getEffortAllocationData().get(mmsi).getSearchPatternRoute().switchToDynamic();
+                        if (sarData.getEffortAllocationData().get(mmsi)
+                                .getSearchPatternRoute().isDynamic()) {
+                            sarData.getEffortAllocationData().get(mmsi)
+                                    .getSearchPatternRoute().switchToStatic();
+                            searchPattern = sarData.getEffortAllocationData()
+                                    .get(mmsi).getSearchPatternRoute()
+                                    .getFullRouteData();
+                            sarData.getEffortAllocationData().get(mmsi)
+                                    .getSearchPatternRoute().switchToDynamic();
                         } else {
-                            searchPattern = sarData.getEffortAllocationData().get(mmsi).getSearchPatternRoute().getFullRouteData();
+                            searchPattern = sarData.getEffortAllocationData()
+                                    .get(mmsi).getSearchPatternRoute()
+                                    .getFullRouteData();
                         }
 
                     }
@@ -202,30 +393,37 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         }
 
         if (sarData instanceof RapidResponseData) {
-            RapidResponseDTO sarModelData = ((RapidResponseData) sarData).getModelData();
-            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(sarModelData, effortAllocationData, searchPattern,
-                    sender, message, voctManager.getVoctID(), mmsi);
+            RapidResponseDTO sarModelData = ((RapidResponseData) sarData)
+                    .getModelData();
+            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(
+                    sarModelData, effortAllocationData, searchPattern, sender,
+                    message, voctManager.getVoctID(), mmsi);
 
         }
 
         if (sarData instanceof DatumPointData) {
-            DatumPointDTO sarModelData = ((DatumPointData) sarData).getModelData();
-            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(sarModelData, effortAllocationData, searchPattern,
-                    sender, message, voctManager.getVoctID(), mmsi);
+            DatumPointDTO sarModelData = ((DatumPointData) sarData)
+                    .getModelData();
+            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(
+                    sarModelData, effortAllocationData, searchPattern, sender,
+                    message, voctManager.getVoctID(), mmsi);
 
         }
 
         if (sarData instanceof DatumPointDataSARIS) {
-            DatumPointSARISDTO sarModelData = ((DatumPointDataSARIS) sarData).getModelData();
-            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(sarModelData, effortAllocationData, searchPattern,
-                    sender, message, voctManager.getVoctID(), mmsi);
+            DatumPointSARISDTO sarModelData = ((DatumPointDataSARIS) sarData)
+                    .getModelData();
+            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(
+                    sarModelData, effortAllocationData, searchPattern, sender,
+                    message, voctManager.getVoctID(), mmsi);
 
         }
 
         // TODO: Maritime Cloud 0.2 re-factoring
-        //sendMaritimeCloudMessage(voctMessageList, new MmsiId((int) mmsi), voctMessage, this);
+        // sendMaritimeCloudMessage(voctMessageList, new MmsiId((int) mmsi),
+        // voctMessage, this);
 
-//        System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
+        // System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
 
     }
 
@@ -283,24 +481,29 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
     }
 
     // TODO: Maritime Cloud 0.2 re-factoring
-//    @Override
-//    public void messageReceivedByCloud(VOCTCommunicationMessage message) {
-//        sruManager.sruSRUStatus(message.getReceiversMMSI(), CloudMessageStatus.RECEIVED_BY_CLOUD);
-//    }
+    // @Override
+    // public void messageReceivedByCloud(VOCTCommunicationMessage message) {
+    // sruManager.sruSRUStatus(message.getReceiversMMSI(),
+    // CloudMessageStatus.RECEIVED_BY_CLOUD);
+    // }
 
     // TODO: Maritime Cloud 0.2 re-factoring
-//    @Override
-//    public void messageHandled(VOCTCommunicationMessage message, VOCTCommunicationReply reply) {
-//        sruManager.sruSRUStatus(message.getReceiversMMSI(), CloudMessageStatus.RECEIVED_BY_CLIENT);
-//    }
+    // @Override
+    // public void messageHandled(VOCTCommunicationMessage message,
+    // VOCTCommunicationReply reply) {
+    // sruManager.sruSRUStatus(message.getReceiversMMSI(),
+    // CloudMessageStatus.RECEIVED_BY_CLIENT);
+    // }
 
     public void sendCancelMessage(List<Long> srusToCancel) {
-//        System.out.println("Send SAR cancel message " + srusToCancel.size());
+        // System.out.println("Send SAR cancel message " + srusToCancel.size());
         for (int i = 0; i < srusToCancel.size(); i++) {
-            VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(voctManager.getVoctID(), VoctMsgStatus.WITHDRAWN);
+            VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(
+                    voctManager.getVoctID(), VoctMsgStatus.WITHDRAWN);
 
             // TODO: Maritime Cloud 0.2 re-factoring
-            //boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) srusToCancel.get(i)), voctMessage, this);
+            // boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long)
+            // srusToCancel.get(i)), voctMessage, this);
         }
 
     }
