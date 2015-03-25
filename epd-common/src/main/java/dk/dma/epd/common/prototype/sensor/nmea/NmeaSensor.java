@@ -250,9 +250,10 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         }
     }
 
-    protected boolean isVdm(String msg) {
-        return msg.indexOf("!AIVDM") >= 0 || msg.indexOf("!AIVDO") >= 0 || msg.indexOf("!BSVDM") >= 0;
-    }
+	protected boolean isVdm(String msg) {
+		return msg.indexOf("!AIVDM") >= 0 || msg.indexOf("!AIVDO") >= 0
+		        || msg.indexOf("!BSVDM") >= 0 || msg.indexOf("!ABVDM") >= 0;
+	}
 
     protected void handleAis(String msg) {
         AisPacket packet;
