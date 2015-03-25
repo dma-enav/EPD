@@ -2,10 +2,10 @@
 
 ## Introduction ##
    
-EPD (e-Navigation Prototype Displays) is consisting of two applications for demonstrating potential e-navigation solutions. An ECDIS like ship side application and a shore side application.
+EPD (e-Navigation Prototype Displays) consists of two applications for demonstrating potential e-navigation solutions. An ECDIS-like shipside application and a shoreside application.
    
-The applications is in Java and uses OpenMap(tm) for presenting geospatial
-information, and as a JavaBeans(tm) component framework.
+The applications are in Java and use OpenMap(tm) for presenting geospatial
+information, and JavaBeans(tm) as a component framework.
 
 ## Prerequisites ##
 
@@ -34,11 +34,11 @@ Folders with settings files are created in the home folder
 
 ## Creating Windows EXE files ##
 
-Windows execulateables can be created by using the followig Maven profile
+Windows executables can be created by using the following Maven profile
 
     mvn clean install -Pexe
 
-The executables will be located in here
+The executables will be located here
 
     distribution/EPD-Ship-Singlejar/target/epd-ship.exe
     distribution/EPD-Shore-Singlejar/target/epd-shore.exe
@@ -59,7 +59,7 @@ Username/password: `anon/anon`
 ## Quick start ##
 
 To be able to see AIS targets and possible own ship, the sensor should be
-configurated. In the main window press the Setup button in the top and 
+configured. In the main window press the Setup button in the top and 
 go to the Sensor tab. Choose either TCP or serial connection type for AIS and
 configure TCP host/port or serial port.
 
@@ -67,7 +67,7 @@ If a separate sensor is used for GPS this can be configured the same way.
 
 If the AIS source is not a transponder providing own ship information, an 
 own ship can be simulated by choosing a vessel target present in the AIS stream.
-In to bottom of the sensor tab enable Simulated GPS and enter MMSI. If the 
+On the bottom of the sensor tab enable Simulated GPS and enter MMSI. If the 
 AIS source provides lots of targets, the targets shown can be limited by 
 selecting a sensor range so targets farther than this distance away not will
 be shown.
@@ -127,7 +127,7 @@ To use Navicon ENC layer with EPD-ship please follow the steps below
 
 ## Utilities ##
 
-The module `epd-util` contains some utlities to use with EPD. 
+The module `epd-util` contains some utilities to use with EPD. 
 
 ### Route from AIS generation ###
 
