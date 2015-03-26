@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.jcip.annotations.ThreadSafe;
 
@@ -45,6 +46,7 @@ public class NmeaTcpSensor extends NmeaSensor {
     private volatile String hostname;
     private volatile int port;
     private volatile OutputStream outputStream;
+    private final AtomicBoolean outputStreamSet = new AtomicBoolean(false);
 
     private volatile Socket clientSocket = new Socket();
 
@@ -94,7 +96,8 @@ public class NmeaTcpSensor extends NmeaSensor {
             clientSocket.connect(address);
             clientSocket.setKeepAlive(true);
             clientSocket.setSoTimeout(TCP_READ_TIMEOUT);
-            outputStream = clientSocket.getOutputStream();
+            // mark the outputStream as not established yet
+            outputStreamSet.set(false);
             LOG.info("NMEA source connected " + hostname + ":" + port);
         } catch (UnknownHostException e) {
             LOG.error("Unknown host: " + hostname + ": " + e.getMessage());
@@ -117,6 +120,22 @@ public class NmeaTcpSensor extends NmeaSensor {
 
     @Override
     public void send(SendRequest sendRequest, Consumer<Abk> resultListener) throws SendException {
+        // TODO block until connection is established both for initial
+        // connection and sleep+reconnect. Something like
+        // j.u.c.ReentrantLock is probably the go here. Care
+        // would have to be taken with two cases being that this send was called
+        // from the same thread as the read loop (called synchronously by a
+        // listener) and the other case where the send was called from a
+        // different thread to the read loop.
+
+        // atomically initialize the outputStream if required
+        if (outputStreamSet.compareAndSet(false, true))
+            try {
+                outputStream = clientSocket.getOutputStream();
+            } catch (IOException e) {
+                throw new SendException("Could not connect to NMEA source outputStream: "
+                        + clientSocket.toString());
+            }
         doSend(sendRequest, resultListener, outputStream);
     }
 
