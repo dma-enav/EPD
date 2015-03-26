@@ -129,13 +129,14 @@ public class NmeaTcpSensor extends NmeaSensor {
         // different thread to the read loop.
 
         // atomically initialize the outputStream if required
-        if (outputStreamSet.compareAndSet(false, true))
+        if (outputStreamSet.compareAndSet(false, true)) {
             try {
                 outputStream = clientSocket.getOutputStream();
             } catch (IOException e) {
                 throw new SendException("Could not connect to NMEA source outputStream: "
                         + clientSocket.toString());
             }
+        }
         doSend(sendRequest, resultListener, outputStream);
     }
 
