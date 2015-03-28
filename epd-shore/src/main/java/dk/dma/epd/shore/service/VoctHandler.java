@@ -19,7 +19,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
+import net.maritimecloud.net.EndpointInvocationFuture;
 import net.maritimecloud.net.MessageHeader;
 import net.maritimecloud.net.mms.MmsClient;
 
@@ -29,16 +32,21 @@ import org.slf4j.LoggerFactory;
 import dk.dma.epd.common.prototype.enavcloud.TODO;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
+import dma.route.TacticalRouteEndpoint;
 import dma.voct.AbstractVOCTReplyEndpoint;
 import dma.voct.EffortAllocation;
 import dma.voct.RapidResponse;
+import dma.voct.VOCTEndpoint;
 import dma.voct.VOCTMessage;
 import dma.voct.VOCTReply;
 import dma.voct.VOCTReplyEndpoint;
@@ -51,7 +59,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
      * Network list for various SAR data objects
      */
 
-    private List<VOCTReplyEndpoint> voctMessageList = new ArrayList<>();
+    private List<VOCTEndpoint> voctMessageList = new ArrayList<>();
     private boolean running;
     private static final Logger LOG = LoggerFactory
             .getLogger(VoctHandlerCommon.class);
@@ -182,9 +190,9 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
         try {
             voctMessageList = getMmsClient()
-                    .endpointLocate(VOCTReplyEndpoint.class).findAll()
+                    .endpointLocate(VOCTEndpoint.class).findAll()
                     .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
-
+System.out.println("Fetching VOCT MEssage Lists " + voctMessageList);
         } catch (Exception e) {
             LOG.error("Failed looking up route suggestion services: "
                     + e.getMessage());
@@ -310,6 +318,46 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
             }
         }
 
+        
+        
+        
+        
+        VOCTEndpoint tacticalRouteEndpoint = MaritimeCloudUtils.findServiceWithMmsi(voctMessageList, mmsi);
+
+
+
+        if (tacticalRouteEndpoint != null) {
+            EndpointInvocationFuture<Void> returnVal = tacticalRouteEndpoint.SendVOCTData(voctMessage);
+            
+            
+
+            returnVal.relayed().handle(new Consumer<Throwable>() {
+
+                @Override
+                public void accept(Throwable t) {
+//                    RouteSuggestionData routeData = routeSuggestions.get(routeSegmentSuggestion.getId());
+//                    routeData.setCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLOUD);
+//                    notifyRouteSuggestionListeners();
+                    System.out.println("Cloud got it");
+                }
+            });
+
+            returnVal.handle(new BiConsumer<Void, Throwable>() {
+                @Override
+                public void accept(Void t, Throwable u) {
+                    System.out.println("Client got it");
+                }
+            });
+        } else {
+            LOG.error("Could not find VOCT endpoint for mmsi: " + mmsi);
+
+            return;
+        }
+
+        
+        
+        
+        
         // Convert SAR data to a VOCT Message
 
         // TacticalRouteSuggestion routeSegmentSuggestion = fromRoute(route);

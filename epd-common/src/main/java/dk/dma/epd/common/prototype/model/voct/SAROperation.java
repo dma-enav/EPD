@@ -1832,7 +1832,7 @@ public class SAROperation {
             effortAllocationData.setTrackSpacing(trackSpacing);
 
             double groundSpeed = effortAllocationData.getGroundSpeed();
-            int timeSearching = effortAllocationData.getSearchTime();
+            double timeSearching = effortAllocationData.getSearchTime();
 
 //            System.out.println("Track Spacing is: " + trackSpacing);
 //            System.out.println("Ground speed is: " + groundSpeed);

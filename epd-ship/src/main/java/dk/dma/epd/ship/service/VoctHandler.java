@@ -22,12 +22,19 @@ import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.service.voct.VOCTManager;
+import dma.voct.AbstractVOCTEndpoint;
+import dma.voct.AbstractVOCTReplyEndpoint;
+import dma.voct.VOCTMessage;
+import dma.voct.VOCTReply;
+import net.maritimecloud.net.MessageHeader;
 import net.maritimecloud.net.mms.MmsClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Ship specific intended route service implementation.
@@ -69,6 +76,34 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
     public void cloudConnected(MmsClient connection) {
         super.cloudConnected(connection);
 
+        // Register a cloud chat service
+        try {
+            getMmsClient().endpointRegister(new AbstractVOCTEndpoint() {
+
+                @Override
+                protected void SendVOCTData(MessageHeader header,
+                        VOCTMessage voctMessage) {
+                    // TODO Auto-generated method stub
+                    System.out.println("Recieved some VOCT data!");
+                }
+
+
+                // @Override
+                // protected void sendRouteSuggestionReply(MessageHeader header,
+                // TacticalRouteSuggestionReply reply) {
+                // // routeSuggestionReplyReceived(reply,
+                // header.getSenderTime());
+                //
+                // }
+
+            }).awaitRegistered(4, TimeUnit.SECONDS);
+
+        } catch (InterruptedException e) {
+            LOG.error("Error hooking up services", e);
+        }
+        
+        
+        
 // TODO: Maritime Cloud 0.2 re-factoring
 //        // Register for RapidResponse
 //        try {

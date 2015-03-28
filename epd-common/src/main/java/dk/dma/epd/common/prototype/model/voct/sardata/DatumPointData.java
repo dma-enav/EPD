@@ -728,9 +728,12 @@ public class DatumPointData extends SARData {
         List<WeatherDataDTO> weatherList = new ArrayList<WeatherDataDTO>();
 
         for (int i = 0; i < getWeatherPoints().size(); i++) {
-            weatherList.add(getWeatherPoints().get(i).getDTO());
+//            weatherList.add(getWeatherPoints().get(i).getDTO());
         }
 
+        
+        
+        
         // String sarID, Date lKPDate, Date cSSDate,
         // PositionDTO lKP, PositionDTO cSP, double x, double y,
         // double safetyFactor, int searchObject,
