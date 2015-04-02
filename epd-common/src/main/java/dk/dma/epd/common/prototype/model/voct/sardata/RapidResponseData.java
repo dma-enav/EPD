@@ -92,8 +92,10 @@ public class RapidResponseData extends SARData {
     }
 
     public RapidResponseData(RapidResponse rapidResponse) {
-        super(rapidResponse.getSarID(), new DateTime(rapidResponse.getLKPDate()), new DateTime(
-                rapidResponse.getCSSDate()), Position.create(rapidResponse
+        super(rapidResponse.getSarID(), 
+                new DateTime(rapidResponse.getLKPDate().getTime()), 
+                new DateTime(
+                rapidResponse.getCSSDate().getTime()), Position.create(rapidResponse
                 .getLkp().getLatitude(), rapidResponse.getLkp().getLongitude()),
                 rapidResponse.getX(), rapidResponse.getY(), rapidResponse.getSafetyFactor(), rapidResponse
                         .getSearchObject());
@@ -490,7 +492,7 @@ public class RapidResponseData extends SARData {
         rapidResponseData.setX(getX());
         rapidResponseData.setY(getY());
         
-        
+        rapidResponseData.setLkp(MCTypeConverter.getMaritimeCloudPositin(this.getLKP()));
 
         return rapidResponseData;
 

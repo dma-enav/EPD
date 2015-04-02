@@ -14,8 +14,10 @@
  */
 package dk.dma.epd.ship.service;
 
+
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
@@ -24,18 +26,27 @@ import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dma.voct.AbstractVOCTEndpoint;
 import dma.voct.AbstractVOCTReplyEndpoint;
+import dma.voct.VOCTEndpoint;
 import dma.voct.VOCTMessage;
 import dma.voct.VOCTReply;
+import dma.voct.VOCTReplyEndpoint;
 import dma.voct.VOCTReplyStatus;
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.net.EndpointInvocationFuture;
 import net.maritimecloud.net.MessageHeader;
 import net.maritimecloud.net.mms.MmsClient;
+import net.maritimecloud.util.Binary;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Ship specific intended route service implementation.
@@ -61,7 +72,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
     private static final Logger LOG = LoggerFactory.getLogger(VoctHandlerCommon.class);
 
     // ID, MMSI
-    protected Map<Long, Long> voctInvitations = new ConcurrentHashMap<>();
+    protected Map<Long, MaritimeId> voctInvitations = new ConcurrentHashMap<>();
 
     /**
      * Constructor
@@ -85,6 +96,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
                 protected void SendVOCTData(MessageHeader header,
                         VOCTMessage voctMessage) {
                     // TODO Auto-generated method stub
+                    voctInvitations.put(voctMessage.getId(), header.getSender());
                     voctManager.handleSARDataPackage(voctMessage);
                     System.out.println("Recieved some VOCT data!");
                 }
@@ -186,8 +198,49 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
 
     }
 
-    public void sendVOCTReply(VOCTReplyStatus recievedAccepted, long id, String message) {
+    public void sendVOCTReply(VOCTReplyStatus recievedAccepted, String message, long messageId) throws InterruptedException, ExecutionException {
 
+        //Find place to send it
+        MaritimeId maritimeId = voctInvitations.get(messageId);
+        
+        @SuppressWarnings("deprecation")
+        List<VOCTReplyEndpoint> availableEndpoints = getMmsClient().endpointLocate(VOCTReplyEndpoint.class)                
+        .findAll().timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
+        
+        VOCTReplyEndpoint endPoint = null;
+        for (int i = 0; i < availableEndpoints.size(); i++) {
+            System.out.println("Comparing " + availableEndpoints.get(i) + " to stored " + maritimeId);
+            if (availableEndpoints.get(i).getRemoteId().getIdAsInt() == maritimeId.getIdAsInt()){
+                System.out.println("Found endpoint!");
+                endPoint = availableEndpoints.get(i);
+                break;
+            }
+            
+        }
+        
+        if (endPoint == null){
+            System.out.println("failed to find VOCT reply endpoint for "   + maritimeId);
+            return;
+        }
+        
+
+
+        
+            VOCTReply reply = new VOCTReply();
+            
+            long transactionId = -1;
+            
+            reply.setId(transactionId);
+            reply.setReplyText(message);
+            reply.setStatus(recievedAccepted);
+            
+            EndpointInvocationFuture<Void> returnVal = endPoint.sendVOCTReply(reply);
+                    
+ 
+        
+        
+        
+        
         // if (type == SAR_TYPE.RAPID_RESPONSE) {
         // try {
 
@@ -256,8 +309,8 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
             // IS IT RAPID RESPONSE / DOES IT MATTER
             if (voctManager.getCurrentID() != -1) {
 
-                VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(voctManager.getCurrentID(),
-                        VoctMsgStatus.WITHDRAWN);
+//                VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(voctManager.getCurrentID(),
+//                        VoctMsgStatus.WITHDRAWN);
 
                 // TODO: Maritime Cloud 0.2 re-factoring
                 //boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(voctManager.getCurrentID())),

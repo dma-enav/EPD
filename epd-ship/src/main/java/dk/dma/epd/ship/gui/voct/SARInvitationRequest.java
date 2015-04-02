@@ -29,6 +29,7 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
+import net.maritimecloud.util.Binary;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.gui.ComponentFrame;
@@ -59,13 +60,16 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
 
     dma.voct.SAR_TYPE type;
 
+    
     /**
+     * @param messageId 
      * @wbp.parser.constructor
      */
     public SARInvitationRequest(VOCTManager voctManager, VOCTMessage message) {
         super();
 
         this.voctCommunicationMessage = message;
+
 
         type = message.getSarType();
 

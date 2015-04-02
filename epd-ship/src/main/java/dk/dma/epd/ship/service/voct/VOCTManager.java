@@ -23,10 +23,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
+import net.maritimecloud.util.Binary;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
@@ -66,6 +68,7 @@ public class VOCTManager extends VOCTManagerCommon {
     private SARInput sarInputDialog;
     private VoctHandler voctHandler;
     private long currentID = -1;
+
 
     // private VOCTBroadcastService voctBroadcastService;
 
@@ -299,8 +302,22 @@ public class VOCTManager extends VOCTManagerCommon {
     public void handleDialogAction(boolean accepted, VOCTMessage message) {
 
         if (accepted) {
-
-            voctHandler.sendVOCTReply(VOCTReplyStatus.ACCEPTED, message.getId(), "Accepted");
+            
+            
+            long sarId = -1;
+            if ( message.getId() != null){
+                sarId = message.getId();
+            }
+            
+            try {
+                voctHandler.sendVOCTReply(VOCTReplyStatus.ACCEPTED, "Accepted", message.getId());
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
             removeOldSARData();
 
@@ -353,11 +370,24 @@ public class VOCTManager extends VOCTManagerCommon {
 
             saveToFile();
         } else {
-            voctHandler.sendVOCTReply(VOCTReplyStatus.REJECTED, message.getId(), "Rejected");
+            try {
+                voctHandler.sendVOCTReply(VOCTReplyStatus.REJECTED, "Rejected", message.getId());
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
     }
 
+    /**
+     * SAR Data Receieved. If it's a None type it means OSC has cancelled it shore side.
+     * @param message
+     * @param messageId
+     */
     public void handleSARDataPackage(VOCTMessage message) {
 
         if (message.getSarType() == dma.voct.SAR_TYPE.NONE) {
@@ -371,7 +401,6 @@ public class VOCTManager extends VOCTManagerCommon {
 
         } else {
 
-            currentID = message.getId();
             SARInvitationRequest sarInviteDialog = new SARInvitationRequest(this, message);
             sarInviteDialog.setVisible(true);
         }

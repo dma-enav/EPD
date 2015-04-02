@@ -38,7 +38,8 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon {
     protected List<VOCTSARInfoMessage> additionalInformationMsgs = new ArrayList<VOCTSARInfoMessage>();
     protected List<IVoctInfoListener> voctInfoMsgListener = new CopyOnWriteArrayList<>();
     private static final int BROADCAST_RADIUS = Integer.MAX_VALUE;
-
+    public static final int CLOUD_TIMEOUT = 10; // Seconds
+    
     /**
      * Constructor
      */

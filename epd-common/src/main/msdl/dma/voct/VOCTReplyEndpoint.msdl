@@ -4,6 +4,7 @@ namespace dma.voct;
 enum VOCTReplyStatus {
     ACCEPTED = 1;
     REJECTED = 2;
+    WITHDRAWN = 3;
 }
 
 message VOCTReply{

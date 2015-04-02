@@ -46,6 +46,7 @@ import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
 import dk.dma.epd.shore.service.IntendedRouteHandler;
 import dk.dma.epd.shore.service.VoctHandler;
 import dk.dma.epd.shore.voct.SRU.sru_status;
+import dma.voct.VOCTReplyStatus;
 
 public class SRUManager extends MapHandlerChild implements Runnable,
         IIntendedRouteListener {
@@ -176,7 +177,7 @@ System.out.println("ID is " + voctHandler.getVoctMessageList().get(i)
         return sRUCommunication.size();
     }
 
-    public void handleSRUReply(long mmsi, VoctMsgStatus msgStatus) {
+    public void handleSRUReply(long mmsi, VOCTReplyStatus voctReplyStatus) {
 
         System.out.println("Handling SRU Reply!");
 
@@ -184,7 +185,7 @@ System.out.println("ID is " + voctHandler.getVoctMessageList().get(i)
             SRU sru = null;
             sru = srus.get(mmsi);
 
-            VoctMsgStatus status = msgStatus;
+            VOCTReplyStatus status = voctReplyStatus;
 
             switch (status) {
             // If its been accepted we create an entry in the hashmap, should we

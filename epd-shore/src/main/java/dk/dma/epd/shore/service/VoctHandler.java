@@ -29,20 +29,18 @@ import net.maritimecloud.net.mms.MmsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.enav.model.MaritimeId;
 import dk.dma.epd.common.prototype.enavcloud.TODO;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
-import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
-import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
-import dma.route.TacticalRouteEndpoint;
 import dma.voct.AbstractVOCTReplyEndpoint;
 import dma.voct.EffortAllocation;
 import dma.voct.RapidResponse;
@@ -50,7 +48,6 @@ import dma.voct.SAR_TYPE;
 import dma.voct.VOCTEndpoint;
 import dma.voct.VOCTMessage;
 import dma.voct.VOCTReply;
-import dma.voct.VOCTReplyEndpoint;
 
 @SuppressWarnings("unused")
 public class VoctHandler extends VoctHandlerCommon implements Runnable {
@@ -65,7 +62,6 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
     private static final Logger LOG = LoggerFactory
             .getLogger(VoctHandlerCommon.class);
     // private IntendedRouteLayerCommon intendedRouteLayerCommon;
-    public static final int CLOUD_TIMEOUT = 10; // Seconds
 
     public SRUManager sruManager;
     public VOCTManager voctManager;
@@ -106,23 +102,24 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
                     System.out.println("Reply recieved from "
                             + header.getSender());
 
-                    // // LOG.info("Shore received a VOCT reply");
+                    LOG.info("Shore received a VOCT reply");
                     // // System.out.println("Received SAR Reply from Ship!");
                     //
-                    // MaritimeId caller = context.getCaller();
-                    // long mmsi =
-                    // MaritimeCloudUtils.toMmsi(context.getCaller());
+                    net.maritimecloud.core.id.MaritimeId caller = header
+                            .getSender();
+                    
+                    long mmsi = MaritimeCloudUtils.toMmsi(caller);
                     //
-                    // // sruManager.sruSRUStatus(mmsi, message.getStatus());
-                    //
-                    // sruManager.handleSRUReply(mmsi, message.getStatus());
-                    // //
-                    // // voctInvitations.put(message.getId(), mmsi);
-                    // // cloudStatus.markCloudReception();
-                    // //
-                    // // voctContextRapidResponse = context;
-                    // //
-                    // // voctManager.handleSARDataPackage(message);
+                     // sruManager.sruSRUStatus(mmsi, message.getStatus());
+                    
+                     sruManager.handleSRUReply(mmsi, reply.getStatus());
+                     //
+//                      voctInvitations.put(message.getId(), mmsi);
+//                      cloudStatus.markCloudReception();
+                     //
+                     // voctContextRapidResponse = context;
+                     //
+//                      voctManager.handleSARDataPackage(reply);
 
                 }
 
@@ -323,8 +320,10 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
             }
         }
 
-        VOCTEndpoint voctEndpoint = MaritimeCloudUtils
-                .findServiceWithMmsi(voctMessageList, mmsi);
+        voctMessage.setId(System.currentTimeMillis());
+
+        VOCTEndpoint voctEndpoint = MaritimeCloudUtils.findServiceWithMmsi(
+                voctMessageList, mmsi);
 
         if (voctEndpoint != null) {
             EndpointInvocationFuture<Void> returnVal = voctEndpoint
@@ -546,6 +545,4 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         return voctMessageList;
     }
 
-    
-    
 }

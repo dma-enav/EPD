@@ -35,7 +35,7 @@ public class SARWeatherData implements Serializable {
         this.LWknots = sarWeatherData.getLeewayKnots();
         this.LWHeading = sarWeatherData.getLeewayHeading();
         this.downWind = sarWeatherData.getDownWindBearing();
-        this.dateTime = new DateTime(sarWeatherData.getDate());
+        this.dateTime = new DateTime(sarWeatherData.getDate().getTime());
     }
 
     public SARWeatherData(double tWCHeading, double tWCknots, double lWknots,
