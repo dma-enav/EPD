@@ -195,7 +195,7 @@ public class DatumPointData extends SARData {
         List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
 
         for (int i = 0; i < data.getWeatherData().size(); i++) {
-            weatherPoints.add(new SARWeatherData(data.getWeatherData().get(i)));
+//            weatherPoints.add(new SARWeatherData(data.getWeatherData().get(i)));
         }
 
         this.setWeatherPoints(weatherPoints);

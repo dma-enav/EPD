@@ -61,6 +61,11 @@ public class SARData implements Serializable {
         this.setSearchObject(searchObject);
     }
 
+    
+    public SARData(){
+        
+    }
+    
     /**
      * @return the additionalInfo
      */

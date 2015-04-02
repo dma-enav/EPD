@@ -26,6 +26,7 @@ import dma.voct.AbstractVOCTEndpoint;
 import dma.voct.AbstractVOCTReplyEndpoint;
 import dma.voct.VOCTMessage;
 import dma.voct.VOCTReply;
+import dma.voct.VOCTReplyStatus;
 import net.maritimecloud.net.MessageHeader;
 import net.maritimecloud.net.mms.MmsClient;
 
@@ -84,17 +85,9 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
                 protected void SendVOCTData(MessageHeader header,
                         VOCTMessage voctMessage) {
                     // TODO Auto-generated method stub
+                    voctManager.handleSARDataPackage(voctMessage);
                     System.out.println("Recieved some VOCT data!");
                 }
-
-
-                // @Override
-                // protected void sendRouteSuggestionReply(MessageHeader header,
-                // TacticalRouteSuggestionReply reply) {
-                // // routeSuggestionReplyReceived(reply,
-                // header.getSenderTime());
-                //
-                // }
 
             }).awaitRegistered(4, TimeUnit.SECONDS);
 
@@ -193,12 +186,12 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
 
     }
 
-    public void sendVOCTReply(VoctMsgStatus recievedAccepted, long id, String message, SAR_TYPE type) {
+    public void sendVOCTReply(VOCTReplyStatus recievedAccepted, long id, String message) {
 
         // if (type == SAR_TYPE.RAPID_RESPONSE) {
         // try {
 
-        VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(id, message, recievedAccepted);
+//        VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(id, message, recievedAccepted);
 
         // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(null, null, null);
 //        System.out.println("Replying to : " + (long) voctInvitations.get(id));

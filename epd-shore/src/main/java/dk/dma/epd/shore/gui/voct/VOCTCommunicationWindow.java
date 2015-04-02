@@ -104,6 +104,7 @@ public class VOCTCommunicationWindow extends JDialog implements ListSelectionLis
                 sruScrollPane.setVisible(false);
             } else {
 
+                sruManager.updateSRUsStatus();
                 // fillSruList();
                 sruTableModel.updateCalculateTable();
 

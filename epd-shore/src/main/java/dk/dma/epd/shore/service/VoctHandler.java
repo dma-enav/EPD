@@ -46,6 +46,7 @@ import dma.route.TacticalRouteEndpoint;
 import dma.voct.AbstractVOCTReplyEndpoint;
 import dma.voct.EffortAllocation;
 import dma.voct.RapidResponse;
+import dma.voct.SAR_TYPE;
 import dma.voct.VOCTEndpoint;
 import dma.voct.VOCTMessage;
 import dma.voct.VOCTReply;
@@ -189,10 +190,13 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         // voctMessageList
 
         try {
-            voctMessageList = getMmsClient()
-                    .endpointLocate(VOCTEndpoint.class).findAll()
-                    .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
-System.out.println("Fetching VOCT MEssage Lists " + voctMessageList);
+            voctMessageList = getMmsClient().endpointLocate(VOCTEndpoint.class)
+                    .findAll().timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
+            System.out.println("Fetching VOCT MEssage Lists "
+                    + voctMessageList.size());
+            for (int i = 0; i < voctMessageList.size(); i++) {
+                System.out.println(voctMessageList.get(i).getRemoteId());
+            }
         } catch (Exception e) {
             LOG.error("Failed looking up route suggestion services: "
                     + e.getMessage());
@@ -227,6 +231,7 @@ System.out.println("Fetching VOCT MEssage Lists " + voctMessageList);
             rapidResponseData = ((RapidResponseData) sarData).getModelData();
 
             message.setRapidResponse(rapidResponseData);
+            message.setSarType(SAR_TYPE.RAPID_RESPONSE);
 
             // voctMessage = new
             // VOCTCommunicationService.VOCTCommunicationMessage(
@@ -318,26 +323,21 @@ System.out.println("Fetching VOCT MEssage Lists " + voctMessageList);
             }
         }
 
-        
-        
-        
-        
-        VOCTEndpoint tacticalRouteEndpoint = MaritimeCloudUtils.findServiceWithMmsi(voctMessageList, mmsi);
+        VOCTEndpoint voctEndpoint = MaritimeCloudUtils
+                .findServiceWithMmsi(voctMessageList, mmsi);
 
-
-
-        if (tacticalRouteEndpoint != null) {
-            EndpointInvocationFuture<Void> returnVal = tacticalRouteEndpoint.SendVOCTData(voctMessage);
-            
-            
+        if (voctEndpoint != null) {
+            EndpointInvocationFuture<Void> returnVal = voctEndpoint
+                    .SendVOCTData(voctMessage);
 
             returnVal.relayed().handle(new Consumer<Throwable>() {
 
                 @Override
                 public void accept(Throwable t) {
-//                    RouteSuggestionData routeData = routeSuggestions.get(routeSegmentSuggestion.getId());
-//                    routeData.setCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLOUD);
-//                    notifyRouteSuggestionListeners();
+                    // RouteSuggestionData routeData =
+                    // routeSuggestions.get(routeSegmentSuggestion.getId());
+                    // routeData.setCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLOUD);
+                    // notifyRouteSuggestionListeners();
                     System.out.println("Cloud got it");
                 }
             });
@@ -354,10 +354,6 @@ System.out.println("Fetching VOCT MEssage Lists " + voctMessageList);
             return;
         }
 
-        
-        
-        
-        
         // Convert SAR data to a VOCT Message
 
         // TacticalRouteSuggestion routeSegmentSuggestion = fromRoute(route);
@@ -543,4 +539,13 @@ System.out.println("Fetching VOCT MEssage Lists " + voctMessageList);
 
     }
 
+    /**
+     * @return the voctMessageList
+     */
+    public List<VOCTEndpoint> getVoctMessageList() {
+        return voctMessageList;
+    }
+
+    
+    
 }

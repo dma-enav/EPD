@@ -91,50 +91,48 @@ public class RapidResponseData extends SARData {
         super(sarID, TLKP, CSS, LKP, x, y, SF, searchObject);
     }
 
-    public RapidResponseData(RapidResponseDTO data) {
-        // super(data.getSarID(), new DateTime(data.getLKPDate()), new
-        // DateTime(data.getCSSDate()), LKP, x, y, safetyFactor, searchObject);
-        super(data.getSarID(), new DateTime(data.getLKPDate()), new DateTime(
-                data.getCSSDate()), Position.create(
-                data.getLKP().getLatitude(), data.getLKP().getLongitude()),
-                data.getX(), data.getY(), data.getSafetyFactor(), data
+    public RapidResponseData(RapidResponse rapidResponse) {
+        super(rapidResponse.getSarID(), new DateTime(rapidResponse.getLKPDate()), new DateTime(
+                rapidResponse.getCSSDate()), Position.create(rapidResponse
+                .getLkp().getLatitude(), rapidResponse.getLkp().getLongitude()),
+                rapidResponse.getX(), rapidResponse.getY(), rapidResponse.getSafetyFactor(), rapidResponse
                         .getSearchObject());
 
-        this.datum = Position.create(data.getDatum().getLatitude(), data
+        this.datum = Position.create(rapidResponse.getDatum().getLatitude(), rapidResponse
                 .getDatum().getLongitude());
-        this.radius = data.getRadius();
-        this.timeElasped = data.getTimeElasped();
-        this.rdvDirection = data.getRdvDirection();
-        this.rdvDistance = data.getRdvDistance();
-        this.rdvSpeed = data.getRdvSpeed();
-        this.rdvDirectionLast = data.getRdvSpeedLast();
-        this.A = Position.create(data.getA().getLatitude(), data.getA()
+        this.radius = rapidResponse.getRadius();
+        this.timeElasped = rapidResponse.getTimeElapsed();
+        this.rdvDirection = rapidResponse.getRdvDirection();
+        this.rdvDistance = rapidResponse.getRdvDistance();
+        this.rdvSpeed = rapidResponse.getRdvSpeed();
+        this.rdvDirectionLast = rapidResponse.getRdvSpeedLast();
+        this.A = Position.create(rapidResponse.getA().getLatitude(), rapidResponse.getA()
                 .getLongitude());
-        this.B = Position.create(data.getB().getLatitude(), data.getB()
+        this.B = Position.create(rapidResponse.getB().getLatitude(), rapidResponse.getB()
                 .getLongitude());
-        this.C = Position.create(data.getC().getLatitude(), data.getC()
+        this.C = Position.create(rapidResponse.getC().getLatitude(), rapidResponse.getC()
                 .getLongitude());
-        this.D = Position.create(data.getD().getLatitude(), data.getD()
+        this.D = Position.create(rapidResponse.getD().getLatitude(), rapidResponse.getD()
                 .getLongitude());
 
         currentList = new ArrayList<Position>();
         windList = new ArrayList<Position>();
 
-        for (int i = 0; i < data.getCurrentList().size(); i++) {
+        for (int i = 0; i < rapidResponse.getCurrentList().size(); i++) {
             currentList.add(Position
-                    .create(data.getCurrentList().get(i).getLatitude(), data
+                    .create(rapidResponse.getCurrentList().get(i).getLatitude(), rapidResponse
                             .getCurrentList().get(i).getLongitude()));
         }
 
-        for (int i = 0; i < data.getWindList().size(); i++) {
-            windList.add(Position.create(data.getWindList().get(i)
-                    .getLatitude(), data.getWindList().get(i).getLongitude()));
+        for (int i = 0; i < rapidResponse.getWindList().size(); i++) {
+            windList.add(Position.create(rapidResponse.getWindList().get(i)
+                    .getLatitude(), rapidResponse.getWindList().get(i).getLongitude()));
         }
 
         List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
 
-        for (int i = 0; i < data.getWeatherData().size(); i++) {
-            weatherPoints.add(new SARWeatherData(data.getWeatherData().get(i)));
+        for (int i = 0; i < rapidResponse.getWeatherData().size(); i++) {
+            weatherPoints.add(new SARWeatherData(rapidResponse.getWeatherData().get(i)));
         }
 
         this.setWeatherPoints(weatherPoints);

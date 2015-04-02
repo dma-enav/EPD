@@ -46,6 +46,8 @@ message RapidResponse {
 	20: position B;
 	21: position C;
 	22: position D;
+  
+  23: position lkp;
 	
 	
 };

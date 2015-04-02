@@ -17,7 +17,6 @@ package dk.dma.epd.common.prototype.model.voct.sardata;
 import java.io.Serializable;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.epd.common.util.MCTypeConverter;
 import dma.voct.EffortAllocation;
 
@@ -49,25 +48,25 @@ public class EffortAllocationData implements Serializable {
 
     }
 
-    public EffortAllocationData(EffortAllocationDTO effortAllocationDTO) {
+    public EffortAllocationData(EffortAllocation effortAllocation) {
 
-        this.w = effortAllocationDTO.getW();
-        this.groundSpeed = effortAllocationDTO.getGroundSpeed();
-        pod = effortAllocationDTO.getPod();
-        this.trackSpacing = effortAllocationDTO.getTrackSpacing();
-        this.effectiveAreaSize = effortAllocationDTO.getEffectiveAreaSize();
+        this.w = effortAllocation.getWVar();
+        this.groundSpeed = effortAllocation.getGroundSpeed();
+        pod = effortAllocation.getPod();
+        this.trackSpacing = effortAllocation.getTrackSpacing();
+        this.effectiveAreaSize = effortAllocation.getAreaSize();
 
-        this.effectiveAreaA = Position.create(effortAllocationDTO
-                .getEffectiveAreaA().getLatitude(), effortAllocationDTO
+        this.effectiveAreaA = Position.create(effortAllocation
+                .getEffectiveAreaA().getLatitude(), effortAllocation
                 .getEffectiveAreaA().getLongitude());
-        this.effectiveAreaB = Position.create(effortAllocationDTO
-                .getEffectiveAreaB().getLatitude(), effortAllocationDTO
+        this.effectiveAreaB = Position.create(effortAllocation
+                .getEffectiveAreaB().getLatitude(), effortAllocation
                 .getEffectiveAreaB().getLongitude());
-        this.effectiveAreaC = Position.create(effortAllocationDTO
-                .getEffectiveAreaC().getLatitude(), effortAllocationDTO
+        this.effectiveAreaC = Position.create(effortAllocation
+                .getEffectiveAreaC().getLatitude(), effortAllocation
                 .getEffectiveAreaC().getLongitude());
-        this.effectiveAreaD = Position.create(effortAllocationDTO
-                .getEffectiveAreaD().getLatitude(), effortAllocationDTO
+        this.effectiveAreaD = Position.create(effortAllocation
+                .getEffectiveAreaD().getLatitude(), effortAllocation
                 .getEffectiveAreaD().getLongitude());
 
     }

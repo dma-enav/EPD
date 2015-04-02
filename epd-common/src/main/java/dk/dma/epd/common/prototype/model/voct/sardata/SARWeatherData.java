@@ -18,9 +18,6 @@ import java.io.Serializable;
 
 import org.joda.time.DateTime;
 
-import de.micromata.opengis.kml.v_2_2_0.TimeStamp;
-import dk.dma.enav.model.voct.WeatherDataDTO;
-
 public class SARWeatherData implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -32,13 +29,13 @@ public class SARWeatherData implements Serializable {
     private double downWind;
     private DateTime dateTime;
 
-    public SARWeatherData(WeatherDataDTO data) {
-        this.TWCHeading = data.getTWCHeading();
-        this.TWCknots = data.getTWCknots();
-        this.LWknots = data.getLWknots();
-        this.LWHeading = data.getLWHeading();
-        this.downWind = data.getDownWind();
-        this.dateTime = new DateTime(data.getDate());
+    public SARWeatherData(dma.voct.SARWeatherData sarWeatherData) {
+        this.TWCHeading = sarWeatherData.getTwcHeading();
+        this.TWCknots = sarWeatherData.getTwcKnots();
+        this.LWknots = sarWeatherData.getLeewayKnots();
+        this.LWHeading = sarWeatherData.getLeewayHeading();
+        this.downWind = sarWeatherData.getDownWindBearing();
+        this.dateTime = new DateTime(sarWeatherData.getDate());
     }
 
     public SARWeatherData(double tWCHeading, double tWCknots, double lWknots,

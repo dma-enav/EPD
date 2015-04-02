@@ -49,6 +49,8 @@ import dk.dma.epd.ship.gui.voct.SARInput;
 import dk.dma.epd.ship.gui.voct.SARInvitationRequest;
 import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.service.VoctHandler;
+import dma.voct.VOCTMessage;
+import dma.voct.VOCTReplyStatus;
 
 /**
  * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
@@ -294,35 +296,38 @@ public class VOCTManager extends VOCTManagerCommon {
      * 
      * }
      **/
-    public void handleDialogAction(boolean accepted, VOCTCommunicationMessage message, SAR_TYPE type) {
+    public void handleDialogAction(boolean accepted, VOCTMessage message) {
 
         if (accepted) {
 
-            voctHandler.sendVOCTReply(VoctMsgStatus.ACCEPTED, message.getId(), "Accepted", type);
+            voctHandler.sendVOCTReply(VOCTReplyStatus.ACCEPTED, message.getId(), "Accepted");
 
             removeOldSARData();
 
             SARData data = null;
 
-            if (type == SAR_TYPE.RAPID_RESPONSE) {
-                data = new RapidResponseData(message.getSarDataRapidResponse());
+            dma.voct.SAR_TYPE type = message.getSarType();
+            
+            if (type == dma.voct.SAR_TYPE.RAPID_RESPONSE) {
+                data = new RapidResponseData(message.getRapidResponse());
                 setSarType(SAR_TYPE.RAPID_RESPONSE);
                 saveToFile();
             }
 
-            if (type == SAR_TYPE.DATUM_POINT) {
-                data = new DatumPointData(message.getSarDataDatumPoint());
-                setSarType(SAR_TYPE.DATUM_POINT);
+            //TODO
+            if (type == dma.voct.SAR_TYPE.DATUM_POINT) {
+//                data = new DatumPointData(message.getSarDataDatumPoint());
+//                setSarType(SAR_TYPE.DATUM_POINT);
             }
-
-            if (type == SAR_TYPE.SARIS_DATUM_POINT) {
-                data = new DatumPointDataSARIS(message.getSarDataDatumPointSaris());
-                setSarType(SAR_TYPE.SARIS_DATUM_POINT);
+//
+            if (type == dma.voct.SAR_TYPE.SARIS_DATUM_POINT) {
+//                data = new DatumPointDataSARIS(message.getSarDataDatumPointSaris());
+//                setSarType(SAR_TYPE.SARIS_DATUM_POINT);
             }
+            
+            if (message.getEffortAllocation() != null) {
 
-            if (message.getEffortAllocationData() != null) {
-
-                EffortAllocationData effortAllocationData = new EffortAllocationData(message.getEffortAllocationData());
+                EffortAllocationData effortAllocationData = new EffortAllocationData(message.getEffortAllocation());
 
                 if (message.getSearchPattern() != null) {
                     SearchPatternRoute searchPattern = new SearchPatternRoute(new Route(message.getSearchPattern()));
@@ -348,14 +353,14 @@ public class VOCTManager extends VOCTManagerCommon {
 
             saveToFile();
         } else {
-            voctHandler.sendVOCTReply(VoctMsgStatus.REJECTED, message.getId(), "Rejected", type);
+            voctHandler.sendVOCTReply(VOCTReplyStatus.REJECTED, message.getId(), "Rejected");
         }
 
     }
 
-    public void handleSARDataPackage(VOCTCommunicationMessage message) {
+    public void handleSARDataPackage(VOCTMessage message) {
 
-        if (message.getStatus() == VoctMsgStatus.WITHDRAWN) {
+        if (message.getSarType() == dma.voct.SAR_TYPE.NONE) {
 
             int n = JOptionPane.showConfirmDialog(EPDShip.getInstance().getMainFrame(), "The OSC has cancelled the operation\n"
                     + "Do you wish to end your SAR participation?", "End SAR?", JOptionPane.YES_NO_OPTION);
