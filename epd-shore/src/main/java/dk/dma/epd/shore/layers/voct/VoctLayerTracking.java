@@ -119,7 +119,13 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
     }
 
     public void removeEffectiveArea(long mmsi) {
-
+        if (effectiveAreas.containsKey(mmsi)) {
+//          System.out.println("Removing existing");
+          EffortAllocationAreaGraphics area = effectiveAreas.get(mmsi);
+          graphics.remove(area);
+          effectiveAreas.remove(mmsi);
+      }
+        doPrepare();
     }
 
     public void drawEffectiveArea(long mmsi) {

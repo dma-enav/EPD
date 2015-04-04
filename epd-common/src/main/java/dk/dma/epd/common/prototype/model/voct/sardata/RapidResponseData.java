@@ -460,6 +460,7 @@ public class RapidResponseData extends SARData {
 
         if (getCSP() != null) {
             cSPPos = MCTypeConverter.getMaritimeCloudPositin(getCSP());
+            rapidResponseData.setC(cSPPos);
 
         }
 
@@ -491,9 +492,10 @@ public class RapidResponseData extends SARData {
         rapidResponseData.setTimeElapsed(getTimeElasped());
         rapidResponseData.setX(getX());
         rapidResponseData.setY(getY());
+        rapidResponseData.setSarID(getSarID());
         
         rapidResponseData.setLkp(MCTypeConverter.getMaritimeCloudPositin(this.getLKP()));
-
+        
         return rapidResponseData;
 
     }

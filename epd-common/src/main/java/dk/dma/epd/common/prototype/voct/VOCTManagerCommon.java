@@ -255,9 +255,10 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
         this.sarData = sarData;
 
-        if (!(sarData instanceof DatumPointDataSARIS)) {
-            sarFutureData = sarOperation.sarFutureCalculations(sarData);
-        }
+        //Disable, not sure if should be part of main features.
+//        if (!(sarData instanceof DatumPointDataSARIS)) {
+//            sarFutureData = sarOperation.sarFutureCalculations(sarData);
+//        }
         notifyListeners(VOCTUpdateEvent.SAR_READY);
     }
 

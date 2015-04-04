@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -165,6 +166,13 @@ System.out.println("ID is " + voctHandler.getVoctMessageList().get(i)
         if (srus.containsKey(mmsi)) {
             SRU sru = srus.get(mmsi);
 
+            if (status == CloudMessageStatus.RECEIVED_BY_CLOUD){
+                if (sru.getCloudStatus() == CloudMessageStatus.RECEIVED_BY_CLIENT){
+                    System.out.println("Not overwriting");
+                    return;
+                }
+            }
+            
             sru.setCloudStatus(status);
             sru.setVoctMsgStatus(VoctMsgStatus.UNKNOWN);
             updateSRUsStatus();
@@ -192,12 +200,13 @@ System.out.println("ID is " + voctHandler.getVoctMessageList().get(i)
             // overwrite the old one?
             // Remove old one, put new one
             case ACCEPTED:
+                
                 sru.setStatus(sru_status.ACCEPTED);
                 if (sRUCommunication.containsKey(mmsi)) {
                     sRUCommunication.remove(mmsi);
                 }
                 sRUCommunication.put(mmsi, new SRUCommunicationObject(sru));
-
+                sRUCommunication.get(mmsi).setLastMessageRecieved(new Date());
                 // Notify voctmanager to paint efffort allocation area for SRU i
                 voctLayerTracking.drawEffectiveArea(sru.getMmsi());
 

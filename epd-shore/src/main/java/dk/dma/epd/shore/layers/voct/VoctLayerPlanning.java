@@ -533,7 +533,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         Position D = data.getD();
 
         sarArea = new SarAreaGraphic(A, B, C, D);
-        graphics.add(sarArea);
+        
 
         Position datumDownWind = data.getDatumDownWind();
         Position datumMin = data.getDatumMin();
@@ -549,7 +549,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         graphics.clear();
 
         sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
-
+        graphics.add(sarArea);
         graphics.add(sarGraphics);
 
         doPrepare();

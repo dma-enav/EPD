@@ -303,11 +303,7 @@ public class VOCTManager extends VOCTManagerCommon {
 
         if (accepted) {
             
-            
-            long sarId = -1;
-            if ( message.getId() != null){
-                sarId = message.getId();
-            }
+
             
             try {
                 voctHandler.sendVOCTReply(VOCTReplyStatus.ACCEPTED, "Accepted", message.getId());
@@ -333,8 +329,9 @@ public class VOCTManager extends VOCTManagerCommon {
 
             //TODO
             if (type == dma.voct.SAR_TYPE.DATUM_POINT) {
-//                data = new DatumPointData(message.getSarDataDatumPoint());
-//                setSarType(SAR_TYPE.DATUM_POINT);
+                data = new DatumPointData(message.getDatumPoint());
+                setSarType(SAR_TYPE.DATUM_POINT);
+                saveToFile();
             }
 //
             if (type == dma.voct.SAR_TYPE.SARIS_DATUM_POINT) {

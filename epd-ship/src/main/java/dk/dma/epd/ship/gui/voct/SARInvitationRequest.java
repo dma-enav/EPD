@@ -202,8 +202,8 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
         }
 
         if (type == dma.voct.SAR_TYPE.DATUM_POINT) {
-            if (!voctCommunicationMessage.getSarisDatumPoint().getSarID().equals("")) {
-                lblSARID.setText(voctCommunicationMessage.getSarisDatumPoint().getSarID());
+            if (!voctCommunicationMessage.getDatumPoint().getSarID().equals("")) {
+                lblSARID.setText(voctCommunicationMessage.getDatumPoint().getSarID());
             }
 
         }
