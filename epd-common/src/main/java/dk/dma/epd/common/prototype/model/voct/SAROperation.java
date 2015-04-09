@@ -1132,7 +1132,7 @@ public class SAROperation {
         // Variable used to create intersection lines
         int directionLength = 500000;
 
-        // Find circles furtest from each other - that will be the encompassing
+        // Find circles furthest from each other - that will be the encompassing
         // box - after this box has been decided grow the box so it encompasses
         // the last circle.
 
