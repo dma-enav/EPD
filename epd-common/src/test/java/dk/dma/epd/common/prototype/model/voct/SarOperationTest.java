@@ -164,7 +164,7 @@ public class SarOperationTest {
         assertEquals("61 03.413N", data.getDatumMax().getLatitudeAsString());
         assertEquals("050 53.115W", data.getDatumMax().getLongitudeAsString());
         assertEquals(44.331598, data.getRdvDirectionMax(), allowedUncertainty);
-        assertEquals(4.8383742, data.getRdvDistanceMax(), allowedUncertainty);
+        assertEquals(4.7752103, data.getRdvDistanceMax(), allowedUncertainty);
         assertEquals(4.7752103, data.getRdvSpeedMax(), allowedUncertainty);
         assertEquals(2.5325631, data.getRadiusMax(), allowedUncertainty);
 
