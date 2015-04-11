@@ -17,6 +17,7 @@ package dk.dma.epd.ship.gui;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MouseDelegator;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
@@ -34,6 +35,7 @@ import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
@@ -59,10 +61,12 @@ import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDMapSettings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.BorderFactory;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseWheelEvent;
@@ -645,6 +649,19 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
 
             if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
                 DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
+
+                List<Position> waypoints = new ArrayList<Position>();
+                waypoints.add(data.getSarAreaData().get(0).getA());
+                waypoints.add(data.getSarAreaData().get(0).getB());
+                waypoints.add(data.getSarAreaData().get(0).getC());
+                waypoints.add(data.getSarAreaData().get(0).getD());
+
+                zoomTo(waypoints);
+                return;
+            }
+            
+            if (voctManager.getSarType() == SAR_TYPE.SIMPLE_SAR) {
+                SimpleSAR data = (SimpleSAR) voctManager.getSarData();
 
                 List<Position> waypoints = new ArrayList<Position>();
                 waypoints.add(data.getSarAreaData().get(0).getA());

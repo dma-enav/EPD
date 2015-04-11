@@ -43,17 +43,20 @@ import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.util.Util;
 
 /**
- * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
+ * The VOCTManager is responsible for maintaining current VOCT Status and all
+ * information relevant to the VOCT
  * 
  * The VOCT Manager can be initiated through the cloud or manually by the user
  * 
  * 
  */
 
-public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Serializable {
+public class VOCTManagerCommon extends MapHandlerChild implements Runnable,
+        Serializable {
 
     private static final long serialVersionUID = 1L;
     protected SAROperation sarOperation;
@@ -67,8 +70,10 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     protected SARData sarData;
     protected List<SARData> sarFutureData;
 
-    protected static final String VOCT_FILE = EPD.getInstance().getHomePath().resolve(".voct").toString();
-    protected static final Logger LOG = LoggerFactory.getLogger(VOCTManagerCommon.class);
+    protected static final String VOCT_FILE = EPD.getInstance().getHomePath()
+            .resolve(".voct").toString();
+    protected static final Logger LOG = LoggerFactory
+            .getLogger(VOCTManagerCommon.class);
 
     public enum VoctMsgStatus {
         ACCEPTED, REJECTED, NOTED, IGNORED, UNKNOWN, WITHDRAWN
@@ -82,7 +87,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     }
 
     public void setSarType(SAR_TYPE type) {
-//        System.out.println("SET SAR TYPE " + type);
+        // System.out.println("SET SAR TYPE " + type);
         sarOperation = null;
         sarOperation = new SAROperation(type);
     }
@@ -94,14 +99,30 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         return SAR_TYPE.NONE;
     }
 
-    public void inputDatumLineData(String sarID, DateTime TLKP, DateTime DSP2Date, DateTime DSP3Date, DateTime CSS, Position LKP,
-            Position DSP2, Position DSP3, double x, double y, double SF, int searchObject, List<SARWeatherData> sarWeatherDataPoints) {
+    public void inputSimpleSarData(String sarId, DateTime TLKP, DateTime CSS,
+            double x, double y, double sf, int searchObject, Position A,
+            Position B, Position C, Position D, Position datum) {
+        
 
-        DatumPointData dsp1 = new DatumPointData(sarID, TLKP, CSS, LKP, x, y, SF, searchObject);
-        DatumPointData dsp2 = new DatumPointData(sarID, DSP2Date, CSS, DSP2, x, y, SF, searchObject);
-        DatumPointData dsp3 = new DatumPointData(sarID, DSP3Date, CSS, DSP3, x, y, SF, searchObject);
+        SimpleSAR simpleSar = new SimpleSAR(sarId, TLKP, CSS, x, y, sf, searchObject, A, B, C, D, datum);
+        
+        setSarData(simpleSar);
+    }
 
-        DatumLineData datumLineSar = new DatumLineData(sarID, TLKP, CSS, LKP, x, y, SF, searchObject);
+    public void inputDatumLineData(String sarID, DateTime TLKP,
+            DateTime DSP2Date, DateTime DSP3Date, DateTime CSS, Position LKP,
+            Position DSP2, Position DSP3, double x, double y, double SF,
+            int searchObject, List<SARWeatherData> sarWeatherDataPoints) {
+
+        DatumPointData dsp1 = new DatumPointData(sarID, TLKP, CSS, LKP, x, y,
+                SF, searchObject);
+        DatumPointData dsp2 = new DatumPointData(sarID, DSP2Date, CSS, DSP2, x,
+                y, SF, searchObject);
+        DatumPointData dsp3 = new DatumPointData(sarID, DSP3Date, CSS, DSP3, x,
+                y, SF, searchObject);
+
+        DatumLineData datumLineSar = new DatumLineData(sarID, TLKP, CSS, LKP,
+                x, y, SF, searchObject);
         datumLineSar.setWeatherPoints(sarWeatherDataPoints);
 
         dsp1.setWeatherPoints(sarWeatherDataPoints);
@@ -116,11 +137,13 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
     }
 
-    public void inputRapidResponseDatumData(String sarID, DateTime TLKP, DateTime CSS, Position LKP, double x, double y, double SF,
+    public void inputRapidResponseDatumData(String sarID, DateTime TLKP,
+            DateTime CSS, Position LKP, double x, double y, double SF,
             int searchObject, List<SARWeatherData> sarWeatherDataPoints) {
 
         if (getSarType() == SAR_TYPE.RAPID_RESPONSE) {
-            RapidResponseData data = new RapidResponseData(sarID, TLKP, CSS, LKP, x, y, SF, searchObject);
+            RapidResponseData data = new RapidResponseData(sarID, TLKP, CSS,
+                    LKP, x, y, SF, searchObject);
 
             data.setWeatherPoints(sarWeatherDataPoints);
 
@@ -128,7 +151,8 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         }
 
         if (getSarType() == SAR_TYPE.DATUM_POINT) {
-            DatumPointData data = new DatumPointData(sarID, TLKP, CSS, LKP, x, y, SF, searchObject);
+            DatumPointData data = new DatumPointData(sarID, TLKP, CSS, LKP, x,
+                    y, SF, searchObject);
 
             data.setWeatherPoints(sarWeatherDataPoints);
 
@@ -161,14 +185,18 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     }
 
     private void deleteAllRoutes() {
-        Iterator<Entry<Long, EffortAllocationData>> iter = sarData.getEffortAllocationData().entrySet().iterator();
+        Iterator<Entry<Long, EffortAllocationData>> iter = sarData
+                .getEffortAllocationData().entrySet().iterator();
         while (iter.hasNext()) {
             Entry<Long, EffortAllocationData> entry = iter.next();
             if (entry.getValue().getSearchPatternRoute() != null) {
 
-                SearchPatternRoute searchPattern = entry.getValue().getSearchPatternRoute();
-                for (int i = 0; i < EPD.getInstance().getRouteManager().getRoutes().size(); i++) {
-                    if (EPD.getInstance().getRouteManager().getRoute(i).toString().equals(searchPattern.toString())) {
+                SearchPatternRoute searchPattern = entry.getValue()
+                        .getSearchPatternRoute();
+                for (int i = 0; i < EPD.getInstance().getRouteManager()
+                        .getRoutes().size(); i++) {
+                    if (EPD.getInstance().getRouteManager().getRoute(i)
+                            .toString().equals(searchPattern.toString())) {
                         EPD.getInstance().getRouteManager().removeRoute(i);
                         break;
                     }
@@ -194,7 +222,8 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         if (hasSar || loadSarFromSerialize) {
 
             try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
-                    ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+                    ObjectOutputStream objectOut = new ObjectOutputStream(
+                            fileOut);) {
                 objectOut.writeObject(sarData);
             } catch (IOException e) {
                 LOG.error("Failed to save VOCT data: " + e.getMessage());
@@ -225,15 +254,6 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     public void addListener(VOCTUpdateListener listener) {
         listeners.add(listener);
 
-        // if (loadSarFromSerialize) {
-        // listener.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
-        //
-        // if (sarData.getEffortAllocationData().size() > 0) {
-        //
-        // listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
-        // listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
-        // }
-        // }
     }
 
     public void removeListener(VOCTUpdateListener listener) {
@@ -255,10 +275,10 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
 
         this.sarData = sarData;
 
-        //Disable, not sure if should be part of main features.
-//        if (!(sarData instanceof DatumPointDataSARIS)) {
-//            sarFutureData = sarOperation.sarFutureCalculations(sarData);
-//        }
+        // Disable, not sure if should be part of main features.
+        // if (!(sarData instanceof DatumPointDataSARIS)) {
+        // sarFutureData = sarOperation.sarFutureCalculations(sarData);
+        // }
         notifyListeners(VOCTUpdateEvent.SAR_READY);
     }
 
@@ -271,7 +291,8 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         saveToFile();
     }
 
-    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, long id) {
+    public void generateSearchPattern(
+            SearchPatternGenerator.searchPattern type, Position CSP, long id) {
 
     }
 
@@ -314,7 +335,8 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         if (sarData instanceof RapidResponseData) {
             setSarType(SAR_TYPE.RAPID_RESPONSE);
             RapidResponseData rapidResponseData = (RapidResponseData) sarData;
-            setSarData(sarOperation.startRapidResponseCalculations(rapidResponseData));
+            setSarData(sarOperation
+                    .startRapidResponseCalculations(rapidResponseData));
 
         }
 

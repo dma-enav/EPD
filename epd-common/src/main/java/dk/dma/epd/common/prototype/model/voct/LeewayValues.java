@@ -68,7 +68,7 @@ public class LeewayValues {
         leeWayTypes.put(11, "Surfboard with Person");
         leeWayContent.put(11, "0.020 x U, Divergence: 15");
         
-        leeWayTypes.put(12, "Windsurfer with Person. Mast and sail in water.");
+        leeWayTypes.put(12, "Windsurfer with Person. Mast and sail in water");
         leeWayContent.put(12, "0.023 x U + 0.100, Divergence: 12");
         
         leeWayTypes.put(13, "Sailboat (Long keel)");

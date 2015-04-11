@@ -60,7 +60,6 @@ public class SARData implements Serializable {
         this.setSafetyFactor(safetyFactor);
         this.setSearchObject(searchObject);
     }
-
     
     public SARData(){
         

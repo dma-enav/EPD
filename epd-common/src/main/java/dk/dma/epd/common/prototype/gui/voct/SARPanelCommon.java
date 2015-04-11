@@ -607,7 +607,10 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
             setBackTrackData(data);
         }
 
-        // setDatumPointData
+        if (voctManager.getSarType() == SAR_TYPE.SIMPLE_SAR){
+            System.out.println("TO DO DAVID");
+           //setSimpleSarDisplayData
+        }
 
         CardLayout cl = (CardLayout) (this.getLayout());
         cl.show(this, SARPANEL);

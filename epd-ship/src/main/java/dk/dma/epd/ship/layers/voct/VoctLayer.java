@@ -40,6 +40,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.EPDShip;
@@ -461,9 +462,16 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener,
             if (voctManager.getSarType() == SAR_TYPE.DATUM_LINE) {
                 drawDatumLine();
             }
+            
             if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
                 drawSarisDatumPoint();
             }
+            
+            if (voctManager.getSarType() == SAR_TYPE.SIMPLE_SAR) {
+                drawSimpleSar();
+            }
+            
+            
 
             this.setVisible(true);
 
@@ -503,6 +511,10 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener,
             if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
                 drawSarisDatumPoint();
             }
+            
+            if (voctManager.getSarType() == SAR_TYPE.SIMPLE_SAR) {
+                drawSimpleSar();
+            }
 
             if (voctManager.getSarData().getEffortAllocationData() != null) {
 
@@ -527,6 +539,31 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener,
 
     }
 
+    
+    private void drawSimpleSar() {
+
+        graphics.clear();
+        
+        SimpleSAR data = (SimpleSAR) voctManager
+                .getSarData();
+
+        
+        
+        for (int i = 0; i < data.getSarAreaData().size(); i++) {
+//
+            SARAreaData sarArea = data.getSarAreaData().get(i);
+//
+            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(),
+                    sarArea.getB(), sarArea.getC(), sarArea.getD(),
+                    sarArea.getCentre(), "");
+
+            graphics.add(sarAreaGraphic);
+        }
+
+        doPrepare();
+        this.setVisible(true);
+    }
+    
     private void drawSarisDatumPoint() {
 
         graphics.clear();
