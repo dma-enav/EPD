@@ -36,6 +36,7 @@ import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommun
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
@@ -169,6 +170,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         // // }
     }
 
+    
     private void fetchVOCTMessageList() {
         // voctMessageList
 
@@ -225,15 +227,15 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
             message.setSarType(SAR_TYPE.DATUM_POINT);
 
         }
-        //
-        // if (sarData instanceof DatumPointDataSARIS) {
-        // DatumPointSARISDTO sarModelData = ((DatumPointDataSARIS) sarData)
-        // .getModelData();
-        // voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(
-        // sarModelData, effortAllocationData, searchPattern, sender,
-        // message, voctManager.getVoctID(), mmsi);
-        //
-        // }
+
+        if (sarData instanceof SimpleSAR) {
+            dma.voct.SimpleSAR sarModelData = ((SimpleSAR) sarData)
+                    .getModelData();
+
+            message.setSimpleSar(sarModelData);
+            message.setSarType(SAR_TYPE.SIMPLE_SAR);
+
+        }
 
         return message;
     }

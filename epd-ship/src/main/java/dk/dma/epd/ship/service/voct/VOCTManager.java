@@ -39,6 +39,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
@@ -358,13 +359,18 @@ public class VOCTManager extends VOCTManagerCommon {
                 saveToFile();
             }
 
-            // TODO
             if (type == dma.voct.SAR_TYPE.DATUM_POINT) {
                 data = new DatumPointData(message.getDatumPoint());
                 setSarType(SAR_TYPE.DATUM_POINT);
                 saveToFile();
             }
-            //
+            
+            if (type == dma.voct.SAR_TYPE.SIMPLE_SAR) {
+                data = new SimpleSAR(message.getSimpleSar());
+                setSarType(SAR_TYPE.SIMPLE_SAR);
+                saveToFile();
+            }
+            
             if (type == dma.voct.SAR_TYPE.SARIS_DATUM_POINT) {
                 // data = new
                 // DatumPointDataSARIS(message.getSarDataDatumPointSaris());

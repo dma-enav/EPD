@@ -14,50 +14,64 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.joda.time.DateTime;
 
-import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.voct.DatumPointSARISDTO;
-import dk.dma.enav.model.voct.SARAreaData;
+import dk.dma.epd.common.util.MCTypeConverter;
 
 public class SimpleSAR extends SARData {
 
     private static final long serialVersionUID = 1L;
 
- 
-    Position datum;
-//    private List<SARAreaData> sarAreaData;
-    Position A;
-    Position B;
-    Position C;
-    Position D;
-    
+    private Position datum;
+    private Position A;
+    private Position B;
+    private Position C;
+    private Position D;
     private double timeElasped;
-    
+
+    public SimpleSAR(dma.voct.SimpleSAR simpleSar) {
+        super(simpleSar.getSarID(), new DateTime(simpleSar.getLKPDate()
+                .getTime()), new DateTime(simpleSar.getCSSDate().getTime()),
+                Position.create(simpleSar.getDatum().getLatitude(), simpleSar
+                        .getDatum().getLongitude()), simpleSar.getX(),
+                simpleSar.getY(), simpleSar.getSafetyFactor(), simpleSar
+                        .getSearchObject());
+
+        this.datum = Position.create(simpleSar.getDatum().getLatitude(), simpleSar.getDatum().getLongitude());
+        
+        this.A = Position.create(simpleSar.getA().getLatitude(), simpleSar.getA().getLongitude());
+        this.B = Position.create(simpleSar.getB().getLatitude(), simpleSar.getB().getLongitude());
+        this.C = Position.create(simpleSar.getC().getLatitude(), simpleSar.getC().getLongitude());
+        this.D = Position.create(simpleSar.getD().getLatitude(), simpleSar.getD().getLongitude());
+
+        this.timeElasped = simpleSar.getTimeElapsed();
+        
+        
+    }
+
     public SimpleSAR(String sarID, DateTime TLKP, DateTime CSS, double x,
             double y, double safetyFactor, int searchObject, Position A,
             Position B, Position C, Position D, Position datum) {
+
         super(sarID, TLKP, CSS, datum, x, y, safetyFactor, searchObject);
 
-//        this.A = A;
-//        this.B = B;
-//        this.C = C;
-//        this.D = D;
+        // this.A = A;
+        // this.B = B;
+        // this.C = C;
+        // this.D = D;
         this.datum = datum;
 
         this.A = A;
         this.B = B;
         this.C = C;
         this.D = D;
-        
-//        sarAreaData = new ArrayList<SARAreaData>();
-//        
-//        SARAreaData sarArea = new SARAreaData(A, B, C, D, datum, breadth, length);
-//        sarAreaData.add(sarArea);
+
+        // sarAreaData = new ArrayList<SARAreaData>();
+        //
+        // SARAreaData sarArea = new SARAreaData(A, B, C, D, datum, breadth,
+        // length);
+        // sarAreaData.add(sarArea);
         // Query user for:
 
         // Position Last Known Position
@@ -65,7 +79,8 @@ public class SimpleSAR extends SARData {
         // Commence Search Start
 
         // Search Object
-        timeElasped = (double) (getCSSDate().getMillis() - getLKPDate().getMillis()) / 60 / 60 / 1000;
+        timeElasped = (double) (getCSSDate().getMillis() - getLKPDate()
+                .getMillis()) / 60 / 60 / 1000;
 
     }
 
@@ -75,9 +90,6 @@ public class SimpleSAR extends SARData {
     public static long getSerialversionuid() {
         return serialVersionUID;
     }
-
-
-
 
     /**
      * @return the a
@@ -114,9 +126,6 @@ public class SimpleSAR extends SARData {
         return datum;
     }
 
-    
-    
-    
     /**
      * @return the timeElasped
      */
@@ -127,5 +136,35 @@ public class SimpleSAR extends SARData {
     @Override
     public String generateHTML() {
         return "Uhm hello there mate";
+    }
+
+    public dma.voct.SimpleSAR getModelData() {
+        dma.voct.SimpleSAR simpleSar = new dma.voct.SimpleSAR();
+
+        simpleSar.setA(MCTypeConverter.getMaritimeCloudPositin(A));
+
+        simpleSar.setB(MCTypeConverter.getMaritimeCloudPositin(B));
+        simpleSar.setC(MCTypeConverter.getMaritimeCloudPositin(C));
+        simpleSar.setD(MCTypeConverter.getMaritimeCloudPositin(D));
+
+        simpleSar.setDatum(MCTypeConverter.getMaritimeCloudPositin(datum));
+
+        simpleSar.setCSSDate(MCTypeConverter
+                .getMaritimeCloudTimeStamp(getCSSDate()));
+
+        simpleSar.setLKPDate(MCTypeConverter
+                .getMaritimeCloudTimeStamp(getLKPDate()));
+
+        simpleSar.setSafetyFactor(getSafetyFactor());
+
+        simpleSar.setSarID(getSarID());
+
+        simpleSar.setSearchObject(getSearchObject());
+        simpleSar.setTimeElapsed(getTimeElasped());
+        simpleSar.setX(getX());
+        simpleSar.setY(getY());
+
+        return simpleSar;
+
     }
 }
