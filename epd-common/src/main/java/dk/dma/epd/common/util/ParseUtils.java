@@ -143,9 +143,6 @@ public class ParseUtils {
             throw new FormatException();
         }
         
-        System.out.println("H " + h);
-        System.out.println("M " + m);
-        
         double lon = h + m / 60.0; 
         if (ew.equals("W")) {
             lon *= -1;

@@ -30,7 +30,13 @@ public class SimpleSAR extends SARData {
 
  
     Position datum;
-    private List<SARAreaData> sarAreaData;
+//    private List<SARAreaData> sarAreaData;
+    Position A;
+    Position B;
+    Position C;
+    Position D;
+    
+    private double timeElasped;
     
     public SimpleSAR(String sarID, DateTime TLKP, DateTime CSS, double x,
             double y, double safetyFactor, int searchObject, Position A,
@@ -43,13 +49,15 @@ public class SimpleSAR extends SARData {
 //        this.D = D;
         this.datum = datum;
 
-        double length = A.distanceTo(C, CoordinateSystem.GEODETIC);
-        double breadth = A.distanceTo(B, CoordinateSystem.GEODETIC);
+        this.A = A;
+        this.B = B;
+        this.C = C;
+        this.D = D;
         
-        sarAreaData = new ArrayList<SARAreaData>();
-        
-        SARAreaData sarArea = new SARAreaData(A, B, C, D, datum, breadth, length);
-        sarAreaData.add(sarArea);
+//        sarAreaData = new ArrayList<SARAreaData>();
+//        
+//        SARAreaData sarArea = new SARAreaData(A, B, C, D, datum, breadth, length);
+//        sarAreaData.add(sarArea);
         // Query user for:
 
         // Position Last Known Position
@@ -57,6 +65,7 @@ public class SimpleSAR extends SARData {
         // Commence Search Start
 
         // Search Object
+        timeElasped = (double) (getCSSDate().getMillis() - getLKPDate().getMillis()) / 60 / 60 / 1000;
 
     }
 
@@ -69,11 +78,33 @@ public class SimpleSAR extends SARData {
 
 
 
+
     /**
-     * @return the sarAreaData
+     * @return the a
      */
-    public List<SARAreaData> getSarAreaData() {
-        return sarAreaData;
+    public Position getA() {
+        return A;
+    }
+
+    /**
+     * @return the b
+     */
+    public Position getB() {
+        return B;
+    }
+
+    /**
+     * @return the c
+     */
+    public Position getC() {
+        return C;
+    }
+
+    /**
+     * @return the d
+     */
+    public Position getD() {
+        return D;
     }
 
     /**
@@ -81,6 +112,16 @@ public class SimpleSAR extends SARData {
      */
     public Position getDatum() {
         return datum;
+    }
+
+    
+    
+    
+    /**
+     * @return the timeElasped
+     */
+    public double getTimeElasped() {
+        return timeElasped;
     }
 
     @Override

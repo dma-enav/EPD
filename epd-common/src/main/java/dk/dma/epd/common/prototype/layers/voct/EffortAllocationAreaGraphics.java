@@ -26,6 +26,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 
@@ -236,6 +237,49 @@ public class EffortAllocationAreaGraphics extends OMGraphicList {
             // System.out.println("Horizontal bearing is: " +
             // horizontalBearing);
         }
+        
+        
+        if (sarData instanceof  SimpleSAR) {
+            SimpleSAR simpleSar = (SimpleSAR) data;
+            centerPosition = simpleSar.getDatum();
+
+            verticalBearing = Calculator.bearing(simpleSar.getA(),
+                    simpleSar.getD(), Heading.RL);
+            horizontalBearing = Calculator.bearing(simpleSar.getA(),
+                    simpleSar.getB(), Heading.RL);
+
+            // Vertical and horizontal must be swapped since the direction has
+            // been set to very east or very west
+            if (verticalBearing < 280 && verticalBearing > 260
+                    || verticalBearing < 100 && verticalBearing > 70) {
+
+                double newVer = verticalBearing;
+                // System.out.println("swapping");
+                verticalBearing = horizontalBearing;
+                horizontalBearing = newVer;
+
+            }
+
+            // Reversing if direction is opposite way of assumed, assumed to be
+            // headed in 90 direction ie. right
+            if (horizontalBearing > 180 || horizontalBearing < 0) {
+
+                horizontalBearing = Calculator
+                        .reverseDirection(horizontalBearing);
+            }
+
+            if (verticalBearing > 270 || verticalBearing < 90) {
+                verticalBearing = Calculator.reverseDirection(verticalBearing);
+            }
+
+            // System.out.println("Vertical bearing is: " + verticalBearing);
+            // System.out.println("Horizontal bearing is: " +
+            // horizontalBearing);
+
+        }
+
+        
+        
 
         // Find A position
         Position topCenter = Calculator.findPosition(centerPosition,

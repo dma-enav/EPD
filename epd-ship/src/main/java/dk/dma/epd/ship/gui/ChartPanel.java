@@ -664,10 +664,10 @@ public class ChartPanel extends ChartPanelCommon implements DockableComponentPan
                 SimpleSAR data = (SimpleSAR) voctManager.getSarData();
 
                 List<Position> waypoints = new ArrayList<Position>();
-                waypoints.add(data.getSarAreaData().get(0).getA());
-                waypoints.add(data.getSarAreaData().get(0).getB());
-                waypoints.add(data.getSarAreaData().get(0).getC());
-                waypoints.add(data.getSarAreaData().get(0).getD());
+                waypoints.add(data.getA());
+                waypoints.add(data.getB());
+                waypoints.add(data.getC());
+                waypoints.add(data.getD());
 
                 zoomTo(waypoints);
                 return;

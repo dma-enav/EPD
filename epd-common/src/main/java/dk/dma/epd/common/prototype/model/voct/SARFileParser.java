@@ -154,14 +154,11 @@ public class SARFileParser {
     }
 
     private Position getPosition(String inputString) throws FormatException {
-        System.out.println("Input is " + inputString);
+//        System.out.println("Input is " + inputString);
         String latitude = inputString.split("\\|")[0].trim();
         String longitude = inputString.split("\\|")[1].trim();
 
-//        System.out.println("Latitude is " + latitude);
-        System.out.println("Longitude is " + longitude);
-//        System.out.println("latitude is " + ParseUtils.parseLatitude(latitude));
-        System.out.println("Longitude parsed is " + ParseUtils.parseLongitude(longitude));
+
         return Position.create(ParseUtils.parseLatitude(latitude),
                 ParseUtils.parseLongitude(longitude));
         // String test = "55 00 1 N";

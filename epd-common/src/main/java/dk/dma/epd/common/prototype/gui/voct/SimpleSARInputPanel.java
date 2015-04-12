@@ -495,8 +495,6 @@ public class SimpleSARInputPanel extends JPanel implements ActionListener,
 
                     datumLat.setText(parser.getDatum().getLatitudeAsString());
                     datumLon.setText(parser.getDatum().getLongitudeAsString());
-
-                    System.out.println("Longitude is " + parser.getDatum().getLongitudeAsString());
                     
                     aLat.setText(parser.getA().getLatitudeAsString());
                     aLon.setText(parser.getA().getLongitudeAsString());

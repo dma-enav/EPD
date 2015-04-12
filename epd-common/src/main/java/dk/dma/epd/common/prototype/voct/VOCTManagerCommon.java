@@ -353,6 +353,13 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable,
             setSarData(sarOperation.startDatumLineCalculations(datumLinetData));
 
         }
+        
+        if (sarData instanceof SimpleSAR) {
+            System.out.println("Loading SAR data");
+            setSarType(SAR_TYPE.SIMPLE_SAR);
+            SimpleSAR simpleSar = (SimpleSAR) sarData;
+            setSarData(simpleSar);
+        }
 
         displaySar();
     }

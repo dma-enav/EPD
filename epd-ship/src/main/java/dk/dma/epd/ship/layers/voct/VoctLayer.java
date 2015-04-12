@@ -549,16 +549,16 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener,
 
         
         
-        for (int i = 0; i < data.getSarAreaData().size(); i++) {
+//        for (int i = 0; i < data.getSarAreaData().size(); i++) {
+////
+//            SARAreaData sarArea = data.getSarAreaData().get(i);
 //
-            SARAreaData sarArea = data.getSarAreaData().get(i);
-//
-            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(),
-                    sarArea.getB(), sarArea.getC(), sarArea.getD(),
-                    sarArea.getCentre(), "");
+            SarGraphics sarAreaGraphic = new SarGraphics(data.getA(),
+                    data.getB(), data.getC(), data.getD(),
+                    data.getDatum(), "");
 
             graphics.add(sarAreaGraphic);
-        }
+//        }
 
         doPrepare();
         this.setVisible(true);
