@@ -51,16 +51,19 @@ import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 import javax.swing.text.JTextComponent;
 
+import net.maritimecloud.util.Timestamp;
+
 import org.apache.commons.lang.StringUtils;
 
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.VOCTSARInfoMessage;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon.IVoctInfoListener;
 import dk.dma.epd.common.text.Formatter;
+import dma.voct.SarText;
 
-public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, IVoctInfoListener {
+public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener,
+        IVoctInfoListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -95,8 +98,10 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
         add(titleHeader, BorderLayout.NORTH);
 
         // Add messages panel
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane
+                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         messagesPanel.setBackground(UIManager.getColor("List.background"));
         messagesPanel.setOpaque(false);
         messagesPanel.setLayout(new GridBagLayout());
@@ -111,15 +116,19 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
         // if (false) {
         // messageText = new JTextField();
         // ((JTextField) messageText).addActionListener(this);
-        // sendPanel.add(messageText, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, NORTH, BOTH, insets, 0, 0));
+        // sendPanel.add(messageText, new GridBagConstraints(0, 0, 1, 1, 1.0,
+        // 1.0, NORTH, BOTH, insets, 0, 0));
         //
         // } else {
         messageText = new JTextArea();
         JScrollPane scrollPane2 = new JScrollPane(messageText);
         scrollPane2.setPreferredSize(new Dimension(100, 50));
-        scrollPane2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        sendPanel.add(scrollPane2, new GridBagConstraints(0, 0, 1, 2, 1.0, 1.0, NORTH, BOTH, insets, 0, 0));
+        scrollPane2
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane2
+                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        sendPanel.add(scrollPane2, new GridBagConstraints(0, 0, 1, 2, 1.0, 1.0,
+                NORTH, BOTH, insets, 0, 0));
         // }
 
         // Add buttons
@@ -130,13 +139,15 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
             msgTypePanel.setBorderPainted(false);
             msgTypePanel.setOpaque(true);
             msgTypePanel.setFloatable(false);
-            sendPanel.add(msgTypePanel, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, NORTH, NONE, insets, 0, 0));
+            sendPanel.add(msgTypePanel, new GridBagConstraints(1, 0, 1, 1, 0.0,
+                    0.0, NORTH, NONE, insets, 0, 0));
 
         }
 
         if (compactLayout) {
             addBtn = new JButton("Add to Log");
-            sendPanel.add(addBtn, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, NORTH, NONE, insets, 0, 0));
+            sendPanel.add(addBtn, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                    NORTH, NONE, insets, 0, 0));
         }
         // addBtn.setEnabled(false);
         // messageText.setEditable(false);
@@ -183,52 +194,69 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
 
         // First, add a filler component
         int y = 0;
-        messagesPanel.add(new JLabel(""), new GridBagConstraints(0, y++, 1, 1, 0.0, 1.0, NORTH, VERTICAL, insets, 0, 0));
+        messagesPanel.add(new JLabel(""), new GridBagConstraints(0, y++, 1, 1,
+                0.0, 1.0, NORTH, VERTICAL, insets, 0, 0));
 
         // Add the messages
         long lastMessageTime = 0;
 
-        long ownMMSI = MaritimeCloudUtils.toMmsi(EPD.getInstance().getMaritimeId());
+        long ownMMSI = MaritimeCloudUtils.toMmsi(EPD.getInstance()
+                .getMaritimeId());
 
-        for (VOCTSARInfoMessage message : EPD.getInstance().getVoctHandler().getAdditionalInformationMsgs()) {
+        for (SarText message : EPD.getInstance().getVoctHandler()
+                .getAdditionalInformationMsgs()) {
 
             boolean ownMessage = false;
 
-            if (message.getSender() == ownMMSI) {
+            String senderName = message.getOriginalSender() + "";
+            if (message.getOriginalSender() == ownMMSI) {
                 ownMessage = true;
             }
+            try {
+                senderName = EPD.getInstance().getIdentityHandler()
+                        .getActor(message.getOriginalSender()).getName();
+            } catch (Exception e) {
 
-            // EPD.getInstance().getIdentityHandler().getActor(mmsi)
+            }
 
             // Check if we need to add a time label
-            if (message.getDate() - lastMessageTime > PRINT_DATE_INTERVAL) {
+//            if (message.getOriginalSendDate().getTime() - lastMessageTime > PRINT_DATE_INTERVAL) {
 
-                JLabel dateLabel = new JLabel(String.format(ownMessage ? "Added %s" : "Received %s",
-                        Formatter.formatShortDateTimeNoTz(new Date(message.getDate()))));
-                dateLabel.setFont(dateLabel.getFont().deriveFont(9.0f).deriveFont(Font.PLAIN));
+                JLabel dateLabel = new JLabel(String.format(
+                        ownMessage ? "Added %s" : "Received %s",
+                        Formatter.formatShortDateTimeNoTz(new Date(message
+                                .getOriginalSendDate().getTime()))
+                                + " - "
+                                + senderName));
+                dateLabel.setFont(dateLabel.getFont().deriveFont(9.0f)
+                        .deriveFont(Font.PLAIN));
                 dateLabel.setHorizontalAlignment(SwingConstants.CENTER);
                 dateLabel.setForeground(Color.LIGHT_GRAY);
-                messagesPanel.add(dateLabel, new GridBagConstraints(0, y++, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, insets2, 0, 0));
-            }
+                messagesPanel.add(dateLabel, new GridBagConstraints(0, y++, 1,
+                        1, 1.0, 0.0, NORTH, HORIZONTAL, insets2, 0, 0));
+//            }
 
             // Add a chat message field
             JPanel msg = new JPanel();
             msg.setBorder(new ChatMessageBorder(message, ownMessage));
-            JLabel msgLabel = new ChatMessageLabel(message.getMessage(), ownMessage);
+            JLabel msgLabel = new ChatMessageLabel(message.getMsg(), ownMessage);
             msg.add(msgLabel);
-            messagesPanel.add(msg, new GridBagConstraints(0, y++, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, insets, 0, 0));
+            messagesPanel.add(msg, new GridBagConstraints(0, y++, 1, 1, 1.0,
+                    0.0, NORTH, HORIZONTAL, insets, 0, 0));
 
-            lastMessageTime = message.getDate();
+            lastMessageTime = message.getOriginalSendDate().getTime();
         }
 
         // Scroll to the bottom
         validate();
-        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+        scrollPane.getVerticalScrollBar().setValue(
+                scrollPane.getVerticalScrollBar().getMaximum());
         messagesPanel.repaint();
 
         // } else if (chatData == null && noDataComponent != null) {
         // // The noDataComponent may e.g. be a message
-        // messagesPanel.add(noDataComponent, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, NORTH, BOTH, insets, 0, 0));
+        // messagesPanel.add(noDataComponent, new GridBagConstraints(0, 0, 1, 1,
+        // 1.0, 1.0, NORTH, BOTH, insets, 0, 0));
         // }
     }
 
@@ -243,11 +271,26 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
         }
         messageText.setText("");
 
-        VOCTSARInfoMessage infoMsg = new VOCTSARInfoMessage();
-        infoMsg.setMessage(msg);
-        infoMsg.setSender(MaritimeCloudUtils.toMmsi(EPD.getInstance().getMaritimeId()));
-        EPD.getInstance().getVoctHandler().sendVoctMessage(infoMsg);
-        // EPD.getInstance().getChatServiceHandler().sendChatMessage(chatData.getId(), msg, severity);
+        SarText sarText = new SarText();
+        sarText.setMsg(msg);
+
+        // Is OSC, temp for now
+        if (EPD.getInstance().getMaritimeId().getId().startsWith("99")) {
+            sarText.setPriority(true);
+        } else {
+            sarText.setPriority(false);
+        }
+
+        sarText.setOriginalSender((long) EPD.getInstance().getMaritimeId()
+                .getIdAsInt());
+        Timestamp originalTimeStamp = Timestamp.now();
+        sarText.setOriginalSendDate(originalTimeStamp);
+
+        // VOCTSARInfoMessage infoMsg = new VOCTSARInfoMessage();
+        // infoMsg.setMessage(msg);
+        // infoMsg.setSender(MaritimeCloudUtils.toMmsi(EPD.getInstance().getMaritimeId()));
+        EPD.getInstance().getVoctHandler().sendVoctMessage(sarText);
+
     }
 
     /**
@@ -302,7 +345,8 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
          * @param text
          */
         public ChatMessageLabel(String text, boolean ownMessage) {
-            super(String.format("<html><div align='%s'>%s</div></html>", ownMessage ? "right" : "left", Formatter.formatHtml(text)));
+            super(String.format("<html><div align='%s'>%s</div></html>",
+                    ownMessage ? "right" : "left", Formatter.formatHtml(text)));
             setFont(getFont().deriveFont(10f));
         }
 
@@ -311,7 +355,8 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
          */
         @Override
         public Dimension getMaximumSize() {
-            return new Dimension(scrollPane.getWidth() - 60, super.getPreferredSize().height);
+            return new Dimension(scrollPane.getWidth() - 60,
+                    super.getPreferredSize().height);
         }
 
         /**
@@ -320,7 +365,8 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
         @Override
         public Dimension getPreferredSize() {
             Dimension s = super.getPreferredSize();
-            return new Dimension(Math.min(getMaximumSize().width, s.width), super.getPreferredSize().height);
+            return new Dimension(Math.min(getMaximumSize().width, s.width),
+                    super.getPreferredSize().height);
         }
     }
 
@@ -329,10 +375,12 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener, I
 /**
  * This border is used by the {@linkplain VOCTAdditionalInfoPanel} widget.
  * <p>
- * It will paint a balloon-style border around the hosting panel with the point either at the bottom-left or bottom-right corner
- * depending on whether it is an own-message or not.
+ * It will paint a balloon-style border around the hosting panel with the point
+ * either at the bottom-left or bottom-right corner depending on whether it is
+ * an own-message or not.
  * <p>
- * Alerts and warnings will be painted with a yellow and red borders respectively.
+ * Alerts and warnings will be painted with a yellow and red borders
+ * respectively.
  */
 class ChatMessageBorder extends AbstractBorder {
     private static final long serialVersionUID = 1L;
@@ -343,7 +391,7 @@ class ChatMessageBorder extends AbstractBorder {
     int pointerFromBottom = 11;
     int pad = 2;
     Insets insets;
-    VOCTSARInfoMessage message;
+    SarText message;
     boolean pointerLeft;
 
     /**
@@ -351,13 +399,14 @@ class ChatMessageBorder extends AbstractBorder {
      * 
      * @param color
      */
-    public ChatMessageBorder(VOCTSARInfoMessage message, boolean ownMsg) {
+    public ChatMessageBorder(SarText message, boolean ownMsg) {
         super();
         this.message = message;
         this.pointerLeft = !ownMsg;
 
         int i = 2;
-        insets = pointerLeft ? new Insets(i, pointerWidth + i, i, i) : new Insets(i, i, i, pointerWidth + i);
+        insets = pointerLeft ? new Insets(i, pointerWidth + i, i, i)
+                : new Insets(i, i, i, pointerWidth + i);
     }
 
     /**
@@ -380,15 +429,17 @@ class ChatMessageBorder extends AbstractBorder {
      * {@inheritDoc}
      */
     @Override
-    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+    public void paintBorder(Component c, Graphics g, int x, int y, int width,
+            int height) {
 
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHints(GraphicsUtil.ANTIALIAS_HINT);
 
         // Define the content rectangle
         int x0 = pointerLeft ? pad + pointerWidth : pad;
-        RoundRectangle2D.Double content = new RoundRectangle2D.Double(x0, pad, width - 2 * pad - pointerWidth, height - 2 * pad,
-                cornerRadius, cornerRadius);
+        RoundRectangle2D.Double content = new RoundRectangle2D.Double(x0, pad,
+                width - 2 * pad - pointerWidth, height - 2 * pad, cornerRadius,
+                cornerRadius);
 
         // Define the pointer triangle
         int xp = pointerLeft ? pad + pointerWidth : width - pad - pointerWidth;
@@ -396,14 +447,16 @@ class ChatMessageBorder extends AbstractBorder {
         Polygon pointer = new Polygon();
         pointer.addPoint(xp, yp);
         pointer.addPoint(xp, yp - pointerHeight);
-        pointer.addPoint(xp + pointerWidth * (pointerLeft ? -1 : 1), yp - pointerHeight / 2);
+        pointer.addPoint(xp + pointerWidth * (pointerLeft ? -1 : 1), yp
+                - pointerHeight / 2);
 
         // Combine content rectangle and pointer into one area
         Area area = new Area(content);
         area.add(new Area(pointer));
 
         // Fill the pop-up background
-        Color col = pointerLeft ? c.getBackground().darker() : c.getBackground().brighter();
+        Color col = pointerLeft ? c.getBackground().darker() : c
+                .getBackground().brighter();
         g2.setColor(col);
         g2.fill(area);
 

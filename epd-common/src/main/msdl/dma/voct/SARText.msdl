@@ -1,0 +1,16 @@
+namespace dma.voct;
+
+/** The message being sent, contains a single string and the severity. */
+message SarText {
+    1: text msg;
+    2: boolean priority;
+    3: int64 originalSender;
+    4: timestamp originalSendDate;
+}
+
+/** End point send message function */
+endpoint SARTextingService {
+	void sendMessage(
+        1: SarText msg
+    );
+}

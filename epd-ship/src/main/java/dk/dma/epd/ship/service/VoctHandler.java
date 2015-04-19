@@ -14,7 +14,6 @@
  */
 package dk.dma.epd.ship.service;
 
-
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
@@ -51,7 +50,8 @@ import java.util.function.Consumer;
 /**
  * Ship specific intended route service implementation.
  * <p>
- * Listens for changes to the active route and broadcasts it. Also broadcasts the route periodically.
+ * Listens for changes to the active route and broadcasts it. Also broadcasts
+ * the route periodically.
  * <p>
  * Improvements:
  * <ul>
@@ -59,17 +59,20 @@ import java.util.function.Consumer;
  * </ul>
  */
 @SuppressWarnings("unused")
-public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpdateListener {
+public class VoctHandler extends VoctHandlerCommon implements Runnable,
+        VOCTUpdateListener {
 
     /**
-     * Protocols needed for VOCT Communication - may be further split or combined in future
+     * Protocols needed for VOCT Communication - may be further split or
+     * combined in future
      */
     private boolean running;
     private VOCTManager voctManager;
 
     // private IntendedRouteLayerCommon intendedRouteLayerCommon;
 
-    private static final Logger LOG = LoggerFactory.getLogger(VoctHandlerCommon.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(VoctHandlerCommon.class);
 
     // ID, MMSI
     protected Map<Long, MaritimeId> voctInvitations = new ConcurrentHashMap<>();
@@ -106,73 +109,82 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
         } catch (InterruptedException e) {
             LOG.error("Error hooking up services", e);
         }
-        
-        
-        
-// TODO: Maritime Cloud 0.2 re-factoring
-//        // Register for RapidResponse
-//        try {
-//            getMmsClient()
-//                    .serviceRegister(
-//                            VOCTCommunicationService.INIT,
-//                            new InvocationCallback<VOCTCommunicationService.VOCTCommunicationMessage, VOCTCommunicationService.VOCTCommunicationReply>() {
-//                                public void process(VOCTCommunicationMessage message,
-//                                        InvocationCallback.Context<VOCTCommunicationService.VOCTCommunicationReply> context) {
-//
-//                                    // LOG.info("Shore received a VOCT reply");
-//                                    System.out.println("Received SAR Payload!");
-//
-//                                    MaritimeId caller = context.getCaller();
-//                                    long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
-//                                    //
-//                                    voctInvitations.put(message.getId(), mmsi);
-//                                    // cloudStatus.markCloudReception();
-//                                    //
-//                                    // voctContextRapidResponse = context;
-//                                    //
-//                                    voctManager.handleSARDataPackage(message);
-//
-//                                    context.complete(new VOCTCommunicationReply(message.getId(), EPDShip.getInstance()
-//                                            .getOwnShipHandler().getMmsi(), System.currentTimeMillis()));
-//                                }
-//                            }).awaitRegistered(4, TimeUnit.SECONDS);
-//
-//            // Register for DatumPoint
-//            // getMmsClient()
-//            // .serviceRegister(
-//            // VOCTCommunicationServiceDatumPoint.INIT,
-//            // new InvocationCallback<VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint,
-//            // VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint>() {
-//            // public void process(
-//            // VOCTCommunicationMessageDatumPoint message,
-//            // InvocationCallback.Context<VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint> context) {
-//            //
-//            // System.out.println("Received SAR Payload!");
-//            // MaritimeId caller = context.getCaller();
-//            // long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
-//            // //
-//            // voctInvitations.put(message.getId(), mmsi);
-//            // // cloudStatus.markCloudReception();
-//            // //
-//            // // voctContextDatumPoint = context;
-//            // //
-//            // voctManager.handleSARDataPackage(message);
-//            //
-//            // // message.get
-//            // // context.complete(new RouteSuggestionReply(message.getId()));
-//            // context.complete(new VOCTCommunicationReplyDatumPoint(message.getId(), EPDShip.getInstance()
-//            // .getOwnShipHandler().getMmsi(), System.currentTimeMillis()));
-//            // }
-//            // }).awaitRegistered(4, TimeUnit.SECONDS);
-//
-//        } catch (InterruptedException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//
-//        // Start broadcasting our own active route
-//        running = true;
-//        new Thread(this).start();
+
+        // TODO: Maritime Cloud 0.2 re-factoring
+        // // Register for RapidResponse
+        // try {
+        // getMmsClient()
+        // .serviceRegister(
+        // VOCTCommunicationService.INIT,
+        // new
+        // InvocationCallback<VOCTCommunicationService.VOCTCommunicationMessage,
+        // VOCTCommunicationService.VOCTCommunicationReply>() {
+        // public void process(VOCTCommunicationMessage message,
+        // InvocationCallback.Context<VOCTCommunicationService.VOCTCommunicationReply>
+        // context) {
+        //
+        // // LOG.info("Shore received a VOCT reply");
+        // System.out.println("Received SAR Payload!");
+        //
+        // MaritimeId caller = context.getCaller();
+        // long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
+        // //
+        // voctInvitations.put(message.getId(), mmsi);
+        // // cloudStatus.markCloudReception();
+        // //
+        // // voctContextRapidResponse = context;
+        // //
+        // voctManager.handleSARDataPackage(message);
+        //
+        // context.complete(new VOCTCommunicationReply(message.getId(),
+        // EPDShip.getInstance()
+        // .getOwnShipHandler().getMmsi(), System.currentTimeMillis()));
+        // }
+        // }).awaitRegistered(4, TimeUnit.SECONDS);
+        //
+        // // Register for DatumPoint
+        // // getMmsClient()
+        // // .serviceRegister(
+        // // VOCTCommunicationServiceDatumPoint.INIT,
+        // // new
+        // InvocationCallback<VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint,
+        // //
+        // VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint>()
+        // {
+        // // public void process(
+        // // VOCTCommunicationMessageDatumPoint message,
+        // //
+        // InvocationCallback.Context<VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint>
+        // context) {
+        // //
+        // // System.out.println("Received SAR Payload!");
+        // // MaritimeId caller = context.getCaller();
+        // // long mmsi = MaritimeCloudUtils.toMmsi(context.getCaller());
+        // // //
+        // // voctInvitations.put(message.getId(), mmsi);
+        // // // cloudStatus.markCloudReception();
+        // // //
+        // // // voctContextDatumPoint = context;
+        // // //
+        // // voctManager.handleSARDataPackage(message);
+        // //
+        // // // message.get
+        // // // context.complete(new RouteSuggestionReply(message.getId()));
+        // // context.complete(new
+        // VOCTCommunicationReplyDatumPoint(message.getId(),
+        // EPDShip.getInstance()
+        // // .getOwnShipHandler().getMmsi(), System.currentTimeMillis()));
+        // // }
+        // // }).awaitRegistered(4, TimeUnit.SECONDS);
+        //
+        // } catch (InterruptedException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        //
+        // // Start broadcasting our own active route
+        // running = true;
+        // new Thread(this).start();
     }
 
     /**
@@ -198,63 +210,66 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
 
     }
 
-    public void sendVOCTReply(VOCTReplyStatus recievedAccepted, String message, long messageId) throws InterruptedException, ExecutionException {
+    public void sendVOCTReply(VOCTReplyStatus recievedAccepted, String message,
+            long messageId) throws InterruptedException, ExecutionException {
 
-        //Find place to send it
+        // Find place to send it
         MaritimeId maritimeId = voctInvitations.get(messageId);
-        
+
         @SuppressWarnings("deprecation")
-        List<VOCTReplyEndpoint> availableEndpoints = getMmsClient().endpointLocate(VOCTReplyEndpoint.class)                
-        .findAll().timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
-        
+        List<VOCTReplyEndpoint> availableEndpoints = getMmsClient()
+                .endpointLocate(VOCTReplyEndpoint.class).findAll()
+                .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
+
         VOCTReplyEndpoint endPoint = null;
         for (int i = 0; i < availableEndpoints.size(); i++) {
-            System.out.println("Comparing " + availableEndpoints.get(i) + " to stored " + maritimeId);
-            if (availableEndpoints.get(i).getRemoteId().getIdAsInt() == maritimeId.getIdAsInt()){
+            System.out.println("Comparing " + availableEndpoints.get(i)
+                    + " to stored " + maritimeId);
+            if (availableEndpoints.get(i).getRemoteId().getIdAsInt() == maritimeId
+                    .getIdAsInt()) {
                 System.out.println("Found endpoint!");
                 endPoint = availableEndpoints.get(i);
                 break;
             }
-            
+
         }
-        
-        if (endPoint == null){
-            System.out.println("failed to find VOCT reply endpoint for "   + maritimeId);
+
+        if (endPoint == null) {
+            System.out.println("failed to find VOCT reply endpoint for "
+                    + maritimeId);
             return;
         }
-        
 
+        VOCTReply reply = new VOCTReply();
 
-        
-            VOCTReply reply = new VOCTReply();
-            
-            long transactionId = -1;
-            
-            reply.setId(transactionId);
-            reply.setReplyText(message);
-            reply.setStatus(recievedAccepted);
-            
-            EndpointInvocationFuture<Void> returnVal = endPoint.sendVOCTReply(reply);
-                    
- 
-        
-        
-        
-        
+        long transactionId = -1;
+
+        reply.setId(transactionId);
+        reply.setReplyText(message);
+        reply.setStatus(recievedAccepted);
+
+        EndpointInvocationFuture<Void> returnVal = endPoint
+                .sendVOCTReply(reply);
+
         // if (type == SAR_TYPE.RAPID_RESPONSE) {
         // try {
 
-//        VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(id, message, recievedAccepted);
+        // VOCTCommunicationMessage voctMessage = new
+        // VOCTCommunicationMessage(id, message, recievedAccepted);
 
-        // RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(null, null, null);
-//        System.out.println("Replying to : " + (long) voctInvitations.get(id));
+        // RouteSuggestionMessage routeMessage = new
+        // RouteSuggestionMessage(null, null, null);
+        // System.out.println("Replying to : " + (long)
+        // voctInvitations.get(id));
 
         // TODO: Maritime Cloud 0.2 re-factoring
-        //boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(id)), voctMessage, this);
+        // boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long)
+        // voctInvitations.get(id)), voctMessage, this);
 
-//        System.out.println("To Send is " + toSend);
+        // System.out.println("To Send is " + toSend);
 
-        // sendMaritimeCloudMessage(new MmsiId((int)100), routeMessage, EPDShip.getInstance()
+        // sendMaritimeCloudMessage(new MmsiId((int)100), routeMessage,
+        // EPDShip.getInstance()
         // .getRouteSuggestionHandler());
 
         // } catch (Exception e) {
@@ -264,8 +279,11 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
         //
         // if (type == SAR_TYPE.DATUM_POINT) {
         // try {
-        // voctContextDatumPoint.complete(new VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint(message, id,
-        // ownShipHandler.getMmsi(), System.currentTimeMillis(), recievedAccepted));
+        // voctContextDatumPoint.complete(new
+        // VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint(message,
+        // id,
+        // ownShipHandler.getMmsi(), System.currentTimeMillis(),
+        // recievedAccepted));
         // cloudStatus.markSuccesfullSend();
         // } catch (Exception e) {
         // cloudStatus.markFailedSend();
@@ -309,12 +327,14 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable, VOCTUpda
             // IS IT RAPID RESPONSE / DOES IT MATTER
             if (voctManager.getCurrentID() != -1) {
 
-//                VOCTCommunicationMessage voctMessage = new VOCTCommunicationMessage(voctManager.getCurrentID(),
-//                        VoctMsgStatus.WITHDRAWN);
+                // VOCTCommunicationMessage voctMessage = new
+                // VOCTCommunicationMessage(voctManager.getCurrentID(),
+                // VoctMsgStatus.WITHDRAWN);
 
                 // TODO: Maritime Cloud 0.2 re-factoring
-                //boolean toSend = sendMaritimeCloudMessage(new MmsiId((int) (long) voctInvitations.get(voctManager.getCurrentID())),
-                //        voctMessage, this);
+                // boolean toSend = sendMaritimeCloudMessage(new MmsiId((int)
+                // (long) voctInvitations.get(voctManager.getCurrentID())),
+                // voctMessage, this);
             }
         }
 

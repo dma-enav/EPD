@@ -14,18 +14,24 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import dk.dma.epd.common.prototype.enavcloud.VOCTSARInfoMessage;
-import net.maritimecloud.net.mms.MmsClient;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+import net.maritimecloud.net.MessageHeader;
+import net.maritimecloud.net.mms.MmsClient;
+import dma.voct.AbstractSARTextingService;
+import dma.voct.SARTextingService;
+import dma.voct.SarText;
+import dma.voct.VOCTReplyEndpoint;
 
 /**
  * Intended route service implementation.
  * <p>
- * Listens for intended route broadcasts, and updates the vessel target when one is received.
+ * Listens for intended route broadcasts, and updates the vessel target when one
+ * is received.
  */
 public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon {
 
@@ -35,11 +41,11 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon {
     public static final long ROUTE_TTL = 10 * 60 * 1000; // 10 min
 
     protected List<IIntendedRouteListener> listeners = new CopyOnWriteArrayList<>();
-    protected List<VOCTSARInfoMessage> additionalInformationMsgs = new ArrayList<VOCTSARInfoMessage>();
+    protected List<SarText> additionalInformationMsgs = new ArrayList<SarText>();
     protected List<IVoctInfoListener> voctInfoMsgListener = new CopyOnWriteArrayList<>();
     private static final int BROADCAST_RADIUS = Integer.MAX_VALUE;
     public static final int CLOUD_TIMEOUT = 10; // Seconds
-    
+
     /**
      * Constructor
      */
@@ -60,32 +66,45 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon {
     @Override
     public void cloudConnected(MmsClient connection) {
 
-// TODO: Maritime Cloud 0.2 re-factoring
-//        getMmsClient().broadcastListen(VOCTSARInfoMessage.class, new BroadcastListener<VOCTSARInfoMessage>() {
-//            public void onMessage(BroadcastMessageHeader l, VOCTSARInfoMessage r) {
-//
-//                System.out.println("SAR Info message recieved");
-//                additionalInformationMsgs.add(r);
-//                notifyVoctInfoMsgListeners();
-//            }
-//        });
+        try {
+            getMmsClient().endpointRegister(new AbstractSARTextingService() {
 
+                @Override
+                protected void sendMessage(MessageHeader header, SarText msg) {
+                    // Receieved a message
+                    System.out.println("Message Receieved " + msg.getMsg());
+                    additionalInformationMsgs.add(msg);
+                    notifyVoctInfoMsgListeners();
+                }
+
+            }).awaitRegistered(4, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
-    public void sendVoctMessage(final VOCTSARInfoMessage r) {
-        additionalInformationMsgs.add(r);
+    public void sendVoctMessage(final SarText sarText) {
+        additionalInformationMsgs.add(sarText);
         notifyVoctInfoMsgListeners();
 
-// TODO: Maritime Cloud 0.2 re-factoring
-//        Runnable broadcastMessage = new Runnable() {
-//            @Override
-//            public void run() {
-//                BroadcastOptions options = new BroadcastOptions();
-//                options.setBroadcastRadius(BROADCAST_RADIUS);
-//                getMmsClient().broadcast(r, options);
-//            }
-//        };
-//        submitIfConnected(broadcastMessage);
+        try {
+            List<SARTextingService> availableEndpoints = getMmsClient()
+                    .endpointLocate(SARTextingService.class).findAll()
+                    .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
+
+            for (int i = 0; i < availableEndpoints.size(); i++) {
+                availableEndpoints.get(i).sendMessage(sarText);
+            }
+
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 
     private void notifyVoctInfoMsgListeners() {
@@ -101,7 +120,7 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon {
     /**
      * @return the additionalInformationMsg
      */
-    public List<VOCTSARInfoMessage> getAdditionalInformationMsgs() {
+    public List<SarText> getAdditionalInformationMsgs() {
         return additionalInformationMsgs;
     }
 

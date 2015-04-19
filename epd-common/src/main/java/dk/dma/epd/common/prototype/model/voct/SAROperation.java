@@ -534,7 +534,7 @@ public class SAROperation {
 
         double rdvDistanceMax = Calculator.range(data.getLKP(), datumMax, Heading.RL);
 
-        data.setRdvDistanceMax(rdvDistanceMin);
+        data.setRdvDistanceMax(rdvDistanceMax);
 
         // RDV Speed
         double rdvSpeedDownWind = rdvDistanceDownWind / data.getTimeElasped();
