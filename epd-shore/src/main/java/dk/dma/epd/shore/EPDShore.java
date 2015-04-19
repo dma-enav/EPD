@@ -103,7 +103,6 @@ public final class EPDShore extends EPD {
     private MonaLisaRouteOptimization monaLisaRouteExchange;
 
     private SRUManager sruManager;
-    private VOCTManager voctManager;
 
     private VoyageManager voyageManager;
 
@@ -119,7 +118,8 @@ public final class EPDShore extends EPD {
     private VoyageEventDispatcher voyageEventDispatcher = new VoyageEventDispatcher();
 
     /**
-     * Starts the program by initializing the various threads and spawning the main GUI
+     * Starts the program by initializing the various threads and spawning the
+     * main GUI
      * 
      * @param args
      */
@@ -141,10 +141,12 @@ public final class EPDShore extends EPD {
         if (!StringUtils.isEmpty(path)) {
             homePath = Paths.get(path);
         } else {
-            homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-shore"));
+            homePath = determineHomePath(Paths.get(
+                    System.getProperty("user.home"), ".epd-shore"));
         }
 
-        new Bootstrap().run(this, new String[] { "epd-shore.properties", "settings.properties", "transponder.xml" }, new String[] {
+        new Bootstrap().run(this, new String[] { "epd-shore.properties",
+                "settings.properties", "transponder.xml" }, new String[] {
                 "workspaces", "routes", "shape/GSHHS_shp", "identities" });
 
         // Set up log4j logging
@@ -153,7 +155,8 @@ public final class EPDShore extends EPD {
         // Set default exception handler
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 
-        LOG.info("Starting eNavigation Prototype Display Shore - version " + VersionInfo.getVersionAndBuild());
+        LOG.info("Starting eNavigation Prototype Display Shore - version "
+                + VersionInfo.getVersionAndBuild());
         LOG.info("Copyright (C) 2012 Danish Maritime Authority");
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
@@ -171,7 +174,8 @@ public final class EPDShore extends EPD {
 
         // Determine if instance already running and if that is allowed
 
-        OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("epd.lock").toString());
+        OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve(
+                "epd.lock").toString());
         if (guard.isAlreadyRunning()) {
             handleEpdAlreadyRunning();
         }
@@ -228,7 +232,8 @@ public final class EPDShore extends EPD {
 
         // Create the route suggestion handler
         // routeSuggestionHandler = new RouteSuggestionHandler();
-        routeSuggestionHandler = RouteSuggestionHandler.loadRouteSuggestionHandler();
+        routeSuggestionHandler = RouteSuggestionHandler
+                .loadRouteSuggestionHandler();
         beanHandler.add(routeSuggestionHandler);
 
         // Create a new MSI-NM handler
@@ -246,7 +251,8 @@ public final class EPDShore extends EPD {
         // Start sensors
         startSensors();
 
-        pluginLoader = new PluginLoader(getProperties(), getHomePath(), getPropertyFileName());
+        pluginLoader = new PluginLoader(getProperties(), getHomePath(),
+                getPropertyFileName());
 
         try {
             pluginLoader.createPluginComponents(new Consumer<Object>() {
@@ -284,14 +290,15 @@ public final class EPDShore extends EPD {
         // Create voct manager
         voctManager = new VOCTManager();
         beanHandler.add(voctManager);
-        voctManager.loadVOCTManager();
+        ((VOCTManager) voctManager).loadVOCTManager();
 
         // Create FAL Handler
         falHandler = new FALHandler();
         beanHandler.add(falHandler);
 
         // Create embedded transponder frame
-        transponderFrame = new TransponderFrame(getHomePath().resolve("transponder.xml").toString(), true, mainFrame);
+        transponderFrame = new TransponderFrame(getHomePath().resolve(
+                "transponder.xml").toString(), true, mainFrame);
         mainFrame.getTopMenu().setTransponderFrame(transponderFrame);
         beanHandler.add(transponderFrame);
 
@@ -333,7 +340,7 @@ public final class EPDShore extends EPD {
      * @return the voctManager
      */
     public VOCTManager getVoctManager() {
-        return voctManager;
+        return (VOCTManager) voctManager;
     }
 
     /**
@@ -520,7 +527,8 @@ public final class EPDShore extends EPD {
     @Override
     public Long getMmsi() {
         String shoreID = getSettings().getEnavSettings().getShoreId();
-        if (shoreID == null || !StringUtils.isNumeric(shoreID) || !shoreID.startsWith(MaritimeCloudUtils.STCC_MMSI_PREFIX)) {
+        if (shoreID == null || !StringUtils.isNumeric(shoreID)
+                || !shoreID.startsWith(MaritimeCloudUtils.STCC_MMSI_PREFIX)) {
             return null;
         }
         return Long.parseLong((String) shoreID.subSequence(0, 9));
@@ -611,7 +619,8 @@ public final class EPDShore extends EPD {
     }
 
     /**
-     * Starts the sensors defined in the {@linkplain SensorSettings} and hook up listeners
+     * Starts the sensors defined in the {@linkplain SensorSettings} and hook up
+     * listeners
      */
     @Override
     protected void startSensors() {
@@ -621,17 +630,22 @@ public final class EPDShore extends EPD {
             aisSensor = new NmeaStdinSensor();
             break;
         case TCP:
-            aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpOrUdpPort());
+            aisSensor = new NmeaTcpSensor(
+                    sensorSettings.getAisHostOrSerialPort(),
+                    sensorSettings.getAisTcpOrUdpPort());
             break;
         case SERIAL:
-            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort(),
+            aisSensor = NmeaSerialSensorFactory.create(
+                    sensorSettings.getAisHostOrSerialPort(),
                     sensorSettings.getAisSerialPortBaudRate());
             break;
         case FILE:
-            aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(), sensorSettings);
+            aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(),
+                    sensorSettings);
             break;
         default:
-            LOG.error("Unknown sensor connection type: " + sensorSettings.getAisConnectionType());
+            LOG.error("Unknown sensor connection type: "
+                    + sensorSettings.getAisConnectionType());
         }
 
         if (aisSensor != null) {
@@ -674,8 +688,10 @@ public final class EPDShore extends EPD {
             maritimeCloudService.stop();
             maritimeCloudService.start();
         } else if (type == Type.ENAV) {
-            // Update the intended route handler such that it can re apply its filter.
-            this.intendedRouteHandler.updateSettings(this.settings.getEnavSettings());
+            // Update the intended route handler such that it can re apply its
+            // filter.
+            this.intendedRouteHandler.updateSettings(this.settings
+                    .getEnavSettings());
         }
 
     }
@@ -737,7 +753,8 @@ public final class EPDShore extends EPD {
     }
 
     /**
-     * Returns a {@code Resource} instance which loads resource from the same class-loader/jar-file as the {@code EPDShore} class.
+     * Returns a {@code Resource} instance which loads resource from the same
+     * class-loader/jar-file as the {@code EPDShore} class.
      * 
      * @return a new {@code Resource} instance
      */

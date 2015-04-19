@@ -37,14 +37,15 @@ import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
-import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARTextLogMessage;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.util.Util;
+import dma.voct.VOCTMessage;
 
 /**
  * The VOCTManager is responsible for maintaining current VOCT Status and all
@@ -69,6 +70,8 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable,
 
     protected SARData sarData;
     protected List<SARData> sarFutureData;
+
+    protected List<IVoctInfoListener> voctInfoMsgListener = new CopyOnWriteArrayList<>();
 
     protected static final String VOCT_FILE = EPD.getInstance().getHomePath()
             .resolve(".voct").toString();
@@ -102,10 +105,10 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable,
     public void inputSimpleSarData(String sarId, DateTime TLKP, DateTime CSS,
             double x, double y, double sf, int searchObject, Position A,
             Position B, Position C, Position D, Position datum) {
-        
 
-        SimpleSAR simpleSar = new SimpleSAR(sarId, TLKP, CSS, x, y, sf, searchObject, A, B, C, D, datum);
-        
+        SimpleSAR simpleSar = new SimpleSAR(sarId, TLKP, CSS, x, y, sf,
+                searchObject, A, B, C, D, datum);
+
         setSarData(simpleSar);
     }
 
@@ -219,16 +222,18 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable,
 
     public void saveToFile() {
 
-        if (hasSar || loadSarFromSerialize) {
-
-            try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
-                    ObjectOutputStream objectOut = new ObjectOutputStream(
-                            fileOut);) {
-                objectOut.writeObject(sarData);
-            } catch (IOException e) {
-                LOG.error("Failed to save VOCT data: " + e.getMessage());
-            }
-        }
+        
+//        if (hasSar || loadSarFromSerialize) {
+//
+//            try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
+//                    ObjectOutputStream objectOut = new ObjectOutputStream(
+//                            fileOut);) {
+//                
+//                objectOut.writeObject(sarData);
+//            } catch (IOException e) {
+//                LOG.error("Failed to save VOCT data: " + e.getMessage());
+//            }
+//        }
     }
 
     @Override
@@ -249,6 +254,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable,
 
         // Persist update VOCT info
         // saveToFile();
+        saveToFile();
     }
 
     public void addListener(VOCTUpdateListener listener) {
@@ -353,15 +359,54 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable,
             setSarData(sarOperation.startDatumLineCalculations(datumLinetData));
 
         }
-        
+
         if (sarData instanceof SimpleSAR) {
             System.out.println("Loading SAR data");
             setSarType(SAR_TYPE.SIMPLE_SAR);
             SimpleSAR simpleSar = (SimpleSAR) sarData;
             setSarData(simpleSar);
         }
-
+        
         displaySar();
+        notifyVoctInfoMsgListeners();
+    }
+
+    public void handleSARDataPackage(VOCTMessage voctMessage) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void addSARText(SARTextLogMessage sarMsg) {
+
+        if (sarData != null) {
+            getSarData().addSarMessage(sarMsg);
+            notifyVoctInfoMsgListeners();
+        }
+
+    }
+
+    public void notifyVoctInfoMsgListeners() {
+        for (int i = 0; i < voctInfoMsgListener.size(); i++) {
+            voctInfoMsgListener.get(i).voctMessageUpdate();
+        }
+        saveToFile();
+    }
+
+    public void addVoctSarInfoListener(IVoctInfoListener listener) {
+        voctInfoMsgListener.add(listener);
+    }
+
+    public interface IVoctInfoListener {
+
+        /**
+         * Called when a SAR info message has been received or sent
+         */
+        void voctMessageUpdate();
+
+        /**
+         * Called when adding SAR info
+         */
+        // void voctMessageSent(VOCTSARInfoMessage message);
     }
 
 }

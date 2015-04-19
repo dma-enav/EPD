@@ -14,10 +14,13 @@
  */
 package dk.dma.epd.shore.voct;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -50,14 +53,16 @@ import dk.dma.epd.shore.service.VoctHandler;
 import dk.dma.epd.shore.voct.SRU.sru_status;
 
 /**
- * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
+ * The VOCTManager is responsible for maintaining current VOCT Status and all
+ * information relevant to the VOCT
  * 
  * The VOCT Manager can be initiated through the cloud or manually by the user
  * 
  * 
  */
 
-public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListener {
+public class VOCTManager extends VOCTManagerCommon implements
+        IRoutesUpdateListener {
 
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
@@ -126,7 +131,8 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     @Override
     protected void updateLayers() {
         if (voctLayers.size() == 0) {
-            EPDShore.getInstance().getMainFrame().addSARWindow(MapFrameType.SAR_Planning);
+            EPDShore.getInstance().getMainFrame()
+                    .addSARWindow(MapFrameType.SAR_Planning);
         }
 
     }
@@ -169,7 +175,8 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     protected void checkSRU(SARData sarData) {
         // Check SRU data
 
-        // Iterator it = sarData.getEffortAllocationData().entrySet().iterator();
+        // Iterator it =
+        // sarData.getEffortAllocationData().entrySet().iterator();
         // Map.Entry entry = (Map.Entry) it.next();
         // while (it.hasNext()) {
         //
@@ -184,7 +191,8 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
 
         List<Long> effortAllocationsToBeRemoved = new ArrayList<>();
 
-        Iterator<Entry<Long, EffortAllocationData>> iter = sarData.getEffortAllocationData().entrySet().iterator();
+        Iterator<Entry<Long, EffortAllocationData>> iter = sarData
+                .getEffortAllocationData().entrySet().iterator();
         while (iter.hasNext()) {
             Entry<Long, EffortAllocationData> entry = iter.next();
 
@@ -193,9 +201,11 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
             } else {
                 if (entry.getValue().getSearchPatternRoute() != null) {
 
-                    SearchPatternRoute searchPattern = entry.getValue().getSearchPatternRoute();
+                    SearchPatternRoute searchPattern = entry.getValue()
+                            .getSearchPatternRoute();
                     for (int i = 0; i < routeManager.getRoutes().size(); i++) {
-                        if (routeManager.getRoute(i).toString().equals(searchPattern.toString())) {
+                        if (routeManager.getRoute(i).toString()
+                                .equals(searchPattern.toString())) {
                             routeManager.getRoutes().set(i, searchPattern);
                             break;
                         }
@@ -205,11 +215,13 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
         }
 
         for (int i = 0; i < effortAllocationsToBeRemoved.size(); i++) {
-            sarData.getEffortAllocationData().remove(effortAllocationsToBeRemoved.get(i));
+            sarData.getEffortAllocationData().remove(
+                    effortAllocationsToBeRemoved.get(i));
         }
 
         //
-        // for (Entry<Long, EffortAllocationData> entry : sarData.getEffortAllocationData().entrySet()) {
+        // for (Entry<Long, EffortAllocationData> entry :
+        // sarData.getEffortAllocationData().entrySet()) {
         //
         // if (!sruManager.getsRUCommunication().containsKey(entry.getKey())) {
         // sarData.getEffortAllocationData().remove(entry.getKey());
@@ -225,58 +237,65 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     public void loadVOCTManager() {
 
         // Where we load or serialize old VOCTS
+        // VOCTManager voctManager = new VOCTManager();
+        // ((EPDShore) EPD.getInstance()).getBeanHandler().add(voctManager);
 
-        try (FileInputStream fileIn = new FileInputStream(VOCT_FILE); ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
+        try (FileInputStream fileIn = new FileInputStream(VOCT_FILE);
+                ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
 
             SARData sarDataLoaded = (SARData) objectIn.readObject();
             setLoadSarFromSerialize(true);
             initializeFromSerializedFile(sarDataLoaded);
-            // System.out.println("Loaded");
+
+            System.out.println("Loaded VOCT stuff ");
 
         } catch (FileNotFoundException e) {
             // Not an error
-        }
-        // catch (Exception e) {
-        // LOG.error("Failed to load VOCT file: " + e.getMessage());
-        // // Delete possible corrupted or old file
-        // // new File(VOCT_FILE).delete();
-        // }
-        catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        } catch (Exception e) {
+            LOG.error("Failed to load sar file: " + e.getMessage());
+            System.out.println(e.getLocalizedMessage());
+            for (int i = 0; i < e.getStackTrace().length; i++) {
+                System.out.println(e.getStackTrace()[i]);
 
-        // return voctManager;
+            }
+            // Delete possible corrupted or old file
+            // new File(VOCT_FILE).delete();
+        }
 
     }
 
     @Override
-    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, long id) {
+    public void generateSearchPattern(
+            SearchPatternGenerator.searchPattern type, Position CSP, long id) {
 
         updateEffectiveAreaLocation();
 
         sarData.setCSP(CSP);
 
-        SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
+        SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
+                sarOperation);
 
-        SearchPatternRoute searchRoute = searchPatternGenerator.generateSearchPattern(type, sarData, EPDShore.getInstance()
-                .getSettings().getNavSettings(), id);
+        SearchPatternRoute searchRoute = searchPatternGenerator
+                .generateSearchPattern(type, sarData, EPDShore.getInstance()
+                        .getSettings().getNavSettings(), id);
 
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
-//            System.out.println("Previous route found");
-            int routeIndex = EPDShore.getInstance().getRouteManager()
-                    .getRouteIndex(sarData.getEffortAllocationData().get(id).getSearchPatternRoute());
+            // System.out.println("Previous route found");
+            int routeIndex = EPDShore
+                    .getInstance()
+                    .getRouteManager()
+                    .getRouteIndex(
+                            sarData.getEffortAllocationData().get(id)
+                                    .getSearchPatternRoute());
 
-//            System.out.println("Route index of old is " + routeIndex);
+            // System.out.println("Route index of old is " + routeIndex);
 
             EPDShore.getInstance().getRouteManager().removeRoute(routeIndex);
         }
 
-        sarData.getEffortAllocationData().get(id).setSearchPatternRoute(searchRoute);
+        sarData.getEffortAllocationData().get(id)
+                .setSearchPatternRoute(searchRoute);
 
         EPDShore.getInstance().getRouteManager().addRoute(searchRoute);
 
@@ -288,7 +307,8 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
     @Override
     public void updateEffectiveAreaLocation() {
 
-        // System.out.println("Update effective area location and is it null sar data " + sarData);
+        // System.out.println("Update effective area location and is it null sar data "
+        // + sarData);
 
         voctLayers.get(0).updateEffectiveAreaLocation(sarData);
     }
@@ -336,10 +356,14 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
             // if (sarData.getEffortAllocationData().size() > i) {
             if (sarData.getEffortAllocationData().containsKey(i)) {
 
-                if (sarData.getEffortAllocationData().get(i).getSearchPatternRoute() != null) {
+                if (sarData.getEffortAllocationData().get(i)
+                        .getSearchPatternRoute() != null) {
 
-                    routeManager.getRoutes().remove(sarData.getEffortAllocationData().get(i).getSearchPatternRoute());
-                    routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
+                    routeManager.getRoutes().remove(
+                            sarData.getEffortAllocationData().get(i)
+                                    .getSearchPatternRoute());
+                    routeManager
+                            .notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
                 }
 
                 sarData.getEffortAllocationData().remove(i);
@@ -365,12 +389,14 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
 
         if (sarData != null) {
 
-            for (Entry<Long, EffortAllocationData> entry : sarData.getEffortAllocationData().entrySet()) {
+            for (Entry<Long, EffortAllocationData> entry : sarData
+                    .getEffortAllocationData().entrySet()) {
                 EffortAllocationData effortAllocationData = entry.getValue();
 
-                if (!routeManager.getRoutes().contains(effortAllocationData.getSearchPatternRoute())) {
+                if (!routeManager.getRoutes().contains(
+                        effortAllocationData.getSearchPatternRoute())) {
 
-//                    System.out.println("Route removed");
+                    // System.out.println("Route removed");
 
                     effortAllocationData.setSearchPatternRoute(null);
                 }
@@ -390,12 +416,16 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
 
         // Close down SAR TRACKINg and SAR Planning
 
-        for (int i = 0; i < EPDShore.getInstance().getMainFrame().getMapWindows().size(); i++) {
+        for (int i = 0; i < EPDShore.getInstance().getMainFrame()
+                .getMapWindows().size(); i++) {
 
-            if (EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Tracking
-                    || EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Planning) {
+            if (EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
+                    .getType() == MapFrameType.SAR_Tracking
+                    || EPDShore.getInstance().getMainFrame().getMapWindows()
+                            .get(i).getType() == MapFrameType.SAR_Planning) {
                 // Resize windows
-                EPDShore.getInstance().getMainFrame().getMapWindows().get(i).dispose();
+                EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
+                        .dispose();
 
             }
         }
@@ -410,7 +440,8 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
 
         voctHandler.sendCancelMessage(sruManager.cancelAllSRU());
 
-        ((JMenuWorkspaceBar) EPD.getInstance().getMainFrame().getTopMenu()).setSarBtnEnabled();
+        ((JMenuWorkspaceBar) EPD.getInstance().getMainFrame().getTopMenu())
+                .setSarBtnEnabled();
     }
 
     @Override
@@ -444,10 +475,26 @@ public class VOCTManager extends VOCTManagerCommon implements IRoutesUpdateListe
             if (i == 0) {
                 voctLayers.get(0).showFutureData(sarData);
             } else {
-                voctLayers.get(0).showFutureData(sarFutureData.get((i / 30) - 1));
+                voctLayers.get(0).showFutureData(
+                        sarFutureData.get((i / 30) - 1));
             }
         }
 
+    }
+
+    @Override
+    public synchronized void saveToFile() {
+        if (hasSar || loadSarFromSerialize) {
+
+            try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
+                    ObjectOutputStream objectOut = new ObjectOutputStream(
+                            fileOut);) {
+
+                objectOut.writeObject(sarData);
+            } catch (IOException e) {
+                LOG.error("Failed to save VOCT data: " + e.getMessage());
+            }
+        }
     }
 
 }

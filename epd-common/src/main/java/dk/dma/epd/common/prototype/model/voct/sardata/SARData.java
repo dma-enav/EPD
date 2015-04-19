@@ -47,6 +47,9 @@ public class SARData implements Serializable {
     private List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
     private String additionalInfo;
 
+    
+    private ArrayList<SARTextLogMessage> sarMessages = new ArrayList<SARTextLogMessage>();
+    
     public SARData(String sarID, DateTime TLKP, DateTime CSS, Position LKP, double x, double y, double safetyFactor,
             int searchObject) {
 
@@ -65,6 +68,21 @@ public class SARData implements Serializable {
         
     }
     
+    
+    public void addSarMessage(SARTextLogMessage sarMsg){
+        System.out.println("Adding SAR msg");
+        sarMessages.add(sarMsg);
+    }
+    
+    
+    
+    /**
+     * @return the sarMessages
+     */
+    public ArrayList<SARTextLogMessage> getSarMessages() {
+        return sarMessages;
+    }
+
     /**
      * @return the additionalInfo
      */

@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JDialog;
@@ -68,8 +70,8 @@ public class VOCTManager extends VOCTManagerCommon {
     private VoctHandler voctHandler;
     private long currentID = -1;
 
-    // private VOCTBroadcastService voctBroadcastService;
 
+    
     VoctLayer voctLayer;
 
     public VOCTManager() {
@@ -193,12 +195,12 @@ public class VOCTManager extends VOCTManagerCommon {
 
     @Override
     public synchronized void saveToFile() {
-
         if (hasSar || loadSarFromSerialize) {
 
             try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
                     ObjectOutputStream objectOut = new ObjectOutputStream(
                             fileOut);) {
+
                 objectOut.writeObject(sarData);
             } catch (IOException e) {
                 LOG.error("Failed to save VOCT data: " + e.getMessage());
@@ -432,6 +434,7 @@ public class VOCTManager extends VOCTManagerCommon {
      * @param message
      * @param messageId
      */
+    @Override
     public void handleSARDataPackage(VOCTMessage message) {
 
         if (message.getSarType() == dma.voct.SAR_TYPE.NONE) {
@@ -488,4 +491,7 @@ public class VOCTManager extends VOCTManagerCommon {
         return currentID;
     }
 
+
+
+    
 }

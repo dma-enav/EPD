@@ -35,11 +35,11 @@ import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import net.maritimecloud.core.id.MaritimeId;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-
 
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -81,6 +81,7 @@ public abstract class EPD implements ISettingsListener {
     protected RouteSuggestionHandlerCommon routeSuggestionHandler;
     protected IdentityHandler identityHandler;
     protected VoctHandlerCommon voctHandler;
+    protected VOCTManagerCommon voctManager;
     protected FALHandlerCommon falHandler;
 
     /**
@@ -449,5 +450,14 @@ public abstract class EPD implements ISettingsListener {
     public void setRestart(boolean restart) {
         this.restart = restart;
     }
+
+    /**
+     * @return the voctManager
+     */
+    public VOCTManagerCommon getVoctManager() {
+        return voctManager;
+    }
+    
+    
 
 }

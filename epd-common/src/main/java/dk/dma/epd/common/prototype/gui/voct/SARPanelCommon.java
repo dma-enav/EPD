@@ -720,8 +720,8 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
 
         simpelSARPanel.setDatumLat(data.getDatum().getLatitudeAsString());
         simpelSARPanel.setDatumLon(data.getDatum().getLongitudeAsString());
-        simpelSARPanel.setrdvDistance("RDV Distance");
-        simpelSARPanel.setdatumRadius("Datum Radius");
+        simpelSARPanel.setrdvDistance("N/A");
+        simpelSARPanel.setdatumRadius("N/A");
 
 
  

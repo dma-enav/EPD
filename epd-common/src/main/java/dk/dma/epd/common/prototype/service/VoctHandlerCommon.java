@@ -14,7 +14,6 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
@@ -22,10 +21,11 @@ import java.util.concurrent.TimeUnit;
 
 import net.maritimecloud.net.MessageHeader;
 import net.maritimecloud.net.mms.MmsClient;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARTextLogMessage;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dma.voct.AbstractSARTextingService;
 import dma.voct.SARTextingService;
 import dma.voct.SarText;
-import dma.voct.VOCTReplyEndpoint;
 
 /**
  * Intended route service implementation.
@@ -41,10 +41,10 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon {
     public static final long ROUTE_TTL = 10 * 60 * 1000; // 10 min
 
     protected List<IIntendedRouteListener> listeners = new CopyOnWriteArrayList<>();
-    protected List<SarText> additionalInformationMsgs = new ArrayList<SarText>();
-    protected List<IVoctInfoListener> voctInfoMsgListener = new CopyOnWriteArrayList<>();
-    private static final int BROADCAST_RADIUS = Integer.MAX_VALUE;
+
     public static final int CLOUD_TIMEOUT = 10; // Seconds
+
+    protected VOCTManagerCommon voctManager;
 
     /**
      * Constructor
@@ -72,9 +72,19 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon {
                 @Override
                 protected void sendMessage(MessageHeader header, SarText msg) {
                     // Receieved a message
-                    System.out.println("Message Receieved " + msg.getMsg());
-                    additionalInformationMsgs.add(msg);
-                    notifyVoctInfoMsgListeners();
+                    // System.out.println("Message Receieved " + msg.getMsg());
+
+                    if (voctManager != null) {
+
+                        SARTextLogMessage sarMsg = new SARTextLogMessage(msg
+                                .getMsg(), msg.getPriority(), msg
+                                .getOriginalSender(), msg.getOriginalSender());
+
+                        voctManager.addSARText(sarMsg);
+                    } else {
+
+                    }
+
                 }
 
             }).awaitRegistered(4, TimeUnit.SECONDS);
@@ -85,56 +95,40 @@ public abstract class VoctHandlerCommon extends EnavServiceHandlerCommon {
     }
 
     public void sendVoctMessage(final SarText sarText) {
-        additionalInformationMsgs.add(sarText);
-        notifyVoctInfoMsgListeners();
+        SARTextLogMessage sarMsg = new SARTextLogMessage(sarText.getMsg(),
+                sarText.getPriority(), sarText.getOriginalSender(),
+                sarText.getOriginalSender());
 
-        try {
-            List<SARTextingService> availableEndpoints = getMmsClient()
-                    .endpointLocate(SARTextingService.class).findAll()
-                    .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
+        if (voctManager != null) {
+            voctManager.addSARText(sarMsg);
 
-            for (int i = 0; i < availableEndpoints.size(); i++) {
-                availableEndpoints.get(i).sendMessage(sarText);
+            try {
+                List<SARTextingService> availableEndpoints = getMmsClient()
+                        .endpointLocate(SARTextingService.class).findAll()
+                        .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
+
+                for (int i = 0; i < availableEndpoints.size(); i++) {
+                    availableEndpoints.get(i).sendMessage(sarText);
+                }
+
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
-
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } else {
+            System.out.println("Voctmanager is null");
         }
 
-    }
-
-    private void notifyVoctInfoMsgListeners() {
-        for (int i = 0; i < voctInfoMsgListener.size(); i++) {
-            voctInfoMsgListener.get(i).voctMessageUpdate();
-        }
-    }
-
-    public void addVoctSarInfoListener(IVoctInfoListener listener) {
-        voctInfoMsgListener.add(listener);
     }
 
     /**
-     * @return the additionalInformationMsg
+     * @return the voctManager
      */
-    public List<SarText> getAdditionalInformationMsgs() {
-        return additionalInformationMsgs;
-    }
-
-    public interface IVoctInfoListener {
-
-        /**
-         * Called when a SAR info message has been received or sent
-         */
-        void voctMessageUpdate();
-
-        /**
-         * Called when adding SAR info
-         */
-        // void voctMessageSent(VOCTSARInfoMessage message);
+    public VOCTManagerCommon getVoctManager() {
+        return voctManager;
     }
 
 }

@@ -122,7 +122,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private NogoHandler nogoHandler;
     private TransponderFrame transponderFrame;
     private VoyageEventDispatcher voyageEventDispatcher;
-    private VOCTManager voctManager;
+    
     private DynamicPredictor dynamicPredictor;
     private DynamicPredictorSentenceParser dynamicPredictorParser;
 
@@ -938,7 +938,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
      * @return the voctManager
      */
     public VOCTManager getVoctManager() {
-        return voctManager;
+        return (VOCTManager) voctManager;
     }
 
     /**

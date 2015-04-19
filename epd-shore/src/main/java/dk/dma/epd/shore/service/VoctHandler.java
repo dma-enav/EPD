@@ -29,17 +29,12 @@ import net.maritimecloud.net.mms.MmsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.enav.model.MaritimeId;
-import dk.dma.epd.common.prototype.enavcloud.TODO;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
@@ -67,7 +62,6 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
     // private IntendedRouteLayerCommon intendedRouteLayerCommon;
 
     public SRUManager sruManager;
-    public VOCTManager voctManager;
 
     /**
      * Constructor
@@ -90,7 +84,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
     @Override
     public void cloudConnected(MmsClient connection) {
         super.cloudConnected(connection);
-        
+
         // Refresh the service list
         fetchVOCTMessageList();
 
@@ -127,7 +121,6 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
     }
 
-    
     private void fetchVOCTMessageList() {
         // voctMessageList
 
@@ -143,7 +136,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
             LOG.error("Failed looking up route suggestion services: "
                     + e.getMessage());
         }
-        
+
     }
 
     private VOCTMessage convertToVOCTMessage(SARData sarData) {
@@ -329,6 +322,10 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
         // routeManager.removeListener(this);
         // routeManager = null;
         // }
+        if (obj instanceof VOCTManager) {
+            voctManager = (VOCTManager) obj;
+
+        }
         super.findAndUndo(obj);
     }
 

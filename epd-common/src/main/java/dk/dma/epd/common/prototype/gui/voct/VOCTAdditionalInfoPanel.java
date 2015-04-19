@@ -57,8 +57,9 @@ import org.apache.commons.lang.StringUtils;
 
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARTextLogMessage;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.prototype.service.VoctHandlerCommon.IVoctInfoListener;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.IVoctInfoListener;
 import dk.dma.epd.common.text.Formatter;
 import dma.voct.SarText;
 
@@ -88,7 +89,7 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener,
     public VOCTAdditionalInfoPanel(boolean compactLayout) {
         super(new BorderLayout());
 
-        EPD.getInstance().getVoctHandler().addVoctSarInfoListener(this);
+        EPD.getInstance().getVoctManager().addVoctSarInfoListener(this);
 
         // Prepare the title header
         titleHeader.setBackground(getBackground().darker());
@@ -152,6 +153,7 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener,
         // addBtn.setEnabled(false);
         // messageText.setEditable(false);
         addBtn.addActionListener(this);
+        updateChatMessagePanel();
     }
 
     // /**
@@ -198,53 +200,55 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener,
                 0.0, 1.0, NORTH, VERTICAL, insets, 0, 0));
 
         // Add the messages
-        long lastMessageTime = 0;
+        // long lastMessageTime = 0;
 
         long ownMMSI = MaritimeCloudUtils.toMmsi(EPD.getInstance()
                 .getMaritimeId());
 
-        for (SarText message : EPD.getInstance().getVoctHandler()
-                .getAdditionalInformationMsgs()) {
+        if (EPD.getInstance().getVoctManager().getSarData() != null) {
+            for (SARTextLogMessage message : EPD.getInstance().getVoctManager()
+                    .getSarData().getSarMessages()) {
 
-            boolean ownMessage = false;
+                boolean ownMessage = false;
 
-            String senderName = message.getOriginalSender() + "";
-            if (message.getOriginalSender() == ownMMSI) {
-                ownMessage = true;
-            }
-            try {
-                senderName = EPD.getInstance().getIdentityHandler()
-                        .getActor(message.getOriginalSender()).getName();
-            } catch (Exception e) {
+                String senderName = message.getOriginalSender() + "";
+                if (message.getOriginalSender() == ownMMSI) {
+                    ownMessage = true;
+                }
+                try {
+                    senderName = EPD.getInstance().getIdentityHandler()
+                            .getActor(message.getOriginalSender()).getName();
+                } catch (Exception e) {
 
-            }
+                }
 
-            // Check if we need to add a time label
-//            if (message.getOriginalSendDate().getTime() - lastMessageTime > PRINT_DATE_INTERVAL) {
+                // Check if we need to add a time label
+                // if (message.getOriginalSendDate().getTime() - lastMessageTime
+                // > PRINT_DATE_INTERVAL) {
 
                 JLabel dateLabel = new JLabel(String.format(
                         ownMessage ? "Added %s" : "Received %s",
                         Formatter.formatShortDateTimeNoTz(new Date(message
-                                .getOriginalSendDate().getTime()))
-                                + " - "
-                                + senderName));
+                                .getOriginalSentDate())) + " - " + senderName));
                 dateLabel.setFont(dateLabel.getFont().deriveFont(9.0f)
                         .deriveFont(Font.PLAIN));
                 dateLabel.setHorizontalAlignment(SwingConstants.CENTER);
                 dateLabel.setForeground(Color.LIGHT_GRAY);
                 messagesPanel.add(dateLabel, new GridBagConstraints(0, y++, 1,
                         1, 1.0, 0.0, NORTH, HORIZONTAL, insets2, 0, 0));
-//            }
+                // }
 
-            // Add a chat message field
-            JPanel msg = new JPanel();
-            msg.setBorder(new ChatMessageBorder(message, ownMessage));
-            JLabel msgLabel = new ChatMessageLabel(message.getMsg(), ownMessage);
-            msg.add(msgLabel);
-            messagesPanel.add(msg, new GridBagConstraints(0, y++, 1, 1, 1.0,
-                    0.0, NORTH, HORIZONTAL, insets, 0, 0));
+                // Add a chat message field
+                JPanel msg = new JPanel();
+                msg.setBorder(new ChatMessageBorder(message, ownMessage));
+                JLabel msgLabel = new ChatMessageLabel(message.getMsg(),
+                        ownMessage);
+                msg.add(msgLabel);
+                messagesPanel.add(msg, new GridBagConstraints(0, y++, 1, 1,
+                        1.0, 0.0, NORTH, HORIZONTAL, insets, 0, 0));
 
-            lastMessageTime = message.getOriginalSendDate().getTime();
+                // lastMessageTime = message.getOriginalSentDate();
+            }
         }
 
         // Scroll to the bottom
@@ -391,7 +395,7 @@ class ChatMessageBorder extends AbstractBorder {
     int pointerFromBottom = 11;
     int pad = 2;
     Insets insets;
-    SarText message;
+    SARTextLogMessage message;
     boolean pointerLeft;
 
     /**
@@ -399,7 +403,7 @@ class ChatMessageBorder extends AbstractBorder {
      * 
      * @param color
      */
-    public ChatMessageBorder(SarText message, boolean ownMsg) {
+    public ChatMessageBorder(SARTextLogMessage message, boolean ownMsg) {
         super();
         this.message = message;
         this.pointerLeft = !ownMsg;

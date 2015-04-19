@@ -67,7 +67,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable,
      * combined in future
      */
     private boolean running;
-    private VOCTManager voctManager;
+    
 
     // private IntendedRouteLayerCommon intendedRouteLayerCommon;
 
@@ -325,17 +325,17 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable,
         if (e == VOCTUpdateEvent.SAR_CANCEL) {
 
             // IS IT RAPID RESPONSE / DOES IT MATTER
-            if (voctManager.getCurrentID() != -1) {
-
-                // VOCTCommunicationMessage voctMessage = new
-                // VOCTCommunicationMessage(voctManager.getCurrentID(),
-                // VoctMsgStatus.WITHDRAWN);
-
-                // TODO: Maritime Cloud 0.2 re-factoring
-                // boolean toSend = sendMaritimeCloudMessage(new MmsiId((int)
-                // (long) voctInvitations.get(voctManager.getCurrentID())),
-                // voctMessage, this);
-            }
+//            if (voctManager.getCurrentID() != -1) {
+//
+//                // VOCTCommunicationMessage voctMessage = new
+//                // VOCTCommunicationMessage(voctManager.getCurrentID(),
+//                // VoctMsgStatus.WITHDRAWN);
+//
+//                // TODO: Maritime Cloud 0.2 re-factoring
+//                // boolean toSend = sendMaritimeCloudMessage(new MmsiId((int)
+//                // (long) voctInvitations.get(voctManager.getCurrentID())),
+//                // voctMessage, this);
+//            }
         }
 
     }

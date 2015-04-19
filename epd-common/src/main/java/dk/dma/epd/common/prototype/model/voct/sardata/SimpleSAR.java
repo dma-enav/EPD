@@ -15,8 +15,14 @@
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.model.voct.LeewayValues;
+import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.MCTypeConverter;
 
 public class SimpleSAR extends SARData {
@@ -135,7 +141,73 @@ public class SimpleSAR extends SARData {
 
     @Override
     public String generateHTML() {
-        return "Uhm hello there mate";
+        DateTimeFormatter fmt = DateTimeFormat
+                .forPattern("dd MMMM, yyyy, 'at.' HH':'mm");
+
+        // // Generate a html sheet of rapid response calculations
+        StringBuilder str = new StringBuilder();
+        // String name = "How does this look";
+        //
+        str.append("<html>");
+        str.append("<table >");
+        str.append("<tr>");
+        str.append("<td align=\"left\" style=\"vertical-align: top;\">");
+        str.append("<h1>Search and Rescue - Simple SAR</h1>");
+        str.append("<hr>");
+        str.append("<font size=\"4\">");
+        str.append("Time of Last Known Position: "
+                + fmt.print(this.getLKPDate()) + "");
+        str.append("<br>Last Known Position: " + this.getLKP().toString()
+                + "</br>");
+        str.append("<br>Commence Search Start time: "
+                + fmt.print(this.getCSSDate()) + "</br>");
+
+        str.append("<hr>");
+        str.append("<font size=\"4\">");
+        str.append("Initial Position Error, X in nautical miles: "
+                + this.getX() + "");
+        str.append("<br>SRU Navigational Error, Y in nautical miles: "
+                + this.getY() + "</br>");
+        str.append("<br>Safety Factor, Fs: " + this.getSafetyFactor() + "</br>");
+        str.append("<hr>");
+        str.append("<font size=\"4\">");
+        str.append("Search Object: "
+                + LeewayValues.getLeeWayTypes().get(this.getSearchObject())
+                + "");
+        str.append("<br>With value: "
+                + LeewayValues.getLeeWayContent().get(this.getSearchObject())
+                + "</br>");
+        str.append("<hr>");
+        str.append("<font size=\"4\">");
+        str.append("Time Elapsed: " + Formatter.formatHours(timeElasped) + "");
+        str.append("<br>With a datum of  "
+                + datum.toString() + "</br>");
+        
+        
+        str.append("<hr>");
+        str.append("<font size=\"4\">");
+        str.append("Search Area:");
+        str.append("<br>A: " + A.toString() + "</br>");
+        str.append("<br>B: " + B.toString() + "</br>");
+        str.append("<br>C: " + C.toString() + "</br>");
+        str.append("<br>D: " + D.toString() + "</br>");
+        
+        double width = Converter.metersToNm(getA().distanceTo(getD(), CoordinateSystem.CARTESIAN));
+        double height = Converter.metersToNm(getB().distanceTo(getC(), CoordinateSystem.CARTESIAN));
+        
+        
+        str.append("<br>Total Size: "
+                + Formatter.formatDouble(width*height, 2)
+                + " nm2</br>");
+
+        str.append("</font>");
+        str.append("</td>");
+        str.append("</tr>");
+        str.append("</table>");
+        str.append("</html>");
+
+
+        return str.toString();
     }
 
     public dma.voct.SimpleSAR getModelData() {
