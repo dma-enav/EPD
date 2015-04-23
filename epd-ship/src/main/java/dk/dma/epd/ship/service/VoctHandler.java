@@ -14,38 +14,30 @@
  */
 package dk.dma.epd.ship.service;
 
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
-import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon.VoctMsgStatus;
-import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
-import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
-import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.service.voct.VOCTManager;
-import dma.voct.AbstractVOCTEndpoint;
-import dma.voct.AbstractVOCTReplyEndpoint;
-import dma.voct.VOCTEndpoint;
-import dma.voct.VOCTMessage;
-import dma.voct.VOCTReply;
-import dma.voct.VOCTReplyEndpoint;
-import dma.voct.VOCTReplyStatus;
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.net.EndpointInvocationFuture;
-import net.maritimecloud.net.MessageHeader;
-import net.maritimecloud.net.mms.MmsClient;
-import net.maritimecloud.util.Binary;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.net.EndpointInvocationFuture;
+import net.maritimecloud.net.MessageHeader;
+import net.maritimecloud.net.mms.MmsClient;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.service.VoctHandlerCommon;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
+import dk.dma.epd.ship.service.voct.VOCTManager;
+import dma.voct.AbstractVOCTEndpoint;
+import dma.voct.VOCTMessage;
+import dma.voct.VOCTReply;
+import dma.voct.VOCTReplyEndpoint;
+import dma.voct.VOCTReplyStatus;
 
 /**
  * Ship specific intended route service implementation.
@@ -67,7 +59,6 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable,
      * combined in future
      */
     private boolean running;
-    
 
     // private IntendedRouteLayerCommon intendedRouteLayerCommon;
 
@@ -76,6 +67,8 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable,
 
     // ID, MMSI
     protected Map<Long, MaritimeId> voctInvitations = new ConcurrentHashMap<>();
+
+    private boolean hasReconnect;
 
     /**
      * Constructor
@@ -109,6 +102,16 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable,
         } catch (InterruptedException e) {
             LOG.error("Error hooking up services", e);
         }
+
+        getScheduler().scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                if (hasReconnect) {
+                    System.out.println("Running reconnect to osc");
+                    reconnectToOSC();
+                }
+            }
+        }, 1, 1, TimeUnit.MINUTES);
 
         // TODO: Maritime Cloud 0.2 re-factoring
         // // Register for RapidResponse
@@ -200,33 +203,48 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable,
      */
     public void run() {
 
-        // Initialize first send
-        // lastSend = new DateTime();
-        // broadcastIntendedRoute();
+    }
 
-        while (running) {
-            Util.sleep(1000L);
+    private void reconnectToOSC() {
+
+        if (voctManager.getSarData().getOscId() != null
+                && voctManager.getSarData().getTransactionId() != null) {
+            try {
+                System.out.println("Reconnect time");
+                EPD.getInstance()
+                        .getVoctHandler()
+                        .sendVOCTReply(VOCTReplyStatus.ACCEPTED, "Reconnected",
+                                voctManager.getSarData().getTransactionId(),
+                                voctManager.getSarData().getOscId());
+
+                hasReconnect = false;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
         }
 
     }
 
+    @Override
     public void sendVOCTReply(VOCTReplyStatus recievedAccepted, String message,
-            long messageId) throws InterruptedException, ExecutionException {
+            long messageId, Long oscId) throws InterruptedException,
+            ExecutionException {
 
-        // Find place to send it
-        MaritimeId maritimeId = voctInvitations.get(messageId);
+        if (voctInvitations.containsKey(messageId)) {
 
-        @SuppressWarnings("deprecation")
+            oscId = (long) voctInvitations.get(messageId).getIdAsInt();
+        }
+
         List<VOCTReplyEndpoint> availableEndpoints = getMmsClient()
-                .endpointLocate(VOCTReplyEndpoint.class).findAll()
-                .timeout(CLOUD_TIMEOUT, TimeUnit.SECONDS).get();
-
+                .endpointLocate(VOCTReplyEndpoint.class).findAll().get();
         VOCTReplyEndpoint endPoint = null;
         for (int i = 0; i < availableEndpoints.size(); i++) {
-            System.out.println("Comparing " + availableEndpoints.get(i)
-                    + " to stored " + maritimeId);
-            if (availableEndpoints.get(i).getRemoteId().getIdAsInt() == maritimeId
-                    .getIdAsInt()) {
+            System.out.println("Comparing "
+                    + availableEndpoints.get(i).getRemoteId().getIdAsInt()
+                    + " to stored " + oscId);
+            if (availableEndpoints.get(i).getRemoteId().getIdAsInt() == oscId) {
                 System.out.println("Found endpoint!");
                 endPoint = availableEndpoints.get(i);
                 break;
@@ -236,7 +254,7 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable,
 
         if (endPoint == null) {
             System.out.println("failed to find VOCT reply endpoint for "
-                    + maritimeId);
+                    + oscId);
             return;
         }
 
@@ -325,19 +343,28 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable,
         if (e == VOCTUpdateEvent.SAR_CANCEL) {
 
             // IS IT RAPID RESPONSE / DOES IT MATTER
-//            if (voctManager.getCurrentID() != -1) {
-//
-//                // VOCTCommunicationMessage voctMessage = new
-//                // VOCTCommunicationMessage(voctManager.getCurrentID(),
-//                // VoctMsgStatus.WITHDRAWN);
-//
-//                // TODO: Maritime Cloud 0.2 re-factoring
-//                // boolean toSend = sendMaritimeCloudMessage(new MmsiId((int)
-//                // (long) voctInvitations.get(voctManager.getCurrentID())),
-//                // voctMessage, this);
-//            }
+            // if (voctManager.getCurrentID() != -1) {
+            //
+            // // VOCTCommunicationMessage voctMessage = new
+            // // VOCTCommunicationMessage(voctManager.getCurrentID(),
+            // // VoctMsgStatus.WITHDRAWN);
+            //
+            // // TODO: Maritime Cloud 0.2 re-factoring
+            // // boolean toSend = sendMaritimeCloudMessage(new MmsiId((int)
+            // // (long) voctInvitations.get(voctManager.getCurrentID())),
+            // // voctMessage, this);
+            // }
         }
 
+    }
+
+    /**
+     * @param hasReconnect
+     *            the hasReconnect to set
+     */
+    public void setHasReconnect(boolean hasReconnect) {
+        System.out.println("Has reconnect!");
+        this.hasReconnect = hasReconnect;
     }
 
 }

@@ -38,7 +38,8 @@ message VOCTMessage {
 	10: text senderName;
   
   11: SimpleSAR simpleSar;
-	
+  
+	12: int64 oscId;
 };
 
 endpoint VOCTEndpoint {

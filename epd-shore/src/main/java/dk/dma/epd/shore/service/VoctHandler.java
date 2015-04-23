@@ -29,6 +29,7 @@ import net.maritimecloud.net.mms.MmsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
@@ -234,7 +235,9 @@ public class VoctHandler extends VoctHandlerCommon implements Runnable {
             }
         }
 
-        voctMessage.setId(System.currentTimeMillis());
+        voctMessage.setId(sarData.getTransactionId());
+
+        voctMessage.setOscId(EPD.getInstance().getMmsi());
 
         VOCTEndpoint voctEndpoint = MaritimeCloudUtils.findServiceWithMmsi(
                 voctMessageList, mmsi);

@@ -287,8 +287,8 @@ public class VOCTAdditionalInfoPanel extends JPanel implements ActionListener,
 
         sarText.setOriginalSender((long) EPD.getInstance().getMaritimeId()
                 .getIdAsInt());
-        Timestamp originalTimeStamp = Timestamp.now();
-        sarText.setOriginalSendDate(originalTimeStamp);
+        
+        sarText.setOriginalSendDate(System.currentTimeMillis());
 
         // VOCTSARInfoMessage infoMsg = new VOCTSARInfoMessage();
         // infoMsg.setMessage(msg);

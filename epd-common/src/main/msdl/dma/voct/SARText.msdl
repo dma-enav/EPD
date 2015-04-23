@@ -5,12 +5,19 @@ message SarText {
     1: text msg;
     2: boolean priority;
     3: int64 originalSender;
-    4: timestamp originalSendDate;
+    4: int64 originalSendDate;
 }
 
-/** End point send message function */
 endpoint SARTextingService {
 	void sendMessage(
         1: SarText msg
     );
+    
+  list<SarText> requestMessageSync(
+      1: int64 sarTransactionId,
+      2: int64 lastMessageRecieved
+    );
+    
+
 }
+

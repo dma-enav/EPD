@@ -279,6 +279,10 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable,
      */
     public void setSarData(SARData sarData) {
 
+        if (this.getSarData() != null){
+            sarData.setSarMessages(this.getSarData().getSarMessages());
+        }
+        
         this.sarData = sarData;
 
         // Disable, not sure if should be part of main features.
@@ -367,6 +371,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable,
             setSarData(simpleSar);
         }
         
+
         displaySar();
         notifyVoctInfoMsgListeners();
     }

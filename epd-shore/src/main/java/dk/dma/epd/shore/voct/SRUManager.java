@@ -208,7 +208,11 @@ System.out.println("ID is " + voctHandler.getVoctMessageList().get(i)
                 sRUCommunication.put(mmsi, new SRUCommunicationObject(sru));
                 sRUCommunication.get(mmsi).setLastMessageRecieved(new Date());
                 // Notify voctmanager to paint efffort allocation area for SRU i
-                voctLayerTracking.drawEffectiveArea(sru.getMmsi());
+                
+                if (voctLayerTracking!= null){
+                    voctLayerTracking.drawEffectiveArea(sru.getMmsi());    
+                }
+                
 
                 // System.out.println("SRU status set to acceptd");
                 // System.out.println("Running through all SRUS");

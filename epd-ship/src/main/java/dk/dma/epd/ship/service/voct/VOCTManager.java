@@ -69,9 +69,8 @@ public class VOCTManager extends VOCTManagerCommon {
     private SARInput sarInputDialog;
     private VoctHandler voctHandler;
     private long currentID = -1;
+    private boolean hasReconnect;
 
-
-    
     VoctLayer voctLayer;
 
     public VOCTManager() {
@@ -165,7 +164,7 @@ public class VOCTManager extends VOCTManagerCommon {
         // Maintanaince routines
         while (true) {
             Util.sleep(10000);
-
+            
         }
 
     }
@@ -181,17 +180,45 @@ public class VOCTManager extends VOCTManagerCommon {
             voctManager.setLoadSarFromSerialize(true);
             voctManager.initializeFromSerializedFile(sarDataLoaded);
 
+            // Get Messages?
+
         } catch (FileNotFoundException e) {
             // Not an error
         } catch (Exception e) {
             LOG.error("Failed to load sar file: " + e.getMessage());
+            for (int i = 0; i < e.getStackTrace().length; i++) {
+                System.out.println(e.getStackTrace()[i]);
+            }
             // Delete possible corrupted or old file
-            new File(VOCT_FILE).delete();
+            // new File(VOCT_FILE).delete();
         }
 
         return voctManager;
 
     }
+
+    
+//    public void setReconnect(boolean reconnect){
+//        this.hasReconnect = reconnect;
+//    }
+//    
+//    private void reconnectToOSC() {
+//        if (sarData.getOscId() != null && sarData.getTransactionId() != null) {
+//            try {
+//                EPD.getInstance()
+//                        .getVoctHandler()
+//                        .sendVOCTReply(VOCTReplyStatus.ACCEPTED, "Reconnected",
+//                                sarData.getTransactionId(), sarData.getOscId());
+//            } catch (InterruptedException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            } catch (ExecutionException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
+//
+//    }
 
     @Override
     public synchronized void saveToFile() {
@@ -340,7 +367,7 @@ public class VOCTManager extends VOCTManagerCommon {
 
             try {
                 voctHandler.sendVOCTReply(VOCTReplyStatus.ACCEPTED, "Accepted",
-                        message.getId());
+                        message.getId(), null);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -366,13 +393,13 @@ public class VOCTManager extends VOCTManagerCommon {
                 setSarType(SAR_TYPE.DATUM_POINT);
                 saveToFile();
             }
-            
+
             if (type == dma.voct.SAR_TYPE.SIMPLE_SAR) {
                 data = new SimpleSAR(message.getSimpleSar());
                 setSarType(SAR_TYPE.SIMPLE_SAR);
                 saveToFile();
             }
-            
+
             if (type == dma.voct.SAR_TYPE.SARIS_DATUM_POINT) {
                 // data = new
                 // DatumPointDataSARIS(message.getSarDataDatumPointSaris());
@@ -411,11 +438,14 @@ public class VOCTManager extends VOCTManagerCommon {
 
             notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
 
+            data.setOscId(message.getOscId());
+            data.setTransactionId(message.getOscId());
+
             saveToFile();
         } else {
             try {
                 voctHandler.sendVOCTReply(VOCTReplyStatus.REJECTED, "Rejected",
-                        message.getId());
+                        message.getId(), null);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -480,6 +510,8 @@ public class VOCTManager extends VOCTManagerCommon {
 
         if (obj instanceof VoctHandler) {
             voctHandler = (VoctHandler) obj;
+            
+            voctHandler.setHasReconnect(true);
         }
 
     }
@@ -491,7 +523,4 @@ public class VOCTManager extends VOCTManagerCommon {
         return currentID;
     }
 
-
-
-    
 }
