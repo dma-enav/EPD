@@ -122,7 +122,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
     private NogoHandler nogoHandler;
     private TransponderFrame transponderFrame;
     private VoyageEventDispatcher voyageEventDispatcher;
-    private VOCTManager voctManager;
+    
     private DynamicPredictor dynamicPredictor;
     private DynamicPredictorSentenceParser dynamicPredictorParser;
 
@@ -746,18 +746,18 @@ public final class EPDShip extends EPD implements IOwnShipListener {
             // props.put("tooltipCastShadow", "true");
 
             // small font
-            // props.setProperty("controlTextFont", "Dialog 12");
-            // props.setProperty("systemTextFont", "Dialog 12");
-            // props.setProperty("userTextFont", "Dialog 12");
-            // props.setProperty("menuTextFont", "Dialog 12");
-            // props.setProperty("windowTitleFont", "Dialog bold 12");
-            // props.setProperty("subTextFont", "Dialog 10");
-            props.setProperty("controlTextFont", "Dialog 10");
-            props.setProperty("systemTextFont", "Dialog 10");
-            props.setProperty("userTextFont", "Dialog 10");
-            props.setProperty("menuTextFont", "Dialog 10");
-            props.setProperty("windowTitleFont", "Dialog bold 10");
-            props.setProperty("subTextFont", "Dialog 8");
+             props.setProperty("controlTextFont", "Dialog 12");
+             props.setProperty("systemTextFont", "Dialog 12");
+             props.setProperty("userTextFont", "Dialog 12");
+             props.setProperty("menuTextFont", "Dialog 12");
+             props.setProperty("windowTitleFont", "Dialog bold 12");
+             props.setProperty("subTextFont", "Dialog 10");
+//            props.setProperty("controlTextFont", "Dialog 10");
+//            props.setProperty("systemTextFont", "Dialog 10");
+//            props.setProperty("userTextFont", "Dialog 10");
+//            props.setProperty("menuTextFont", "Dialog 10");
+//            props.setProperty("windowTitleFont", "Dialog bold 10");
+//            props.setProperty("subTextFont", "Dialog 8");
 
             // props.put("tooltipBorderSize", "15");
             // props.put("tooltipShadowSize", "15");
@@ -938,7 +938,7 @@ public final class EPDShip extends EPD implements IOwnShipListener {
      * @return the voctManager
      */
     public VOCTManager getVoctManager() {
-        return voctManager;
+        return (VOCTManager) voctManager;
     }
 
     /**

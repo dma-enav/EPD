@@ -41,6 +41,7 @@ import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
@@ -100,8 +101,10 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
 
     static final String RAPIDRESPONSEDATUM = "Rapid Response Datum Panel";
     static final String DATUMPOINTDATUM = "Datum Point Datum Panel";
+    static final String SIMPELSAR = "Simpel SAR Panel";
     private SARPanelRapidResponseDatumPanel rapidResponseDatumPanel;
     private SARPanelDatumPointDatumPanel datumPointDatumPanel;
+    private SARPanelSimpelSAR simpelSARPanel;
 
     protected VOCTManagerCommon voctManager;
 
@@ -355,8 +358,11 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         // Multiple datum panels
         rapidResponseDatumPanel = new SARPanelRapidResponseDatumPanel();
         datumPointDatumPanel = new SARPanelDatumPointDatumPanel();
+        simpelSARPanel = new SARPanelSimpelSAR();
+        
         datumPanel.add(rapidResponseDatumPanel, RAPIDRESPONSEDATUM);
         datumPanel.add(datumPointDatumPanel, DATUMPOINTDATUM);
+        datumPanel.add(simpelSARPanel, SIMPELSAR);
 
         searchAreaPanel = new JPanel();
         searchAreaPanel.setBorder(new TitledBorder(null, "Positions of the Search Area", TitledBorder.LEADING, TitledBorder.TOP,
@@ -501,7 +507,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         gbc_timeSliderPanel.insets = new Insets(0, 0, 5, 0);
         gbc_timeSliderPanel.gridx = 0;
         gbc_timeSliderPanel.gridy = 6;
-        sarStartedPanel.add(timeSliderPanel, gbc_timeSliderPanel);
+//        sarStartedPanel.add(timeSliderPanel, gbc_timeSliderPanel);
         GridBagLayout gbl_timeSliderPanel = new GridBagLayout();
         gbl_timeSliderPanel.columnWidths = new int[] { 0 };
         gbl_timeSliderPanel.rowHeights = new int[] { 0, 0, 0 };
@@ -607,7 +613,9 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
             setBackTrackData(data);
         }
 
-        // setDatumPointData
+        if (voctManager.getSarType() == SAR_TYPE.SIMPLE_SAR){
+            setSimpleSarData((SimpleSAR) data);
+        }
 
         CardLayout cl = (CardLayout) (this.getLayout());
         cl.show(this, SARPANEL);
@@ -685,6 +693,55 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         lblSarType.setText("Datum Line");
 
         // sarData = data;
+    }
+    
+    private void setSimpleSarData(SimpleSAR data){
+        
+        sarData = data;
+        lblSarType.setText("Simple SAR");
+        
+        
+
+        CardLayout cl = (CardLayout) (datumPanel.getLayout());
+        cl.show(datumPanel, SIMPELSAR);
+
+        
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("HH':'mm '-' dd'/'MM");
+
+        lkpDate.setText(fmt.print(data.getLKPDate()));
+        cssDateStart.setText(fmt.print(data.getCSSDate()));
+        timeElapsed.setText(Formatter.formatHours(data.getTimeElasped()) + "");
+
+//        rdvDirection.setText(Formatter.formatDouble(data.getRdvDirectionDownWind(), 2) + "°");
+        rdvDirection.setText("N/A");
+//        rdvSpeed.setText(Formatter.formatDouble(data.getRdvSpeedDownWind(), 2) + " kn");
+        rdvSpeed.setText("N/A");
+
+
+        simpelSARPanel.setDatumLat(data.getDatum().getLatitudeAsString());
+        simpelSARPanel.setDatumLon(data.getDatum().getLongitudeAsString());
+        simpelSARPanel.setrdvDistance("N/A");
+        simpelSARPanel.setdatumRadius("N/A");
+
+
+ 
+        pointAlat.setText(data.getA().getLatitudeAsString());
+        pointAlon.setText(data.getA().getLongitudeAsString());
+        pointBlat.setText(data.getB().getLatitudeAsString());
+        pointBlon.setText(data.getB().getLongitudeAsString());
+        pointClat.setText(data.getC().getLatitudeAsString());
+        pointClon.setText(data.getC().getLongitudeAsString());
+        pointDlat.setText(data.getD().getLatitudeAsString());
+        pointDlon.setText(data.getD().getLongitudeAsString());
+
+        double width = Converter.metersToNm(data.getA().distanceTo(data.getD(), CoordinateSystem.CARTESIAN));
+        double height = Converter.metersToNm(data.getB().distanceTo(data.getC(), CoordinateSystem.CARTESIAN));
+
+        areaSize.setText(Formatter.formatDouble(width * height, 2) + " ");
+        
+        
+        
+        
     }
 
     private void setBackTrackData(SARData data) {

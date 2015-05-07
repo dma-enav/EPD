@@ -40,6 +40,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.EPDShip;
@@ -49,7 +50,8 @@ import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
-public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpdateListener {
+public class VoctLayer extends GeneralLayer implements MapMouseListener,
+        VOCTUpdateListener {
     private static final long serialVersionUID = 1L;
 
     private OMGraphicList graphics = new OMGraphicList();
@@ -136,7 +138,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         }
 
         selectedGraphic = null;
-        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                3.0f);
 
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof EffortAllocationInternalGraphics) {
@@ -183,7 +186,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         if (!dragging) {
             // mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
-            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
+            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                    3.0f);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof EffortAllocationLines) {
                     // System.out.println("selected something");
@@ -202,20 +206,22 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         if (selectedGraphic instanceof EffortAllocationLines) {
 
-//            System.out.println("Selected line");
+            // System.out.println("Selected line");
 
             EffortAllocationLines selectedLine = (EffortAllocationLines) selectedGraphic;
 
-//            System.out.println(selectedLine.getType());
+            // System.out.println(selectedLine.getType());
 
             // If bottom or top we can only adjust latitude
 
             // If sides we can adjust longitude
 
             // New Position of line
-            LatLonPoint newLatLon = mapBean.getProjection().inverse(e.getPoint());
+            LatLonPoint newLatLon = mapBean.getProjection().inverse(
+                    e.getPoint());
 
-            Position newPos = Position.create(newLatLon.getLatitude(), newLatLon.getLongitude());
+            Position newPos = Position.create(newLatLon.getLatitude(),
+                    newLatLon.getLongitude());
 
             selectedLine.updateArea(newPos);
 
@@ -231,13 +237,20 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             EffortAllocationInternalGraphics selectedArea = (EffortAllocationInternalGraphics) selectedGraphic;
 
             // New Center
-            LatLonPoint newLatLon = mapBean.getProjection().inverse(e.getPoint());
+            LatLonPoint newLatLon = mapBean.getProjection().inverse(
+                    e.getPoint());
 
-            Position newPos = Position.create(newLatLon.getLatitude(), newLatLon.getLongitude());
+            Position newPos = Position.create(newLatLon.getLatitude(),
+                    newLatLon.getLongitude());
 
             if (!dragging) {
                 // System.out.println("only once? first time?");
-                selectedArea.adjustInternalPosition(newPos);
+                try {
+                    selectedArea.adjustInternalPosition(newPos);
+                } catch (Exception e2) {
+                    System.out.println("Failed to adjust position");
+                }
+
             }
 
             // if (!(newPos == initialBoxRelativePosition)){
@@ -265,7 +278,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         if (!dragging) {
             // mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
-            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 2.0f);
+            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                    2.0f);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof EffortAllocationLines) {
                     // System.out.println("selected something");
@@ -286,8 +300,9 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             // System.out.println("Selected line");
             EffortAllocationLines selectedLine = (EffortAllocationLines) selectedGraphic;
 
-            double bearing = selectedLine.getA().rhumbLineBearingTo(selectedLine.getB());
-//            System.out.println(bearing);
+            double bearing = selectedLine.getA().rhumbLineBearingTo(
+                    selectedLine.getB());
+            // System.out.println(bearing);
 
             LineType type = selectedLine.getType();
 
@@ -297,18 +312,23 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
                 cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
 
                 // Straight line
-                if (bearing > 80 && bearing < 100 || bearing > 260 && bearing < 280) {
+                if (bearing > 80 && bearing < 100 || bearing > 260
+                        && bearing < 280) {
                     cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
                 }
 
                 // SE line
-                if (bearing > 100 && bearing < 170 || bearing > 290 && bearing < 350) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
+                if (bearing > 100 && bearing < 170 || bearing > 290
+                        && bearing < 350) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
                 }
 
                 // SW line
-                if (bearing > 0 && bearing < 80 || bearing > 190 && bearing < 270) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
+                if (bearing > 0 && bearing < 80 || bearing > 190
+                        && bearing < 270) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
                 }
 
             }
@@ -317,18 +337,23 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
                 cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
 
                 // Straight line
-                if (bearing > 80 && bearing < 100 || bearing > 260 && bearing < 280) {
+                if (bearing > 80 && bearing < 100 || bearing > 260
+                        && bearing < 280) {
                     cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
                 }
 
                 // NE line
-                if (bearing > 100 && bearing < 170 || bearing > 290 && bearing < 350) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
+                if (bearing > 100 && bearing < 170 || bearing > 290
+                        && bearing < 350) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
                 }
 
                 // NW line
-                if (bearing > 0 && bearing < 80 || bearing > 190 && bearing < 270) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
+                if (bearing > 0 && bearing < 80 || bearing > 190
+                        && bearing < 270) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
                 }
 
             }
@@ -337,18 +362,23 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
                 cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
 
                 // Straight line
-                if (bearing > 170 && bearing < 190 || bearing < 10 && bearing < 350) {
+                if (bearing > 170 && bearing < 190 || bearing < 10
+                        && bearing < 350) {
                     cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
                 }
 
                 // NE line
-                if (bearing > 130 && bearing < 160 || bearing > 210 && bearing < 240) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
+                if (bearing > 130 && bearing < 160 || bearing > 210
+                        && bearing < 240) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
                 }
 
                 // NW line
-                if (bearing > 130 && bearing < 160 || bearing > 300 && bearing < 330) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
+                if (bearing > 130 && bearing < 160 || bearing > 300
+                        && bearing < 330) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
                 }
 
             }
@@ -357,18 +387,23 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
                 cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
 
                 // Straight line
-                if (bearing > 170 && bearing < 190 || bearing < 10 && bearing < 350) {
+                if (bearing > 170 && bearing < 190 || bearing < 10
+                        && bearing < 350) {
                     cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
                 }
 
                 // NE line
-                if (bearing > 130 && bearing < 160 || bearing > 210 && bearing < 240) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
+                if (bearing > 130 && bearing < 160 || bearing > 210
+                        && bearing < 240) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
                 }
 
                 // NW line
-                if (bearing > 130 && bearing < 160 || bearing > 300 && bearing < 330) {
-                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
+                if (bearing > 130 && bearing < 160 || bearing > 300
+                        && bearing < 330) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
                 }
 
             }
@@ -380,15 +415,21 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         }
 
-        if (selectedGraphic != null && selectedGraphic instanceof EffortAllocationInternalGraphics) {
+        if (selectedGraphic != null
+                && selectedGraphic instanceof EffortAllocationInternalGraphics) {
             mainFrame.getGlassPane().setVisible(true);
-            mainFrame.getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+            mainFrame.getGlassPane().setCursor(
+                    Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
             return true;
 
         }
 
-        EPDShip.getInstance().getMainFrame().getGlassPane()
-                .setCursor(EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getCursor());
+        EPDShip.getInstance()
+                .getMainFrame()
+                .getGlassPane()
+                .setCursor(
+                        EPDShip.getInstance().getMainFrame().getChartPanel()
+                                .getMap().getCursor());
         // System.out.println(EPDShip.getInstance().getMainFrame().getGlassPane().isVisible());
         // EPDShip.getInstance().getMainFrame().getGlassPane().setVisible(false);
 
@@ -421,9 +462,16 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             if (voctManager.getSarType() == SAR_TYPE.DATUM_LINE) {
                 drawDatumLine();
             }
+            
             if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
                 drawSarisDatumPoint();
             }
+            
+            if (voctManager.getSarType() == SAR_TYPE.SIMPLE_SAR) {
+                drawSimpleSar();
+            }
+            
+            
 
             this.setVisible(true);
 
@@ -437,10 +485,13 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED) {
 
-            EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0L);
+            EffortAllocationData effortAllocationArea = voctManager
+                    .getSarData().getEffortAllocationData().get(0L);
 
-            effectiveArea = new EffortAllocationAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
-                    effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(),
+            effectiveArea = new EffortAllocationAreaGraphics(
+                    effortAllocationArea.getEffectiveAreaA(),
+                    effortAllocationArea.getEffectiveAreaB(),
+                    effortAllocationArea.getEffectiveAreaC(),
                     effortAllocationArea.getEffectiveAreaD(), 0L, "");
             graphics.add(effectiveArea);
             editLocked = false;
@@ -460,18 +511,27 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
                 drawSarisDatumPoint();
             }
-
-            if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
-
-                EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0L);
-
-                effectiveArea = new EffortAllocationAreaGraphics(effortAllocationArea.getEffectiveAreaA(),
-                        effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(),
-                        effortAllocationArea.getEffectiveAreaD(), 0, "");
-                graphics.add(effectiveArea);
-
+            
+            if (voctManager.getSarType() == SAR_TYPE.SIMPLE_SAR) {
+                drawSimpleSar();
             }
 
+            if (voctManager.getSarData().getEffortAllocationData() != null) {
+
+                if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
+
+                    EffortAllocationData effortAllocationArea = voctManager
+                            .getSarData().getEffortAllocationData().get(0L);
+
+                    effectiveArea = new EffortAllocationAreaGraphics(
+                            effortAllocationArea.getEffectiveAreaA(),
+                            effortAllocationArea.getEffectiveAreaB(),
+                            effortAllocationArea.getEffectiveAreaC(),
+                            effortAllocationArea.getEffectiveAreaD(), 0, "");
+                    graphics.add(effectiveArea);
+
+                }
+            }
             doPrepare();
 
             this.setVisible(true);
@@ -479,16 +539,43 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
     }
 
+    
+    private void drawSimpleSar() {
+
+        graphics.clear();
+        
+        SimpleSAR data = (SimpleSAR) voctManager
+                .getSarData();
+
+        
+        
+//        for (int i = 0; i < data.getSarAreaData().size(); i++) {
+////
+//            SARAreaData sarArea = data.getSarAreaData().get(i);
+//
+            SarGraphics sarAreaGraphic = new SarGraphics(data.getA(),
+                    data.getB(), data.getC(), data.getD(),
+                    data.getDatum(), "");
+
+            graphics.add(sarAreaGraphic);
+//        }
+
+        doPrepare();
+        this.setVisible(true);
+    }
+    
     private void drawSarisDatumPoint() {
 
         graphics.clear();
-        DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager.getSarData();
+        DatumPointDataSARIS data = (DatumPointDataSARIS) voctManager
+                .getSarData();
 
         for (int i = 0; i < data.getSarisTarget().size(); i++) {
 
             SARAreaData sarArea = data.getSarAreaData().get(i);
 
-            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(), sarArea.getB(), sarArea.getC(), sarArea.getD(),
+            SarGraphics sarAreaGraphic = new SarGraphics(sarArea.getA(),
+                    sarArea.getB(), sarArea.getC(), sarArea.getD(),
                     sarArea.getCentre(), data.getSarisTarget().get(i).getName());
 
             graphics.add(sarAreaGraphic);
@@ -526,9 +613,11 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             sarArea = new SarAreaGraphic(A, B, C, D);
             graphics.add(sarArea);
             // public SarGraphics(Position datumDownWind, Position datumMin,
-            // Position datumMax, double radiusDownWind, double radiusMin, double
+            // Position datumMax, double radiusDownWind, double radiusMin,
+            // double
             // radiusMax, Position LKP, Position current) {
-            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
+            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax,
+                    radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
 
             graphics.add(sarGraphics);
 
@@ -554,7 +643,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             graphics.add(sarArea);
             graphics.remove(sarGraphics);
 
-            sarGraphics = new SarGraphics(datum, radius, LKP, data.getCurrentList(), data.getWindList());
+            sarGraphics = new SarGraphics(datum, radius, LKP,
+                    data.getCurrentList(), data.getWindList());
             graphics.add(sarGraphics);
         }
 
@@ -572,7 +662,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         for (int i = 0; i < datumLineData.getDatumPointDataSets().size(); i++) {
 
-//            System.out.println("Creating area " + i);
+            // System.out.println("Creating area " + i);
             DatumPointData data = datumLineData.getDatumPointDataSets().get(i);
 
             Position datumDownWind = data.getDatumDownWind();
@@ -586,8 +676,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
             Position LKP = data.getLKP();
             Position WTCPoint = data.getWtc();
 
-            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
-                    i + 1);
+            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax,
+                    radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint, i + 1);
 
             graphics.add(sarGraphics);
         }
@@ -628,7 +718,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         sarArea = new SarAreaGraphic(A, B, C, D);
         graphics.add(sarArea);
 
-        sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
+        sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax,
+                radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
 
         graphics.add(sarGraphics);
 
@@ -654,7 +745,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         sarArea = new SarAreaGraphic(A, B, C, D);
         graphics.add(sarArea);
 
-        sarGraphics = new SarGraphics(datum, radius, LKP, data.getCurrentList(), data.getWindList());
+        sarGraphics = new SarGraphics(datum, radius, LKP,
+                data.getCurrentList(), data.getWindList());
         graphics.add(sarGraphics);
 
         doPrepare();
@@ -669,7 +761,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         SARData data = voctManager.getSarData();
 
-        EffortAllocationData effortAllocationData = data.getEffortAllocationData().get(0L);
+        EffortAllocationData effortAllocationData = data
+                .getEffortAllocationData().get(0L);
         // PoD for each SRU, initialized with an effective area? possibly a
         // unique ID
 
@@ -685,7 +778,8 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         // startingPosition = ((RapidResponseData) data).getA();
         // }
 
-        effectiveArea = new EffortAllocationAreaGraphics(width, height, data, 0L, "");
+        effectiveArea = new EffortAllocationAreaGraphics(width, height, data,
+                0L, "");
 
         graphics.add(effectiveArea);
 

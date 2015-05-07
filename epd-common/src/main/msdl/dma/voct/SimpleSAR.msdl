@@ -1,0 +1,34 @@
+namespace dma.voct;
+
+message SimpleSAR {
+	/** SAR  Operation Identifier */
+	1: text sarID;
+	/** Time of last known position */
+	2: timestamp LKPDate;
+	/** Time of Commerce Search Start */
+	3: timestamp CSSDate;
+	/** x value */
+	4: double x;
+	/** y value */
+	5: double y;
+	/** safety factor */
+	6: double safetyFactor;
+	/** Search Object Identifier */
+	7: int searchObject;
+
+	//Simple SAR data
+	
+	/** The provided Datum Point */
+	8: position datum;
+	/** Time elapsed since object missing */
+	9: double timeElapsed;
+	
+	/**Search Area defined by four points */
+	10: position A;
+	11: position B;
+	12: position C;
+	13: position D;
+  
+	
+	
+};

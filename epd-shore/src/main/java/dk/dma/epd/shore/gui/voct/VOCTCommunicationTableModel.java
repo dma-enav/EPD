@@ -215,9 +215,14 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
             // Can we toggle to send route? if previous is set and we have a
             // route
         case 6:
-            if (tableContent.get(rowIndex).isAO()) {
-                return voctManager.getSarData().getEffortAllocationData().get(rowIndex).getSearchPatternRoute() != null;
+            try {
+                if (tableContent.get(rowIndex).isAO()) {
+                    return voctManager.getSarData().getEffortAllocationData().get(rowIndex).getSearchPatternRoute() != null;
 
+                }
+                
+            } catch (Exception e) {
+                 return false;
             }
         default:
             return false;

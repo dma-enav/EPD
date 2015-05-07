@@ -41,6 +41,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.voct.SRU;
@@ -374,6 +375,12 @@ public class VoctLayerPlanning extends VoctLayerCommon {
             if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
                 drawSarisDatumPoint();
             }
+            
+            
+            if (voctManager.getSarType() == SAR_TYPE.SIMPLE_SAR) {
+                drawSimpleSar();
+            }
+            
             this.setVisible(true);
         }
 
@@ -389,6 +396,30 @@ public class VoctLayerPlanning extends VoctLayerCommon {
 
     }
 
+    private void drawSimpleSar() {
+
+        graphics.clear();
+        
+        SimpleSAR data = (SimpleSAR) voctManager
+                .getSarData();
+
+        
+        
+//        for (int i = 0; i < data.getSarAreaData().size(); i++) {
+////
+//            SARAreaData sarArea = data.getSarAreaData().get(i);
+//
+            SarGraphics sarAreaGraphic = new SarGraphics(data.getA(),
+                    data.getB(), data.getC(), data.getD(),
+                    data.getDatum(), "");
+
+            graphics.add(sarAreaGraphic);
+//        }
+
+        doPrepare();
+        this.setVisible(true);
+    }
+    
     private void drawEffortAllocationAreasFromSerialization() {
 
         // Probability of Detection Area - updateable
@@ -533,7 +564,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         Position D = data.getD();
 
         sarArea = new SarAreaGraphic(A, B, C, D);
-        graphics.add(sarArea);
+        
 
         Position datumDownWind = data.getDatumDownWind();
         Position datumMin = data.getDatumMin();
@@ -549,7 +580,7 @@ public class VoctLayerPlanning extends VoctLayerCommon {
         graphics.clear();
 
         sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
-
+        graphics.add(sarArea);
         graphics.add(sarGraphics);
 
         doPrepare();

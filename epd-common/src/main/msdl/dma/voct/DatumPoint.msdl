@@ -31,7 +31,7 @@ message DatumPoint {
 	14: list<position> windListMin;
 	
 	/** The calculated Datum Point */
-	15: position datumDownWInd;
+	15: position datumDownWind;
 	16: position datumMax;
 	17: position datumMin;
 	
@@ -63,6 +63,7 @@ message DatumPoint {
 	32: position B;
 	33: position C;
 	34: position D;
-	
+  
+	35: position lkp;
 	
 };

@@ -142,6 +142,7 @@ public class ParseUtils {
         if (!ew.equals("E") && !ew.equals("W")) {
             throw new FormatException();
         }
+        
         double lon = h + m / 60.0; 
         if (ew.equals("W")) {
             lon *= -1;

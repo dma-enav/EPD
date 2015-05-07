@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.joda.time.DateTime;
 
@@ -36,7 +37,8 @@ public class SARData implements Serializable {
     // EffortAllocationData effortAllocationData = new EffortAllocationData();
 
     Map<Long, EffortAllocationData> effortAllocationData = new HashMap<Long, EffortAllocationData>();
-    // List<EffortAllocationData> effortAllocationData = new ArrayList<EffortAllocationData>();
+    // List<EffortAllocationData> effortAllocationData = new
+    // ArrayList<EffortAllocationData>();
 
     private double x;
     private double y;
@@ -47,8 +49,13 @@ public class SARData implements Serializable {
     private List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
     private String additionalInfo;
 
-    public SARData(String sarID, DateTime TLKP, DateTime CSS, Position LKP, double x, double y, double safetyFactor,
-            int searchObject) {
+    private Long oscId;
+    private Long transactionId;
+
+    private CopyOnWriteArrayList<SARTextLogMessage> sarMessages = new CopyOnWriteArrayList<SARTextLogMessage>();
+
+    public SARData(String sarID, DateTime TLKP, DateTime CSS, Position LKP,
+            double x, double y, double safetyFactor, int searchObject) {
 
         this.setSarID(sarID);
         this.setLKP(LKP);
@@ -59,6 +66,21 @@ public class SARData implements Serializable {
         this.setY(y);
         this.setSafetyFactor(safetyFactor);
         this.setSearchObject(searchObject);
+        
+        transactionId = System.currentTimeMillis();
+    }
+
+
+    public void addSarMessage(SARTextLogMessage sarMsg) {
+        System.out.println("Adding SAR msg");
+        sarMessages.add(sarMsg);
+    }
+
+    /**
+     * @return the sarMessages
+     */
+    public CopyOnWriteArrayList<SARTextLogMessage> getSarMessages() {
+        return sarMessages;
     }
 
     /**
@@ -93,14 +115,16 @@ public class SARData implements Serializable {
     }
 
     public EffortAllocationData[] getEffortAllocationAsArray() {
-        return effortAllocationData.values().toArray(new EffortAllocationData[0]);
+        return effortAllocationData.values().toArray(
+                new EffortAllocationData[0]);
     }
 
     /**
      * @param effortAllocationData
      *            the effortAllocationData to set
      */
-    public void setEffortAllocationData(Map<Long, EffortAllocationData> effortAllocationData) {
+    public void setEffortAllocationData(
+            Map<Long, EffortAllocationData> effortAllocationData) {
         this.effortAllocationData = effortAllocationData;
     }
 
@@ -258,4 +282,43 @@ public class SARData implements Serializable {
         return "Invalid type";
     }
 
+    /**
+     * @return the oscId
+     */
+    public Long getOscId() {
+        return oscId;
+    }
+
+    /**
+     * @param oscId
+     *            the oscId to set
+     */
+    public void setOscId(long oscId) {
+        this.oscId = oscId;
+    }
+
+    /**
+     * @return the transactionId
+     */
+    public Long getTransactionId() {
+        return transactionId;
+    }
+
+    /**
+     * @param transactionId the transactionId to set
+     */
+    public void setTransactionId(long transactionId) {
+        this.transactionId = transactionId;
+    }
+
+
+    /**
+     * @param sarMessages the sarMessages to set
+     */
+    public void setSarMessages(CopyOnWriteArrayList<SARTextLogMessage> sarMessages) {
+        this.sarMessages = sarMessages;
+    }
+
+    
+    
 }

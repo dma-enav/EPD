@@ -22,24 +22,26 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
-import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
@@ -49,9 +51,12 @@ import dk.dma.epd.ship.gui.voct.SARInput;
 import dk.dma.epd.ship.gui.voct.SARInvitationRequest;
 import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.service.VoctHandler;
+import dma.voct.VOCTMessage;
+import dma.voct.VOCTReplyStatus;
 
 /**
- * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
+ * The VOCTManager is responsible for maintaining current VOCT Status and all
+ * information relevant to the VOCT
  * 
  * The VOCT Manager can be initiated through the cloud or manually by the user
  * 
@@ -64,8 +69,7 @@ public class VOCTManager extends VOCTManagerCommon {
     private SARInput sarInputDialog;
     private VoctHandler voctHandler;
     private long currentID = -1;
-
-    // private VOCTBroadcastService voctBroadcastService;
+    private boolean hasReconnect;
 
     VoctLayer voctLayer;
 
@@ -118,16 +122,26 @@ public class VOCTManager extends VOCTManagerCommon {
                         listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
                         listener.voctUpdated(VOCTUpdateEvent.EFFORT_ALLOCATION_SERIALIZED);
 
-                        Iterator<Entry<Long, EffortAllocationData>> iter = sarData.getEffortAllocationData().entrySet().iterator();
+                        Iterator<Entry<Long, EffortAllocationData>> iter = sarData
+                                .getEffortAllocationData().entrySet()
+                                .iterator();
                         while (iter.hasNext()) {
-                            Entry<Long, EffortAllocationData> entry = iter.next();
-//                            System.out.println("Entry long is " + entry.getKey());
+                            Entry<Long, EffortAllocationData> entry = iter
+                                    .next();
+                            // System.out.println("Entry long is " +
+                            // entry.getKey());
                             if (entry.getValue().getSearchPatternRoute() != null) {
 
-                                SearchPatternRoute searchPattern = entry.getValue().getSearchPatternRoute();
-                                for (int i = 0; i < EPD.getInstance().getRouteManager().getRoutes().size(); i++) {
-                                    if (EPD.getInstance().getRouteManager().getRoute(i).toString().equals(searchPattern.toString())) {
-                                        EPD.getInstance().getRouteManager().getRoutes().set(i, searchPattern);
+                                SearchPatternRoute searchPattern = entry
+                                        .getValue().getSearchPatternRoute();
+                                for (int i = 0; i < EPD.getInstance()
+                                        .getRouteManager().getRoutes().size(); i++) {
+                                    if (EPD.getInstance().getRouteManager()
+                                            .getRoute(i).toString()
+                                            .equals(searchPattern.toString())) {
+                                        EPD.getInstance().getRouteManager()
+                                                .getRoutes()
+                                                .set(i, searchPattern);
                                         notifyListeners(VOCTUpdateEvent.SEARCH_PATTERN_GENERATED);
                                         break;
                                     }
@@ -150,7 +164,7 @@ public class VOCTManager extends VOCTManagerCommon {
         // Maintanaince routines
         while (true) {
             Util.sleep(10000);
-
+            
         }
 
     }
@@ -159,31 +173,61 @@ public class VOCTManager extends VOCTManagerCommon {
 
         // Where we load or serialize old VOCTS
         VOCTManager voctManager = new VOCTManager();
-        try (FileInputStream fileIn = new FileInputStream(VOCT_FILE); ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
+        try (FileInputStream fileIn = new FileInputStream(VOCT_FILE);
+                ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
 
             SARData sarDataLoaded = (SARData) objectIn.readObject();
             voctManager.setLoadSarFromSerialize(true);
             voctManager.initializeFromSerializedFile(sarDataLoaded);
 
+            // Get Messages?
+
         } catch (FileNotFoundException e) {
             // Not an error
         } catch (Exception e) {
-            LOG.error("Failed to load routes file: " + e.getMessage());
+            LOG.error("Failed to load sar file: " + e.getMessage());
+            for (int i = 0; i < e.getStackTrace().length; i++) {
+                System.out.println(e.getStackTrace()[i]);
+            }
             // Delete possible corrupted or old file
-            new File(VOCT_FILE).delete();
+            // new File(VOCT_FILE).delete();
         }
 
         return voctManager;
 
     }
 
+    
+//    public void setReconnect(boolean reconnect){
+//        this.hasReconnect = reconnect;
+//    }
+//    
+//    private void reconnectToOSC() {
+//        if (sarData.getOscId() != null && sarData.getTransactionId() != null) {
+//            try {
+//                EPD.getInstance()
+//                        .getVoctHandler()
+//                        .sendVOCTReply(VOCTReplyStatus.ACCEPTED, "Reconnected",
+//                                sarData.getTransactionId(), sarData.getOscId());
+//            } catch (InterruptedException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            } catch (ExecutionException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
+//
+//    }
+
     @Override
     public synchronized void saveToFile() {
-
         if (hasSar || loadSarFromSerialize) {
 
             try (FileOutputStream fileOut = new FileOutputStream(VOCT_FILE);
-                    ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);) {
+                    ObjectOutputStream objectOut = new ObjectOutputStream(
+                            fileOut);) {
+
                 objectOut.writeObject(sarData);
             } catch (IOException e) {
                 LOG.error("Failed to save VOCT data: " + e.getMessage());
@@ -192,24 +236,32 @@ public class VOCTManager extends VOCTManagerCommon {
     }
 
     @Override
-    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, long id) {
+    public void generateSearchPattern(
+            SearchPatternGenerator.searchPattern type, Position CSP, long id) {
 
         sarData.setCSP(CSP);
 
-        SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
+        SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
+                sarOperation);
 
-        SearchPatternRoute searchRoute = searchPatternGenerator.generateSearchPattern(type, sarData, EPDShip.getInstance()
-                .getSettings().getNavSettings(), id);
+        SearchPatternRoute searchRoute = searchPatternGenerator
+                .generateSearchPattern(type, sarData, EPDShip.getInstance()
+                        .getSettings().getNavSettings(), id);
 
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
-            int routeIndex = EPDShip.getInstance().getRouteManager()
-                    .getRouteIndex(sarData.getEffortAllocationData().get(id).getSearchPatternRoute());
+            int routeIndex = EPDShip
+                    .getInstance()
+                    .getRouteManager()
+                    .getRouteIndex(
+                            sarData.getEffortAllocationData().get(id)
+                                    .getSearchPatternRoute());
 
             EPDShip.getInstance().getRouteManager().removeRoute(routeIndex);
         }
 
-        sarData.getEffortAllocationData().get(id).setSearchPatternRoute(searchRoute);
+        sarData.getEffortAllocationData().get(id)
+                .setSearchPatternRoute(searchRoute);
 
         EPDShip.getInstance().getRouteManager().addRoute(searchRoute);
 
@@ -227,15 +279,22 @@ public class VOCTManager extends VOCTManagerCommon {
         // Remove any old SAR data
         if (sarData != null) {
             if (sarData.getEffortAllocationData().size() > 0) {
-                if (sarData.getEffortAllocationData().get(0L).getSearchPatternRoute() != null) {
-//                    System.out.println("Removing existing routes");
+                if (sarData.getEffortAllocationData().get(0L)
+                        .getSearchPatternRoute() != null) {
+                    // System.out.println("Removing existing routes");
 
-                    int routeIndex = EPDShip.getInstance().getRouteManager()
-                            .getRouteIndex(sarData.getEffortAllocationData().get(0L).getSearchPatternRoute());
+                    int routeIndex = EPDShip
+                            .getInstance()
+                            .getRouteManager()
+                            .getRouteIndex(
+                                    sarData.getEffortAllocationData().get(0L)
+                                            .getSearchPatternRoute());
 
-                    EPDShip.getInstance().getRouteManager().removeRoute(routeIndex);
+                    EPDShip.getInstance().getRouteManager()
+                            .removeRoute(routeIndex);
 
-                    EPDShip.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
+                    EPDShip.getInstance().getRouteManager()
+                            .notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
                 }
             }
         }
@@ -251,9 +310,11 @@ public class VOCTManager extends VOCTManagerCommon {
     }
 
     /**
-     * public void handleDialogAction(boolean accepted, VOCTCommunicationMessageDatumPoint message, SAR_TYPE type) {
+     * public void handleDialogAction(boolean accepted,
+     * VOCTCommunicationMessageDatumPoint message, SAR_TYPE type) {
      * 
-     * if (accepted) { voctHandler.sendVOCTReply(VoctMsgStatus.ACCEPTED, message.getId(), "Accepted", type);
+     * if (accepted) { voctHandler.sendVOCTReply(VoctMsgStatus.ACCEPTED,
+     * message.getId(), "Accepted", type);
      * 
      * removeOldSARData();
      * 
@@ -261,19 +322,24 @@ public class VOCTManager extends VOCTManagerCommon {
      * 
      * if (message.getEffortAllocationData() != null) {
      * 
-     * // message.getEffortAllocationData() EffortAllocationData effortAllocationData = new
+     * // message.getEffortAllocationData() EffortAllocationData
+     * effortAllocationData = new
      * EffortAllocationData(message.getEffortAllocationData());
      * 
-     * if (message.getSearchPattern() != null) { SearchPatternRoute searchPattern = new SearchPatternRoute(new
+     * if (message.getSearchPattern() != null) { SearchPatternRoute
+     * searchPattern = new SearchPatternRoute(new
      * Route(message.getSearchPattern()));
      * 
      * sarOperation = new SAROperation(SAR_TYPE.DATUM_POINT);
      * 
-     * SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
+     * SearchPatternGenerator searchPatternGenerator = new
+     * SearchPatternGenerator(sarOperation);
      * searchPatternGenerator.calculateDynamicWaypoints(searchPattern, data);
      * 
-     * effortAllocationData.setSearchPatternRoute(searchPattern); EPDShip.getInstance().getRouteManager().addRoute(searchPattern);
-     * EPDShip.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
+     * effortAllocationData.setSearchPatternRoute(searchPattern);
+     * EPDShip.getInstance().getRouteManager().addRoute(searchPattern);
+     * EPDShip.getInstance
+     * ().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
      * 
      * }
      * 
@@ -287,52 +353,78 @@ public class VOCTManager extends VOCTManagerCommon {
      * 
      * notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
      * 
-     * // Force start startVOCTBroadcast(); } else { voctHandler.sendVOCTReply(VoctMsgStatus.REJECTED, message.getId(), "Rejected",
-     * type);
+     * // Force start startVOCTBroadcast(); } else {
+     * voctHandler.sendVOCTReply(VoctMsgStatus.REJECTED, message.getId(),
+     * "Rejected", type);
      * 
      * }
      * 
      * }
      **/
-    public void handleDialogAction(boolean accepted, VOCTCommunicationMessage message, SAR_TYPE type) {
+    public void handleDialogAction(boolean accepted, VOCTMessage message) {
 
         if (accepted) {
 
-            voctHandler.sendVOCTReply(VoctMsgStatus.ACCEPTED, message.getId(), "Accepted", type);
+            try {
+                voctHandler.sendVOCTReply(VOCTReplyStatus.ACCEPTED, "Accepted",
+                        message.getId(), null);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
             removeOldSARData();
 
             SARData data = null;
 
-            if (type == SAR_TYPE.RAPID_RESPONSE) {
-                data = new RapidResponseData(message.getSarDataRapidResponse());
+            dma.voct.SAR_TYPE type = message.getSarType();
+
+            if (type == dma.voct.SAR_TYPE.RAPID_RESPONSE) {
+                data = new RapidResponseData(message.getRapidResponse());
                 setSarType(SAR_TYPE.RAPID_RESPONSE);
                 saveToFile();
             }
 
-            if (type == SAR_TYPE.DATUM_POINT) {
-                data = new DatumPointData(message.getSarDataDatumPoint());
+            if (type == dma.voct.SAR_TYPE.DATUM_POINT) {
+                data = new DatumPointData(message.getDatumPoint());
                 setSarType(SAR_TYPE.DATUM_POINT);
+                saveToFile();
             }
 
-            if (type == SAR_TYPE.SARIS_DATUM_POINT) {
-                data = new DatumPointDataSARIS(message.getSarDataDatumPointSaris());
-                setSarType(SAR_TYPE.SARIS_DATUM_POINT);
+            if (type == dma.voct.SAR_TYPE.SIMPLE_SAR) {
+                data = new SimpleSAR(message.getSimpleSar());
+                setSarType(SAR_TYPE.SIMPLE_SAR);
+                saveToFile();
             }
 
-            if (message.getEffortAllocationData() != null) {
+            if (type == dma.voct.SAR_TYPE.SARIS_DATUM_POINT) {
+                // data = new
+                // DatumPointDataSARIS(message.getSarDataDatumPointSaris());
+                // setSarType(SAR_TYPE.SARIS_DATUM_POINT);
+            }
 
-                EffortAllocationData effortAllocationData = new EffortAllocationData(message.getEffortAllocationData());
+            if (message.getEffortAllocation() != null) {
+
+                EffortAllocationData effortAllocationData = new EffortAllocationData(
+                        message.getEffortAllocation());
 
                 if (message.getSearchPattern() != null) {
-                    SearchPatternRoute searchPattern = new SearchPatternRoute(new Route(message.getSearchPattern()));
+                    SearchPatternRoute searchPattern = new SearchPatternRoute(
+                            new Route(message.getSearchPattern()));
 
-                    SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
-                    searchPatternGenerator.calculateDynamicWaypoints(searchPattern, data);
+                    SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
+                            sarOperation);
+                    searchPatternGenerator.calculateDynamicWaypoints(
+                            searchPattern, data);
 
                     effortAllocationData.setSearchPatternRoute(searchPattern);
-                    EPDShip.getInstance().getRouteManager().addRoute(searchPattern);
-                    EPDShip.getInstance().getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
+                    EPDShip.getInstance().getRouteManager()
+                            .addRoute(searchPattern);
+                    EPDShip.getInstance().getRouteManager()
+                            .notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
 
                 }
 
@@ -346,19 +438,41 @@ public class VOCTManager extends VOCTManagerCommon {
 
             notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
 
+            data.setOscId(message.getOscId());
+            data.setTransactionId(message.getOscId());
+
             saveToFile();
         } else {
-            voctHandler.sendVOCTReply(VoctMsgStatus.REJECTED, message.getId(), "Rejected", type);
+            try {
+                voctHandler.sendVOCTReply(VOCTReplyStatus.REJECTED, "Rejected",
+                        message.getId(), null);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
     }
 
-    public void handleSARDataPackage(VOCTCommunicationMessage message) {
+    /**
+     * SAR Data Receieved. If it's a None type it means OSC has cancelled it
+     * shore side.
+     * 
+     * @param message
+     * @param messageId
+     */
+    @Override
+    public void handleSARDataPackage(VOCTMessage message) {
 
-        if (message.getStatus() == VoctMsgStatus.WITHDRAWN) {
+        if (message.getSarType() == dma.voct.SAR_TYPE.NONE) {
 
-            int n = JOptionPane.showConfirmDialog(EPDShip.getInstance().getMainFrame(), "The OSC has cancelled the operation\n"
-                    + "Do you wish to end your SAR participation?", "End SAR?", JOptionPane.YES_NO_OPTION);
+            int n = JOptionPane.showConfirmDialog(EPDShip.getInstance()
+                    .getMainFrame(), "The OSC has cancelled the operation\n"
+                    + "Do you wish to end your SAR participation?", "End SAR?",
+                    JOptionPane.YES_NO_OPTION);
 
             if (n == JOptionPane.YES_OPTION) {
                 cancelSarOperation();
@@ -366,8 +480,8 @@ public class VOCTManager extends VOCTManagerCommon {
 
         } else {
 
-            currentID = message.getId();
-            SARInvitationRequest sarInviteDialog = new SARInvitationRequest(this, message);
+            SARInvitationRequest sarInviteDialog = new SARInvitationRequest(
+                    this, message);
             sarInviteDialog.setVisible(true);
         }
 
@@ -376,7 +490,8 @@ public class VOCTManager extends VOCTManagerCommon {
     @Override
     public void showSARFuture(int i) {
 
-        if (this.sarOperation.getOperationType() != SAR_TYPE.SARIS_DATUM_POINT && this.sarOperation.getOperationType() != SAR_TYPE.DATUM_LINE) {
+        if (this.sarOperation.getOperationType() != SAR_TYPE.SARIS_DATUM_POINT
+                && this.sarOperation.getOperationType() != SAR_TYPE.DATUM_LINE) {
 
             if (i == 0) {
                 voctLayer.showFutureData(sarData);
@@ -395,6 +510,8 @@ public class VOCTManager extends VOCTManagerCommon {
 
         if (obj instanceof VoctHandler) {
             voctHandler = (VoctHandler) obj;
+            
+            voctHandler.setHasReconnect(true);
         }
 
     }

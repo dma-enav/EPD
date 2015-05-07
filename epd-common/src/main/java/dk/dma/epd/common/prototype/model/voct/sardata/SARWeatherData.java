@@ -18,8 +18,6 @@ import java.io.Serializable;
 
 import org.joda.time.DateTime;
 
-import dk.dma.enav.model.voct.WeatherDataDTO;
-
 public class SARWeatherData implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -31,16 +29,17 @@ public class SARWeatherData implements Serializable {
     private double downWind;
     private DateTime dateTime;
 
-    public SARWeatherData(WeatherDataDTO data) {
-        this.TWCHeading = data.getTWCHeading();
-        this.TWCknots = data.getTWCknots();
-        this.LWknots = data.getLWknots();
-        this.LWHeading = data.getLWHeading();
-        this.downWind = data.getDownWind();
-        this.dateTime = new DateTime(data.getDate());
+    public SARWeatherData(dma.voct.SARWeatherData sarWeatherData) {
+        this.TWCHeading = sarWeatherData.getTwcHeading();
+        this.TWCknots = sarWeatherData.getTwcKnots();
+        this.LWknots = sarWeatherData.getLeewayKnots();
+        this.LWHeading = sarWeatherData.getLeewayHeading();
+        this.downWind = sarWeatherData.getDownWindBearing();
+        this.dateTime = new DateTime(sarWeatherData.getDate().getTime());
     }
 
-    public SARWeatherData(double tWCHeading, double tWCknots, double lWknots, double lWHeading, DateTime dateTime) {
+    public SARWeatherData(double tWCHeading, double tWCknots, double lWknots,
+            double lWHeading, DateTime dateTime) {
         TWCHeading = tWCHeading;
         TWCknots = tWCknots;
         LWknots = lWknots;
@@ -147,14 +146,34 @@ public class SARWeatherData implements Serializable {
 
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Total Water Current: " + TWCknots + " knots with heading " + TWCHeading + "°");
-        str.append("<br>Leeway: " + LWknots + " knots with heading " + LWHeading + "°</br>");
+        str.append("Total Water Current: " + TWCknots + " knots with heading "
+                + TWCHeading + "°");
+        str.append("<br>Leeway: " + LWknots + " knots with heading "
+                + LWHeading + "°</br>");
 
         return str.toString();
     }
 
-    public WeatherDataDTO getDTO() {
-        return new WeatherDataDTO(TWCHeading, TWCknots, LWknots, LWHeading, downWind, dateTime.toDate());
+    public dma.voct.SARWeatherData getDTO() {
+
+        dma.voct.SARWeatherData weatherData = new dma.voct.SARWeatherData();
+
+        net.maritimecloud.util.Timestamp timeStamp = dk.dma.epd.common.util.MCTypeConverter
+                .getMaritimeCloudTimeStamp(dateTime);
+
+        weatherData.setDate(timeStamp);
+
+        weatherData.setDownWindBearing(downWind);
+
+        weatherData.setLeewayHeading(LWHeading);
+
+        weatherData.setLeewayKnots(LWknots);
+
+        weatherData.setTwcHeading(TWCHeading);
+
+        weatherData.setTwcKnots(TWCknots);
+
+        return weatherData;
     }
 
 }

@@ -106,7 +106,7 @@ public class DatumPointDataSARIS extends SARData {
         List<WeatherDataDTO> weatherList = new ArrayList<WeatherDataDTO>();
 
         for (int i = 0; i < getWeatherPoints().size(); i++) {
-            weatherList.add(getWeatherPoints().get(i).getDTO());
+//            weatherList.add(getWeatherPoints().get(i).getDTO());
         }
 
         return new DatumPointSARISDTO(getSarID(), this.getLKPDate().toDate(), this.getCSSDate().toDate(), this.getLKP().getDTO(),

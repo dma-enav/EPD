@@ -32,6 +32,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Ellipsoid;
@@ -1561,6 +1562,9 @@ public class SAROperation {
 
     public Position applyDriftToPoint(SARData data, Position point, double timeElapsed) {
 
+        if (data instanceof SimpleSAR){
+            return point;
+        }
         double currentTWC = data.getWeatherPoints().get(0).getTWCknots() * timeElapsed;
         double leewayspeed = searchObjectValue(data.getSearchObject(), data.getWeatherPoints().get(0).getLWknots());
         double leeway = leewayspeed * timeElapsed;
@@ -1832,7 +1836,7 @@ public class SAROperation {
             effortAllocationData.setTrackSpacing(trackSpacing);
 
             double groundSpeed = effortAllocationData.getGroundSpeed();
-            int timeSearching = effortAllocationData.getSearchTime();
+            double timeSearching = effortAllocationData.getSearchTime();
 
 //            System.out.println("Track Spacing is: " + trackSpacing);
 //            System.out.println("Ground speed is: " + groundSpeed);

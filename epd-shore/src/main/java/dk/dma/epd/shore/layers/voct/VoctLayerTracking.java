@@ -29,6 +29,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointDataSARIS;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SimpleSAR;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.voct.SRUManager;
@@ -87,6 +88,10 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
             if (voctManager.getSarType() == SAR_TYPE.SARIS_DATUM_POINT) {
                 drawSarisDatumPoint();
             }
+            
+            if (voctManager.getSarType() == SAR_TYPE.SIMPLE_SAR) {
+                drawSimpleSar();
+            }
 
             this.setVisible(true);
         }
@@ -96,6 +101,30 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
 
         }
 
+    }
+    
+    private void drawSimpleSar() {
+
+        graphics.clear();
+        
+        SimpleSAR data = (SimpleSAR) voctManager
+                .getSarData();
+
+        
+        
+//        for (int i = 0; i < data.getSarAreaData().size(); i++) {
+////
+//            SARAreaData sarArea = data.getSarAreaData().get(i);
+//
+            SarGraphics sarAreaGraphic = new SarGraphics(data.getA(),
+                    data.getB(), data.getC(), data.getD(),
+                    data.getDatum(), "");
+
+            graphics.add(sarAreaGraphic);
+//        }
+
+        doPrepare();
+        this.setVisible(true);
     }
 
     private void drawSarisDatumPoint() {
@@ -119,7 +148,13 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
     }
 
     public void removeEffectiveArea(long mmsi) {
-
+        if (effectiveAreas.containsKey(mmsi)) {
+//          System.out.println("Removing existing");
+          EffortAllocationAreaGraphics area = effectiveAreas.get(mmsi);
+          graphics.remove(area);
+          effectiveAreas.remove(mmsi);
+      }
+        doPrepare();
     }
 
     public void drawEffectiveArea(long mmsi) {

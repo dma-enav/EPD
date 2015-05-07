@@ -66,10 +66,12 @@ public class SARInputCommon extends JDialog implements ActionListener,
     private JLabel descriptiveImage;
     private JTextPane descriptiveText;
 
+    private String simpleSarTxt = "Simple SAR - A basic visualization based on an external data file containing the search area coordinates and a datum";
     private String rapidresponseTxt = "Rapid Response - Rapid Response should be used when the rescue vessel is within the designated search area in a relatively short timespan (1-2 hours after LKP).";
     private String datumPointTxt = "Datum Pont - Datum point is a calculation method used when the rescue vessel arrives to the designated search area after 2 or more hours after LKP";
     private String datumLineTxt = "Datum line - Datum line is used when an object is mising and a LKP is unkown but a assumed route is known";
-    private String backtrackTxt = "Back track - Back track is used when a object has been located that is connected to the missing vessel. By reversing the objects movements a possible search area can be established";
+    // private String backtrackTxt =
+    // "Back track - Back track is used when a object has been located that is connected to the missing vessel. By reversing the objects movements a possible search area can be established";
 
     private ImageIcon rapidResponseIcon = scaleImage(new ImageIcon(
             SARInputCommon.class.getClassLoader().getResource(
@@ -83,9 +85,13 @@ public class SARInputCommon extends JDialog implements ActionListener,
             SARInputCommon.class.getClassLoader().getResource(
                     "images/voct/datumline.png")));
 
-    private ImageIcon backtrackIcon = scaleImage(new ImageIcon(
+    // private ImageIcon backtrackIcon = scaleImage(new ImageIcon(
+    // SARInputCommon.class.getClassLoader().getResource(
+    // "images/voct/generic.png")));
+
+    private ImageIcon simpleSarIcon = scaleImage(new ImageIcon(
             SARInputCommon.class.getClassLoader().getResource(
-                    "images/voct/generic.png")));
+                    "images/voct/simplesar.png")));
 
     private JPanel masterPanel;
 
@@ -93,6 +99,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
     private static final String INPUTSARRAPIDRESPONSEDATUM = "Rapid Response And Datum Input Panel";
     private static final String CALCULATIONSPANEL = "Rapid Response Calculations Panel";
     private static final String INPUTPANELDATUMLINE = "Datum Line Calculations Panel";
+    private static final String SIMPLESAR = "Simple SAR Input Panel";
 
     // First card shown is the select sar type
     private String currentCard = SELECTSARTYPE;
@@ -100,6 +107,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
     private JLabel calculationsText = new JLabel();
     private RapidResponseDatumPointInputPanel rapidResponseDatumPointInputPanel;
     private DatumLineInputPanel datumLineInputPanel;
+    private SimpleSARInputPanel simpleSarInputPanel;
 
     private VOCTManagerCommon voctManager;
 
@@ -181,8 +189,16 @@ public class SARInputCommon extends JDialog implements ActionListener,
         JScrollPane datumLineScrollPanel = new JScrollPane(datumLineInputPanel);
         datumLineScrollPanel.setPreferredSize(new Dimension(559, 363));
         datumLineScrollPanel.getVerticalScrollBar().setUnitIncrement(16);
-        
+
         masterPanel.add(datumLineScrollPanel, INPUTPANELDATUMLINE);
+
+        simpleSarInputPanel = new SimpleSARInputPanel();
+
+        JScrollPane simpleSARScrollPanel = new JScrollPane(simpleSarInputPanel);
+        simpleSARScrollPanel.setPreferredSize(new Dimension(559, 363));
+        simpleSARScrollPanel.getVerticalScrollBar().setUnitIncrement(16);
+
+        masterPanel.add(simpleSARScrollPanel, SIMPLESAR);
 
     }
 
@@ -204,8 +220,8 @@ public class SARInputCommon extends JDialog implements ActionListener,
         typeSelectionComboBox.setBounds(126, 21, 102, 20);
         panel.add(typeSelectionComboBox);
         typeSelectionComboBox.setModel(new DefaultComboBoxModel<String>(
-                new String[] { "Rapid Response", "Datum Point", "Datum Line",
-                        "Back Track" }));
+                new String[] { "Simple SAR", "Rapid Response", "Datum Point",
+                        "Datum Line", "Back Track" }));
 
         typeSelectionComboBox.addActionListener(this);
 
@@ -226,7 +242,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
         descriptiveImage.setHorizontalAlignment(SwingConstants.CENTER);
         descriptiveImage.setBounds(20, 131, 493, 200);
         panel.add(descriptiveImage);
-        descriptiveImage.setIcon(rapidResponseIcon);
+        descriptiveImage.setIcon(simpleSarIcon);
 
         lblOrImportSar = new JLabel("Or import SAR from external file:");
         lblOrImportSar.setBounds(238, 24, 176, 14);
@@ -266,32 +282,38 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
         if (arg0.getSource() == typeSelectionComboBox) {
             int selectedIndex = typeSelectionComboBox.getSelectedIndex();
-            // 0 Rapid Response
-            // 1 Datum Point
-            // 2 Datum Line
-            // 3 Back track
+            // 0 Simple SAR
+            // 1 Rapid Response
+            // 2 Datum Point
+            // 3 Datum Line
+            // 4 Back track
 
             switch (selectedIndex) {
             case 0:
+                descriptiveImage.setIcon(simpleSarIcon);
+                descriptiveText.setText(simpleSarTxt);
+                nextButton.setEnabled(true);
+                break;
+            case 1:
                 descriptiveImage.setIcon(rapidResponseIcon);
                 descriptiveText.setText(rapidresponseTxt);
                 nextButton.setEnabled(true);
                 break;
-            case 1:
+            case 2:
                 descriptiveImage.setIcon(datumPointIcon);
                 descriptiveText.setText(datumPointTxt);
                 nextButton.setEnabled(true);
                 break;
-            case 2:
+            case 3:
                 descriptiveImage.setIcon(datumLineIcon);
                 descriptiveText.setText(datumLineTxt);
                 nextButton.setEnabled(true);
                 break;
-            case 3:
-                descriptiveImage.setIcon(backtrackIcon);
-                descriptiveText.setText(backtrackTxt);
-                nextButton.setEnabled(false);
-                break;
+            // case 4:
+            // descriptiveImage.setIcon(backtrackIcon);
+            // descriptiveText.setText(backtrackTxt);
+            // nextButton.setEnabled(false);
+            // break;
             }
 
         }
@@ -304,7 +326,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
             // Create SARIS parser for returned object
 
             JFileChooser fileChooser = new JFileChooser(new File("."));
-            fileChooser.addChoosableFileFilter(new MyFilter());
+            fileChooser.addChoosableFileFilter(new XmlFilter());
             fileChooser.setAcceptAllFileFilterUsed(true);
             fileChooser.showOpenDialog(null);
 
@@ -315,8 +337,17 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
                 try {
 
-                    // SARISXMLParser parser = new
-                    // SARISXMLParser("E://Sarex 04 Juni.xml");
+                    // if (fileChoosen.contains(".sar")) {
+                    // SARFileParser parser = new SARFileParser(fileChoosen);
+                    //
+                    // // voctManager.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
+                    // // voctManager.setSarData(parser.getSarData());
+                    // // calculationsText.setText("SARIS PARSE SUCCESSFULL");
+                    // // backButton.setEnabled(true);
+                    // // nextButton.setText("Finish");
+                    // // nextButton.setEnabled(true);
+                    //
+                    // } else {
                     SARISXMLParser parser = new SARISXMLParser(fileChoosen);
 
                     voctManager.setSarType(SAR_TYPE.SARIS_DATUM_POINT);
@@ -325,6 +356,8 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     backButton.setEnabled(true);
                     nextButton.setText("Finish");
                     nextButton.setEnabled(true);
+
+                    // }
 
                     CardLayout cl = (CardLayout) (masterPanel.getLayout());
                     cl.show(masterPanel, CALCULATIONSPANEL);
@@ -347,8 +380,8 @@ public class SARInputCommon extends JDialog implements ActionListener,
         if (arg0.getSource() == nextButton) {
             // Get the current card and action depends on that
 
-//            System.out.println("Next button pressed, currently at :"
-//                    + currentCard);
+            // System.out.println("Next button pressed, currently at :"
+            // + currentCard);
 
             // We're at SAR selection screen
             if (currentCard == SELECTSARTYPE) {
@@ -357,7 +390,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
                 inititateSarType();
 
-//                System.out.println("Setting panel to " + currentCard);
+                // System.out.println("Setting panel to " + currentCard);
 
                 // The type select determines which panel we show
                 cl.show(masterPanel, currentCard);
@@ -367,11 +400,12 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
             // We're at input screen
             if (currentCard == INPUTSARRAPIDRESPONSEDATUM
-                    || currentCard == INPUTPANELDATUMLINE) {
+                    || currentCard == INPUTPANELDATUMLINE
+                    || currentCard == SIMPLESAR) {
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
 
                 if (validateInputAndInititate()) {
-//                    System.out.println("Validated");
+                    // System.out.println("Validated");
                     calculationsText.setText(voctManager.getSarData()
                             .generateHTML());
                     backButton.setEnabled(true);
@@ -388,7 +422,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
             // We're at confirmation screen
             if (currentCard == CALCULATIONSPANEL) {
-//                System.out.println(currentCard);
+                // System.out.println(currentCard);
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
                 backButton.setEnabled(true);
                 nextButton.setText("Next");
@@ -417,6 +451,10 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     currentCard = SELECTSARTYPE;
                 }
 
+                if (type == SAR_TYPE.SIMPLE_SAR) {
+                    currentCard = SIMPLESAR;
+                }
+
                 if (sarReady) {
 
                     this.setVisible(false);
@@ -424,7 +462,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     // Set the dialog back to input screen for reentering
                     cl.show(masterPanel, currentCard);
 
-//                    System.out.println("Hiding");
+                    // System.out.println("Hiding");
 
                     // Display SAR command
                     voctManager.setLoadSarFromSerialize(false);
@@ -439,9 +477,11 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
         if (arg0.getSource() == backButton) {
 
-            // If we're at Rapid Response or Datum or Back back go back to init
+            // If we're at Rapid Response or Datum or Back back go back to
+            // init
             if (currentCard == INPUTSARRAPIDRESPONSEDATUM
-                    || currentCard == INPUTPANELDATUMLINE) {
+                    || currentCard == INPUTPANELDATUMLINE
+                    || currentCard == SIMPLESAR) {
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
                 cl.show(masterPanel, SELECTSARTYPE);
                 backButton.setEnabled(false);
@@ -472,10 +512,13 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     currentCard = SELECTSARTYPE;
                 }
 
+                if (type == SAR_TYPE.SIMPLE_SAR) {
+                    currentCard = SIMPLESAR;
+                }
+
                 cl.show(masterPanel, currentCard);
                 backButton.setEnabled(true);
                 nextButton.setText("Next");
-                // currentCard = INPUTSARRAPIDRESPONSEDATUM;
                 return;
             }
 
@@ -502,31 +545,39 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
     private void inititateSarType() {
         int selectedIndex = typeSelectionComboBox.getSelectedIndex();
-        // 0 Rapid Response
-        // 1 Datum Point
-        // 2 Datum Line
-        // 3 Back track
+        // 0 Simple SAR
+        // 1 Rapid Response
+        // 2 Datum Point
+        // 3 Datum Line
+        // 4 Back track
 
         switch (selectedIndex) {
         case 0:
+            voctManager.setSarType(SAR_TYPE.SIMPLE_SAR);
+            // rapidResponseDatumPointInputPanel
+            // .setSARType(SAR_TYPE.RAPID_RESPONSE);
+
+            currentCard = SIMPLESAR;
+            break;
+        case 1:
             voctManager.setSarType(SAR_TYPE.RAPID_RESPONSE);
             rapidResponseDatumPointInputPanel
                     .setSARType(SAR_TYPE.RAPID_RESPONSE);
             currentCard = INPUTSARRAPIDRESPONSEDATUM;
             break;
-        case 1:
+        case 2:
             voctManager.setSarType(SAR_TYPE.DATUM_POINT);
             rapidResponseDatumPointInputPanel.setSARType(SAR_TYPE.DATUM_POINT);
             currentCard = INPUTSARRAPIDRESPONSEDATUM;
             break;
-        case 2:
+        case 3:
             voctManager.setSarType(SAR_TYPE.DATUM_LINE);
             currentCard = INPUTPANELDATUMLINE;
             break;
-        case 3:
-            voctManager.setSarType(SAR_TYPE.BACKTRACK);
-            // currentCard = INPUTSARRAPIDRESPONSEDATUM;
-            break;
+        // case 3:
+        // voctManager.setSarType(SAR_TYPE.BACKTRACK);
+        // // currentCard = INPUTSARRAPIDRESPONSEDATUM;
+        // break;
         }
     }
 
@@ -544,14 +595,121 @@ public class SARInputCommon extends JDialog implements ActionListener,
             return false;
         case NONE:
             return false;
+        case SIMPLE_SAR:
+            return validateSimpleSar();
         default:
             return false;
         }
 
     }
 
+    private boolean validateSimpleSar() {
+
+        // Datum
+        if (simpleSarInputPanel.getDatumLat() == -9999) {
+            return false;
+        }
+
+        if (simpleSarInputPanel.getDatumLon() == -9999) {
+            return false;
+        }
+
+        Position datum = Position.create(simpleSarInputPanel.getDatumLat(),
+                simpleSarInputPanel.getDatumLon());
+
+        // A position
+        if (simpleSarInputPanel.getALat() == -9999) {
+            return false;
+        }
+
+        if (simpleSarInputPanel.getALon() == -9999) {
+            return false;
+        }
+
+        Position aPos = Position.create(simpleSarInputPanel.getALat(),
+                simpleSarInputPanel.getALon());
+
+        // B Position
+        if (simpleSarInputPanel.getBLat() == -9999) {
+            return false;
+        }
+
+        if (simpleSarInputPanel.getBLon() == -9999) {
+            return false;
+        }
+
+        Position bPos = Position.create(simpleSarInputPanel.getBLat(),
+                simpleSarInputPanel.getBLon());
+
+        // C Position
+        if (simpleSarInputPanel.getCLat() == -9999) {
+            return false;
+        }
+
+        if (simpleSarInputPanel.getCLon() == -9999) {
+            return false;
+        }
+
+        Position cPos = Position.create(simpleSarInputPanel.getCLat(),
+                simpleSarInputPanel.getCLon());
+
+        // D Position
+        if (simpleSarInputPanel.getDLat() == -9999) {
+            return false;
+        }
+
+        if (simpleSarInputPanel.getDLon() == -9999) {
+            return false;
+        }
+
+        Position dPos = Position.create(simpleSarInputPanel.getDLat(),
+                simpleSarInputPanel.getDLon());
+
+        if (!simpleSarInputPanel.checkTime()) {
+            return false;
+        }
+
+        double xError = simpleSarInputPanel.getInitialPositionError();
+
+        if (xError == -9999) {
+            // Error message is handled within function
+            return false;
+        }
+
+        double yError = simpleSarInputPanel.getNavError();
+
+        if (yError == -9999) {
+            // Error message is handled within function
+            return false;
+        }
+
+        double safetyFactor = simpleSarInputPanel.getSafetyFactor();
+
+        if (safetyFactor == -9999) {
+            // Error message is handled within function
+            return false;
+        }
+
+        int searchObject = simpleSarInputPanel.getSearchItemID();
+
+        // Only valid search objects is value 0 to 19
+        if (searchObject < 0 || searchObject > 20) {
+            // Error message is handled within function
+            // System.out.println("failed search object with id " +
+            // searchObject);
+            return false;
+        }
+
+        voctManager.inputSimpleSarData(simpleSarInputPanel.getSARID(),
+                simpleSarInputPanel.getLKPDate(),
+                simpleSarInputPanel.getCSSDate(), xError, yError, safetyFactor,
+                searchObject, aPos, bPos, cPos, dPos, datum);
+
+        return true;
+    }
+
     private boolean validateDatumLine() {
-//        System.out.println("Validating Datum Line");
+        // System.out.println("Validating Datum Line");
 
         double datumLineDSP1Lat = datumLineInputPanel.getLKPLat();
 
@@ -567,7 +725,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
             dsp1 = Position.create(datumLineDSP1Lat, datumLineDSP1Lon);
         } else {
             // msgbox
-//            System.out.println("Failed lat");
+            // System.out.println("Failed lat");
             return false;
         }
 
@@ -585,7 +743,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
             dsp2 = Position.create(datumLineDSP2Lat, datumLineDSP2Lon);
         } else {
             // msgbox
-//            System.out.println("Failed lat");
+            // System.out.println("Failed lat");
             return false;
         }
 
@@ -603,19 +761,23 @@ public class SARInputCommon extends JDialog implements ActionListener,
             dsp3 = Position.create(datumLineDSP3Lat, datumLineDSP3Lon);
         } else {
             // msgbox
-//            System.out.println("Failed lat");
+            // System.out.println("Failed lat");
             return false;
         }
 
-//        System.out.println("All validated correctly, we got positions");
+        // System.out.println("All validated correctly, we got positions");
 
-//        System.out.println("DSp1 Date is " + datumLineInputPanel.getLKPDate());
+        // System.out.println("DSp1 Date is " +
+        // datumLineInputPanel.getLKPDate());
 
-//        System.out.println("DSp2 Date is " + datumLineInputPanel.getDSP2Date());
+        // System.out.println("DSp2 Date is " +
+        // datumLineInputPanel.getDSP2Date());
 
-//        System.out.println("DSp3 Date is " + datumLineInputPanel.getDSP2Date());
+        // System.out.println("DSp3 Date is " +
+        // datumLineInputPanel.getDSP2Date());
 
-//        System.out.println("CSS Date is " + datumLineInputPanel.getCSSDate());
+        // System.out.println("CSS Date is " +
+        // datumLineInputPanel.getCSSDate());
 
         // Time and date will be automatically sorted
 
@@ -691,7 +853,8 @@ public class SARInputCommon extends JDialog implements ActionListener,
         // Only valid search objects is value 0 to 19
         if (searchObject < 0 || searchObject > 20) {
             // Error message is handled within function
-//            System.out.println("failed search object with id " + searchObject);
+            // System.out.println("failed search object with id " +
+            // searchObject);
             return false;
         }
 
@@ -727,7 +890,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
     private boolean validateRapidResponse() {
 
-//        System.out.println("Validating Rapid Response");
+        // System.out.println("Validating Rapid Response");
 
         // Get LKP values
         double rapidResponseLKPLat = rapidResponseDatumPointInputPanel
@@ -747,16 +910,16 @@ public class SARInputCommon extends JDialog implements ActionListener,
                     rapidResponseLKPLon);
         } else {
             // msgbox
-//            System.out.println("Failed lat");
+            // System.out.println("Failed lat");
             return false;
         }
 
-//        System.out.println("All validated correctly, we got positions");
+        // System.out.println("All validated correctly, we got positions");
 
-//        System.out.println("LKP Date is "
-//                + rapidResponseDatumPointInputPanel.getLKPDate());
-//        System.out.println("CSS Date is "
-//                + rapidResponseDatumPointInputPanel.getCSSDate());
+        // System.out.println("LKP Date is "
+        // + rapidResponseDatumPointInputPanel.getLKPDate());
+        // System.out.println("CSS Date is "
+        // + rapidResponseDatumPointInputPanel.getCSSDate());
 
         // Time and date will be automatically sorted
 
@@ -834,7 +997,8 @@ public class SARInputCommon extends JDialog implements ActionListener,
         // Only valid search objects is value 0 to 19
         if (searchObject < 0 || searchObject > 20) {
             // Error message is handled within function
-//            System.out.println("failed search object with id " + searchObject);
+            // System.out.println("failed search object with id " +
+            // searchObject);
             return false;
         }
 
@@ -887,8 +1051,8 @@ public class SARInputCommon extends JDialog implements ActionListener,
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
 
-//        System.out.println(e);
-//        System.out.println(currentCard);
+        // System.out.println(e);
+        // System.out.println(currentCard);
         if (e == VOCTUpdateEvent.SAR_READY) {
             sarReady = true;
         } else {
@@ -897,7 +1061,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
     }
 
-    class MyFilter extends javax.swing.filechooser.FileFilter {
+    class XmlFilter extends javax.swing.filechooser.FileFilter {
         public boolean accept(File file) {
             String filename = file.getName();
             return filename.endsWith(".xml");

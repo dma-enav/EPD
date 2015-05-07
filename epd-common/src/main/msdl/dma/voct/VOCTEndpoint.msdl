@@ -5,12 +5,13 @@ import "dma/route/route.msdl";
 
 /** The heading of each leg. */
 enum SAR_TYPE {
-    RAPID_RESPONSE = 1;
-    DATUM_POINT = 2;
+  RAPID_RESPONSE = 1;
+  DATUM_POINT = 2;
 	DATUM_LINE = 3;
 	BACKTRACK = 4;
 	SARIS_DATUM_POINT = 5;
 	NONE = 6;
+  SIMPLE_SAR = 7;
 }
 
 
@@ -21,7 +22,6 @@ message VOCTMessage {
 	
 	//The Message will only contain one type of SAR operation
 	
-	/** Content of a Rapid Response SAR */
 	3: RapidResponse rapidResponse;
 	4: DatumPoint datumPoint;
 	5: DatumLine datumLine;
@@ -36,7 +36,10 @@ message VOCTMessage {
 	
 	/** String name of sender */
 	10: text senderName;
-	
+  
+  11: SimpleSAR simpleSar;
+  
+	12: int64 oscId;
 };
 
 endpoint VOCTEndpoint {
