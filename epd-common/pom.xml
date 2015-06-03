@@ -13,7 +13,7 @@
 	<name>EPD common</name>
 
 	<properties>
-		<maritime.cloud.version>0.3-SNAPSHOT</maritime.cloud.version>
+		<maritime.cloud.version>0.4-SNAPSHOT</maritime.cloud.version>
 	</properties>
 
 	<dependencies>
